@@ -3,8 +3,8 @@
 // ==========================================================
 
 var mapWidth = 30, 
-	mapHeight = 20, 
-	movesPerTurn = 3,
+    mapHeight = 20, 
+    movesPerTurn = 3,
     minimumAIThinkingTime = 1000,
     maximumAIThinkingTime = 5000;
 
@@ -72,26 +72,26 @@ var AI_PERSONALITIES = [
 // ==========================================================
 
 var sin = Math.sin, 
-	cos = Math.cos,
+    cos = Math.cos,
     floor = Math.floor,
     ceil = Math.ceil,
-	
-	wnd = window, 
-	doc = document, 
+    
+    wnd = window, 
+    doc = document, 
 
-	div = elem.bind(0,'div');
+    div = elem.bind(0,'div');
 
 // Returns a random number between low (inclusive) and high (exclusive).
 function rint(low,high) {
-	return floor(low+Math.random()*(high-low));
+    return floor(low+Math.random()*(high-low));
 }
 
 // Returns an array of integers from low (inclusive) to high (exclusive).
 function range(low,high) {
-	var r = [];
-	for (var i = low; i < high; i++)
-		r.push(i);
-	return r;
+    var r = [];
+    for (var i = low; i < high; i++)
+        r.push(i);
+    return r;
 }
 
 // Identity function (useful as a default for callback accepting functions like min).
@@ -130,20 +130,20 @@ function template(text, replacement) {
 
 // Same as array.map, but can be called on non-arrays (and minifies better).
 function map(seq,fn) {
-	return [].slice.call(seq).map(fn);
+    return [].slice.call(seq).map(fn);
 }
 
 // Iterates over all properties of an object, and calls the callback with (value, propertyName).
 function forEachProperty(obj,fn) {
-	for (var property in obj)
-		fn(obj[property], property);
+    for (var property in obj)
+        fn(obj[property], property);
 }
 
 // Iterates over a rectangle (x1,y1)-(x2,y2), and calls fn with (x,y) of each integer point.
 function for2d(x1,y1,x2,y2,fn) {
-	map(range(x1,x2), function(x) {
-		map(range(y1,y2), fn.bind(0,x));
-	});
+    map(range(x1,x2), function(x) {
+        map(range(y1,y2), fn.bind(0,x));
+    });
 }
 
 // ==========================================================
@@ -158,18 +158,18 @@ function $(id) {
 // Return HTML (string) for a new element with the given tag name, attributes, and inner HTML.
 // Some attributes can be shorthanded (see map).
 function elem(tag,attrs,contents) {
-	var shorthanded = {
-		c: 'class',
-		s: 'style',
-		i: 'id'
-	};
-	var html = '<' + tag + ' ';
-	for (var attributeName in attrs) {
-		html += (shorthanded[attributeName] || attributeName) + "='" + attrs[attributeName] + "'";
-	}
-	html += '>' + (contents || '') + '</' + tag + '>';
+    var shorthanded = {
+        c: 'class',
+        s: 'style',
+        i: 'id'
+    };
+    var html = '<' + tag + ' ';
+    for (var attributeName in attrs) {
+        html += (shorthanded[attributeName] || attributeName) + "='" + attrs[attributeName] + "'";
+    }
+    html += '>' + (contents || '') + '</' + tag + '>';
 
-	return html;
+    return html;
 }
 
 // Appends new HTML to a container with the designated ID, and returns the resulting DOM node.
@@ -215,15 +215,15 @@ function toggleClass(element, className, on) {
 // Takes a sequence, and returns the smallest element according to a given key function.
 // If no key is given, the elements themselves are compared.
 function min(seq, keyFn) {
-	keyFn = keyFn || identity;
-	var smallestValue = keyFn(seq[0]), smallestElement;
-	map(seq, function(e) {
-		if (keyFn(e) <= smallestValue) {
-			smallestElement = e;
-			smallestValue = keyFn(e);
-		}
-	});
-	return smallestElement;
+    keyFn = keyFn || identity;
+    var smallestValue = keyFn(seq[0]), smallestElement;
+    map(seq, function(e) {
+        if (keyFn(e) <= smallestValue) {
+            smallestElement = e;
+            smallestValue = keyFn(e);
+        }
+    });
+    return smallestElement;
 }
 
 // Returns the biggest element of a sequence, see 'min'.
@@ -249,13 +249,13 @@ function contains(seq, elem) {
 // Takes an array, and returns another array containing the result of applying a function
 // on all possible pairs of elements.
 function pairwise(array, fn) {
-	var result = [];
-	map(array, function(elem1, index) {
-		map(array.slice(index+1), function(elem2) {
-			result.push(fn(elem1, elem2));
-		});
-	});
-	return result;
+    var result = [];
+    map(array, function(elem1, index) {
+        map(array.slice(index+1), function(elem2) {
+            result.push(fn(elem1, elem2));
+        });
+    });
+    return result;
 }
 
 // Shuffles a sequence (in place) and returns it.
@@ -311,72 +311,72 @@ function generateMap(playerCount) {
         }
     } while (!retries);
 
-	fillNeighbourLists();	
-	return regions;
+    fillNeighbourLists();    
+    return regions;
 
     // Shrink the region given by 'bounds' in a random direction
-	function shrink(bounds) {
-		var r = rint(0,4);
-		if (r % 2) bounds.w--; else bounds.h--;
-		if (r == 2) bounds.t++;
-		if (r == 3) bounds.l++;
-		return (bounds.w * bounds.h < 9);
-	}
+    function shrink(bounds) {
+        var r = rint(0,4);
+        if (r % 2) bounds.w--; else bounds.h--;
+        if (r == 2) bounds.t++;
+        if (r == 3) bounds.l++;
+        return (bounds.w * bounds.h < 9);
+    }
 
     // Checks if the region given by 'bounds' overlaps any existing region.
-	function overlaps(bounds) {
-		var rv = false;
-		for2d(bounds.l, bounds.t, bounds.l+bounds.w, bounds.t+bounds.h, function(x,y) {
-			rv = rv || regionMap[x][y];
-		});
-		return rv;
-	}
+    function overlaps(bounds) {
+        var rv = false;
+        for2d(bounds.l, bounds.t, bounds.l+bounds.w, bounds.t+bounds.h, function(x,y) {
+            rv = rv || regionMap[x][y];
+        });
+        return rv;
+    }
 
     // Puts a new rectangular region at the position given in bounds {Left, Top, Width, Height}.
-	function makeRegionAt(index, bounds) {
-		// make points for the region
-		var l=bounds.l,t=bounds.t,w=bounds.w,h=bounds.h;
-		var points = [];
-		map(range(0,w), function(i) {
-			points[i] = perturbedPoint(l+i,t);
-			points[w+h+i] = perturbedPoint(l+w-i,t+h);
-		});
-		map(range(0,h), function(i) {
-			points[w+i] = perturbedPoint(l+w,t+i);
-			points[w+h+w+i] = perturbedPoint(l,t+h-i);
-		});
-		var region = {i: index, p: points, d:[]};
-		
-		// mark it in the map
-		for2d(bounds.l, bounds.t, bounds.l + bounds.w, bounds.t + bounds.h, function(x,y){
-			regionMap[x][y] = region;
-		});
+    function makeRegionAt(index, bounds) {
+        // make points for the region
+        var l=bounds.l,t=bounds.t,w=bounds.w,h=bounds.h;
+        var points = [];
+        map(range(0,w), function(i) {
+            points[i] = perturbedPoint(l+i,t);
+            points[w+h+i] = perturbedPoint(l+w-i,t+h);
+        });
+        map(range(0,h), function(i) {
+            points[w+i] = perturbedPoint(l+w,t+i);
+            points[w+h+w+i] = perturbedPoint(l,t+h-i);
+        });
+        var region = {i: index, p: points, d:[]};
+        
+        // mark it in the map
+        for2d(bounds.l, bounds.t, bounds.l + bounds.w, bounds.t + bounds.h, function(x,y){
+            regionMap[x][y] = region;
+        });
 
-		// return
-		return region;
-	}
+        // return
+        return region;
+    }
 
     // Perturbs a point to give the region borders a natural feel.
-	function perturbedPoint(x,y) {
-		var angle = (sin(x*x*y*y*600+perturbConst*357)) * 6.28;
-		var dist = (sin(x*y*600+perturbConst*211)) / 2;
-		return [x+sin(angle)*dist, y+cos(angle)*dist];
-	}
+    function perturbedPoint(x,y) {
+        var angle = (sin(x*x*y*y*600+perturbConst*357)) * 6.28;
+        var dist = (sin(x*y*600+perturbConst*211)) / 2;
+        return [x+sin(angle)*dist, y+cos(angle)*dist];
+    }
 
     // Figures out who borders with who, using the 2d grid in 'regionMap'.
-	function fillNeighbourLists() {
-		for2d(1, 1, mapWidth-1, mapHeight-1, function(x,y) {
-			var region = regionMap[x][y];
-			if (region) {
-				if (!region.n) region.n = [];
-				map([[-1,0],[1,0],[0,-1],[0,1]],function(d) {
-					var potentialNeighbour = regionMap[x+d[0]][y+d[1]];
-					if (potentialNeighbour && (potentialNeighbour != region) && (region.n.indexOf(potentialNeighbour) == -1))
-						region.n.push(potentialNeighbour);
-				});
-			}
-		});
-	}
+    function fillNeighbourLists() {
+        for2d(1, 1, mapWidth-1, mapHeight-1, function(x,y) {
+            var region = regionMap[x][y];
+            if (region) {
+                if (!region.n) region.n = [];
+                map([[-1,0],[1,0],[0,-1],[0,1]],function(d) {
+                    var potentialNeighbour = regionMap[x+d[0]][y+d[1]];
+                    if (potentialNeighbour && (potentialNeighbour != region) && (region.n.indexOf(potentialNeighbour) == -1))
+                        region.n.push(potentialNeighbour);
+                });
+            }
+        });
+    }
 }
 
 // ==========================================================
@@ -386,46 +386,48 @@ function generateMap(playerCount) {
 
 // Returns the center of weight of a given set of [x,y] points.
 function centerOfWeight(points) {
-	var xc = 0.0, yc = 0.0, l = points.length;
-	map(points, function(p) {
-		xc += p[0]; yc += p[1];
-	});
-	return [xc/l, yc/l];
+    var xc = 0.0, yc = 0.0, l = points.length;
+    map(points, function(p) {
+        xc += p[0]; yc += p[1];
+    });
+    return [xc/l, yc/l];
 }
 
 // Affine transform of a sequence of points: [x*xm+xd,y*ym+yd]
 function transformPoints(points, xm, ym, xd, yd) {
-	var c = centerOfWeight(points);
-	return map(points, function(p) {
-		return [c[0] + (p[0]-c[0]) * xm + xd, c[1] + (p[1]-c[1]) * ym + yd];
-	});
+    var c = centerOfWeight(points);
+    return map(points, function(p) {
+        return [c[0] + (p[0]-c[0]) * xm + xd, c[1] + (p[1]-c[1]) * ym + yd];
+    });
 }
 
 // 3d projection for the map
+// The alpha value can be used to pseudo rotate the map
 function projectPoint(p) {
-	var x = p[0] / mapWidth, y = p[1] / mapHeight;
-	var alpha = x * .4 + .6;
-	y = y * alpha + 0.5 * (1-alpha);
-	return [x*100, y*100];
+    var x = p[0] / mapWidth;
+    var y = p[1] / mapHeight;
+    // var alpha = x * .2 + .6;
+    // y = y * alpha + 0.5 * (1 - alpha);
+    return [x * 97 + 3, y * 100];
 }
 
 // Generate a SVG gradient stop tag.
 function gradientStop(percent, color) {
-	return elem('stop', {
-		offset: percent + '%',
-		s: 'stop-color:' + color
-	});
+    return elem('stop', {
+        offset: percent + '%',
+        s: 'stop-color:' + color
+    });
 }
 
 // Generate a SVG gradient tag for the map.
 function makeGradient(id, light, dark) {
-	return elem('radialGradient', {
-		i: id,
-		cx: '-100%', cy: '50%',
-		fx: '-100%', fy: '50%',
-		r: '200%',
-		gradientUnits: 'userSpaceOnUse' // we want it to scale with the map, not the region it's applied to
-	}, gradientStop(60, dark) + gradientStop(100, light));
+    return elem('radialGradient', {
+        i: id,
+        cx: '-100%', cy: '50%',
+        fx: '-100%', fy: '50%',
+        r: '200%',
+        gradientUnits: 'userSpaceOnUse' // we want it to scale with the map, not the region it's applied to
+    }, gradientStop(60, dark) + gradientStop(100, light));
 }
 
 // Creates a new polygon with the given fill, stroke and clipping path.
@@ -442,7 +444,7 @@ function makePolygon(points, id, fill, stroke, clip) {
     if (clip)
         properties['clip-path'] = clip
 
-	return elem('polygon', properties);
+    return elem('polygon', properties);
 }
 
 // Takes the map (regions) stored in gameState.r, and creates an SVG map out of it.
@@ -452,7 +454,7 @@ function showMap(container, gameState) {
     // define gradients and clipping paths for rendering
     var defs = elem('defs', {},
             makeClipPaths() +
-            makeGradient('b', '#88f', '#113') +
+            makeGradient('b', '#8af', '#478') +
             makeGradient('l', '#fa6', '#530') +
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
@@ -566,16 +568,16 @@ var uiCallbacks = {};
 // Delegation through UI callbacks allows us to react differently
 // depending on game-state.
 function invokeUICallback(object, type, event) {
-	var cb = uiCallbacks[type];
-	if (cb) {
+    var cb = uiCallbacks[type];
+    if (cb) {
         playSound(audioClick);
-		cb(object);
-	}
+        cb(object);
+    }
     if (event.target.href && event.target.href != "#")
         return 1;
 
     event.stopPropagation();
-	return 0;
+    return 0;
 }
 
 // This is one of the "player controller" methods - the one that
@@ -584,14 +586,14 @@ function invokeUICallback(object, type, event) {
 // with an object describing the move once its decided.
 var uiState = {};
 function uiPickMove(player, state, reportMoveCallback) {
-	var cleanState = {
-		b: [
-			{t: 'Cancel move', h:1},
-			{t: 'End turn'}
-		]
-	};
+    var cleanState = {
+        b: [
+            {t: 'Cancel move', h:1},
+            {t: 'End turn'}
+        ]
+    };
 
-	uiCallbacks.c = function(region) {
+    uiCallbacks.c = function(region) {
         if ((!region) || (state.d.t == BUILD_ACTION))
             setCleanState();
 
@@ -622,8 +624,8 @@ function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
             }
         }
-		updateDisplay(state);
-	};
+        updateDisplay(state);
+    };
 
     uiCallbacks.t = function(region) {
         var temple = state.t[region.i];
@@ -646,7 +648,7 @@ function uiPickMove(player, state, reportMoveCallback) {
             uiCallbacks.c(soldierRegion);
     };
 
-	uiCallbacks.b = function(which) {
+    uiCallbacks.b = function(which) {
         if (state.d && state.d.t == BUILD_ACTION) {
             // build buttons handled here
             if (which >= UPGRADES.length) {
@@ -671,7 +673,7 @@ function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
             }
         }
-	};
+    };
 
     uiCallbacks.un = function() {
         // undo!
@@ -685,10 +687,10 @@ function uiPickMove(player, state, reportMoveCallback) {
     }
 
     function setCleanState() {
-		state.d = deepCopy(cleanState, 3);
+        state.d = deepCopy(cleanState, 3);
         state.d.h = state.r.filter(regionHasActiveArmy.bind(0, state, player));
-		updateDisplay(state);
-	}
+        updateDisplay(state);
+    }
 
     function makeUpgradeButtons(temple) {
         var templeOwner = owner(state, temple.r);
@@ -1144,17 +1146,17 @@ function makeInitialState(setup) {
         players.push(player);
     });
 
-	var regions = generateMap(players.length);
-	var gameState = {
-		p: players,
-		r: regions,
-		o: {}, t: {}, s: {}, c: {}, l: {},
-		m: {t: 1, p: 0, m: MOVE_ARMY, l: movesPerTurn}
-	};
-	
-	setupTemples();
+    var regions = generateMap(players.length);
+    var gameState = {
+        p: players,
+        r: regions,
+        o: {}, t: {}, s: {}, c: {}, l: {},
+        m: {t: 1, p: 0, m: MOVE_ARMY, l: movesPerTurn}
+    };
+    
+    setupTemples();
 
-	return gameState;
+    return gameState;
 
 
 
@@ -1190,51 +1192,51 @@ function makeInitialState(setup) {
         return answer;
     }
 
-	function distanceScore(regions) {
-		return min(pairwise(regions, distance));
-	}
+    function distanceScore(regions) {
+        return min(pairwise(regions, distance));
+    }
 
-	function randomRegion() {
-		return regions[rint(0, regions.length)];
-	}
+    function randomRegion() {
+        return regions[rint(0, regions.length)];
+    }
  
-	function setupTemples() {
-		// give the players some cash (or not)
-		map(players, function(player, index) {
-			gameState.c[index] = gameState.l[index] = 0;
-		});
+    function setupTemples() {
+        // give the players some cash (or not)
+        map(players, function(player, index) {
+            gameState.c[index] = gameState.l[index] = 0;
+        });
 
-		// pick three regions that are as far away as possible from each other
-		// for the players' initial temples
-		var possibleSetups = map(range(0,1000), function() {
-			return map(gameState.p, randomRegion);
-		});
-		var homes = max(possibleSetups, distanceScore);
+        // pick three regions that are as far away as possible from each other
+        // for the players' initial temples
+        var possibleSetups = map(range(0,1000), function() {
+            return map(gameState.p, randomRegion);
+        });
+        var homes = max(possibleSetups, distanceScore);
 
-		// we have the regions, set up each player
-		map(players, function(player, index) {
-			var region = homes[index];
-			// make one of the regions your own
-			gameState.o[region.i] = player;
-			// put a temple and 3 soldiers in it
-			putTemple(region, 3);
-		});
+        // we have the regions, set up each player
+        map(players, function(player, index) {
+            var region = homes[index];
+            // make one of the regions your own
+            gameState.o[region.i] = player;
+            // put a temple and 3 soldiers in it
+            putTemple(region, 3);
+        });
 
-		// setup neutral temples
+        // setup neutral temples
         var distancesToTemples = map(homes, function() { return 0; });
         var templeRegions = [];
         var templeCount = [3,3,4][players.length-2];
 
-		map(range(0,templeCount), function() {
-			var bestRegion = max(gameState.r, function(region) {
-				return templeScore(region);
-			});
+        map(range(0,templeCount), function() {
+            var bestRegion = max(gameState.r, function(region) {
+                return templeScore(region);
+            });
 
             putTemple(bestRegion, 3);
 
             templeRegions.push(bestRegion);
             distancesToTemples = updatedDistances(bestRegion);
-		});
+        });
 
         function updatedDistances(newTemple) {
             return map(homes, function(home, index) {
@@ -1254,13 +1256,13 @@ function makeInitialState(setup) {
 
             return templeDistances - inequality;
         }
-	}
+    }
 
-	function putTemple(region, soldierCount) {
-		var index = region.i;
-		gameState.t[index] = {r: region, i: index};
-		addSoldiers(gameState, region, soldierCount);
-	}
+    function putTemple(region, soldierCount) {
+        var index = region.i;
+        gameState.t[index] = {r: region, i: index};
+        addSoldiers(gameState, region, soldierCount);
+    }
 }
 
 // ==========================================================
@@ -1592,7 +1594,7 @@ function pickMove(player, state, reportMoveCallback) {
     if (!regionCount(state, player))
         return reportMoveCallback({t: END_TURN});
 
-	// delegate to whoever handles this player
+    // delegate to whoever handles this player
     player.u(player, state, reportMoveCallback);
 }
 
@@ -1605,39 +1607,39 @@ function pickMove(player, state, reportMoveCallback) {
  * @returns {GameState} the game state after this move
  */
 function makeMove(state, move) {
-	state = copyState(state);
-	
-	var moveType = move.t;
-	if (moveType == MOVE_ARMY) {
+    state = copyState(state);
+    
+    var moveType = move.t;
+    if (moveType == MOVE_ARMY) {
         moveSoldiers(state, move.s, move.d, move.c);
     } else if (moveType == BUILD_ACTION) {
         buildUpgrade(state, move.r, move.u);
-	} else if (moveType == END_TURN) {
-		nextTurn(state);
-	}
+    } else if (moveType == END_TURN) {
+        nextTurn(state);
+    }
 
     // updates that happen after each move (checking for players losing, etc.)
     afterMoveChecks(state);
 
-	return state;
+    return state;
 }
 
 function copyState(state, simulatingPlayer) {
-	return {
-		// some things are constant and can be shallowly copied
-		r: state.r, 
-		p: state.p,
+    return {
+        // some things are constant and can be shallowly copied
+        r: state.r, 
+        p: state.p,
         a: state.a || simulatingPlayer,
-		// some others... less so
-		m: deepCopy(state.m, 1),
-		o: deepCopy(state.o, 1),
-		t: deepCopy(state.t, 2),
-		s: deepCopy(state.s, 3),
-		c: deepCopy(state.c, 1),
+        // some others... less so
+        m: deepCopy(state.m, 1),
+        o: deepCopy(state.o, 1),
+        t: deepCopy(state.t, 2),
+        s: deepCopy(state.s, 3),
+        c: deepCopy(state.c, 1),
         l: deepCopy(state.l, 1),
         flt: state.flt
-		// and some others are completely omitted - namely 'd', the current 'move decision' partial state
-	};
+        // and some others are completely omitted - namely 'd', the current 'move decision' partial state
+    };
 }
 
 function playOneMove(state) {
@@ -1723,13 +1725,13 @@ function addSoldiers(state, region, count) {
 }
 
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
-	var fromList = state.s[fromRegion.i];
-	var toList = state.s[toRegion.i] || (state.s[toRegion.i] = []);
-	var fromOwner = owner(state, fromRegion);
-	var toOwner = owner(state, toRegion);
+    var fromList = state.s[fromRegion.i];
+    var toList = state.s[toRegion.i] || (state.s[toRegion.i] = []);
+    var fromOwner = owner(state, fromRegion);
+    var toOwner = owner(state, toRegion);
 
-	// do we have a fight?
-	if (fromOwner != toOwner) {
+    // do we have a fight?
+    if (fromOwner != toOwner) {
         var defendingSoldiers = toList.length;
 
         // earth upgrade - preemptive damage on defense
@@ -1758,15 +1760,15 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         }
 
         // if there is still defense and offense, let's have a fight
-		if (defendingSoldiers && incomingSoldiers) {
+        if (defendingSoldiers && incomingSoldiers) {
             // at this point, the outcome becomes random - so you can't undo your way out of it
             state.u = 1;
 
             var incomingStrength = incomingSoldiers * (1 + upgradeLevel(state, fromOwner, FIRE) * 0.01);
             var defendingStrength = defendingSoldiers * (1 + upgradeLevel(state, toOwner, EARTH) * 0.01);
 
-			var repeats = min([incomingSoldiers, defendingSoldiers]);
-			var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
+            var repeats = min([incomingSoldiers, defendingSoldiers]);
+            var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
 
             function randomNumberForFight(index) {
                 var maximum = 120 + attackerWinChance;
@@ -1785,7 +1787,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             }
 
             map(range(0,repeats), function(index) {
-				if (randomNumberForFight(index) <= 120)
+                if (randomNumberForFight(index) <= 120)
                 {
                     // defender wins!
                     if (invincibility-- <= 0) {
@@ -1802,7 +1804,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                         state.c[toOwner.i] += 4;
                     battleAnimationKeyframe(state, 250, audioEnemyDead);
                 }
-			});
+            });
 
             // are there defenders left?
             if (toList.length) {
@@ -1811,22 +1813,22 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 state.sc = audioDefeat;
                 state.flt = [{r: toRegion, c: toOwner ? toOwner.h : '#fff', t: "Defended!", w: 7}];
             }
-		}
+        }
 
         // reset "attacking status" on the soldiers - at this point they will
         // move back to the source region or occupy the destination
         map(fromList, function(soldier) {
             soldier.a = 0;
         });
-	}
+    }
 
-	if (incomingSoldiers > 0) {
-		// move the (remaining) soldiers
-		map(range(0, incomingSoldiers), function() {
-			toList.push(fromList.shift());
-		});
+    if (incomingSoldiers > 0) {
+        // move the (remaining) soldiers
+        map(range(0, incomingSoldiers), function() {
+            toList.push(fromList.shift());
+        });
 
-		// if this didn't belong to us, it now does
+        // if this didn't belong to us, it now does
         if (fromOwner != toOwner) {
             state.o[toRegion.i] = fromOwner;
             // mark as conquered to prevent moves from this region in the same turn
@@ -1842,7 +1844,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         }
     }
 
-	// use up the move
+    // use up the move
     state.m.l--;
 }
 
@@ -1893,24 +1895,24 @@ function buildUpgrade(state, region, upgrade) {
 }
 
 function nextTurn(state) {
-	var player = activePlayer(state);
-	
-	// cash is produced
+    var player = activePlayer(state);
+    
+    // cash is produced
     var playerIncome = income(state, player);
     state.c[player.i] += playerIncome;
     if (playerIncome) {
         state.flt = [{r: temples(state, player)[0].r, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}];
     }
 
-	// temples produce one soldier per turn automatically
-	forEachProperty(state.t, function(temple, regionIndex) {
-		if (state.o[regionIndex] == player) {
-			// this is our temple, add a soldier of the temple's element
-			addSoldiers(state, temple.r, 1);
-		}
-	});
+    // temples produce one soldier per turn automatically
+    forEachProperty(state.t, function(temple, regionIndex) {
+        if (state.o[regionIndex] == player) {
+            // this is our temple, add a soldier of the temple's element
+            addSoldiers(state, temple.r, 1);
+        }
+    });
 
-	// go to next player (skipping dead ones)
+    // go to next player (skipping dead ones)
     do {
         var playerCount = state.p.length;
         var playerIndex = (state.m.p + 1) % playerCount, upcomingPlayer = state.p[playerIndex],
@@ -1968,8 +1970,8 @@ function showEndGame(state) {
 // ==========================================================
 
 function soldierCount(state, region) {
-	var list = state.s[region.i];
-	return list ? list.length : 0;
+    var list = state.s[region.i];
+    return list ? list.length : 0;
 }
 
 function income(state, player) {
@@ -1994,12 +1996,12 @@ function regionHasActiveArmy(state, player, region) {
 }
 
 function regionCount(state, player) {
-	var total = 0;
-	map(state.r, function(region) {
-		if (owner(state, region) == player)
-			total++;
-	});
-	return total;
+    var total = 0;
+    map(state.r, function(region) {
+        if (owner(state, region) == player)
+            total++;
+    });
+    return total;
 }
 
 function temples(state, player) {

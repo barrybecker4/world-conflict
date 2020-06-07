@@ -2,135 +2,135 @@
 <head>
     <meta charset="UTF-8">
     <title>Compact Conflict</title>
-	<style type="text/css">
-		body {
-			background: #000;
-			height: 100%;
-			margin: 0;
-			font-family: sans-serif;
+    <style type="text/css">
+        body {
+            background: #000;
+            height: 100%;
+            margin: 0;
+            font-family: sans-serif;
             overflow: hidden;
             line-height: 1.14;
-		}
-		svg {
-			width: 100%;
-			height: 100%;
-		}
-		#c {
-			position: relative;
-			margin: auto;
-			perspective: 50em;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        #c {
+            position: relative;
+            margin: auto;
+            perspective: 50em;
             -webkit-perspective: 50em;
-		}
-		#o,#m,#u {
-			position: absolute;
-		}
-		#o {
-			left: 1%; right: 78.2%;
-			top: 13.5%; bottom: 13.5%;
-			color: white;
-			transform: rotateY(55deg);
-            -webkit-transform: rotateY(55deg);
+        }
+        #o,#m,#u {
+            position: absolute;
+        }
+        #o {
+            left: 1%; right: 78.2%;
+            top: 13.5%; bottom: 13.5%;
+            color: white;
+            transform: rotateY(0deg);
+            -webkit-transform: rotateY(0deg);
             transform-origin: left;
             -webkit-transform-origin: left;
-			border: 1px solid #333;
-			background: #111;
+            border: 1px solid #333;
+            background: #111;
             font-size: 110%;
-		}
-		#m {
-			right: 0; left: 20%; top: 0; bottom: 0;
-		}
+        }
+        #m {
+            right: 0; left: 20%; top: 0; bottom: 0;
+        }
 
-		/* Board elements */
-		.o,.i,.s {
-		  border: 1px solid black;
-		  box-shadow: 2px 2px #000, inset -3px -3px 0 0 rgba(0,0,0,0.2);
-		  position: absolute;
-		}
-		.o {
-		  width: 3%;
-		  height: 4%;
-		  transform: rotate(10deg);
-          -webkit-transform: rotate(10deg);
-		}
-		.i {
-		  width: 90%;
-		  height: 90%;
-		  left: -8%;
-		  top: -8%;
+        /* Board elements */
+        .o,.i,.s {
+          border: 1px solid black;
+          box-shadow: 2px 2px #000, inset -3px -3px 0 0 rgba(0,0,0,0.2);
+          position: absolute;
+        }
+        .o {
+          width: 3%;
+          height: 4%;
+          transform: rotate(90deg);
+          -webkit-transform: rotate(90deg);
+        }
+        .i {
+          width: 90%;
+          height: 90%;
+          left: -8%;
+          top: -8%;
           border-radius: 50%;
-		  text-align: center;
+          text-align: center;
           box-shadow: 1px 1px #000, inset -3px -3px 0 0 rgba(0,0,0,0.2);
-		}
-		.s {
-		  width: 0.9%;
-		  height: 1.2%;
-		  border-radius: 50%;
+        }
+        .s {
+          width: 0.9%;
+          height: 1.2%;
+          border-radius: 50%;
           background: #777;
-		}
-		.l {
-			border-color: #fff;
-		}
+        }
+        .l {
+            border-color: #fff;
+        }
 
-		/* Information display styles */
-		.sc { 
-			margin: 0.12em 0.12em;
-			padding: 0.6em 1em;
-			background: #222; 
-			box-shadow: inset 4px 4px 20px #344;
-			font-size: 90%;
-			text-shadow: 0.12em 0.1em #000;
-		}
-		.un {
-			padding: 0.33em 0;
-		}
+        /* Information display styles */
+        .sc { 
+            margin: 0.12em 0.12em;
+            padding: 0.6em 1em;
+            background: #222; 
+            box-shadow: inset 4px 4px 20px #344;
+            font-size: 90%;
+            text-shadow: 0.12em 0.1em #000;
+        }
+        .un {
+            padding: 0.33em 0;
+        }
         .ds {
             font-size: 80%; color: #aaa;
         }
 
         /* Player boxes */
         /* the boxes themselves - .pl is active, .pi inactive */
-		.pl {
-			border: 2px solid rgba(0,0,0,0.5);
+        .pl {
+            border: 2px solid rgba(0,0,0,0.5);
             margin: 0 0.33em;
             padding: 0.5em 0.25em 0.5em 0.5em;
             font-size: 80%;
-		}
-		/* additional information displayed inside the box */
-		.ad {
-			float: right; width: 21%; text-align: right; margin: -0.2em 0.2em 0 0; font-size: 120%;
-		}
+        }
+        /* additional information displayed inside the box */
+        .ad {
+            float: right; width: 21%; text-align: right; margin: -0.2em 0.2em 0 0; font-size: 120%;
+        }
 
-		/* Buttons */
-		#u {
-			bottom: 0.8em; left: 0.8em; right: 0.8em;
+        /* Buttons */
+        #u {
+            bottom: 0.8em; left: 0.8em; right: 0.8em;
             perspective: 15em;
-		}
-		a {
-			display: block;
+        }
+        a {
+            display: block;
             position: relative;
-			text-align: center;
-			text-decoration: none;
-			margin-top: 0.15em;
-			color: #dde;
-			border: 2px solid #333;
-			background: #000;
-			padding: 0.5em;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 0.15em;
+            color: #dde;
+            border: 2px solid #333;
+            background: #000;
+            padding: 0.5em;
             font-size: 80%;
             transform: translate3d(0,0,0);
             z-index: 10;
-		}
+        }
         h1 a {
             display: inline;
             color: #aaf;
             background: none;
             border: none;
         }
-		a:hover {
-			background: #444;
-			color: #fff;
+        a:hover {
+            background: #444;
+            color: #fff;
             transform: translate3d(0,0,1em);
             z-index: 20;
-		}
+        }
         a.off, a.off:hover {
             opacity: 0.3;
             background: #000;
@@ -354,7 +354,7 @@
 </head>
 <body>
 <div id='c'>
-	<div id='o' style='display: none'>
+    <div id='o' style='display: none'>
         <div id='d'></div>
 
         <div id='mv' class="sc">
@@ -370,7 +370,7 @@
         </div>
 
         <div id='u'></div></div>
-	<div id='m'></div>
+    <div id='m'></div>
 
     <div id='ts' class='h'>
         <h1>Compact Conflict
