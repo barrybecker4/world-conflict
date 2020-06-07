@@ -323,8 +323,8 @@ h1 {
     font-family: "Constantia", "Athelas", serif;
     font-size: 3.75em;
     margin: 0.7em 0 1em;
-    transform: scale3d(1.5,1.5,1) rotateX(60deg);
-    -webkit-transform: scale3d(1.5,1.5,1) rotateX(60deg);
+    transform: scale3d(1.5,1.5,1) rotateX(20deg);
+    -webkit-transform: scale3d(1.5,1.5,1) rotateX(20deg);
     text-shadow: 0 0.04em #777;
 }
 h1, h2 {
