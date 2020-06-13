@@ -1,13 +1,11 @@
 import utils from './utils.js';
 import gameData from './gameData.js';
 
-// procedural map generation prior to gameplay.
-
-// Generates a new map for a given number of players.
+// Generates a new procedural map for a given number of players.
 export default function generateMap(playerCount) {
     var maxRegionSize = 11 - playerCount;
     var neededRegions = 13 + playerCount * 3;
-    var perturbConst = utils.rint(10000,100000);
+    var perturbConst = utils.rint(10000, 100000);
 
     var regionMap, regions, count, retries;
 
@@ -45,7 +43,7 @@ export default function generateMap(playerCount) {
 
     // Shrink the region given by 'bounds' in a random direction
     function shrink(bounds) {
-        var r = utils.rint(0,4);
+        var r = utils.rint(0, 4);
         if (r % 2) bounds.w--; else bounds.h--;
         if (r == 2) bounds.t++;
         if (r == 3) bounds.l++;

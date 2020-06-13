@@ -1,11 +1,12 @@
-import audio from './audio.js';
-import utils from './utils.js';
-import sequenceUtils from './sequenceUtils.js';
-import gameData from './gameData.js';
-import gameInitialization from './gameInitialization.js';
-import stateManager from './stateManager.js';
-import undoManager from './undoManager.js';
-import gameController from './gameController.js';
+import audio from '../audio.js';
+import utils from '../utils.js';
+import sequenceUtils from '../sequenceUtils.js';
+import gameData from '../gameData.js';
+import gameInitialization from '../gameInitialization.js';
+import stateManager from '../stateManager.js';
+import undoManager from '../undoManager.js';
+import gameController from '../gameController.js';
+import makeGradient from './makeGradient.js';
 const {
     elem, div, map, $, range, rint, sum, append, lerp,
     onClickOrTap, forEachProperty, toggleClass, setTransform,
@@ -22,50 +23,15 @@ export default {
 
 // Creates the rendering of the game map as an SVG object.
 
-// Returns the center of weight of a given set of [x,y] points.
-function centerOfWeight(points) {
-    var xc = 0.0, yc = 0.0, l = points.length;
-    map(points, function(p) {
-        xc += p[0]; yc += p[1];
-    });
-    return [xc/l, yc/l];
-}
-
-// Affine transform of a sequence of points: [x*xm+xd,y*ym+yd]
-function transformPoints(points, xm, ym, xd, yd) {
-    var c = centerOfWeight(points);
-    return map(points, function(p) {
-        return [c[0] + (p[0]-c[0]) * xm + xd, c[1] + (p[1]-c[1]) * ym + yd];
-    });
-}
-
-// 3d projection for the map
-// The alpha value can be used to pseudo rotate the map
+// Optional 3d projection for the map.
+// The alpha value can be used to pseudo rotate the map.
+// The transformation leaves space on the left for the sidepanel.
 function projectPoint(p) {
     var x = p[0] / gameData.mapWidth;
     var y = p[1] / gameData.mapHeight;
     // var alpha = x * .2 + .6;
     // y = y * alpha + 0.5 * (1 - alpha);
     return [x * 97 + 3, y * 100];
-}
-
-// Generate a SVG gradient stop tag.
-function gradientStop(percent, color) {
-    return elem('stop', {
-        offset: percent + '%',
-        s: 'stop-color:' + color
-    });
-}
-
-// Generate a SVG gradient tag for the map.
-function makeGradient(id, light, dark) {
-    return elem('radialGradient', {
-        i: id,
-        cx: '-100%', cy: '50%',
-        fx: '-100%', fy: '50%',
-        r: '200%',
-        gradientUnits: 'userSpaceOnUse' // we want it to scale with the map, not the region it's applied to
-    }, gradientStop(60, dark) + gradientStop(100, light));
 }
 
 // Creates a new polygon with the given fill, stroke and clipping path.
@@ -559,4 +525,24 @@ function preserveAspect() {
         styles.height = h + px;
         styles.fontSize = 0.025 * h + px;
     }, 0);
+}
+
+// Returns the center of weight of a given set of [x, y] points.
+function centerOfWeight(points) {
+    let xc = 0.0;
+    let yc = 0.0;
+    let len = points.length;
+    map(points, function(p) {
+        xc += p[0];
+        yc += p[1];
+    });
+    return [xc / len, yc / len];
+}
+
+// Affine transform of a sequence of points: [x*xm+xd,y*ym+yd]
+function transformPoints(points, xm, ym, xd, yd) {
+    var c = centerOfWeight(points);
+    return map(points, function(p) {
+        return [c[0] + (p[0]-c[0]) * xm + xd, c[1] + (p[1]-c[1]) * ym + yd];
+    });
 }

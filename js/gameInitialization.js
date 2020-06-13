@@ -3,7 +3,7 @@ import sequenceUtils from './sequenceUtils.js';
 import gameData from './gameData.js';
 import stateManager from './stateManager.js';
 import gameController from './gameController.js';
-import gameRenderer from './gameRenderer.js';
+import gameRenderer from './rendering/gameRenderer.js';
 const $ = utils.$
 
 // the game setup screen config

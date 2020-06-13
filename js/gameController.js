@@ -4,7 +4,7 @@ import sequenceUtils from './sequenceUtils.js';
 import gameData from './gameData.js';
 import stateManager from './stateManager.js';
 import undoManager from './undoManager.js';
-import gameRenderer from './gameRenderer.js';
+import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from './aiPlay.js';
 const $ = utils.$

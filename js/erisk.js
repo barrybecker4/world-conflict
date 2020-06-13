@@ -1,5 +1,5 @@
 import audio from './audio.js';
-import gameRenderer from './gameRenderer.js';
+import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import titleScreen from './titleScreen.js';
 
