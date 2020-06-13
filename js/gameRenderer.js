@@ -7,7 +7,7 @@ import stateManager from './stateManager.js';
 import undoManager from './undoManager.js';
 import gameController from './gameController.js';
 const {
-    elem, div, map, $, range, rint, sum, append,
+    elem, div, map, $, range, rint, sum, append, lerp,
     onClickOrTap, forEachProperty, toggleClass, setTransform,
 } = utils;
 
@@ -230,7 +230,7 @@ function updateMapDisplay(gameState) {
                 point = projectPoint(point);
                 var center = region.c;
                 var alpha = rint(30,100)/100;
-                var startPoint = [audio.lerp(alpha, center[0], point[0]), audio.lerp(alpha, center[1], point[1])];
+                var startPoint = [lerp(alpha, center[0], point[0]), lerp(alpha, center[1], point[1])];
                 var vx = (startPoint[0] - center[0]) / 2, vy = (startPoint[1] - center[1]) / 2 - 0.15;
                 spawnParticle(startPoint[0], startPoint[1], vx, vy, '#fff');
             });
@@ -491,14 +491,16 @@ function updateButtons(buttons) {
 var displayedState;
 function updateDisplay(gameState) {
     // just for debugging
-    displayedState = gameState;
+    if (gameState) {
+        displayedState = gameState;
+    }
 
-    updateMapDisplay(gameState);
-    updateIngameUI(gameState);
+    updateMapDisplay(displayedState);
+    updateIngameUI(displayedState);
 
-    if (gameState.sc) {
-        audio.playSound(gameState.sc);
-        gameState.sc = null;
+    if (displayedState.sc) {
+        audio.playSound(displayedState.sc);
+        displayedState.sc = null;
     }
 }
 
@@ -506,7 +508,7 @@ function showBanner(background, text, delay) {
     delay = delay || 1;
     gameController.oneAtATime(delay, function() {
         // create a new banner div
-        var banner = append('c', div({c: 'button'}, text)),
+        var banner = append('container', div({c: 'button'}, text)),
             styles = banner.style;
 
         styles.background = background;
@@ -542,16 +544,19 @@ function floatAway(elem, vx, vy) {
 
 function preserveAspect() {
     setTimeout(function() {
-        var w = window.innerWidth, h = window.innerHeight, aspect = 1.65, px = 'px';
+        let w = window.innerWidth;
+        let h = window.innerHeight;
+        let aspect = 1.65, px = 'px';
+
         if (w / h > aspect) {
             w = h * aspect;
         } else {
             h = w / aspect;
         }
 
-        var styles = $('c').style;
+        var styles = $('container').style;
         styles.width = w + px;
         styles.height = h + px;
         styles.fontSize = 0.025 * h + px;
-    }, 1);
+    }, 0);
 }

@@ -5,19 +5,13 @@ import gameInitialization from './gameInitialization.js';
 var audioCtx = window.AudioContext && (new AudioContext());
 var sounds = {};
 
+// TODO: split out sounds
 export default {
-    lerp,
-    adsr,
     setupAudio,
     playSound,
     toggleSound,
     sounds,
 };
-
-function lerp(alpha, from, to) {
-    alpha = utils.clamp(alpha, 0, 1);
-    return to * alpha + from * (1 - alpha);
-}
 
 function adsr(a, d, s, r, sl, fn) {
     var t = 0.0;
@@ -26,12 +20,12 @@ function adsr(a, d, s, r, sl, fn) {
         t += dt;
 
         if (t < a)
-            return lerp(t / a, 0, 1) * f;
+            return utils.lerp(t / a, 0, 1) * f;
         if (t < a+d)
-            return lerp((t-a) / d, 1, sl) * f;
+            return utils.lerp((t-a) / d, 1, sl) * f;
         if (t < a+d+s)
             return sl * f;
-        return lerp((t-a-s-d) / r, sl, 0) * f;
+        return utils.lerp((t-a-s-d) / r, sl, 0) * f;
     }
 }
 
@@ -47,7 +41,7 @@ function wSlide(from, to, time, fn) {
     var t = 0.0;
     return function(dt) {
         t += dt;
-        var passedDT = dt * lerp(t / time, from, to);
+        var passedDT = dt * utils.lerp(t / time, from, to);
         return fn(passedDT);
     }
 }

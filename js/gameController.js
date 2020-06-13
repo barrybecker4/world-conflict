@@ -215,7 +215,6 @@ function uiPickMove(player, state, reportMoveCallback) {
     };
 
     uiCallbacks.un = function() {
-        // undo!
         undoManager.performUndo(state);
     };
 

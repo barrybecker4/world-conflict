@@ -12,18 +12,18 @@ export default {
 };
 
 function setupTitleScreen() {
-    utils.map(['o','tub','sound'], function(id) { utils.showOrHide(id,1); });
+    utils.map(['o','tub','sound'], function(id) { utils.showOrHide(id, 1); });
 
-    utils.onClickOrTap($('cb'), setTitleScreenVisibility.bind(0,false));
-    utils.onClickOrTap($('nxt'), switchTutorialCard.bind(0,1));
-    utils.onClickOrTap($('prv'), switchTutorialCard.bind(0,-1));
+    utils.onClickOrTap($('cb'), setTitleScreenVisibility.bind(0, false));
+    utils.onClickOrTap($('nxt'), switchTutorialCard.bind(0, 1));
+    utils.onClickOrTap($('prv'), switchTutorialCard.bind(0, -1));
 
-    utils.onClickOrTap($('tub'), setTitleScreenVisibility.bind(0,true));
+    utils.onClickOrTap($('tub'), setTitleScreenVisibility.bind(0, true));
     utils.onClickOrTap($('sound'), audio.toggleSound);
     utils.onClickOrTap($('und'), gameController.invokeUICallback.bind(0, 0, 'un'));
-    utils.onClickOrTap($('end'), function() {
-        uiCallbacks = {};
-        gameRenderer.updateDisplay(displayedState);
+    utils.onClickOrTap($('restart'), function() {
+        gameController.uiCallbacks = {};
+        gameRenderer.updateDisplay();
         gameInitialization.runSetupScreen();
     });
 

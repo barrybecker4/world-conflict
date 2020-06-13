@@ -1,9 +1,7 @@
 import utils from './utils.js';
 
 export default {
-    min, max,
-    sum, contains,
-    pairwise, shuffle,
+    min, max, sum, contains, pairwise, shuffle,
 };
 
 // Takes a sequence, and returns the smallest element according to a given key function.

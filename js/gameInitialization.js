@@ -69,7 +69,7 @@ function prepareSetupUI() {
     $('d').innerHTML = html;
 
     // hide stat box and undo button
-    utils.map(['mv', 'und', 'end'], utils.hide);
+    utils.map(['mv', 'und', 'restart'], utils.hide);
 
     // setup callbacks for players
     utils.for2d(0, 0, gameData.PLAYER_TEMPLATES.length, 3, function(playerIndex, buttonIndex) {
@@ -85,7 +85,7 @@ function prepareSetupUI() {
             var id = buttonIdPrefix + (buttonLabels.length-1-index);
             return utils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
         }).join("");
-        var properties = {c: 'sc ds', s: 'padding-right: 0.5em'};
+        var properties = {i: buttonIdPrefix, c: 'sc ds', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
         utils.forEachProperty(additionalProperties, function(value, name) {
             properties[name] = value;
         });
@@ -161,7 +161,7 @@ function runSetupScreen() {
         $('d').innerHTML = html;
 
         // show stat box and undo button
-        utils.map(['mv', 'und', 'end'], utils.show);
+        utils.map(['mv', 'und', 'restart'], utils.show);
     }
 
     function setupValid() {

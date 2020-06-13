@@ -145,7 +145,7 @@ function performMinMax(forPlayer, fromState, depth, moveCallback) {
     };
     var currentNode = initialNode;
     var unitOfWork = 100;
-    var timeStart = utils.now();
+    var timeStart = Date.now();
 
     setTimeout(doSomeWork, 1);
 
@@ -156,7 +156,7 @@ function performMinMax(forPlayer, fromState, depth, moveCallback) {
             currentNode = minMaxDoSomeWork(currentNode);
 
             // cap thinking time
-            var elapsedTime = utils.now() - timeStart;
+            var elapsedTime = Date.now() - timeStart;
             if (elapsedTime > gameData.maximumAIThinkingTime) {
                 currentNode = null;
             }

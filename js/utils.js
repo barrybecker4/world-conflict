@@ -1,21 +1,20 @@
 export default {
-    div: elem.bind(0,'div'),
+    div: elem.bind(0, 'div'),
     rint, range, identity,
-    deepCopy, clamp, now, template,
+    deepCopy, clamp, lerp, template,
     map, forEachProperty, for2d, $,
     elem, append, setTransform,
     onClickOrTap,
     show, hide, toggleClass, showOrHide,
 };
 
-
 // Returns a random number between low (inclusive) and high (exclusive).
-function rint(low,high) {
-    return Math.floor(low + Math.random() * (high-low));
+function rint(low, high) {
+    return Math.floor(low + Math.random() * (high - low));
 }
 
 // Returns an array of integers from low (inclusive) to high (exclusive).
-function range(low,high) {
+function range(low, high) {
     var r = [];
     for (var i = low; i < high; i++)
         r.push(i);
@@ -42,9 +41,9 @@ function clamp(number, low, high) {
     return (number < low) ? low : ((number > high) ? high : number);
 }
 
-// Returns the current timestamp.
-function now() {
-    return Date.now();
+function lerp(alpha, from, to) {
+    alpha = clamp(alpha, 0, 1);
+    return to * alpha + from * (1 - alpha);
 }
 
 // Treats a given text as a template, replacing 'X' with the second parameter.
@@ -80,7 +79,7 @@ function $(id) {
 
 // Return HTML (string) for a new element with the given tag name, attributes, and inner HTML.
 // Some attributes can be shorthanded (see map).
-function elem(tag,attrs,contents) {
+function elem(tag, attrs, contents) {
     var shorthanded = {
         c: 'class',
         s: 'style',
@@ -88,7 +87,7 @@ function elem(tag,attrs,contents) {
     };
     var html = '<' + tag + ' ';
     for (var attributeName in attrs) {
-        html += (shorthanded[attributeName] || attributeName) + "='" + attrs[attributeName] + "'";
+        html += (shorthanded[attributeName] || attributeName) + "='" + attrs[attributeName] + "' ";
     }
     html += '>' + (contents || '') + '</' + tag + '>';
 
