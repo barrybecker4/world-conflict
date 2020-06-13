@@ -13,7 +13,7 @@ export default {
 function setupTitleScreen() {
     utils.map(['o','tutorial-button','sound'], function(id) { utils.showOrHide(id, 1); });
 
-    utils.onClickOrTap($('cb'), setTitleScreenVisibility.bind(0, false));
+    utils.onClickOrTap($('cancel-button'), setTitleScreenVisibility.bind(0, false));
     utils.onClickOrTap($('next'), switchTutorialCard.bind(0, 1));
     utils.onClickOrTap($('prev'), switchTutorialCard.bind(0, -1));
 
