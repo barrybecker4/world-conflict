@@ -1,11 +1,32 @@
-// ==========================================================
-// This part of the code does audio.
-// ==========================================================
+import utils from './utils.js';
+import audio from './audio.js';
+import gameInitialization from './gameInitialization.js';
+
+var audioCtx = window.AudioContext && (new AudioContext());
+
+export default {
+    lerp,
+    adsr,
+    setupAudio,
+    playSound,
+    toggleSound,
+
+    // named sounds
+    audioClick, audioEnemyDead, audioOursDead, audioVictory, audioDefeat, audioTakeOver,
+};
+
+var audioClick;
+var audioEnemyDead;
+var audioOursDead;
+var audioVictory;
+var audioDefeat;
+var audioTakeOver;
 
 function lerp(alpha, from, to) {
-    alpha = clamp(alpha, 0, 1);
+    alpha = utils.clamp(alpha, 0, 1);
     return to * alpha + from * (1 - alpha);
 }
+
 function adsr(a, d, s, r, sl, fn) {
     var t = 0.0;
     return function(dt) {
@@ -48,14 +69,14 @@ function wRamp(from, to, after, fn) {
 }
 
 function wNotes(notes) {
-    map(notes, function(note) {
+    utils.map(notes, function(note) {
         note.f = adsr(0.01, 0.03, 0.03 * note.d, 0.03 * note.d, 0.7, wSin(note.p));
     });
     var t = 0.0;
     return function(dt) {
         t += dt;
         var v = 0.0;
-        map(notes, function(note) {
+        utils.map(notes, function(note) {
             if (t >= note.t)
                 v += note.f(dt);
         });
@@ -79,10 +100,9 @@ function makeBuffer(fn, len, vol) {
     return buffer;
 }
 
-var audioCtx = window.AudioContext && (new AudioContext());
-var audioClick, audioEnemyDead, audioOursDead, audioVictory, audioDefeat, audioTakeOver;
 function setupAudio() {
     // do we have WebAudio?
+    console.log("has webAudio = " + audioCtx);
     if (!audioCtx)
         return;
 
@@ -112,7 +132,9 @@ function setupAudio() {
 }
 
 function playSound(sound) {
-    if (!(sound && gameSetup.s))
+    let soundEnabled = sound && gameInitialization.gameSetup.sound;
+    console.log("soundEnabled = " + soundEnabled + " sound = " + sound + " gameSet.s = " + gameInitialization.gameSetup.sound);
+    if (!soundEnabled)
         return;
 
     var source = audioCtx.createBufferSource();
@@ -122,11 +144,11 @@ function playSound(sound) {
 }
 
 function updateSoundControls() {
-    $('snd').innerHTML = gameSetup.s ? '♪' : ' ';
-    storeSetupInLocalStorage(gameSetup);
+    utils.$('sound').innerHTML = gameInitialization.gameSetup.sound ? '♪' : ' ';
+    gameInitialization.storeSetupInLocalStorage(gameInitialization.gameSetup);
 }
 
 function toggleSound() {
-    gameSetup.s = !gameSetup.s;
+    gameInitialization.gameSetup.sound = !gameInitialization.gameSetup.sound;
     updateSoundControls();
 }

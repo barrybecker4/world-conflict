@@ -1,39 +1,61 @@
+import utils from './utils.js';
+import sequenceUtils from './sequenceUtils.js';
+import gameData from './gameData.js';
+import stateManager from './stateManager.js';
+import gameController from './gameController.js';
+import aiPlay from './aiPlay.js';
+import mapGenerator from './mapGenerator.js';
+import gameInitialization from './gameInitialization.js';
+const { map, deepCopy, rint, range, ceil, sum, forEachProperty, template } = utils;
 
+export default {
+    makeInitialState,
+    soldierCount,
+    income,
+    regionHasActiveArmy,
+    regionCount,
+    temples,
+    activePlayer,
+    owner,
+    cash,
+    rawUpgradeLevel,
+    upgradeLevel,
+    totalSoldiers,
+    soldierCost,
+    templeInfo,
+    addSoldiers,
+    copyState,
+};
 
-
-// ==========================================================
-// Preparing the initial game state happens here
-// ==========================================================
-
+// initial game state happens here
 function makeInitialState(setup) {
     var players = [];
-    map(setup.p, function(playerController, playerIndex) {
-        if (playerController == PLAYER_OFF) return;
-        var player = deepCopy(PLAYER_TEMPLATES[playerIndex], 1);
+        map(setup.p, function(playerController, playerIndex) {
+        if (playerController == gameData.PLAYER_OFF) return;
+        var player =     deepCopy(gameData.PLAYER_TEMPLATES[playerIndex], 1);
 
         // set up as AI/human
-        player.u = (playerController == PLAYER_HUMAN) ? uiPickMove : aiPickMove;
+        player.u = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
         // pick a random personality if we're AI
-        if (playerController == PLAYER_AI) {
-            player.p = deepCopy(AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)], 2);
+        if (playerController == gameData.PLAYER_AI) {
+            player.p =     deepCopy(gameData.AI_PERSONALITIES[    rint(0, gameData.AI_PERSONALITIES.length)], 2);
         }
 
         player.i = players.length;
         players.push(player);
     });
 
-    var regions = generateMap(players.length);
+    var regions = mapGenerator.generateMap(players.length);
     var gameState = {
         p: players,
         r: regions,
         o: {}, t: {}, s: {}, c: {}, l: {},
-        m: {t: 1, p: 0, m: MOVE_ARMY, l: movesPerTurn}
+        m: {t: 1, p: 0, m: gameData.MOVE_ARMY, l: gameData.movesPerTurn}
     };
 
     setupTemples();
 
     return gameState;
-
 
 
     function distance(regionA, regionB) {
@@ -52,11 +74,11 @@ function makeInitialState(setup) {
                 // use memoized values to establish an upper bound (we still might do better,
                 // but we can't do worse)
                 if (region.d[regionB.i])
-                    bound = min([bound, region.d[regionB.i] + distanceFromA]);
+                    bound = sequenceUtils.min([bound, region.d[regionB.i] + distanceFromA]);
 
                 // look in all unvisited neighbours
-                map(region.n, function (neighbour) {
-                    if (!contains(visited, neighbour))
+                    map(region.n, function (neighbour) {
+                    if (!sequenceUtils.contains(visited, neighbour))
                         queue.push({r: neighbour, d: distanceFromA + 1});
                 });
                 visited.push(region);
@@ -69,7 +91,7 @@ function makeInitialState(setup) {
     }
 
     function distanceScore(regions) {
-        return min(pairwise(regions, distance));
+        return sequenceUtils.min(sequenceUtils.pairwise(regions, distance));
     }
 
     function randomRegion() {
@@ -78,7 +100,7 @@ function makeInitialState(setup) {
 
     function setupTemples() {
         // give the players some cash (or not)
-        map(players, function(player, index) {
+            map(players, function(player, index) {
             gameState.c[index] = gameState.l[index] = 0;
         });
 
@@ -87,7 +109,7 @@ function makeInitialState(setup) {
         var possibleSetups = map(range(0,1000), function() {
             return map(gameState.p, randomRegion);
         });
-        var homes = max(possibleSetups, distanceScore);
+        var homes = sequenceUtils.max(possibleSetups, distanceScore);
 
         // we have the regions, set up each player
         map(players, function(player, index) {
@@ -104,7 +126,7 @@ function makeInitialState(setup) {
         var templeCount = [3,3,4][players.length-2];
 
         map(range(0,templeCount), function() {
-            var bestRegion = max(gameState.r, function(region) {
+            var bestRegion = sequenceUtils.max(gameState.r, function(region) {
                 return templeScore(region);
             });
 
@@ -121,11 +143,11 @@ function makeInitialState(setup) {
         }
 
         function templeScore(newTemple) {
-            if (contains(templeRegions, newTemple))
+            if (sequenceUtils.contains(templeRegions, newTemple))
                 return -100;
 
             var updated = updatedDistances(newTemple);
-            var inequality = max(updated) - min(updated);
+            var inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
             var templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple));
             if (!templeDistances)
                 templeDistances = -5;
@@ -160,17 +182,19 @@ function income(state, player) {
     // 1 faith per region
     var fromRegions = regionCount(state, player);
     // 1 faith per each soldier at temple (too much?)
-    var fromTemples = sum(playerTemples, function(temple) {
+    var fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
         return soldierCount(state, temple.r);
     });
-    var multiplier = 1.0 + 0.01 * upgradeLevel(state, player, WATER);
-    if ((player.u == aiPickMove) && (gameSetup.l == AI_EVIL))
+    var multiplier = 1.0 + 0.01 * upgradeLevel(state, player, gameData.WATER);
+    if ((player.u == aiPlay.aiPickMove) && (gameInitialization.gameSetup.l == gameData.AI_EVIL))
         multiplier += 0.4;
     return ceil(multiplier * (fromRegions + fromTemples));
 }
 
 function regionHasActiveArmy(state, player, region) {
-    return (state.m.l > 0) && (owner(state, region) == player) && soldierCount(state, region) && (!contains(state.m.z, region));
+    return (state.m.l > 0) &&
+        (owner(state, region) == player) && soldierCount(state, region) &&
+        (!sequenceUtils.contains(state.m.z, region));
 }
 
 function regionCount(state, player) {
@@ -204,7 +228,7 @@ function cash(state, player) {
 }
 
 function rawUpgradeLevel(state, player, upgradeType) {
-    return max(map(temples(state, player), function(temple) {
+    return sequenceUtils.max(map(temples(state, player), function(temple) {
         if (temple.u && temple.u == upgradeType)
             return temple.l + 1;
         else
@@ -218,7 +242,7 @@ function upgradeLevel(state, player, upgradeType) {
         return 0;
     }
 
-    return max(map(state.r, function(region) {
+    return sequenceUtils.max(map(state.r, function(region) {
         // does it have a temple?
         var temple = state.t[region.i];
         if (!temple) return 0;
@@ -230,13 +254,13 @@ function upgradeLevel(state, player, upgradeType) {
 }
 
 function totalSoldiers(state, player) {
-    return sum(state.r, function(region) {
+    return sequenceUtils.sum(state.r, function(region) {
         return (owner(state, region) == player) ? soldierCount(state, region) : 0;
     });
 }
 
 function soldierCost(state) {
-    return SOLDIER.c[state.m.h || 0];
+    return gameData.SOLDIER.c[state.m.h || 0];
 }
 
 function templeInfo(state, temple) {
@@ -246,32 +270,40 @@ function templeInfo(state, temple) {
     } else {
         var upgrade = temple.u, level = temple.l,
             description = template(upgrade.d, upgrade.x[level]);
-        return {n: template(upgrade.n, LEVELS[level]), d: description};
+        return {n: template(upgrade.n, gameData.LEVELS[level]), d: description};
     }
 }
 
-// ==========================================================
-// Undo functionality
-// ==========================================================
 
-var previousState = null;
+var soldierCounter;
+function addSoldiers(state, region, count) {
+    utils.map(utils.range(0, count), function() {
+        soldierCounter = (soldierCounter + 1) || 0;
 
-function undoEnabled(gameState) {
-    return previousState && // there is a state to return to
-        (activePlayer(previousState) == activePlayer(gameState)) &&  // and it was actually our move
-        (!gameState.u) && // and undo wasn't expressly disabled after a battle
-        (activePlayer(gameState).u == uiPickMove); // and no using Undo on behalf of the AI!
+        var soldierList = state.s[region.i];
+        if (!soldierList)
+            soldierList = state.s[region.i] = [];
+
+        soldierList.push({
+            i: soldierCounter++
+        });
+    });
 }
 
-function performUndo(currentState) {
-    if (!undoEnabled(currentState))
-        return;
-
-    // clear the callbacks from previous UI interaction
-    uiCallbacks = {};
-
-    // roll back the state to "previous"
-    var restoredState = previousState;
-    previousState = null;
-    playOneMove(restoredState);
+function copyState(state, simulatingPlayer) {
+    return {
+        // some things are constant and can be shallowly copied
+        r: state.r,
+        p: state.p,
+        a: state.a || simulatingPlayer,
+        // some others... less so
+        m: utils.deepCopy(state.m, 1),
+        o: utils.deepCopy(state.o, 1),
+        t: utils.deepCopy(state.t, 2),
+        s: utils.deepCopy(state.s, 3),
+        c: utils.deepCopy(state.c, 1),
+        l: utils.deepCopy(state.l, 1),
+        flt: state.flt
+        // and some others are completely omitted - namely 'd', the current 'move decision' partial state
+    };
 }

@@ -1,23 +1,30 @@
+import audio from './audio.js';
+import utils from './utils.js';
+import gameInitialization from './gameInitialization.js';
+import gameController from './gameController.js';
+import gameRenderer from './gameRenderer.js';
+const $ = utils.$
 
-// ==========================================================
-// This part of the code is responsible for the meager functionality
-// of the title screen.
-// ==========================================================
+// This modules is responsible for the title screen.
+
+export default {
+   setupTitleScreen,
+};
 
 function setupTitleScreen() {
-    map(['o','tub','snd'], function(id) {showOrHide(id,1);});
+    utils.map(['o','tub','sound'], function(id) { utils.showOrHide(id,1); });
 
-    onClickOrTap($('cb'), setTitleScreenVisibility.bind(0,false));
-    onClickOrTap($('nxt'), switchTutorialCard.bind(0,1));
-    onClickOrTap($('prv'), switchTutorialCard.bind(0,-1));
+    utils.onClickOrTap($('cb'), setTitleScreenVisibility.bind(0,false));
+    utils.onClickOrTap($('nxt'), switchTutorialCard.bind(0,1));
+    utils.onClickOrTap($('prv'), switchTutorialCard.bind(0,-1));
 
-    onClickOrTap($('tub'), setTitleScreenVisibility.bind(0,true));
-    onClickOrTap($('snd'), toggleSound);
-    onClickOrTap($('und'), invokeUICallback.bind(0, 0, 'un'));
-    onClickOrTap($('end'), function() {
+    utils.onClickOrTap($('tub'), setTitleScreenVisibility.bind(0,true));
+    utils.onClickOrTap($('sound'), audio.toggleSound);
+    utils.onClickOrTap($('und'), gameController.invokeUICallback.bind(0, 0, 'un'));
+    utils.onClickOrTap($('end'), function() {
         uiCallbacks = {};
-        updateDisplay(displayedState);
-        runSetupScreen();
+        gameRenderer.updateDisplay(displayedState);
+        gameInitialization.runSetupScreen();
     });
 
     switchTutorialCard(0);
@@ -27,11 +34,11 @@ function setupTitleScreen() {
 
 var currentCard = 0, totalCards = 5;
 function switchTutorialCard(direction) {
-    currentCard = clamp(currentCard + direction, 0, totalCards-1);
+    currentCard = utils.clamp(currentCard + direction, 0, totalCards-1);
 
-    setTransform($('tuc'), "translate3d(" + (-currentCard * 100 / totalCards) + "%,0,0)");
-    showOrHide('prv', currentCard > 0);
-    showOrHide('nxt', currentCard < totalCards - 1);
+    utils.setTransform($('tuc'), "translate3d(" + (-currentCard * 100 / totalCards) + "%,0,0)");
+    utils.showOrHide('prv', currentCard > 0);
+    utils.showOrHide('nxt', currentCard < totalCards - 1);
 }
 
 function setTitleScreenVisibility(visible) {
@@ -40,7 +47,7 @@ function setTitleScreenVisibility(visible) {
     }
 
     setTimeout(function() {
-        toggleClass('ts', 'h', !visible);
+        utils.toggleClass('ts', 'h', !visible);
     }, 50);
 
     if (!visible) {

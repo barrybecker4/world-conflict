@@ -1,17 +1,18 @@
+import audio from './audio.js';
+import gameRenderer from './gameRenderer.js';
+import gameInitialization from './gameInitialization.js';
+import titleScreen from './titleScreen.js';
 
-// ==========================================================
-// This part of the code initializes a new game.
-// ==========================================================
 
 // keep the aspect of the gameplay area correct
-(wnd.onresize = preserveAspect)();
+(window.onresize = gameRenderer.preserveAspect)();
 
 // start the game
 window.onload = function() {
     setTimeout(function() {
-        gameSetup = getSetupFromStorage();
-        setupAudio();
-        runSetupScreen();
-        setupTitleScreen();
+        gameInitialization.gameSetup = gameInitialization.getSetupFromStorage();
+        audio.setupAudio();
+        gameInitialization.runSetupScreen();
+        titleScreen.setupTitleScreen();
     }, 500);
 };

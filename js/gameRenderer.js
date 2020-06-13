@@ -1,7 +1,27 @@
-// ==========================================================
-// This part of the code creates the initial rendering of the
-// game map as an SVG object.
-// ==========================================================
+import audio from './audio.js';
+import utils from './utils.js';
+import sequenceUtils from './sequenceUtils.js';
+import gameData from './gameData.js';
+import gameInitialization from './gameInitialization.js';
+import stateManager from './stateManager.js';
+import undoManager from './undoManager.js';
+import gameController from './gameController.js';
+const {
+    elem, div, map, $, range,
+    rint, sin, cos, ceil, floor, sum, append,
+    onClickOrTap, forEachProperty, toggleClass, setTransform,
+} = utils;
+
+export default {
+   preserveAspect,
+   showMap,
+   updateMapDisplay,
+   updateButtons,
+   updateDisplay,
+   showBanner,
+};
+
+// Creates the rendering of the game map as an SVG object.
 
 // Returns the center of weight of a given set of [x,y] points.
 function centerOfWeight(points) {
@@ -23,8 +43,8 @@ function transformPoints(points, xm, ym, xd, yd) {
 // 3d projection for the map
 // The alpha value can be used to pseudo rotate the map
 function projectPoint(p) {
-    var x = p[0] / mapWidth;
-    var y = p[1] / mapHeight;
+    var x = p[0] / gameData.mapWidth;
+    var y = p[1] / gameData.mapHeight;
     // var alpha = x * .2 + .6;
     // y = y * alpha + 0.5 * (1 - alpha);
     return [x * 97 + 3, y * 100];
@@ -84,7 +104,10 @@ function showMap(container, gameState) {
             }).join(''));
 
     // create all the layers (5 per region)
-    var ocean = makePolygon([[0,0],[mapWidth,0],[mapWidth,mapHeight],[0,mapHeight]], 'b', 'b');
+    var ocean = makePolygon(
+        [[0,0], [gameData.mapWidth,0], [gameData.mapWidth, gameData.mapHeight], [0, gameData.mapHeight]],
+        'b', 'b'
+    );
     var tops = makeRegionPolys('r', 'l', 1, 1, 0, 0);
     var bottoms = makeRegionPolys('d', 'd', 1, 1, .05, .05);
     var shadows = makeRegionPolys('w', 'w', 1.05, 1.05, .2, .2, ' ');
@@ -105,11 +128,11 @@ function showMap(container, gameState) {
         region.c = projectPoint(centerOfWeight(region.p));
 
         region.hl = $('hl' + index);
-        onClickOrTap(region.hl, invokeUICallback.bind(0, region, 'c'));
+        onClickOrTap(region.hl, gameController.invokeUICallback.bind(0, region, 'c'));
     });
 
     // additional callbacks for better UI
-    onClickOrTap(doc.body, invokeUICallback.bind(0, null, 'c'));
+    onClickOrTap(document.body, gameController.invokeUICallback.bind(0, null, 'c'));
 
     // make the temple <div>s
     makeTemples();
@@ -144,39 +167,10 @@ function showMap(container, gameState) {
             temple.e = append('m', templeHTML);
 
             // retrieve elements and bind callbacks
-            onClickOrTap(temple.e, invokeUICallback.bind(0, temple.r, 't'));
+            onClickOrTap(temple.e, gameController.invokeUICallback.bind(0, temple.r, 't'));
         });
     }
 }
-
-// Prepares the whole sidebar on the left for gameplay use.
-function prepareIngameUI(gameState) {
-    // turn counter
-    var html = div({i: 'tc', c: 'sc'});
-
-    // player box area
-    html += div({i: 'pd', c: 'sc un'}, map(gameState.p, function(player) {
-        var pid = player.i;
-        return div({
-            i: 'pl' + pid,
-            c: 'pl',
-            style: 'background: ' + player.d
-        }, player.n +
-            div({c: 'ad', i: 'pr' + pid}) +
-            div({c: 'ad', i: 'pc' + pid})
-        );
-    }).join(''));
-
-    // info box
-    html += div({c: 'sc un ds', i: 'in'});
-
-    // set it all
-    $('d').innerHTML = html;
-
-    // show stat box and undo button
-    map(['mv', 'und', 'end'], show);
-}
-
 
 
 // ==========================================================
@@ -202,7 +196,7 @@ function updateMapDisplay(gameState) {
 
             // spawn some particles
             var x = parseFloat(div.style.left), y = parseFloat(div.style.top);
-            map(range(0,20), function() {
+            map(range(0, 20), function() {
                 var angle = Math.random() * 6.28, dist = rint(0,100) / 80;
                 spawnParticle(x + sin(angle) * dist, y + cos(angle) * dist, 0, -1, '#000');
             });
@@ -214,10 +208,10 @@ function updateMapDisplay(gameState) {
     updateSoldierTooltips();
 
     function updateRegionDisplay(region) {
-        var regionOwner = owner(gameState, region);
+        var regionOwner = stateManager.owner(gameState, region);
         var gradientName = (regionOwner ? 'p' + regionOwner.i : 'l');
 
-        var highlighted = contains(gameState.d && gameState.d.h || [], region) ||    // a region is highlighted if it has an available move
+        var highlighted = sequenceUtils.contains(gameState.d && gameState.d.h || [], region) ||    // a region is highlighted if it has an available move
                           (gameState.e && regionOwner == gameState.e);               // - or belongs to the winner (end game display highlights the winner)
 
         // highlighting
@@ -237,8 +231,8 @@ function updateMapDisplay(gameState) {
                 point = projectPoint(point);
                 var center = region.c;
                 var alpha = rint(30,100)/100;
-                var startPoint = [lerp(alpha,center[0],point[0]), lerp(alpha,center[1],point[1])];
-                var vx = (startPoint[0]-center[0]) / 2, vy = (startPoint[1]-center[1]) / 2 - 0.15;
+                var startPoint = [audio.lerp(alpha, center[0], point[0]), audio.lerp(alpha, center[1], point[1])];
+                var vx = (startPoint[0] - center[0]) / 2, vy = (startPoint[1] - center[1]) / 2 - 0.15;
                 spawnParticle(startPoint[0], startPoint[1], vx, vy, '#fff');
             });
         }
@@ -248,16 +242,16 @@ function updateMapDisplay(gameState) {
     }
 
     function updateTooltips() {
-        map(doc.querySelectorAll('.ttp'), $('m').removeChild.bind($('m')));
-        if (activePlayer(gameState).u != uiPickMove) return;
+        map(document.querySelectorAll('.ttp'), $('m').removeChild.bind($('m')));
+        if (stateManager.activePlayer(gameState).u != gameController.uiPickMove) return;
 
         // "how to move" tooltips
         var source = gameState.d && gameState.d.s;
         if (source)  {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
-            var furthest = max(source.n, function(neighbour) {
-                return Math.abs(source.c[0]-neighbour.c[0]) + Math.abs(source.c[1] - neighbour.c[1]);
+            var furthest = sequenceUtils.max(source.n, function(neighbour) {
+                return Math.abs(source.c[0] - neighbour.c[0]) + Math.abs(source.c[1] - neighbour.c[1]);
             });
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
@@ -275,10 +269,10 @@ function updateMapDisplay(gameState) {
     }
 
     function showTooltipOver(region, text, width) {
-        if (gameSetup.tt[text]) return;
+        if (gameInitialization.gameSetup.tt[text]) return;
         setTimeout(function() {
-            gameSetup.tt[text] = 1; // don't display it again (timeout to handle multiple updateDisplays() in a row)
-            storeSetupInLocalStorage(gameSetup);
+            gameInitialization.gameSetup.tt[text] = 1; // don't display it again (timeout to handle multiple updateDisplays() in a row)
+            gameInitialization.storeSetupInLocalStorage(gameInitialization.gameSetup);
         }, 500);
 
         width = width || 7;
@@ -302,8 +296,9 @@ function updateMapDisplay(gameState) {
         }
 
         // which cursor should we use?
-        var templeOwner = owner(gameState, temple.r);
-        temple.e.style.cursor = (appState == APP_INGAME) ? ((templeOwner == activePlayer(gameState)) ? 'zoom-in' : 'help') : 'default';
+        var templeOwner = stateManager.owner(gameState, temple.r);
+        temple.e.style.cursor = (gameInitialization.appState == gameData.APP_INGAME) ?
+            ((templeOwner == stateManager.activePlayer(gameState)) ? 'zoom-in' : 'help') : 'default';
 
         // highlight?
         var selected = gameState.d && gameState.d.w == temple;
@@ -320,15 +315,15 @@ function updateMapDisplay(gameState) {
             var html = div({c: 's', s: 'display: none'});
 
             domElement = soldierDivsById[soldier.i] = append('m', html);
-            onClickOrTap(domElement, invokeUICallback.bind(0, soldier, 's'));
+            onClickOrTap(domElement, gameController.invokeUICallback.bind(0, soldier, 's'));
         }
 
         // (re)calculate where the <div> should be
         var center = region.c;
-        var totalSoldiers = soldierCount(gameState, region);
+        var totalSoldiers = stateManager.soldierCount(gameState, region);
 
-        var columnWidth = min([totalSoldiers,4]);
-        var rowHeight = min([2 / ceil(totalSoldiers / 4), 1]);
+        var columnWidth = sequenceUtils.min([totalSoldiers, 4]);
+        var rowHeight = sequenceUtils.min([2 / ceil(totalSoldiers / 4), 1]);
 
         var x = index % 4, y = floor(index / 4);
         var xOffset = (-0.6 * columnWidth + x * 1.2);
@@ -360,10 +355,10 @@ function updateMapDisplay(gameState) {
             var tooltip = $(tooltipId);
 
             // should we have a tooltip?
-            var count = soldierCount(gameState, region);
+            var count = stateManager.soldierCount(gameState, region);
             if (count > 8) {
                 var selected = (gameState.d && (gameState.d.s == region)) ? gameState.d.c : 0;
-                selected += sum(gameState.s[regionIndex], function(soldier) {
+                selected += sequenceUtils.sum(gameState.s[regionIndex], function(soldier) {
                     return soldier.a ? 1 : 0;
                 });
                 if (selected)
@@ -408,27 +403,29 @@ function updateMapDisplay(gameState) {
 function updateIngameUI(gameState) {
     var moveState = gameState.m;
     var decisionState = gameState.d;
-    var buildingMode = decisionState && (decisionState.t == BUILD_ACTION);
+    var buildingMode = decisionState && (decisionState.t == gameData.BUILD_ACTION);
     var movingArmy = decisionState && decisionState.s;
 
-    var active = activePlayer(gameState);
+    var active = stateManager.activePlayer(gameState);
 
     // turn counter/building name
     if (buildingMode) {
-        var info = templeInfo(gameState, decisionState.w);
+        var info = stateManager.templeInfo(gameState, decisionState.w);
         $('tc').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
     } else {
-        $('tc').innerHTML = 'Turn <b>' + gameState.m.t + '</b>' + ((gameSetup.tc != UNLIMITED_TURNS) ? ' / ' + gameSetup.tc : '');
+        $('tc').innerHTML =
+            'Turn <b>' + gameState.m.t + '</b>' +
+            ((gameInitialization.gameSetup.tc != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.tc : '');
     }
 
     // player data
     map(gameState.p, function(player, index) {
         //$('pl' + index).className = (index == moveState.p) ? 'pl' : 'pi'; // active or not?
-        var regions = regionCount(gameState, player);
+        var regions = stateManager.regionCount(gameState, player);
         var gameWinner = gameState.e;
 
         if (regions) {
-            $('pr' + index).innerHTML = regionCount(gameState, player) + '&#9733;'; // region count
+            $('pr' + index).innerHTML = stateManager.regionCount(gameState, player) + '&#9733;'; // region count
             if (gameWinner) {
                 $('pc' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
             } else {
@@ -442,9 +439,9 @@ function updateIngameUI(gameState) {
 
     // move info
     var info;
-    if (active.u == uiPickMove) {
+    if (active.u == gameController.uiPickMove) {
         if (buildingMode) {
-            if (owner(gameState, decisionState.r) == active)
+            if (stateManager.owner(gameState, decisionState.r) == active)
                 info = elem('p', {}, 'Choose an upgrade to build.');
             else
                 info = '';
@@ -472,7 +469,7 @@ function updateIngameUI(gameState) {
     updateButtons(decisionState && decisionState.b);
 
     // undo
-    $('und').innerHTML = undoEnabled(gameState) ? "&#x21b6;" : "";
+    $('und').innerHTML = undoManager.undoEnabled(gameState) ? "&#x21b6;" : "";
 }
 
 function updateButtons(buttons) {
@@ -487,7 +484,7 @@ function updateButtons(buttons) {
         var buttonHTML = elem('a', {href: '#', c: button.o ? 'off' : ''}, buttonContents);
         var buttonNode = append('u', buttonHTML);
         if (!button.o) {
-            onClickOrTap(buttonNode, invokeUICallback.bind(0, index, 'b'));
+            onClickOrTap(buttonNode, gameController.invokeUICallback.bind(0, index, 'b'));
         }
     });
 }
@@ -502,15 +499,16 @@ function updateDisplay(gameState) {
     updateIngameUI(gameState);
 
     // make sounds!
+    console.log("sound cue = " + gameState.sc);
     if (gameState.sc) {
-        playSound(gameState.sc);
+        audio.playSound(gameState.sc);
         gameState.sc = null;
     }
 }
 
 function showBanner(background, text, delay) {
     delay = delay || 1;
-    oneAtATime(delay, function() {
+    gameController.oneAtATime(delay, function() {
         // create a new banner div
         var banner = append('c', div({c: 'bn'}, text)),
             styles = banner.style;
@@ -548,7 +546,7 @@ function floatAway(elem, vx, vy) {
 
 function preserveAspect() {
     setTimeout(function() {
-        var w = wnd.innerWidth, h = wnd.innerHeight, aspect = 1.65, px = 'px';
+        var w = window.innerWidth, h = window.innerHeight, aspect = 1.65, px = 'px';
         if (w / h > aspect) {
             w = h * aspect;
         } else {

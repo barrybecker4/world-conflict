@@ -1,19 +1,24 @@
 // ==========================================================
 // Helper functions used for brevity or convenience.
 // ==========================================================
+export default {
+    sin: Math.sin,
+    cos: Math.cos,
+    floor: Math.floor,
+    ceil: Math.ceil,
+    div: elem.bind(0,'div'),
+    rint, range, identity,
+    deepCopy, clamp, now, template,
+    map, forEachProperty, for2d, $,
+    elem, append, setTransform,
+    onClickOrTap,
+    show, hide, toggleClass, showOrHide,
+};
 
-var sin = Math.sin;
-var cos = Math.cos;
-var floor = Math.floor;
-var ceil = Math.ceil;
-
-var wnd = window;
-var doc = document;
-var div = elem.bind(0,'div');
 
 // Returns a random number between low (inclusive) and high (exclusive).
 function rint(low,high) {
-    return floor(low+Math.random()*(high-low));
+    return Math.floor(low+Math.random()*(high-low));
 }
 
 // Returns an array of integers from low (inclusive) to high (exclusive).
@@ -83,7 +88,7 @@ function for2d(x1, y1, x2, y2, fn) {
 
 // Returns the element bearing the given ID.
 function $(id) {
-    return doc.querySelector('#' + id);
+    return document.querySelector('#' + id);
 }
 
 // Return HTML (string) for a new element with the given tag name, attributes, and inner HTML.
