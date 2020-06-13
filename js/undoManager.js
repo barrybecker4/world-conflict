@@ -15,9 +15,9 @@ function setPreviousState(state) {
 
 function undoEnabled(gameState) {
     return previousState && // there is a state to return to
-        (stateManager.activePlayer(previousState) == stateManager.activePlayer(gameState)) &&  // and it was actually our move
-        (!gameState.u) && // and undo wasn't expressly disabled after a battle
-        (stateManager.activePlayer(gameState).u == gameController.uiPickMove); // and no using Undo on behalf of the AI!
+        (stateManager.activePlayer(previousState) == stateManager.activePlayer(gameState)) &&  // it was actually our move
+        (!gameState.u) && // undo wasn't expressly disabled after a battle
+        (stateManager.activePlayer(gameState).u == gameController.uiPickMove); // no using Undo on behalf of the AI!
 }
 
 function performUndo(currentState) {
@@ -27,7 +27,7 @@ function performUndo(currentState) {
     // clear the callbacks from previous UI interaction
     gameController.uiCallbacks = {};
 
-    // roll back the state to "previous"
+    // roll-back the state to "previous"
     var restoredState = previousState;
     previousState = null;
     gameController.playOneMove(restoredState);

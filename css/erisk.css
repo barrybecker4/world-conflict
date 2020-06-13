@@ -310,8 +310,8 @@ p {
     box-sizing: border-box;
     position: absolute;
 }
-#prv { left: 10%; top: 50%; }
-#nxt { right: 10%; top: 50%; }
+#prev { left: 10%; top: 50%; }
+#next { right: 10%; top: 50%; }
 
 .bb {
     position: absolute;

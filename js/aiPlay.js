@@ -275,12 +275,12 @@ function regionThreat(state, player, region) {
 
         // count soldiers that can reach us in 3 moves from this direction
         // using a breadth-first search
-        var depth = (aiLevel == AI_RUDE) ? 0 : 2; // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us
+        var depth = (aiLevel == gameData.AI_RUDE) ? 0 : 2; // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us
         var queue = [{r: neighbour, d: depth}], visited = [];
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
-            total += stateManager.soldierCount(state, entry.r) * ((aiLevel > AI_RUDE) ? (2 + entry.d) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
+            total += stateManager.soldierCount(state, entry.r) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.d) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
             visited.push(entry.r);
 
             if (entry.d) {
@@ -296,7 +296,7 @@ function regionThreat(state, player, region) {
 
         return total;
     }));
-    return utils.clamp((enemyPresence / (ourPresence+0.0001) - 1) / 1.5, 0, (aiLevel == AI_RUDE) ? 0.5 : 1.1);
+    return utils.clamp((enemyPresence / (ourPresence+0.0001) - 1) / 1.5, 0, (aiLevel == gameData.AI_RUDE) ? 0.5 : 1.1);
 }
 
 function regionOpportunity(state, player, region) {
