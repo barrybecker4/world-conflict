@@ -7,10 +7,12 @@ import stateManager from '../stateManager.js';
 import undoManager from '../undoManager.js';
 import gameController from '../gameController.js';
 import makeGradient from './makeGradient.js';
+import geomUtils from './geomUtils.js';
 const {
     elem, div, map, $, range, rint, sum, append, lerp,
     onClickOrTap, forEachProperty, toggleClass, setTransform,
 } = utils;
+const {projectPoint, makePolygon, centerOfWeight, transformPoints} = geomUtils
 
 export default {
    preserveAspect,
@@ -23,33 +25,6 @@ export default {
 
 // Creates the rendering of the game map as an SVG object.
 
-// Optional 3d projection for the map.
-// The alpha value can be used to pseudo rotate the map.
-// The transformation leaves space on the left for the sidepanel.
-function projectPoint(p) {
-    var x = p[0] / gameData.mapWidth;
-    var y = p[1] / gameData.mapHeight;
-    // var alpha = x * .2 + .6;
-    // y = y * alpha + 0.5 * (1 - alpha);
-    return [x * 97 + 3, y * 100];
-}
-
-// Creates a new polygon with the given fill, stroke and clipping path.
-function makePolygon(points, id, fill, stroke, clip) {
-    stroke = stroke || "stroke:#000;stroke-width:0.25;";
-    fill = fill ? "url(#" + fill + ")" : 'transparent';
-
-    var properties = {
-        i: id,
-        points: map(points, projectPoint).join(' '),
-        s: 'fill:' + fill + ";" + stroke + ';'
-    };
-
-    if (clip)
-        properties['clip-path'] = clip
-
-    return elem('polygon', properties);
-}
 
 // Takes the map (regions) stored in gameState.r, and creates an SVG map out of it.
 function showMap(container, gameState) {
@@ -102,7 +77,6 @@ function showMap(container, gameState) {
     // make the temple <div>s
     makeTemples();
 
-
     // makes clipping paths for the "highlight" polygons
     function makeClipPaths() {
         return map(regions, function(region, index) {
@@ -137,11 +111,7 @@ function showMap(container, gameState) {
     }
 }
 
-
-// ==========================================================
-// This part of the code deals with updating the display to
-// match the current game state.
-// ==========================================================
+// Updating the display to match the current game state.
 
 var soldierDivsById = {};
 function updateMapDisplay(gameState) {
@@ -493,7 +463,7 @@ function showBanner(background, text, delay) {
 }
 
 function spawnParticle(x, y, vx, vy, color) {
-    var styleString = "opacity:1;left: " + x + "%;top: " + y + "%;box-shadow: 0 0 1px 1px " + color;
+    var styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 1px 1px " + color;
     var particle = append('m', div({c: 'particle', s: styleString}, ''));
     floatAway(particle, vx, vy);
 }
@@ -525,24 +495,4 @@ function preserveAspect() {
         styles.height = h + px;
         styles.fontSize = 0.025 * h + px;
     }, 0);
-}
-
-// Returns the center of weight of a given set of [x, y] points.
-function centerOfWeight(points) {
-    let xc = 0.0;
-    let yc = 0.0;
-    let len = points.length;
-    map(points, function(p) {
-        xc += p[0];
-        yc += p[1];
-    });
-    return [xc / len, yc / len];
-}
-
-// Affine transform of a sequence of points: [x*xm+xd,y*ym+yd]
-function transformPoints(points, xm, ym, xd, yd) {
-    var c = centerOfWeight(points);
-    return map(points, function(p) {
-        return [c[0] + (p[0]-c[0]) * xm + xd, c[1] + (p[1]-c[1]) * ym + yd];
-    });
 }
