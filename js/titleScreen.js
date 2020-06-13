@@ -11,15 +11,15 @@ export default {
 };
 
 function setupTitleScreen() {
-    utils.map(['o','tub','sound'], function(id) { utils.showOrHide(id, 1); });
+    utils.map(['o','tutorial-button','sound'], function(id) { utils.showOrHide(id, 1); });
 
     utils.onClickOrTap($('cb'), setTitleScreenVisibility.bind(0, false));
     utils.onClickOrTap($('next'), switchTutorialCard.bind(0, 1));
     utils.onClickOrTap($('prev'), switchTutorialCard.bind(0, -1));
 
-    utils.onClickOrTap($('tub'), setTitleScreenVisibility.bind(0, true));
+    utils.onClickOrTap($('tutorial-button'), setTitleScreenVisibility.bind(0, true));
     utils.onClickOrTap($('sound'), audio.toggleSound);
-    utils.onClickOrTap($('und'), gameController.invokeUICallback.bind(0, 0, 'un'));
+    utils.onClickOrTap($('undo-button'), gameController.invokeUICallback.bind(0, 0, 'un'));
     utils.onClickOrTap($('restart'), function() {
         gameController.uiCallbacks = {};
         gameRenderer.updateDisplay();

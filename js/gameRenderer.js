@@ -468,7 +468,7 @@ function updateIngameUI(gameState) {
     updateButtons(decisionState && decisionState.b);
 
     // undo
-    $('und').innerHTML = undoManager.undoEnabled(gameState) ? "&#x21b6;" : "";
+    $('undo-button').innerHTML = undoManager.undoEnabled(gameState) ? "&#x21b6;" : "";
 }
 
 function updateButtons(buttons) {

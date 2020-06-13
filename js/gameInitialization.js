@@ -69,7 +69,7 @@ function prepareSetupUI() {
     $('d').innerHTML = html;
 
     // hide stat box and undo button
-    utils.map(['mv', 'und', 'restart'], utils.hide);
+    utils.map(['mv', 'undo-button', 'restart'], utils.hide);
 
     // setup callbacks for players
     utils.for2d(0, 0, gameData.PLAYER_TEMPLATES.length, 3, function(playerIndex, buttonIndex) {
@@ -161,7 +161,7 @@ function runSetupScreen() {
         $('d').innerHTML = html;
 
         // show stat box and undo button
-        utils.map(['mv', 'und', 'restart'], utils.show);
+        utils.map(['mv', 'undo-button', 'restart'], utils.show);
     }
 
     function setupValid() {
