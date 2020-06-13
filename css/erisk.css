@@ -277,13 +277,13 @@ p {
 }
 
 /* Tutorial slider styles */
-#tut {
+#tutorial {
     position: absolute;
     left: 20%; right: 20%;
     top: 28%; bottom: 15%;
     overflow: hidden;
 }
-#tuc {
+#tutorial-card {
     width: 500%; height: 100%;
     transform: translate3d(0,0,0);
     transition: all 0.3s;

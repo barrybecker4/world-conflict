@@ -6,7 +6,6 @@ import gameRenderer from './gameRenderer.js';
 const $ = utils.$
 
 // This modules is responsible for the title screen.
-
 export default {
    setupTitleScreen,
 };
@@ -32,11 +31,13 @@ function setupTitleScreen() {
     setTimeout(setTitleScreenVisibility.bind(0,true), 10);
 }
 
-var currentCard = 0, totalCards = 5;
+var currentCard = 0;
+var totalCards = 5;
+
 function switchTutorialCard(direction) {
     currentCard = utils.clamp(currentCard + direction, 0, totalCards-1);
 
-    utils.setTransform($('tuc'), "translate3d(" + (-currentCard * 100 / totalCards) + "%,0,0)");
+    utils.setTransform($('tutorial-card'), "translate3d(" + (-currentCard * 100 / totalCards) + "%,0,0)");
     utils.showOrHide('prev', currentCard > 0);
     utils.showOrHide('next', currentCard < totalCards - 1);
 }
