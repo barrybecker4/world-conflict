@@ -12,7 +12,7 @@ const {
     elem, div, map, $, range, rint, sum, append, lerp,
     onClickOrTap, forEachProperty, toggleClass, setTransform,
 } = utils;
-const {projectPoint, makePolygon, centerOfWeight, transformPoints} = geomUtils
+const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
 
 export default {
    preserveAspect,
@@ -24,8 +24,6 @@ export default {
 };
 
 // Creates the rendering of the game map as an SVG object.
-
-
 // Takes the map (regions) stored in gameState.r, and creates an SVG map out of it.
 function showMap(container, gameState) {
     var regions = gameState.r;
@@ -86,8 +84,13 @@ function showMap(container, gameState) {
 
     // a helper for creating a polygon with a given setup for all regions
     function makeRegionPolys(idPrefix, gradient, xm, ym, xd, yd, stroke, clip) {
+
         return elem('g', {}, map(regions, function(region, index) {
-            return makePolygon(transformPoints(region.p, xm, ym, xd, yd), idPrefix + index, gradient, stroke, clip ? 'url(#' + clip + index + ')' : '');
+            const clipRegion = clip ? 'url(#' + clip + index + ')' : '';
+            return makePolygon(
+                transformPoints(region.p, xm, ym, xd, yd),
+                idPrefix + index, gradient, stroke, clipRegion
+            );
         }).join(''));
     }
 
@@ -96,7 +99,7 @@ function showMap(container, gameState) {
         forEachProperty(gameState.t, function(temple) {
 
             var center = temple.r.c,
-                style = 'left:' + (center[0]-1.5) + '%;top:' + (center[1]-4) + '%';
+                style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
             // create the temple <div>s
             var templeHTML = div({
@@ -114,6 +117,7 @@ function showMap(container, gameState) {
 // Updating the display to match the current game state.
 
 var soldierDivsById = {};
+
 function updateMapDisplay(gameState) {
     map(gameState.r, updateRegionDisplay);
     forEachProperty(gameState.t, updateTempleDisplay);
@@ -372,27 +376,26 @@ function updateIngameUI(gameState) {
         }
     });
 
-    // move info
-    var info;
+    let moveInfo;
     if (active.u == gameController.uiPickMove) {
         if (buildingMode) {
             if (stateManager.owner(gameState, decisionState.r) == active)
-                info = elem('p', {}, 'Choose an upgrade to build.');
+                moveInfo = elem('p', {}, 'Choose an upgrade to build.');
             else
-                info = '';
+                moveInfo = '';
         } else if (movingArmy) {
-            info = elem('p', {}, 'Click on this region again to choose how many to move.') +
+            moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +
                 elem('p', {}, 'Click on a target region to move the army.');
 
         } else {
 
-            info = elem('p', {}, 'Click on a region to move or attack with its army.') +
+            moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
                 elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
         }
     } else {
-        info = elem('p', {}, active.n + ' is taking her turn.');
+        moveInfo = elem('p', {}, active.n + ' is taking her turn.');
     }
-    $('in').innerHTML = info;
+    $('in').innerHTML = moveInfo;
     $('in').style.background = active.d;
 
     // active player stats
@@ -444,8 +447,8 @@ function showBanner(background, text, delay) {
     delay = delay || 1;
     gameController.oneAtATime(delay, function() {
         // create a new banner div
-        var banner = append('container', div({c: 'button'}, text)),
-            styles = banner.style;
+        let banner = append('container', div({c: 'button'}, text));
+        let styles = banner.style;
 
         styles.background = background;
         styles.opacity = 0.0;
@@ -458,7 +461,7 @@ function showBanner(background, text, delay) {
     });
 
     function transform(offset) {
-        return "translate3d(1.2em," + offset + "em,0) rotateY(" + (10 + offset * 2) + "deg)";
+        return "translate3d(1.2em, " + offset + "em, 0) rotateY(" + (10 + offset * 2) + "deg)";
     }
 }
 

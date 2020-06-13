@@ -27,8 +27,9 @@ function makePolygon(points, id, fill, stroke, clip) {
         s: 'fill:' + fill + ";" + stroke + ';'
     };
 
-    if (clip)
-        properties['clip-path'] = clip
+    if (clip) {
+       properties['clip-path'] = clip;
+    }
 
     return utils.elem('polygon', properties);
 }
