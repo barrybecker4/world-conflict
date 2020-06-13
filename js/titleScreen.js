@@ -37,7 +37,7 @@ var totalCards = 5;
 function switchTutorialCard(direction) {
     currentCard = utils.clamp(currentCard + direction, 0, totalCards-1);
 
-    utils.setTransform($('tutorial-card'), "translate3d(" + (-currentCard * 100 / totalCards) + "%,0,0)");
+    utils.setTransform($('tutorial-card'), "translate3d(" + (-currentCard * 100 / totalCards) + "%, 0, 0)");
     utils.showOrHide('prev', currentCard > 0);
     utils.showOrHide('next', currentCard < totalCards - 1);
 }

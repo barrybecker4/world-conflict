@@ -4,7 +4,7 @@ import gameData from './gameData.js';
 import stateManager from './stateManager.js';
 import gameController from './gameController.js';
 import aiPlay from './aiPlay.js';
-import mapGenerator from './mapGenerator.js';
+import generateMap from './mapGenerator.js';
 import gameInitialization from './gameInitialization.js';
 const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
@@ -30,26 +30,30 @@ export default {
 // initial game state happens here
 function makeInitialState(setup) {
     var players = [];
-        map(setup.p, function(playerController, playerIndex) {
+    map(setup.p, function(playerController, playerIndex) {
         if (playerController == gameData.PLAYER_OFF) return;
-        var player =     deepCopy(gameData.PLAYER_TEMPLATES[playerIndex], 1);
+        var player = deepCopy(gameData.PLAYER_TEMPLATES[playerIndex], 1);
 
         // set up as AI/human
         player.u = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
-            player.p =     deepCopy(gameData.AI_PERSONALITIES[    rint(0, gameData.AI_PERSONALITIES.length)], 2);
+            player.p = deepCopy(gameData.AI_PERSONALITIES[rint(0, gameData.AI_PERSONALITIES.length)], 2);
         }
 
         player.i = players.length;
         players.push(player);
     });
 
-    var regions = mapGenerator.generateMap(players.length);
+    var regions = generateMap(players.length);
     var gameState = {
         p: players,
         r: regions,
-        o: {}, t: {}, s: {}, c: {}, l: {},
+        o: {},
+        t: {},
+        s: {},
+        c: {},
+        l: {},
         m: {t: 1, p: 0, m: gameData.MOVE_ARMY, l: gameData.movesPerTurn}
     };
 
@@ -60,24 +64,31 @@ function makeInitialState(setup) {
 
     function distance(regionA, regionB) {
         // breadth-first search!
-        var queue = [{r: regionA, d:0}], visited = [regionA], answer = -1, bound = 100;
+        let queue = [{r: regionA, d:0}];
+        let visited = [regionA];
+        let answer = -1;
+        let bound = 100;
 
         while (answer < 0) {
-            var item = queue.shift(), region = item.r, distanceFromA = item.d;
+            let item = queue.shift();
+            let region = item.r;
+            let distanceFromA = item.d;
             if (region == regionB) {
                 // we've found the region!
                 answer = distanceFromA;
-            } else if (distanceFromA >= bound) {
+            }
+            else if (distanceFromA >= bound) {
                 // we've reached our established upper bound - return it
                 answer = bound;
-            } else {
+            }
+            else {
                 // use memoized values to establish an upper bound (we still might do better,
                 // but we can't do worse)
                 if (region.d[regionB.i])
                     bound = sequenceUtils.min([bound, region.d[regionB.i] + distanceFromA]);
 
                 // look in all unvisited neighbours
-                    map(region.n, function (neighbour) {
+                map(region.n, function (neighbour) {
                     if (!sequenceUtils.contains(visited, neighbour))
                         queue.push({r: neighbour, d: distanceFromA + 1});
                 });
@@ -100,7 +111,7 @@ function makeInitialState(setup) {
 
     function setupTemples() {
         // give the players some cash (or not)
-            map(players, function(player, index) {
+        map(players, function(player, index) {
             gameState.c[index] = gameState.l[index] = 0;
         });
 
@@ -164,9 +175,8 @@ function makeInitialState(setup) {
 }
 
 
-
 // ==========================================================
-// Various simple helpers for working with the game state.
+// Helpers for working with the game state.
 // ==========================================================
 
 function soldierCount(state, region) {

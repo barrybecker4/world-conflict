@@ -3,12 +3,8 @@ import gameData from './gameData.js';
 
 // procedural map generation prior to gameplay.
 
-export default {
-    generateMap,
-};
-
 // Generates a new map for a given number of players.
-function generateMap(playerCount) {
+export default function generateMap(playerCount) {
     var maxRegionSize = 11 - playerCount;
     var neededRegions = 13 + playerCount * 3;
     var perturbConst = utils.rint(10000,100000);

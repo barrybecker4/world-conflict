@@ -5,7 +5,6 @@ import gameInitialization from './gameInitialization.js';
 var audioCtx = window.AudioContext && (new AudioContext());
 var sounds = {};
 
-// TODO: split out sounds
 export default {
     setupAudio,
     playSound,
