@@ -36,7 +36,7 @@ function playOneMove(state) {
         pickMove(controllingPlayer, state, function(move) {
             // AI makes sounds when playing
             if (controllingPlayer.u == aiPlay.aiPickMove)
-                audio.playSound(audio.audioClick);
+                audio.playSound(audio.sounds.CLICK);
 
             // the move is chosen - update state to a new immutable copy
             var newState = makeMove(state, move);
@@ -109,7 +109,7 @@ function makeMove(state, move) {
 function invokeUICallback(object, type, event) {
     var cb = uiCallbacks[type];
     if (cb) {
-        audio.playSound(audio.audioClick);
+        audio.playSound(audio.sounds.CLICK);
         cb(object);
     }
     if (event.target.href && event.target.href != "#")
@@ -393,7 +393,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                     toList.shift();
                     if (toOwner)
                         state.c[toOwner.i] += 4;
-                    battleAnimationKeyframe(state, 250, audio.audioEnemyDead);
+                    battleAnimationKeyframe(state, 250, audio.sounds.ENEMY_DEAD);
                 }
             });
 
@@ -401,7 +401,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             if (toList.length) {
                 // and prevent anybody from moving in
                 incomingSoldiers = 0;
-                state.sc = audio.audioDefeat;
+                state.sc = audio.sounds.DEFEAT;
                 state.flt = [{r: toRegion, c: toOwner ? toOwner.h : '#fff', t: "Defended!", w: 7}];
             }
         }
@@ -431,7 +431,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             // play sound, launch particles!
             state.prt = toRegion;
             state.flt = [{r: toRegion, c: fromOwner.h, t: "Conquered!", w: 7}];
-            state.sc = defendingSoldiers ? audio.audioVictory : audio.audioTakeOver;
+            state.sc = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
         }
     }
 
@@ -451,7 +451,7 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
 
 function buildUpgrade(state, region, upgrade) {
     var temple = state.t[region.i];
-    var templeOwner = owner(state, region);
+    var templeOwner = stateManager.owner(state, region);
 
     if (upgrade == gameData.SOLDIER) {
         // soldiers work diferently - they get progressively more expensive the more you buy in one turn
@@ -483,7 +483,7 @@ function buildUpgrade(state, region, upgrade) {
     state.prt = temple.r;
 
     // the AIR upgrade takes effect immediately
-    if (upgrade == AIR)
+    if (upgrade == gameData.AIR)
         state.m.l++;
 }
 

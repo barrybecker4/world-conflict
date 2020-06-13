@@ -84,7 +84,7 @@ function upgradeToBuild(player, state) {
 
     // build the upgrade!
     player.p.u.shift();
-    return {t: BUILD_ACTION, u: desire, w: temple, r: temple.r};
+    return {t: gameData.BUILD_ACTION, u: desire, w: temple, r: temple.r};
 }
 
 function templeDangerousness(state, temple) {
@@ -95,7 +95,7 @@ function templeDangerousness(state, temple) {
 
 function buildSoldierAtBestTemple(player, state) {
     var temple = sequenceUtils.max(stateManager.temples(state, player), templeDangerousness.bind(0, state));
-    return {t: BUILD_ACTION, u: gameData.SOLDIER, w: temple, r: temple.r};
+    return {t: gameData.BUILD_ACTION, u: gameData.SOLDIER, w: temple, r: temple.r};
 }
 
 function minMaxDoSomeWork(node) {

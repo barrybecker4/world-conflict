@@ -3,6 +3,7 @@ import audio from './audio.js';
 import gameInitialization from './gameInitialization.js';
 
 var audioCtx = window.AudioContext && (new AudioContext());
+var sounds = {};
 
 export default {
     lerp,
@@ -10,17 +11,8 @@ export default {
     setupAudio,
     playSound,
     toggleSound,
-
-    // named sounds
-    audioClick, audioEnemyDead, audioOursDead, audioVictory, audioDefeat, audioTakeOver,
+    sounds,
 };
-
-var audioClick;
-var audioEnemyDead;
-var audioOursDead;
-var audioVictory;
-var audioDefeat;
-var audioTakeOver;
 
 function lerp(alpha, from, to) {
     alpha = utils.clamp(alpha, 0, 1);
@@ -101,29 +93,26 @@ function makeBuffer(fn, len, vol) {
 }
 
 function setupAudio() {
-    // do we have WebAudio?
-    console.log("has webAudio = " + audioCtx);
-    if (!audioCtx)
+    if (!audioCtx) // do we have WebAudio?
         return;
 
-    // generate sounds
-    audioClick = makeBuffer(adsr(0.01, 0.03, 0.01, 0.01, 0.2,
+    sounds.CLICK = makeBuffer(adsr(0.01, 0.03, 0.01, 0.01, 0.2,
         wSin(110)
     ), 0.1);
-    audioEnemyDead = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
+    sounds.ENEMY_DEAD = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
         wSlide(1.0, 0.3, 0.1, wSin(300))
     ), 0.2, 0.6);
-    audioOursDead = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
+    sounds.OURS_DEAD = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
         wSlide(1.0, 0.3, 0.1, wSin(200))
     ), 0.2, 0.6);
-    audioTakeOver = makeBuffer(wNotes([
+    sounds.TAKE_OVER = makeBuffer(wNotes([
         {t:0, p:261,d:1},{t:0.1, p:329, d:2}     // C-E
     ]), 0.6, 0.2);
-    audioVictory = makeBuffer(wNotes([
+    sounds.VICTORY = makeBuffer(wNotes([
         {t:0, p:261,d:1},{t:0.0, p:329, d:2},{t:0.0, p:392, d:3},     // C-E-G
         {t:0.2, p:261,d:1},{t:0.2, p:349, d:2},{t:0.2, p:440, d:3}    // C-F-A
     ]), 0.6, 0.2);
-    audioDefeat = makeBuffer(wNotes([
+    sounds.DEFEAT = makeBuffer(wNotes([
         {t:0, p:392,d:3},{t:0.15, p:329, d: 2}, {t:0.3, p:261, d:1}
     ]), 0.6, 0.2);
 
@@ -133,7 +122,6 @@ function setupAudio() {
 
 function playSound(sound) {
     let soundEnabled = sound && gameInitialization.gameSetup.sound;
-    console.log("soundEnabled = " + soundEnabled + " sound = " + sound + " gameSet.s = " + gameInitialization.gameSetup.sound);
     if (!soundEnabled)
         return;
 

@@ -494,12 +494,9 @@ function updateDisplay(gameState) {
     // just for debugging
     displayedState = gameState;
 
-    // update the graphics
     updateMapDisplay(gameState);
     updateIngameUI(gameState);
 
-    // make sounds!
-    console.log("sound cue = " + gameState.sc);
     if (gameState.sc) {
         audio.playSound(gameState.sc);
         gameState.sc = null;
