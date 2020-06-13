@@ -44,16 +44,16 @@ function switchTutorialCard(direction) {
 
 function setTitleScreenVisibility(visible) {
     if (visible) {
-        $('ts').style.display = 'block';
+        $('title-screen').style.display = 'block';
     }
 
     setTimeout(function() {
-        utils.toggleClass('ts', 'h', !visible);
+        utils.toggleClass('title-screen', 'h', !visible);
     }, 50);
 
     if (!visible) {
         setTimeout(function () {
-            $('ts').style.display = 'none';
+            $('title-screen').style.display = 'none';
         }, 500);
     }
 }

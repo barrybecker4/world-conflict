@@ -206,7 +206,7 @@ p {
     border: 1px solid #000;
     color: #fff;
 }
-#ts {
+#title-screen {
     position: absolute;
     z-index: 50;
     left: 8%;
@@ -227,7 +227,7 @@ p {
     transition: all 0.5s;
     opacity: 1.0;
 }
-#ts.h {
+#title-screen.h {
     transform: translate3d(0.2em,0,4em) rotateX(90deg);
     -webkit-transform: translate3d(0.2em,0,4em) rotateX(90deg);
     opacity: 0.0;
@@ -318,7 +318,7 @@ p {
     left: 30%; right: 30%;
     top: 90%;
 }
-#ts a:hover, a.rb:hover { transform: translate3d(0,0,0.2em); opacity: 1 !important; }
+#title-screen a:hover, a.rb:hover { transform: translate3d(0,0,0.2em); opacity: 1 !important; }
 h1 {
     font-family: "Constantia", "Athelas", serif;
     font-size: 3.75em;
