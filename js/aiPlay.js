@@ -210,7 +210,7 @@ function possibleMoves(state) {
            utils.map(region.n, function(neighbour) {
                addArmyMove(region, neighbour, soldiers);
                if (soldiers > 1)
-                   addArmyMove(region, neighbour, utils.floor(soldiers / 2));
+                   addArmyMove(region, neighbour, Math.floor(soldiers / 2));
            });
        }
     });

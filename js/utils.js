@@ -1,11 +1,4 @@
-// ==========================================================
-// Helper functions used for brevity or convenience.
-// ==========================================================
 export default {
-    sin: Math.sin,
-    cos: Math.cos,
-    floor: Math.floor,
-    ceil: Math.ceil,
     div: elem.bind(0,'div'),
     rint, range, identity,
     deepCopy, clamp, now, template,
@@ -18,7 +11,7 @@ export default {
 
 // Returns a random number between low (inclusive) and high (exclusive).
 function rint(low,high) {
-    return Math.floor(low+Math.random()*(high-low));
+    return Math.floor(low + Math.random() * (high-low));
 }
 
 // Returns an array of integers from low (inclusive) to high (exclusive).
@@ -59,10 +52,6 @@ function template(text, replacement) {
     return text.replace(/X/g, replacement);
 }
 
-// ==========================================================
-// Loop constructs
-// ==========================================================
-
 // Same as array.map, but can be called on non-arrays (and minifies better).
 function map(seq, fn) {
     return [].slice.call(seq).map(fn);
@@ -82,9 +71,7 @@ function for2d(x1, y1, x2, y2, fn) {
 }
 
 
-// ==========================================================
 // Working with the DOM
-// ==========================================================
 
 // Returns the element bearing the given ID.
 function $(id) {

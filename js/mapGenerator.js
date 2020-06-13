@@ -91,9 +91,9 @@ function generateMap(playerCount) {
 
     // Perturbs a point to give the region borders a natural feel.
     function perturbedPoint(x,y) {
-        var angle = (utils.sin(x * x * y * y * 600 + perturbConst * 357)) * 6.28;
-        var dist = (utils.sin(x * y * 600 + perturbConst * 211)) / 2;
-        return [x + utils.sin(angle) * dist, y + utils.cos(angle) * dist];
+        var angle = (Math.sin(x * x * y * y * 600 + perturbConst * 357)) * 6.28;
+        var dist = (Math.sin(x * y * 600 + perturbConst * 211)) / 2;
+        return [x + Math.sin(angle) * dist, y + Math.cos(angle) * dist];
     }
 
     // Figures out who borders with who, using the 2d grid in 'regionMap'.

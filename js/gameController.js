@@ -540,13 +540,13 @@ function determineGameWinner(state) {
     var otherPlayers = state.p.filter(function(player) { return player != winner; });
     var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
 
-    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : DRAW_GAME;
+    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : gameData.DRAW_GAME;
 }
 
 function showEndGame(state) {
     oneAtATime(1, function() {
         var winner = state.e;
-        if (winner != DRAW_GAME) {
+        if (winner != gameData.DRAW_GAME) {
             gameRenderer.showBanner(winner.d, winner.n + " wins the game!");
         } else {
             gameRenderer.showBanner('#333', "The game ends in a draw!");

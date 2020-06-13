@@ -7,8 +7,7 @@ import stateManager from './stateManager.js';
 import undoManager from './undoManager.js';
 import gameController from './gameController.js';
 const {
-    elem, div, map, $, range,
-    rint, sin, cos, ceil, floor, sum, append,
+    elem, div, map, $, range, rint, sum, append,
     onClickOrTap, forEachProperty, toggleClass, setTransform,
 } = utils;
 
@@ -198,7 +197,7 @@ function updateMapDisplay(gameState) {
             var x = parseFloat(div.style.left), y = parseFloat(div.style.top);
             map(range(0, 20), function() {
                 var angle = Math.random() * 6.28, dist = rint(0,100) / 80;
-                spawnParticle(x + sin(angle) * dist, y + cos(angle) * dist, 0, -1, '#000');
+                spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#000');
             });
         }
     });
@@ -323,9 +322,9 @@ function updateMapDisplay(gameState) {
         var totalSoldiers = stateManager.soldierCount(gameState, region);
 
         var columnWidth = sequenceUtils.min([totalSoldiers, 4]);
-        var rowHeight = sequenceUtils.min([2 / ceil(totalSoldiers / 4), 1]);
+        var rowHeight = sequenceUtils.min([2 / Math.ceil(totalSoldiers / 4), 1]);
 
-        var x = index % 4, y = floor(index / 4);
+        var x = index % 4, y = Math.floor(index / 4);
         var xOffset = (-0.6 * columnWidth + x * 1.2);
         var yOffset = y * rowHeight + (gameState.t[region.i] ? 1.5 : 0);
         var xPosition = center[0] + xOffset - yOffset * 0.2;
@@ -507,7 +506,7 @@ function showBanner(background, text, delay) {
     delay = delay || 1;
     gameController.oneAtATime(delay, function() {
         // create a new banner div
-        var banner = append('c', div({c: 'bn'}, text)),
+        var banner = append('c', div({c: 'button'}, text)),
             styles = banner.style;
 
         styles.background = background;

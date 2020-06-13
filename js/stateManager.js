@@ -6,7 +6,7 @@ import gameController from './gameController.js';
 import aiPlay from './aiPlay.js';
 import mapGenerator from './mapGenerator.js';
 import gameInitialization from './gameInitialization.js';
-const { map, deepCopy, rint, range, ceil, sum, forEachProperty, template } = utils;
+const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
 export default {
     makeInitialState,
@@ -188,7 +188,7 @@ function income(state, player) {
     var multiplier = 1.0 + 0.01 * upgradeLevel(state, player, gameData.WATER);
     if ((player.u == aiPlay.aiPickMove) && (gameInitialization.gameSetup.l == gameData.AI_EVIL))
         multiplier += 0.4;
-    return ceil(multiplier * (fromRegions + fromTemples));
+    return Math.ceil(multiplier * (fromRegions + fromTemples));
 }
 
 function regionHasActiveArmy(state, player, region) {
