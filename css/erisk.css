@@ -267,7 +267,7 @@ p {
 }
 
 /* Particles! */
-.pr {
+.particle {
     position: absolute;
     width: 0;
     height: 0;

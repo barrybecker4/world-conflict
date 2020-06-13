@@ -424,15 +424,15 @@ function updateIngameUI(gameState) {
         var gameWinner = gameState.e;
 
         if (regions) {
-            $('pr' + index).innerHTML = stateManager.regionCount(gameState, player) + '&#9733;'; // region count
+            $('particle' + index).innerHTML = stateManager.regionCount(gameState, player) + '&#9733;'; // region count
             if (gameWinner) {
-                $('pc' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
+                $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
             } else {
-                $('pc' + index).innerHTML = gameState.c[player.i] + '&#9775;'; // cash on hand
+                $('player-cash' + index).innerHTML = gameState.c[player.i] + '&#9775;'; // cash on hand
             }
         } else {
-            $('pr' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
-            $('pc' + index).innerHTML = '';
+            $('particle' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
+            $('player-cash' + index).innerHTML = '';
         }
     });
 
@@ -528,7 +528,7 @@ function showBanner(background, text, delay) {
 
 function spawnParticle(x, y, vx, vy, color) {
     var styleString = "opacity:1;left: " + x + "%;top: " + y + "%;box-shadow: 0 0 1px 1px " + color;
-    var particle = append('m', div({c: 'pr', s: styleString}, ''));
+    var particle = append('m', div({c: 'particle', s: styleString}, ''));
     floatAway(particle, vx, vy);
 }
 

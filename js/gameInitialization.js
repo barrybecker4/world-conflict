@@ -149,8 +149,8 @@ function runSetupScreen() {
                 c: 'pl',
                 style: 'background: ' + player.d
             }, player.n +
-                utils.div({c: 'ad', i: 'pr' + pid}) +
-                utils.div({c: 'ad', i: 'pc' + pid})
+                utils.div({c: 'ad', i: 'particle' + pid}) +
+                utils.div({c: 'ad', i: 'player-cash' + pid})
             );
         }).join(''));
 
