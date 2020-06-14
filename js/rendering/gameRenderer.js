@@ -238,7 +238,7 @@ function updateMapDisplay(gameState) {
 
         // which cursor should we use?
         var templeOwner = stateManager.owner(gameState, temple.r);
-        temple.e.style.cursor = (gameInitialization.appState == gameData.APP_INGAME) ?
+        temple.e.style.cursor = gameInitialization.isInGame() ?
             ((templeOwner == stateManager.activePlayer(gameState)) ? 'zoom-in' : 'help') : 'default';
 
         // highlight?

@@ -66,10 +66,6 @@ export default {
     UNLIMITED_TURNS,
     TURN_COUNTS: [9, 12, 15, UNLIMITED_TURNS],
 
-    // == Application "states"
-    APP_SETUP_SCREEN: 0,
-    APP_INGAME: 1,
-
     // == Special "player" for signifying a draw game
     DRAW_GAME: {},
 

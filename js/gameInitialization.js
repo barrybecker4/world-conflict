@@ -10,11 +10,23 @@ const $ = utils.$
 export default {
     gameSetup,
     runSetupScreen,
-    appState,
+    setInGame,
+    isInGame,
 };
 
+const APP_SETUP_SCREEN = 0;
+const APP_IN_GAME = 1;
+
 var gameSetup = storage.retrieveSetup();
-var appState = 0;
+var appState = APP_SETUP_SCREEN;
+
+function setInGame(inGame) {
+    appState = inGame ? APP_IN_GAME : APP_SETUP_SCREEN;
+}
+
+function isInGame() {
+    return appState === APP_IN_GAME;
+}
 
 function prepareSetupUI() {
     // player box area
@@ -39,11 +51,20 @@ function prepareSetupUI() {
 
     // setup callbacks for players
     utils.for2d(0, 0, gameData.PLAYER_TEMPLATES.length, 3, function(playerIndex, buttonIndex) {
-        utils.onClickOrTap($('sb' + playerIndex + buttonIndex), gameController.invokeUICallback.bind(0, {p: playerIndex, b: buttonIndex}, 'sb'));
+        utils.onClickOrTap(
+            $('sb' + playerIndex + buttonIndex),
+            gameController.invokeUICallback.bind(0, {p: playerIndex, b: buttonIndex}, 'sb')
+        );
     });
     utils.map(utils.range(0, 4), function(index) {
-        utils.onClickOrTap($('ai' + index), gameController.invokeUICallback.bind(0, index, 'ai'));
-        utils.onClickOrTap($('tc' + index), gameController.invokeUICallback.bind(0, gameData.TURN_COUNTS[index], 'tc'));
+        utils.onClickOrTap(
+            $('ai' + index),
+            gameController.invokeUICallback.bind(0, index, 'ai')
+        );
+        utils.onClickOrTap(
+            $('tc' + index),
+            gameController.invokeUICallback.bind(0, gameData.TURN_COUNTS[index], 'tc')
+        );
     });
 
     function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
@@ -61,7 +82,7 @@ function prepareSetupUI() {
 
 function runSetupScreen() {
     // we're in setup now
-    appState = gameData.APP_SETUP_SCREEN;
+    setInGame(false);
 
     // generate initial setup and game state
     var game;

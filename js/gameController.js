@@ -26,7 +26,7 @@ export default {
 
 function playOneMove(state) {
     // we're playing the game now
-    gameInitialization.appState = gameData.APP_INGAME;
+    gameInitialization.setInGame(true);
 
     // oneAtATime is used to ensure that all animations from previous moves complete before a new one is played
     oneAtATime(150, function() {
