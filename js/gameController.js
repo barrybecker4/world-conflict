@@ -5,6 +5,7 @@ import gameData from './gameData.js';
 import stateManager from './stateManager.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
+import appState from './appState.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from './aiPlay.js';
 const $ = utils.$
@@ -26,7 +27,7 @@ export default {
 
 function playOneMove(state) {
     // we're playing the game now
-    gameInitialization.setInGame(true);
+    appState.setInGame(true);
 
     // oneAtATime is used to ensure that all animations from previous moves complete before a new one is played
     oneAtATime(150, function() {

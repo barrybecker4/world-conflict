@@ -3,6 +3,7 @@ import utils from '../utils.js';
 import sequenceUtils from '../sequenceUtils.js';
 import gameData from '../gameData.js';
 import storage from '../storage.js';
+import appState from '../appState.js';
 import gameInitialization from '../gameInitialization.js';
 import stateManager from '../stateManager.js';
 import undoManager from '../undoManager.js';
@@ -237,9 +238,10 @@ function updateMapDisplay(gameState) {
         }
 
         // which cursor should we use?
-        var templeOwner = stateManager.owner(gameState, temple.r);
-        temple.e.style.cursor = gameInitialization.isInGame() ?
-            ((templeOwner == stateManager.activePlayer(gameState)) ? 'zoom-in' : 'help') : 'default';
+        let templeOwner = stateManager.owner(gameState, temple.r);
+        let activePlayerIsTempleOwner = templeOwner == stateManager.activePlayer(gameState)
+        temple.e.style.cursor = appState.isInGame() ?
+            (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
         // highlight?
         var selected = gameState.d && gameState.d.w == temple;

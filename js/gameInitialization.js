@@ -5,28 +5,15 @@ import stateManager from './stateManager.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import storage from './storage.js';
+import appState from './appState.js';
 const $ = utils.$
 
 export default {
     gameSetup,
     runSetupScreen,
-    setInGame,
-    isInGame,
 };
 
-const APP_SETUP_SCREEN = 0;
-const APP_IN_GAME = 1;
-
 var gameSetup = storage.retrieveSetup();
-var appState = APP_SETUP_SCREEN;
-
-function setInGame(inGame) {
-    appState = inGame ? APP_IN_GAME : APP_SETUP_SCREEN;
-}
-
-function isInGame() {
-    return appState === APP_IN_GAME;
-}
 
 function prepareSetupUI() {
     // player box area
@@ -82,7 +69,7 @@ function prepareSetupUI() {
 
 function runSetupScreen() {
     // we're in setup now
-    setInGame(false);
+    appState.setInGame(false);
 
     // generate initial setup and game state
     var game;
