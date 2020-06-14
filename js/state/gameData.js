@@ -9,42 +9,42 @@ const UPGRADES = [
     {
         name: "Extra soldier",
         desc: "",
-        c: utils.map(utils.range(0, 100), function(n) { return 8 + n * 4; }),
-        x: []
+        cost: utils.map(utils.range(0, 100), function(n) { return 8 + n * 4; }),
+        level: [],
     },
     {
         name: "X of Water",
         desc: "Income: X% more each turn.",
-        c: [15, 25],
-        x: [20, 40],
+        cost: [15, 25],
+        level: [20, 40],
         b: '#66f'
     },
     {
         name: "X of Fire",
         desc: "Attack: X invincible soldier(s).",
-        c: [20, 30],
-        x: [1, 2],
+        cost: [20, 30],
+        level: [1, 2],
         b: '#f88'
     },
     {
         name: "X of Air",
         desc: "Move: X extra move(s) per turn.",
-        c: [25, 35],
-        x: [1, 2],
+        cost: [25, 35],
+        level: [1, 2],
         b: '#ffa'
     },
     {
         name: "X of Earth",
         desc: "Defense: Always kill X invader(s).",
-        c: [30, 45],
-        x: [1, 2],
+        cost: [30, 45],
+        level: [1, 2],
         b: '#696'
     },
     {
         name: "Rebuild temple",
         desc: "Switch to a different upgrade.",
-        c: [0],
-        x: []
+        cost: [0],
+        level: [],
     }
 ];
 

@@ -238,14 +238,14 @@ function uiPickMove(player, state, reportMoveCallback) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
             var level = (temple.u == upgrade) ? (temple.l+1) : ((upgrade == gameData.SOLDIER) ? (state.m.h || 0) : 0);
 
-            var cost = upgrade.c[level];
+            var cost = upgrade.cost[level];
             var text = utils.template(upgrade.name, gameData.LEVELS[level]) + utils.elem('b', {}, " (" + cost + "&#9775;)");
-            var description = utils.template(upgrade.desc, upgrade.x[level]);
+            var description = utils.template(upgrade.desc, upgrade.level[level]);
 
             var hidden = false;
             hidden = hidden || (upgrade == gameData.RESPEC && (!temple.u)); // respec only available if temple is upgraded
             hidden = hidden || (temple.u && temple.u != upgrade && upgrade != gameData.SOLDIER && upgrade != gameData.RESPEC); // the temple is already upgraded with a different upgrade
-            hidden = hidden || (level >= upgrade.c.length); // highest level reached
+            hidden = hidden || (level >= upgrade.cost.length); // highest level reached
             hidden = hidden || (level < stateManager.rawUpgradeLevel(state, templeOwner, upgrade)); // another temple has this upgrade already
             hidden = hidden || (templeOwner != player); // we're looking at an opponent's temple
 
@@ -435,7 +435,7 @@ function buildUpgrade(state, region, upgrade) {
         // soldiers work diferently - they get progressively more expensive the more you buy in one turn
         if (!state.m.h)
             state.m.h = 0;
-        state.c[templeOwner.i] -= upgrade.c[state.m.h++];
+        state.c[templeOwner.i] -= upgrade.cost[state.m.h++];
         return stateManager.addSoldiers(state, region, 1);
     }
     if (upgrade == gameData.RESPEC) {
@@ -455,7 +455,7 @@ function buildUpgrade(state, region, upgrade) {
     }
 
     // you have to pay for it, unfortunately
-    state.c[templeOwner.i] -= upgrade.c[temple.l];
+    state.c[templeOwner.i] -= upgrade.cost[temple.l];
 
     // particles!
     state.prt = temple.r;

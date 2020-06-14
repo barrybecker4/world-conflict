@@ -259,7 +259,7 @@ function upgradeLevel(state, player, upgradeType) {
         // does it belong to us?
         if (owner(state, region) != player) return 0;
         // does it have the right type of upgrade?
-        return (temple.u == upgradeType) ? upgradeType.x[temple.l] : 0;
+        return (temple.u == upgradeType) ? upgradeType.level[temple.l] : 0;
     }));
 }
 
@@ -270,7 +270,7 @@ function totalSoldiers(state, player) {
 }
 
 function soldierCost(state) {
-    return gameData.SOLDIER.c[state.m.h || 0];
+    return gameData.SOLDIER.cost[state.m.h || 0];
 }
 
 function templeInfo(state, temple) {
@@ -278,8 +278,9 @@ function templeInfo(state, temple) {
         var name = owner(state, temple.r) ? "Basic Temple" : "Neutral Temple";
         return {n: name, d: "No upgrades."};
     } else {
-        var upgrade = temple.u, level = temple.l,
-            description = template(upgrade.d, upgrade.x[level]);
+        var upgrade = temple.u;
+        let level = temple.l;
+        let description = template(upgrade.desc, upgrade.level[level]);
         return {n: template(upgrade.n, gameData.LEVELS[level]), d: description};
     }
 }

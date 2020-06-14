@@ -69,7 +69,7 @@ function upgradeToBuild(player, state) {
     var desire = player.p.u[0];
     var currentLevel = stateManager.rawUpgradeLevel(state, player, desire);
     // can we afford it?
-    if (state.c[player.i] < desire.c[currentLevel])
+    if (state.c[player.i] < desire.cost[currentLevel])
         return;
 
     // do we have a place to build it?
