@@ -83,7 +83,7 @@ function runSetupScreen() {
     // callback for the buttons on the bottom
     gameController.uiCallbacks.b = function(which) {
         if (!isSetupValid()) return;
-        if (which == 0) {
+        if (which === 0) {
             regenerateMap();
         } else {
             prepareIngameUI(gameState);

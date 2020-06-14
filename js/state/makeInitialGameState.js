@@ -8,6 +8,7 @@ import Temple from './model/Temple.js';
 import GameState from './model/GameState.js';
 import Region from './model/Region.js';
 import { ArmyMove } from './model/Move.js';
+import AI_PERSONALITIES from './model/AI_PERSONALITIES.js';
 const { map, deepCopy, rint, range, sum } = utils;
 
 // initial game state happens here
@@ -24,7 +25,7 @@ export default function makeInitialGameState(setup) {
 
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
-            player.p = gameData.AI_PERSONALITIES[rint(0, gameData.AI_PERSONALITIES.length)].copy();
+            player.p = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
         }
 
         player.i = players.length;

@@ -3,6 +3,7 @@ import gameData from '../gameData.js';
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import aiPlay from '../../aiPlay.js';
+import Upgrades from './Upgrades.js';
 
 // global counter for the number of soldiers
 var soldierCounter;
@@ -41,7 +42,7 @@ export default class GameState {
         var fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
             return self.soldierCount(temple.r);
         });
-        var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, gameData.WATER);
+        var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, Upgrades.WATER);
         if ((player.u == aiPlay.aiPickMove) && (gameInitialization.gameSetup.l == gameData.AI_EVIL))
             multiplier += 0.4;
         return Math.ceil(multiplier * (fromRegions + fromTemples));
@@ -120,7 +121,7 @@ export default class GameState {
     }
 
     soldierCost() {
-        return gameData.SOLDIER.cost[this.m.h || 0];
+        return Upgrades.SOLDIER.cost[this.m.h || 0];
     }
 
     templeInfo(temple) {

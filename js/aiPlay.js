@@ -4,6 +4,7 @@ import gameData from './state/gameData.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
 import { ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
+import Upgrades from './state/model/Upgrades.js';
 
 // The AI running CPU players resides below.
 
@@ -95,11 +96,11 @@ function templeDangerousness(state, temple) {
 
 function buildSoldierAtBestTemple(player, state) {
     var temple = sequenceUtils.max(state.temples(player), templeDangerousness.bind(0, state));
-    return new BuildMove(gameData.SOLDIER, temple, temple.r);
+    return new BuildMove(Upgrades.SOLDIER, temple, temple.r);
 }
 
 function minMaxDoSomeWork(node) {
-    if (node.d == 0) {
+    if (node.d === 0) {
         // terminal node, evaluate and return
         node.v = heuristicForPlayer(node.a, node.s);
         return minMaxReturnFromChild(node.p, node);
@@ -265,7 +266,7 @@ function regionFullValue(state, region) {
 
 function regionThreat(state, player, region) {
     var aiLevel = gameInitialization.gameSetup.l;
-    if (gameInitialization.gameSetup.l == gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
+    if (gameInitialization.gameSetup.l === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
     var ourPresence = state.soldierCount(region);
     var enemyPresence = sequenceUtils.max(utils.map(region.n, function(neighbour) {
@@ -275,7 +276,7 @@ function regionThreat(state, player, region) {
 
         // count soldiers that can reach us in 3 moves from this direction
         // using a breadth-first search
-        var depth = (aiLevel == gameData.AI_RUDE) ? 0 : 2; // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us
+        var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2; // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us
         var queue = [{r: neighbour, d: depth}], visited = [];
         var total = 0;
         while (queue.length) {
@@ -296,12 +297,12 @@ function regionThreat(state, player, region) {
 
         return total;
     }));
-    return utils.clamp((enemyPresence / (ourPresence+0.0001) - 1) / 1.5, 0, (aiLevel == gameData.AI_RUDE) ? 0.5 : 1.1);
+    return utils.clamp((enemyPresence / (ourPresence+0.0001) - 1) / 1.5, 0, (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1);
 }
 
 function regionOpportunity(state, player, region) {
     // the 'nice' AI doesn't see opportunities
-    if (gameInitialization.gameSetup.l == gameData.AI_NICE) return 0;
+    if (gameInitialization.gameSetup.l === gameData.AI_NICE) return 0;
 
     // how much conquest does this region enable?
     var attackingSoldiers = state.soldierCount(region);

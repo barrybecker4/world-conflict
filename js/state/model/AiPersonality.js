@@ -1,3 +1,4 @@
+import utils from '../../utils/utils.js';
 
 // AI personalities
 export default class AiPersonality {

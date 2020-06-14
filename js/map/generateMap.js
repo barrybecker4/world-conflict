@@ -48,8 +48,8 @@ export default function generateMap(playerCount) {
     function shrink(bounds) {
         var r = utils.rint(0, 4);
         if (r % 2) bounds.w--; else bounds.h--;
-        if (r == 2) bounds.t++;
-        if (r == 3) bounds.l++;
+        if (r === 2) bounds.t++;
+        if (r === 3) bounds.l++;
         return (bounds.w * bounds.h < 9);
     }
 

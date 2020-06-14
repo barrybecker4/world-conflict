@@ -9,6 +9,7 @@ import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from './aiPlay.js';
 import { Move, ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
+import Upgrades from './state/model/Upgrades.js';
 const $ = utils.$
 
 // All the game logic that runs in main loop resides in this module.
@@ -182,20 +183,20 @@ function uiPickMove(player, state, reportMoveCallback) {
     uiCallbacks.b = function(which) {
         if (state.d && state.d.isBuildMove()) {
             // build buttons handled here
-            if (which >= gameData.UPGRADES.length) {
+            if (which >= Upgrades.all.length) {
                 setCleanState();
             } else {
                 // build an upgrade!
-                state.d.u = gameData.UPGRADES[which];
+                state.d.u = Upgrades.all[which];
                 // if its a soldier, store UI state so it can be kept after the move is made
-                if (state.d.u == gameData.SOLDIER)
+                if (state.d.u === Upgrades.SOLDIER)
                     uiState[player.i] = state.d.r;
                 // report the move
                 reportMoveCallback(state.d);
             }
         } else {
             // move action buttons handled here
-            if (which == 1) {
+            if (which === 1) {
                 // end turn
                 uiCallbacks = {};
                 reportMoveCallback(new EndMove());
@@ -224,17 +225,17 @@ function uiPickMove(player, state, reportMoveCallback) {
 
     function makeUpgradeButtons(temple) {
         var templeOwner = state.owner(temple.r);
-        var upgradeButtons = utils.map(gameData.UPGRADES, function(upgrade) {
+        var upgradeButtons = utils.map(Upgrades.all, function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
-            var level = (temple.u == upgrade) ? (temple.l+1) : ((upgrade == gameData.SOLDIER) ? (state.m.h || 0) : 0);
+            var level = (temple.u == upgrade) ? (temple.l+1) : ((upgrade === Upgrades.SOLDIER) ? (state.m.h || 0) : 0);
 
             var cost = upgrade.cost[level];
             var text = utils.template(upgrade.name, gameData.LEVELS[level]) + utils.elem('b', {}, " (" + cost + "&#9775;)");
             var description = utils.template(upgrade.desc, upgrade.level[level]);
 
             var hidden = false;
-            hidden = hidden || (upgrade == gameData.RESPECT && (!temple.u)); // respect only available if temple is upgraded
-            hidden = hidden || (temple.u && temple.u != upgrade && upgrade != gameData.SOLDIER && upgrade != gameData.RESPECT); // the temple is already upgraded with a different upgrade
+            hidden = hidden || (upgrade === Upgrades.RESPECT && (!temple.u)); // respect only available if temple is upgraded
+            hidden = hidden || (temple.u && temple.u != upgrade && upgrade != Upgrades.SOLDIER && upgrade != Upgrades.RESPECT); // the temple is already upgraded with a different upgrade
             hidden = hidden || (level >= upgrade.cost.length); // highest level reached
             hidden = hidden || (level < state.rawUpgradeLevel(templeOwner, upgrade)); // another temple has this upgrade already
             hidden = hidden || (templeOwner != player); // we're looking at an opponent's temple
@@ -290,8 +291,8 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         var defendingSoldiers = toList.length;
 
         // earth upgrade - preemptive damage on defense
-        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, gameData.EARTH)]);
-        var invincibility = state.upgradeLevel(fromOwner, gameData.FIRE);
+        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, Upgrades.EARTH)]);
+        var invincibility = state.upgradeLevel(fromOwner, Upgrades.FIRE);
 
         if (preemptiveDamage || defendingSoldiers) {
             // there will be a battle - move the soldiers halfway for animation
@@ -306,7 +307,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         if (preemptiveDamage) {
             // animate it
             battleAnimationKeyframe(state, 50, audio.audioOursDead,
-                [{s: fromList[0], t: "Earth kills " + preemptiveDamage + "!", c: gameData.EARTH.b, w: 9}]
+                [{s: fromList[0], t: "Earth kills " + preemptiveDamage + "!", c: Upgrades.EARTH.b, w: 9}]
             );
             // apply it
             utils.map(utils.range(0, preemptiveDamage), function () {
@@ -321,8 +322,8 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             // at this point, the outcome becomes random - so you can't undo your way out of it
             state.u = 1;
 
-            var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, gameData.FIRE) * 0.01);
-            var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, gameData.EARTH) * 0.01);
+            var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, Upgrades.FIRE) * 0.01);
+            var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, Upgrades.EARTH) * 0.01);
 
             var repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
             var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
@@ -353,7 +354,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                         battleAnimationKeyframe(state, 250, audio.audioOursDead);
                     } else {
                         battleAnimationKeyframe(state, 800, audio.audioOursDead,
-                            [{s: fromList[0], t: "Protected by Fire!", c: gameData.FIRE.b, w: 11}]
+                            [{s: fromList[0], t: "Protected by Fire!", c: Upgrades.FIRE.b, w: 11}]
                         );
                     }
                 } else {
@@ -421,14 +422,14 @@ function buildUpgrade(state, region, upgrade) {
     var temple = state.t[region.i];
     var templeOwner = state.owner(region);
 
-    if (upgrade == gameData.SOLDIER) {
-        // soldiers work diferently - they get progressively more expensive the more you buy in one turn
+    if (upgrade === Upgrades.SOLDIER) {
+        // soldiers work differently - they get progressively more expensive the more you buy in one turn
         if (!state.m.h)
             state.m.h = 0;
         state.c[templeOwner.i] -= upgrade.cost[state.m.h++];
         return state.addSoldiers(region, 1);
     }
-    if (upgrade == gameData.RESPECT) {
+    if (upgrade === Upgrades.RESPECT) {
         // respecting is also different
         delete temple.u;
         return;
@@ -451,7 +452,7 @@ function buildUpgrade(state, region, upgrade) {
     state.prt = temple.r;
 
     // the AIR upgrade takes effect immediately
-    if (upgrade == gameData.AIR)
+    if (upgrade == Upgrades.AIR)
         state.m.l++;
 }
 
@@ -479,7 +480,7 @@ function nextTurn(state) {
         var playerCount = state.p.length;
         var playerIndex = (state.m.p + 1) % playerCount, upcomingPlayer = state.p[playerIndex],
             turnNumber = state.m.t + (playerIndex ? 0 : 1);
-        var numMoves = gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, gameData.AIR);
+        var numMoves = gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, Upgrades.AIR);
         state.m = new ArmyMove(turnNumber, playerIndex, numMoves);
     } while (!state.regionCount(upcomingPlayer));
 
