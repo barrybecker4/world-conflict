@@ -5,7 +5,6 @@ import gameData from '../state/gameData.js';
 import storage from '../state/storage.js';
 import appState from '../state/appState.js';
 import gameInitialization from '../gameInitialization.js';
-import stateManager from '../state/stateManager.js';
 import undoManager from '../state/undoManager.js';
 import gameController from '../gameController.js';
 import oneAtaTime from '../utils/oneAtaTime.js';
@@ -150,7 +149,7 @@ function updateMapDisplay(gameState) {
     updateSoldierTooltips();
 
     function updateRegionDisplay(region) {
-        var regionOwner = stateManager.owner(gameState, region);
+        var regionOwner = gameState.owner(region);
         var gradientName = (regionOwner ? 'p' + regionOwner.i : 'l');
 
         var highlighted = sequenceUtils.contains(gameState.d && gameState.d.h || [], region) ||    // a region is highlighted if it has an available move
@@ -185,7 +184,7 @@ function updateMapDisplay(gameState) {
 
     function updateTooltips() {
         map(document.querySelectorAll('.ttp'), $('m').removeChild.bind($('m')));
-        if (stateManager.activePlayer(gameState).u != gameController.uiPickMove) return;
+        if (gameState.activePlayer().u != gameController.uiPickMove) return;
 
         // "how to move" tooltips
         var source = gameState.d && gameState.d.s;
@@ -239,8 +238,8 @@ function updateMapDisplay(gameState) {
         }
 
         // which cursor should we use?
-        let templeOwner = stateManager.owner(gameState, temple.r);
-        let activePlayerIsTempleOwner = templeOwner == stateManager.activePlayer(gameState)
+        let templeOwner = gameState.owner(temple.r);
+        let activePlayerIsTempleOwner = templeOwner == gameState.activePlayer();
         temple.e.style.cursor = appState.isInGame() ?
             (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
@@ -264,7 +263,7 @@ function updateMapDisplay(gameState) {
 
         // (re)calculate where the <div> should be
         var center = region.c;
-        var totalSoldiers = stateManager.soldierCount(gameState, region);
+        var totalSoldiers = gameState.soldierCount(region);
 
         var columnWidth = sequenceUtils.min([totalSoldiers, 4]);
         var rowHeight = sequenceUtils.min([2 / Math.ceil(totalSoldiers / 4), 1]);
@@ -299,7 +298,7 @@ function updateMapDisplay(gameState) {
             var tooltip = $(tooltipId);
 
             // should we have a tooltip?
-            var count = stateManager.soldierCount(gameState, region);
+            var count = gameState.soldierCount(region);
             if (count > 8) {
                 var selected = (gameState.d && (gameState.d.s == region)) ? gameState.d.c : 0;
                 selected += sequenceUtils.sum(gameState.s[regionIndex], function(soldier) {
@@ -350,11 +349,11 @@ function updateIngameUI(gameState) {
     var buildingMode = decisionState && (decisionState.t == gameData.BUILD_ACTION);
     var movingArmy = decisionState && decisionState.s;
 
-    var active = stateManager.activePlayer(gameState);
+    var active = gameState.activePlayer();
 
     // turn counter/building name
     if (buildingMode) {
-        var info = stateManager.templeInfo(gameState, decisionState.w);
+        var info = gameState.templeInfo(decisionState.w);
         $('turn-count').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
     } else {
         $('turn-count').innerHTML =
@@ -365,11 +364,11 @@ function updateIngameUI(gameState) {
     // player data
     map(gameState.p, function(player, index) {
         //$('pl' + index).className = (index == moveState.p) ? 'pl' : 'pi'; // active or not?
-        var regions = stateManager.regionCount(gameState, player);
+        var regions = gameState.regionCount(player);
         var gameWinner = gameState.e;
 
         if (regions) {
-            $('particle' + index).innerHTML = stateManager.regionCount(gameState, player) + '&#9733;'; // region count
+            $('particle' + index).innerHTML = gameState.regionCount(player) + '&#9733;'; // region count
             if (gameWinner) {
                 $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
             } else {
@@ -384,7 +383,7 @@ function updateIngameUI(gameState) {
     let moveInfo;
     if (active.u == gameController.uiPickMove) {
         if (buildingMode) {
-            if (stateManager.owner(gameState, decisionState.r) == active)
+            if (gameState.owner(decisionState.r) == active)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');
             else
                 moveInfo = '';

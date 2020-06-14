@@ -3,7 +3,6 @@ import utils from './utils/utils.js';
 import sequenceUtils from './utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
 import gameData from './state/gameData.js';
-import stateManager from './state/stateManager.js';
 import undoManager from './state/undoManager.js';
 import appState from './state/appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
@@ -32,7 +31,7 @@ function playOneMove(state) {
 
     // oneAtaTime is used to ensure that all animations from previous moves complete before a new one is played
     oneAtaTime(150, function() {
-        var controllingPlayer = stateManager.activePlayer(state); // who is the active player to make some kind of move?
+        var controllingPlayer = state.activePlayer();
 
         // let the player pick their move using UI or AI
         pickMove(controllingPlayer, state, function(move) {
@@ -50,7 +49,7 @@ function playOneMove(state) {
                 return;
             } else {
                 // remember state for undo purposes
-                undoManager.setPreviousState(stateManager.copyState(state));
+                undoManager.setPreviousState(state.copy());
                 // still more of the game to go - next move, please!
                 setTimeout(playOneMove.bind(0, newState), 1);
             }
@@ -71,7 +70,7 @@ function playOneMove(state) {
  */
 function pickMove(player, state, reportMoveCallback) {
     // automatically end the turn of dead players
-    if (!stateManager.regionCount(state, player))
+    if (!state.regionCount(player))
         return reportMoveCallback({t: gameData.END_TURN});
 
     // delegate to whoever handles this player
@@ -88,21 +87,21 @@ function pickMove(player, state, reportMoveCallback) {
  * @returns {GameState} the game state after this move
  */
 function makeMove(state, move) {
-    state = stateManager.copyState(state);
+    const newState = state.copy();
 
     var moveType = move.t;
     if (moveType == gameData.MOVE_ARMY) {
-        moveSoldiers(state, move.s, move.d, move.c);
+        moveSoldiers(newState, move.s, move.d, move.c);
     } else if (moveType == gameData.BUILD_ACTION) {
-        buildUpgrade(state, move.r, move.u);
+        buildUpgrade(newState, move.r, move.u);
     } else if (moveType == gameData.END_TURN) {
-        nextTurn(state);
+        nextTurn(newState);
     }
 
     // updates that happen after each move (checking for players losing, etc.)
-    afterMoveChecks(state);
+    afterMoveChecks(newState);
 
-    return state;
+    return newState;
 }
 
 // This is the handler that gets attached to most DOM elements.
@@ -140,11 +139,11 @@ function uiPickMove(player, state, reportMoveCallback) {
 
         if (!state.d.s && region) {
             // no move in progress - start a new move if this is legal
-            if (stateManager.regionHasActiveArmy(state, player, region)) {
+            if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
                 state.d.t = gameData.MOVE_ARMY;
                 state.d.s = region;
-                state.d.c = stateManager.soldierCount(state, region);
+                state.d.c = state.soldierCount(region);
                 state.d.b[0].h = 0;
                 state.d.h = region.n.concat(region);
             }
@@ -154,7 +153,7 @@ function uiPickMove(player, state, reportMoveCallback) {
             // what region did we click?
             if (region == decisionState.s) {
                 // the one we're moving an army from - tweak soldier count
-                decisionState.c = decisionState.c % stateManager.soldierCount(state, region) + 1;
+                decisionState.c = decisionState.c % state.soldierCount(region) + 1;
             } else if (decisionState.s.n.indexOf(region) > -1) {
                 // one of the neighbours - let's finalize the move
                 uiCallbacks = {};
@@ -228,12 +227,12 @@ function uiPickMove(player, state, reportMoveCallback) {
 
     function setCleanState() {
         state.d = utils.deepCopy(cleanState, 3);
-        state.d.h = state.r.filter(stateManager.regionHasActiveArmy.bind(0, state, player));
+        state.d.h = state.r.filter(region => state.regionHasActiveArmy(player, region));
         gameRenderer.updateDisplay(state);
     }
 
     function makeUpgradeButtons(temple) {
-        var templeOwner = stateManager.owner(state, temple.r);
+        var templeOwner = state.owner(temple.r);
         var upgradeButtons = utils.map(gameData.UPGRADES, function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
             var level = (temple.u == upgrade) ? (temple.l+1) : ((upgrade == gameData.SOLDIER) ? (state.m.h || 0) : 0);
@@ -246,10 +245,10 @@ function uiPickMove(player, state, reportMoveCallback) {
             hidden = hidden || (upgrade == gameData.RESPECT && (!temple.u)); // respect only available if temple is upgraded
             hidden = hidden || (temple.u && temple.u != upgrade && upgrade != gameData.SOLDIER && upgrade != gameData.RESPECT); // the temple is already upgraded with a different upgrade
             hidden = hidden || (level >= upgrade.cost.length); // highest level reached
-            hidden = hidden || (level < stateManager.rawUpgradeLevel(state, templeOwner, upgrade)); // another temple has this upgrade already
+            hidden = hidden || (level < state.rawUpgradeLevel(templeOwner, upgrade)); // another temple has this upgrade already
             hidden = hidden || (templeOwner != player); // we're looking at an opponent's temple
 
-            return {t: text, d: description, o: cost > stateManager.cash(state, player), h: hidden};
+            return {t: text, d: description, o: cost > state.cash(player), h: hidden};
         });
         upgradeButtons.push({t: "Done"});
         return upgradeButtons;
@@ -260,16 +259,16 @@ function afterMoveChecks(state) {
     // check for game loss by any of the players
     utils.map(state.p, function(player) {
         var totalSoldiers = sequenceUtils.sum(state.r, function(region) {
-            return stateManager.owner(state, region) == player ? stateManager.soldierCount(state, region) : 0;
+            return state.owner(region) == player ? state.soldierCount(region) : 0;
         });
-        if (!totalSoldiers && stateManager.regionCount(state, player)) {
+        if (!totalSoldiers && state.regionCount(player)) {
             // lost!
             utils.forEachProperty(state.o, function(p, r) {
                 if (player == p)
                     delete state.o[r];
             });
             // dead people get no more moves
-            if (stateManager.activePlayer(state) == player)
+            if (state.activePlayer() == player)
                 state.m.l = 0;
             // show the world the good (or bad) news
             if (!state.a) {
@@ -280,7 +279,7 @@ function afterMoveChecks(state) {
     });
 
     // do we still have more than one player?
-    var gameStillOn = state.p.filter(stateManager.regionCount.bind(0, state)).length > 1;
+    var gameStillOn = state.p.filter(player => state.regionCount(player)).length > 1;
     if (!gameStillOn) {
         // oh gosh, it's done - by elimination!
         state.e = determineGameWinner(state);
@@ -292,16 +291,16 @@ function afterMoveChecks(state) {
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
     var fromList = state.s[fromRegion.i];
     var toList = state.s[toRegion.i] || (state.s[toRegion.i] = []);
-    var fromOwner = stateManager.owner(state, fromRegion);
-    var toOwner = stateManager.owner(state, toRegion);
+    var fromOwner = state.owner(fromRegion);
+    var toOwner = state.owner(toRegion);
 
     // do we have a fight?
     if (fromOwner != toOwner) {
         var defendingSoldiers = toList.length;
 
         // earth upgrade - preemptive damage on defense
-        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, stateManager.upgradeLevel(state, toOwner, gameData.EARTH)]);
-        var invincibility = stateManager.upgradeLevel(state, fromOwner, gameData.FIRE);
+        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, gameData.EARTH)]);
+        var invincibility = state.upgradeLevel(fromOwner, gameData.FIRE);
 
         if (preemptiveDamage || defendingSoldiers) {
             // there will be a battle - move the soldiers halfway for animation
@@ -331,8 +330,8 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             // at this point, the outcome becomes random - so you can't undo your way out of it
             state.u = 1;
 
-            var incomingStrength = incomingSoldiers * (1 + stateManager.upgradeLevel(state, fromOwner, gameData.FIRE) * 0.01);
-            var defendingStrength = defendingSoldiers * (1 + stateManager.upgradeLevel(state, toOwner, gameData.EARTH) * 0.01);
+            var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, gameData.FIRE) * 0.01);
+            var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, gameData.EARTH) * 0.01);
 
             var repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
             var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
@@ -420,7 +419,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.a) return;
-    var keyframe = stateManager.copyState(state);
+    const keyframe = state.copy();
     keyframe.sc = soundCue;
     keyframe.flt = floatingTexts;
     oneAtaTime(delay || 500, gameRenderer.updateDisplay.bind(0, keyframe));
@@ -429,14 +428,14 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
 
 function buildUpgrade(state, region, upgrade) {
     var temple = state.t[region.i];
-    var templeOwner = stateManager.owner(state, region);
+    var templeOwner = state.owner(region);
 
     if (upgrade == gameData.SOLDIER) {
         // soldiers work diferently - they get progressively more expensive the more you buy in one turn
         if (!state.m.h)
             state.m.h = 0;
         state.c[templeOwner.i] -= upgrade.cost[state.m.h++];
-        return stateManager.addSoldiers(state, region, 1);
+        return state.addSoldiers(region, 1);
     }
     if (upgrade == gameData.RESPECT) {
         // respecting is also different
@@ -467,20 +466,20 @@ function buildUpgrade(state, region, upgrade) {
 
 
 function nextTurn(state) {
-    var player = stateManager.activePlayer(state);
+    var player = state.activePlayer();
 
     // cash is produced
-    var playerIncome = stateManager.income(state, player);
+    var playerIncome = state.income(player);
     state.c[player.i] += playerIncome;
     if (playerIncome) {
-        state.flt = [{r: stateManager.temples(state, player)[0].r, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}];
+        state.flt = [{r: state.temples(player)[0].r, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}];
     }
 
     // temples produce one soldier per turn automatically
     utils.forEachProperty(state.t, function(temple, regionIndex) {
         if (state.o[regionIndex] == player) {
             // this is our temple, add a soldier of the temple's element
-            stateManager.addSoldiers(state, temple.r, 1);
+            state.addSoldiers(temple.r, 1);
         }
     });
 
@@ -493,9 +492,9 @@ function nextTurn(state) {
             t: turnNumber,
             p: playerIndex,
             m: gameData.MOVE_ARMY,
-            l: gameData.movesPerTurn + stateManager.upgradeLevel(state, upcomingPlayer, gameData.AIR)
+            l: gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, gameData.AIR)
         };
-    } while (!stateManager.regionCount(state, upcomingPlayer));
+    } while (!state.regionCount(upcomingPlayer));
 
     // did the game end by any chance?
     if (state.m.t > gameInitialization.gameSetup.turnCount) {
@@ -508,12 +507,12 @@ function nextTurn(state) {
     // if this is not simulated, we'd like a banner
     if (!state.a) {
         // show next turn banner
-        gameRenderer.showBanner(stateManager.activePlayer(state).d, stateManager.activePlayer(state).n + "'s turn");
+        gameRenderer.showBanner(state.activePlayer().d, state.activePlayer().n + "'s turn");
     }
 }
 
 function determineGameWinner(state) {
-    var pointsFn = stateManager.regionCount.bind(0, state);
+    var pointsFn = player => state.regionCount(player);
     var winner = sequenceUtils.max(state.p, pointsFn);
     var otherPlayers = state.p.filter(function(player) { return player != winner; });
     var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);

@@ -1,7 +1,6 @@
 import utils from './utils/utils.js';
 import sequenceUtils from './utils/sequenceUtils.js';
 import gameData from './state/gameData.js';
-import stateManager from './state/stateManager.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
 
@@ -16,7 +15,7 @@ function aiPickMove(player, state, reportMoveCallback) {
     // start with soldiers
     if (shouldBuildSoldier(player, state)) {
         var move = buildSoldierAtBestTemple(player, state);
-        return setTimeout(reportMoveCallback.bind(0,move), gameData.minimumAIThinkingTime);
+        return setTimeout(reportMoveCallback.bind(0, move), gameData.minimumAIThinkingTime);
     }
 
     // we don't need soldiers, maybe we can upgrade a temple?
@@ -34,7 +33,7 @@ function aiPickMove(player, state, reportMoveCallback) {
 
 function shouldBuildSoldier(player, state) {
     // do we have a temple to build it in?
-    if (!stateManager.temples(state, player).length)
+    if (!state.temples(player).length)
         return false;
 
     // get preference for soldiers from our personality
@@ -42,12 +41,12 @@ function shouldBuildSoldier(player, state) {
     var soldierPreference = player.p.u.length ? player.p.s : 1;
 
     // calculate the relative cost of buying a soldier now
-    var relativeCost = stateManager.soldierCost(state) / state.c[player.i];
+    var relativeCost = state.soldierCost() / state.c[player.i];
     if (relativeCost > 1)
         return false;
 
     // see how far behind on soldier number we are
-    var forces = utils.map(state.p, force.bind(0,state));
+    var forces = utils.map(state.p, force.bind(0, state));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
     // this calculates whether we should build now - the further we are behind
@@ -59,7 +58,7 @@ function shouldBuildSoldier(player, state) {
 }
 
 function force(state, player) {
-    return stateManager.regionCount(state, player) * 2 + stateManager.totalSoldiers(state, player);
+    return state.regionCount(player) * 2 + state.totalSoldiers(player);
 }
 
 function upgradeToBuild(player, state) {
@@ -67,13 +66,13 @@ function upgradeToBuild(player, state) {
     if (!player.p.u.length)
         return;
     var desire = player.p.u[0];
-    var currentLevel = stateManager.rawUpgradeLevel(state, player, desire);
+    var currentLevel = state.rawUpgradeLevel(player, desire);
     // can we afford it?
     if (state.c[player.i] < desire.cost[currentLevel])
         return;
 
     // do we have a place to build it?
-    var possibleUpgrades = stateManager.temples(state, player).filter(function(temple) {
+    var possibleUpgrades = state.temples(player).filter(function(temple) {
         return ((!temple.u) && (!currentLevel)) || (temple.u == desire);
     });
     if (!possibleUpgrades.length)
@@ -88,13 +87,13 @@ function upgradeToBuild(player, state) {
 }
 
 function templeDangerousness(state, temple) {
-    var templeOwner = stateManager.owner(state, temple.r);
+    var templeOwner = state.owner(temple.r);
     return regionThreat(state, templeOwner, temple.r) +
            regionOpportunity(state, templeOwner, temple.r);
 }
 
 function buildSoldierAtBestTemple(player, state) {
-    var temple = sequenceUtils.max(stateManager.temples(state, player), templeDangerousness.bind(0, state));
+    var temple = sequenceUtils.max(state.temples(player), templeDangerousness.bind(0, state));
     return {t: gameData.BUILD_ACTION, u: gameData.SOLDIER, w: temple, r: temple.r};
 }
 
@@ -138,7 +137,7 @@ function minMaxReturnFromChild(node, child) {
 }
 
 function performMinMax(forPlayer, fromState, depth, moveCallback) {
-    var simulation = stateManager.copyState(fromState, forPlayer);
+    var simulation = fromState.copy(forPlayer);
     var initialNode = {
         p: null, a: forPlayer, s: simulation, d: depth,
         u: possibleMoves(fromState)
@@ -183,7 +182,7 @@ function performMinMax(forPlayer, fromState, depth, moveCallback) {
 function possibleMoves(state) {
     // ending your turn is always an option
     var moves = [{t: gameData.END_TURN}];
-    var player = stateManager.activePlayer(state);
+    var player = state.activePlayer();
 
     // are we out of move points?
     if (!state.m.l)
@@ -193,7 +192,7 @@ function possibleMoves(state) {
         // add the move to the list, if it doesn't qualify as an obviously stupid one
 
         // suicide moves, for example:
-        if ((stateManager.owner(state, dest) != player) && (stateManager.soldierCount(state, dest) > count))
+        if ((state.owner(dest) != player) && (state.soldierCount(dest) > count))
             return;
 
         // not *obviously* stupid, add it to the list!
@@ -202,11 +201,11 @@ function possibleMoves(state) {
 
     // let's see what moves we have available
     utils.map(state.r, function(region) {
-       if (stateManager.regionHasActiveArmy(state, player, region)) {
+       if (state.regionHasActiveArmy(player, region)) {
            // there is a move from here!
            // iterate over all possible neighbours, and add two moves for each:
            // moving the entire army there, and half of it
-           var soldiers = stateManager.soldierCount(state, region);
+           var soldiers = state.soldierCount(region);
            utils.map(region.n, function(neighbour) {
                addArmyMove(region, neighbour, soldiers);
                if (soldiers > 1)
@@ -239,15 +238,15 @@ function heuristicForPlayer(player, state) {
         value += regionOpportunity(state, player, region) * threatOpportunityMultiplier -
                  regionThreat(state, player, region) * threatOpportunityMultiplier * value;
         // and the soldiers on it
-        value += stateManager.soldierCount(state, region) * soldierBonus;
+        value += state.soldierCount(region) * soldierBonus;
 
         return value;
     }
 
     var regionTotal = sequenceUtils.sum(state.r, function (region) {
-        return (stateManager.owner(state, region) == player) ? adjustedRegionValue(region) : 0;
+        return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
-    var faithTotal = stateManager.income(state, player) * soldierBonus / 12; // each point of faith counts as 1/12th of a soldier
+    var faithTotal = state.income(player) * soldierBonus / 12; // each point of faith counts as 1/12th of a soldier
     return regionTotal + faithTotal;
 }
 
@@ -267,10 +266,10 @@ function regionThreat(state, player, region) {
     var aiLevel = gameInitialization.gameSetup.l;
     if (gameInitialization.gameSetup.l == gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
-    var ourPresence = stateManager.soldierCount(state, region);
+    var ourPresence = state.soldierCount(region);
     var enemyPresence = sequenceUtils.max(utils.map(region.n, function(neighbour) {
         // is this an enemy region?
-        var nOwner = stateManager.owner(state, neighbour);
+        var nOwner = state.owner(neighbour);
         if ((nOwner == player) || !nOwner) return 0;
 
         // count soldiers that can reach us in 3 moves from this direction
@@ -280,14 +279,14 @@ function regionThreat(state, player, region) {
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
-            total += stateManager.soldierCount(state, entry.r) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.d) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
+            total += state.soldierCount(entry.r) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.d) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
             visited.push(entry.r);
 
             if (entry.d) {
                 // go deeper with the search
                 utils.map(entry.r.n.filter(function(candidate) {
                     return (!sequenceUtils.contains(visited, candidate)) &&
-                        (stateManager.owner(state, candidate) == nOwner);
+                        (state.owner(candidate) == nOwner);
                 }), function(r) {
                     queue.push({r: r, d: entry.d-1});
                 });
@@ -304,13 +303,13 @@ function regionOpportunity(state, player, region) {
     if (gameInitialization.gameSetup.l == gameData.AI_NICE) return 0;
 
     // how much conquest does this region enable?
-    var attackingSoldiers = stateManager.soldierCount(state, region);
+    var attackingSoldiers = state.soldierCount(region);
     if (!attackingSoldiers)
         return 0;
 
     return sequenceUtils.sum(region.n, function(neighbour) {
-        if (stateManager.owner(state, neighbour) != player) {
-            var defendingSoldiers = stateManager.soldierCount(state, neighbour);
+        if (state.owner(neighbour) != player) {
+            var defendingSoldiers = state.soldierCount(neighbour);
             return utils.clamp((attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5, 0, 0.5) * regionFullValue(state, neighbour);
         } else {
             return 0;

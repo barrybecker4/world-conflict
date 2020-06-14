@@ -62,10 +62,10 @@ function forEachProperty(obj, fn) {
         fn(obj[property], property);
 }
 
-// Iterates over a rectangle (x1,y1)-(x2,y2), and calls fn with (x,y) of each integer point.
+// Iterates over a rectangle (x1, y1) - (x2, y2), and calls fn with (x, y) of each integer point.
 function for2d(x1, y1, x2, y2, fn) {
     map(range(x1, x2), function(x) {
-        map(range(y1, y2), fn.bind(0,x));
+        map(range(y1, y2), y => fn(x, y));
     });
 }
 

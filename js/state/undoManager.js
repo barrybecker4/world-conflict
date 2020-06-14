@@ -1,4 +1,3 @@
-import stateManager from './stateManager.js';
 import gameController from '../gameController.js';
 
 export default {
@@ -15,9 +14,9 @@ function setPreviousState(state) {
 
 function undoEnabled(gameState) {
     return previousState && // there is a state to return to
-        (stateManager.activePlayer(previousState) == stateManager.activePlayer(gameState)) &&  // it was actually our move
+        (previousState.activePlayer() == gameState.activePlayer()) &&  // it was actually our move
         (!gameState.u) && // undo wasn't expressly disabled after a battle
-        (stateManager.activePlayer(gameState).u == gameController.uiPickMove); // no using Undo on behalf of the AI!
+        (gameState.activePlayer().u == gameController.uiPickMove); // no using Undo on behalf of the AI!
 }
 
 function performUndo(currentState) {

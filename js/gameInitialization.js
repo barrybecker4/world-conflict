@@ -3,7 +3,7 @@ import sequenceUtils from './utils/sequenceUtils.js';
 import gameData from './state/gameData.js';
 import storage from './state/storage.js';
 import appState from './state/appState.js';
-import stateManager from './state/stateManager.js';
+import makeInitialGameState from './state/makeInitialGameState.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
 const $ = utils.$
@@ -72,7 +72,7 @@ function runSetupScreen() {
     appState.setInGame(false);
 
     // generate initial setup and game state
-    var game;
+    var gameState;
     regenerateMap();
 
     // prepare UI
@@ -86,9 +86,9 @@ function runSetupScreen() {
         if (which == 0) {
             regenerateMap();
         } else {
-            prepareIngameUI(game);
-            gameRenderer.updateDisplay(game);
-            gameController.playOneMove(game);
+            prepareIngameUI(gameState);
+            gameRenderer.updateDisplay(gameState);
+            gameController.playOneMove(gameState);
         }
     };
     // callback for player setup buttons
@@ -155,7 +155,7 @@ function runSetupScreen() {
 
     function updateConfigButtons() {
         // somebody changed something, so store the new setup
-        storage.    storeSetup(gameSetup);
+        storage.storeSetup(gameSetup);
 
         // update player buttons
         utils.map(gameSetup.p, function(controller, playerIndex) {
@@ -173,9 +173,9 @@ function runSetupScreen() {
 
     function regenerateMap() {
         if (isSetupValid()) {
-            game = stateManager.makeInitialState(gameSetup);
-            gameRenderer.showMap($('m'), game);
-            gameRenderer.updateMapDisplay(game);
+            gameState = makeInitialGameState(gameSetup);
+            gameRenderer.showMap($('m'), gameState);
+            gameRenderer.updateMapDisplay(gameState);
         }
     }
 }
