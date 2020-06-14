@@ -6,6 +6,7 @@ import gameController from '../gameController.js';
 import aiPlay from '../aiPlay.js';
 import generateMap from '../map/generateMap.js';
 import gameInitialization from '../gameInitialization.js';
+import Temple from './Temple.js';
 const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
 export default {
@@ -112,12 +113,13 @@ function makeInitialState(setup) {
     function setupTemples() {
         // give the players some cash (or not)
         map(players, function(player, index) {
-            gameState.c[index] = gameState.l[index] = 0;
+            gameState.c[index] = 0;
+            gameState.l[index] = 0;
         });
 
         // pick three regions that are as far away as possible from each other
         // for the players' initial temples
-        var possibleSetups = map(range(0,1000), function() {
+        var possibleSetups = map(range(0, 1000), function() {
             return map(gameState.p, randomRegion);
         });
         var homes = sequenceUtils.max(possibleSetups, distanceScore);
@@ -136,7 +138,7 @@ function makeInitialState(setup) {
         var templeRegions = [];
         var templeCount = [3,3,4][players.length-2];
 
-        map(range(0,templeCount), function() {
+        map(range(0, templeCount), function() {
             var bestRegion = sequenceUtils.max(gameState.r, function(region) {
                 return templeScore(region);
             });
@@ -169,7 +171,7 @@ function makeInitialState(setup) {
 
     function putTemple(region, soldierCount) {
         var index = region.i;
-        gameState.t[index] = {r: region, i: index};
+        gameState.t[index] = new Temple(index, region);
         addSoldiers(gameState, region, soldierCount);
     }
 }
