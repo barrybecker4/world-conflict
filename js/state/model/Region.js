@@ -1,5 +1,5 @@
-import utils from '../utils/utils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
+import utils from '../../utils/utils.js';
+import sequenceUtils from '../../utils/sequenceUtils.js';
 
 export default class Region {
     constructor (index, points, d, neighbors) {

@@ -1,6 +1,6 @@
 import utils from '../utils/utils.js';
 import gameData from '../state/gameData.js';
-import Region from './Region.js';
+import Region from '../state/model/Region.js';
 
 // Generates a new procedural map for a given number of players.
 export default function generateMap(playerCount) {

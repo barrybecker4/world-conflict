@@ -1,8 +1,8 @@
-import gameInitialization from '../gameInitialization.js';
-import gameData from './gameData.js';
-import utils from '../utils/utils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
-import aiPlay from '../aiPlay.js';
+import gameInitialization from '../../gameInitialization.js';
+import gameData from '../gameData.js';
+import utils from '../../utils/utils.js';
+import sequenceUtils from '../../utils/sequenceUtils.js';
+import aiPlay from '../../aiPlay.js';
 
 // global counter for the number of soldiers
 var soldierCounter;

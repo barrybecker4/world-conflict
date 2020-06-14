@@ -4,9 +4,9 @@ import gameData from './gameData.js';
 import gameController from '../gameController.js';
 import aiPlay from '../aiPlay.js';
 import generateMap from '../map/generateMap.js';
-import Temple from './Temple.js';
-import GameState from './GameState.js';
-import Region from '../map/Region.js';
+import Temple from './model/Temple.js';
+import GameState from './model/GameState.js';
+import Region from './model/Region.js';
 const { map, deepCopy, rint, range, sum } = utils;
 
 // initial game state happens here

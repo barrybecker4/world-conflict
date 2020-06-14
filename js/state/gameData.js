@@ -1,7 +1,7 @@
 import utils from '../utils/utils.js';
-import Player from './Player.js';
-import Upgrade from './Upgrade.js';
-import AiPersonality from './AiPersonality.js';
+import Player from './model/Player.js';
+import Upgrade from './model/Upgrade.js';
+import AiPersonality from './model/AiPersonality.js';
 
 // Game-controlling constants
 
