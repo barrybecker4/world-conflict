@@ -3,11 +3,9 @@ import Player from './Player.js';
 import Upgrade from './Upgrade.js';
 import AiPersonality from './AiPersonality.js';
 
-// ==========================================================
 // Game-controlling constants
-// ==========================================================
 
-// === Possible temple upgrades
+// Possible temple upgrades
 const UPGRADES = [
     new Upgrade('Extra soldier', '', utils.map(utils.range(0, 100), function(n) { return 8 + n * 4; }), []),
     new Upgrade('X of Water', 'Income: X% more each turn.', [15, 25], [20, 40], '#66f'),
@@ -17,12 +15,20 @@ const UPGRADES = [
     new Upgrade('Rebuild temple', 'Switch to a different upgrade.', [0], []),
 ];
 
+// Player properties
+const PLAYER_TEMPLATES = [
+    new Player(0, 'Amber', '#fd8', '#960', '#fd8', '#a80'),
+    new Player(1, 'Crimson', '#f88', '#722', '#faa', '#944'),
+    new Player(2, 'Lavender', '#d9d', '#537', '#faf', '#759'),
+    new Player(3, 'Emerald', '#9d9','#262', '#bfb', '#484'),
+];
+
 const SOLDIER = UPGRADES[0];
 const WATER = UPGRADES[1];
 const FIRE = UPGRADES[2];
 const AIR = UPGRADES[3];
 const EARTH = UPGRADES[4];
-const RESPEC = UPGRADES[5];
+const RESPECT = UPGRADES[5];
 
 const UNLIMITED_TURNS = 1000000;
 
@@ -38,17 +44,11 @@ export default {
     BUILD_ACTION: 2,
     END_TURN: 3,
 
-    // Player properties
-    PLAYER_TEMPLATES: [
-        new Player(0, 'Amber', '#fd8', '#960', '#fd8', '#a80'),
-        new Player(1, 'Crimson', '#f88', '#722', '#faa', '#944'),
-        new Player(2, 'Lavender', '#d9d', '#537', '#faf', '#759'),
-        new Player(3, 'Emerald', '#9d9','#262', '#bfb', '#484'),
-    ],
+    PLAYER_TEMPLATES,
 
     UPGRADES,
     LEVELS: ["Temple", "Cathedral"],
-    SOLDIER, WATER, FIRE, AIR, EARTH, RESPEC,
+    SOLDIER, WATER, FIRE, AIR, EARTH, RESPECT,
 
     // === Constants for setup screen
     PLAYER_OFF: 0,

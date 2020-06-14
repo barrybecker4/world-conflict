@@ -243,8 +243,8 @@ function uiPickMove(player, state, reportMoveCallback) {
             var description = utils.template(upgrade.desc, upgrade.level[level]);
 
             var hidden = false;
-            hidden = hidden || (upgrade == gameData.RESPEC && (!temple.u)); // respec only available if temple is upgraded
-            hidden = hidden || (temple.u && temple.u != upgrade && upgrade != gameData.SOLDIER && upgrade != gameData.RESPEC); // the temple is already upgraded with a different upgrade
+            hidden = hidden || (upgrade == gameData.RESPECT && (!temple.u)); // respect only available if temple is upgraded
+            hidden = hidden || (temple.u && temple.u != upgrade && upgrade != gameData.SOLDIER && upgrade != gameData.RESPECT); // the temple is already upgraded with a different upgrade
             hidden = hidden || (level >= upgrade.cost.length); // highest level reached
             hidden = hidden || (level < stateManager.rawUpgradeLevel(state, templeOwner, upgrade)); // another temple has this upgrade already
             hidden = hidden || (templeOwner != player); // we're looking at an opponent's temple
@@ -438,7 +438,7 @@ function buildUpgrade(state, region, upgrade) {
         state.c[templeOwner.i] -= upgrade.cost[state.m.h++];
         return stateManager.addSoldiers(state, region, 1);
     }
-    if (upgrade == gameData.RESPEC) {
+    if (upgrade == gameData.RESPECT) {
         // respecting is also different
         delete temple.u;
         return;
