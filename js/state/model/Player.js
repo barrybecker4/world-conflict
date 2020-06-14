@@ -1,5 +1,6 @@
 
 export default class Player {
+
     constructor(index, name, level, bgColor, startGradientColor, stopGradientColor) {
         this.i = index;
         this.n = name;

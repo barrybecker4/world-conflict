@@ -2,6 +2,7 @@ import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 
 export default class Region {
+
     constructor (index, points, d, neighbors) {
         this.i = index;
         this.p = points;

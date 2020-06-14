@@ -9,6 +9,7 @@ var soldierCounter;
 
 
 export default class GameState {
+
     constructor(players, regions, o, temples, soldiers, cash, level, move, a, flt) {
         this.p = players;
         this.r = regions;

@@ -39,11 +39,6 @@ export default {
     minimumAIThinkingTime: 1000,
     maximumAIThinkingTime: 5000,
 
-    // The possible move types
-    MOVE_ARMY: 1,
-    BUILD_ACTION: 2,
-    END_TURN: 3,
-
     PLAYER_TEMPLATES,
 
     UPGRADES,

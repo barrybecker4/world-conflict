@@ -1,5 +1,6 @@
 
 export default class Upgrade {
+
     constructor(name, desc, cost, level, color) {
         this.name = name;
         this.desc = desc;

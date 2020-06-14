@@ -8,6 +8,7 @@ import appState from './state/appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from './aiPlay.js';
+import { Move, ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
 const $ = utils.$
 
 // All the game logic that runs in main loop resides in this module.
@@ -71,7 +72,7 @@ function playOneMove(state) {
 function pickMove(player, state, reportMoveCallback) {
     // automatically end the turn of dead players
     if (!state.regionCount(player))
-        return reportMoveCallback({t: gameData.END_TURN});
+        return reportMoveCallback(new EndMove());
 
     // delegate to whoever handles this player
     player.u(player, state, reportMoveCallback);
@@ -89,13 +90,14 @@ function pickMove(player, state, reportMoveCallback) {
 function makeMove(state, move) {
     const newState = state.copy();
 
-    var moveType = move.t;
-    if (moveType == gameData.MOVE_ARMY) {
+    if (move.isArmyMove()) {
         moveSoldiers(newState, move.s, move.d, move.c);
-    } else if (moveType == gameData.BUILD_ACTION) {
+    } else if (move.isBuildMove()) {
         buildUpgrade(newState, move.r, move.u);
-    } else if (moveType == gameData.END_TURN) {
+    } else if (move.isEndMove()) {
         nextTurn(newState);
+    } else {
+        throw new Error("Unexpected move: " + move);
     }
 
     // updates that happen after each move (checking for players losing, etc.)
@@ -126,24 +128,17 @@ function invokeUICallback(object, type, event) {
 // with an object describing the move once its decided.
 var uiState = {};
 function uiPickMove(player, state, reportMoveCallback) {
-    var cleanState = {
-        b: [
-            {t: 'Cancel move', h:1},
-            {t: 'End turn'}
-        ]
-    };
+
 
     uiCallbacks.c = function(region) {
-        if ((!region) || (state.d.t == gameData.BUILD_ACTION))
+        if (!region || state.d.isBuildMove())
             setCleanState();
 
         if (!state.d.s && region) {
             // no move in progress - start a new move if this is legal
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
-                state.d.t = gameData.MOVE_ARMY;
-                state.d.s = region;
-                state.d.c = state.soldierCount(region);
+                state.d = new ArmyMove(null, null, null, region, null, state.soldierCount(region));
                 state.d.b[0].h = 0;
                 state.d.h = region.n.concat(region);
             }
@@ -169,11 +164,7 @@ function uiPickMove(player, state, reportMoveCallback) {
 
     uiCallbacks.t = function(region) {
         var temple = state.t[region.i];
-        state.d = {
-            t: gameData.BUILD_ACTION,
-            w: temple, r: region,
-            b: makeUpgradeButtons(temple)
-        };
+        state.d = new BuildMove(null, temple, region, makeUpgradeButtons(temple));
         gameRenderer.updateDisplay(state);
     };
 
@@ -189,7 +180,7 @@ function uiPickMove(player, state, reportMoveCallback) {
     };
 
     uiCallbacks.b = function(which) {
-        if (state.d && state.d.t == gameData.BUILD_ACTION) {
+        if (state.d && state.d.isBuildMove()) {
             // build buttons handled here
             if (which >= gameData.UPGRADES.length) {
                 setCleanState();
@@ -207,7 +198,7 @@ function uiPickMove(player, state, reportMoveCallback) {
             if (which == 1) {
                 // end turn
                 uiCallbacks = {};
-                reportMoveCallback({t: gameData.END_TURN});
+                reportMoveCallback(new EndMove());
             } else {
                 // cancel move
                 setCleanState();
@@ -226,7 +217,7 @@ function uiPickMove(player, state, reportMoveCallback) {
     }
 
     function setCleanState() {
-        state.d = utils.deepCopy(cleanState, 3);
+        state.d = new Move();
         state.d.h = state.r.filter(region => state.regionHasActiveArmy(player, region));
         gameRenderer.updateDisplay(state);
     }
@@ -488,12 +479,8 @@ function nextTurn(state) {
         var playerCount = state.p.length;
         var playerIndex = (state.m.p + 1) % playerCount, upcomingPlayer = state.p[playerIndex],
             turnNumber = state.m.t + (playerIndex ? 0 : 1);
-        state.m = {
-            t: turnNumber,
-            p: playerIndex,
-            m: gameData.MOVE_ARMY,
-            l: gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, gameData.AIR)
-        };
+        var numMoves = gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, gameData.AIR);
+        state.m = new ArmyMove(turnNumber, playerIndex, numMoves);
     } while (!state.regionCount(upcomingPlayer));
 
     // did the game end by any chance?

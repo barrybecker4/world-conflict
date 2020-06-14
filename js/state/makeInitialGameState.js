@@ -7,17 +7,21 @@ import generateMap from '../map/generateMap.js';
 import Temple from './model/Temple.js';
 import GameState from './model/GameState.js';
 import Region from './model/Region.js';
+import { ArmyMove } from './model/Move.js';
 const { map, deepCopy, rint, range, sum } = utils;
 
 // initial game state happens here
 export default function makeInitialGameState(setup) {
-    var players = [];
+
+    let players = [];
+
     map(setup.p, function(playerController, playerIndex) {
         if (playerController == gameData.PLAYER_OFF) return;
         var player = deepCopy(gameData.PLAYER_TEMPLATES[playerIndex], 1);
 
         // set up as AI/human
         player.u = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
+
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
             player.p = deepCopy(gameData.AI_PERSONALITIES[rint(0, gameData.AI_PERSONALITIES.length)], 2);
@@ -28,7 +32,7 @@ export default function makeInitialGameState(setup) {
     });
 
     var regions = generateMap(players.length);
-    let move = {t: 1, p: 0, m: gameData.MOVE_ARMY, l: gameData.movesPerTurn};
+    let move = new ArmyMove(1, 0, gameData.movesPerTurn);
     var gameState = new GameState(players, regions, {}, {}, {}, {}, {}, move);
 
     setupTemples();

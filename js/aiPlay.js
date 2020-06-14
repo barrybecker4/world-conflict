@@ -3,6 +3,7 @@ import sequenceUtils from './utils/sequenceUtils.js';
 import gameData from './state/gameData.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
+import { ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
 
 // The AI running CPU players resides below.
 
@@ -83,7 +84,7 @@ function upgradeToBuild(player, state) {
 
     // build the upgrade!
     player.p.u.shift();
-    return {t: gameData.BUILD_ACTION, u: desire, w: temple, r: temple.r};
+    return new BuildMove(desire, temple, temple.r);
 }
 
 function templeDangerousness(state, temple) {
@@ -94,7 +95,7 @@ function templeDangerousness(state, temple) {
 
 function buildSoldierAtBestTemple(player, state) {
     var temple = sequenceUtils.max(state.temples(player), templeDangerousness.bind(0, state));
-    return {t: gameData.BUILD_ACTION, u: gameData.SOLDIER, w: temple, r: temple.r};
+    return new BuildMove(gameData.SOLDIER, temple, temple.r);
 }
 
 function minMaxDoSomeWork(node) {
@@ -112,7 +113,7 @@ function minMaxDoSomeWork(node) {
         // spawn a child node
         var childState = gameController.makeMove(node.s, move);
         return {
-            p: node, a: node.a, d: node.d-1,
+            p: node, a: node.a, d: node.d - 1,
             m: move,
             s: childState, u: possibleMoves(childState)
         };
@@ -164,7 +165,7 @@ function performMinMax(forPlayer, fromState, depth, moveCallback) {
                 // we're done, let's see what's the best move we found!
                 var bestMove = initialNode.b;
                 if (!bestMove) {
-                    bestMove = {t: gameData.END_TURN};
+                    bestMove = new EndMove();
                 }
 
                 // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
@@ -181,7 +182,7 @@ function performMinMax(forPlayer, fromState, depth, moveCallback) {
 
 function possibleMoves(state) {
     // ending your turn is always an option
-    var moves = [{t: gameData.END_TURN}];
+    var moves = [new EndMove()];
     var player = state.activePlayer();
 
     // are we out of move points?
@@ -195,8 +196,8 @@ function possibleMoves(state) {
         if ((state.owner(dest) != player) && (state.soldierCount(dest) > count))
             return;
 
-        // not *obviously* stupid, add it to the list!
-        moves.push({t: gameData.MOVE_ARMY, s: source, d: dest, c: count});
+        // not *obviously* stupid, so it to the list!
+        moves.push(new ArmyMove(null, null, null, source, dest, count));
     }
 
     // let's see what moves we have available
@@ -288,7 +289,7 @@ function regionThreat(state, player, region) {
                     return (!sequenceUtils.contains(visited, candidate)) &&
                         (state.owner(candidate) == nOwner);
                 }), function(r) {
-                    queue.push({r: r, d: entry.d-1});
+                    queue.push({r: r, d: entry.d - 1});
                 });
             }
         }

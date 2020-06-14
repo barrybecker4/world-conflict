@@ -346,8 +346,8 @@ function updateMapDisplay(gameState) {
 function updateIngameUI(gameState) {
     var moveState = gameState.m;
     var decisionState = gameState.d;
-    var buildingMode = decisionState && (decisionState.t == gameData.BUILD_ACTION);
-    var movingArmy = decisionState && decisionState.s;
+    var buildingMode = decisionState && decisionState.isBuildMove();
+    var movingArmy = decisionState && decisionState.isArmyMove();
 
     var active = gameState.activePlayer();
 
