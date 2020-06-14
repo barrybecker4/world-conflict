@@ -43,7 +43,7 @@ function contains(seq, elem) {
 function pairwise(array, fn) {
     var result = [];
     utils.map(array, function(elem1, index) {
-        utils.map(array.slice(index+1), function(elem2) {
+        utils.map(array.slice(index + 1), function(elem2) {
             result.push(fn(elem1, elem2));
         });
     });

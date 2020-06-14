@@ -8,6 +8,7 @@ import generateMap from '../map/generateMap.js';
 import gameInitialization from '../gameInitialization.js';
 import Temple from './Temple.js';
 import GameState from './GameState.js';
+import Region from '../map/Region.js';
 const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
 export default {
@@ -55,48 +56,8 @@ function makeInitialState(setup) {
 
     return gameState;
 
-
-    function distance(regionA, regionB) {
-        // breadth-first search!
-        let queue = [{r: regionA, d:0}];
-        let visited = [regionA];
-        let answer = -1;
-        let bound = 100;
-
-        while (answer < 0) {
-            let item = queue.shift();
-            let region = item.r;
-            let distanceFromA = item.d;
-            if (region == regionB) {
-                // we've found the region!
-                answer = distanceFromA;
-            }
-            else if (distanceFromA >= bound) {
-                // we've reached our established upper bound - return it
-                answer = bound;
-            }
-            else {
-                // use memoized values to establish an upper bound (we still might do better,
-                // but we can't do worse)
-                if (region.d[regionB.i])
-                    bound = sequenceUtils.min([bound, region.d[regionB.i] + distanceFromA]);
-
-                // look in all unvisited neighbours
-                map(region.n, function (neighbour) {
-                    if (!sequenceUtils.contains(visited, neighbour))
-                        queue.push({r: neighbour, d: distanceFromA + 1});
-                });
-                visited.push(region);
-            }
-        }
-
-        // memoize result for later and return
-        regionA.d[regionB.i] = regionB.d[regionA.i] = answer;
-        return answer;
-    }
-
     function distanceScore(regions) {
-        return sequenceUtils.min(sequenceUtils.pairwise(regions, distance));
+        return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance));
     }
 
     function randomRegion() {
@@ -142,9 +103,9 @@ function makeInitialState(setup) {
             distancesToTemples = updatedDistances(bestRegion);
         });
 
-        function updatedDistances(newTemple) {
+        function updatedDistances(newTempleRegion) {
             return map(homes, function(home, index) {
-                return distancesToTemples[index] + distance(home, newTemple);
+                return distancesToTemples[index] + home.distanceFrom(newTempleRegion);
             });
         }
 
