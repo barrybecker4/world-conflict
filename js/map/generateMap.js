@@ -1,5 +1,5 @@
-import utils from './utils/utils.js';
-import gameData from './state/gameData.js';
+import utils from '../utils/utils.js';
+import gameData from '../state/gameData.js';
 
 // Generates a new procedural map for a given number of players.
 export default function generateMap(playerCount) {
@@ -12,7 +12,9 @@ export default function generateMap(playerCount) {
     // Repeat until we get a workable map
     do {
         regionMap = utils.range(0, gameData.mapWidth).map(function(){return []});
-        regions = []; count = 0; retries = 2500;
+        regions = [];
+        count = 0;
+        retries = 2500;
 
         // The main loop is repeated only a limited number of times to
         // handle cases where the map generator runs into a dead end.
@@ -62,17 +64,21 @@ export default function generateMap(playerCount) {
     // Puts a new rectangular region at the position given in bounds {Left, Top, Width, Height}.
     function makeRegionAt(index, bounds) {
         // make points for the region
-        var l=bounds.l,t=bounds.t,w=bounds.w,h=bounds.h;
+        var l = bounds.l;
+        var t = bounds.t;
+        var w = bounds.w;
+        var h = bounds.h;
+
         var points = [];
         utils.map(utils.range(0, w), function(i) {
             points[i] = perturbedPoint(l+i,t);
-            points[w+h+i] = perturbedPoint(l+w-i,t+h);
+            points[w + h + i] = perturbedPoint(l + w - i, t + h);
         });
         utils.map(utils.range(0, h), function(i) {
-            points[w+i] = perturbedPoint(l+w,t+i);
-            points[w+h+w+i] = perturbedPoint(l,t+h-i);
+            points[w + i] = perturbedPoint(l+w,t+i);
+            points[w + h + w + i] = perturbedPoint(l, t + h - i);
         });
-        var region = {i: index, p: points, d:[]};
+        var region = { i: index, p: points, d:[] };
 
         // mark it in the map
         utils.for2d(bounds.l, bounds.t, bounds.l + bounds.w, bounds.t + bounds.h, function(x, y){

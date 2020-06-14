@@ -4,7 +4,7 @@ import gameData from './gameData.js';
 import stateManager from './stateManager.js';
 import gameController from '../gameController.js';
 import aiPlay from '../aiPlay.js';
-import generateMap from '../generateMap.js';
+import generateMap from '../map/generateMap.js';
 import gameInitialization from '../gameInitialization.js';
 const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
