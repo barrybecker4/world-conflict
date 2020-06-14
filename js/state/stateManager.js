@@ -7,6 +7,7 @@ import aiPlay from '../aiPlay.js';
 import generateMap from '../map/generateMap.js';
 import gameInitialization from '../gameInitialization.js';
 import Temple from './Temple.js';
+import GameState from './GameState.js';
 const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
 export default {
@@ -47,16 +48,8 @@ function makeInitialState(setup) {
     });
 
     var regions = generateMap(players.length);
-    var gameState = {
-        p: players,
-        r: regions,
-        o: {},
-        t: {},
-        s: {},
-        c: {},
-        l: {},
-        m: {t: 1, p: 0, m: gameData.MOVE_ARMY, l: gameData.movesPerTurn}
-    };
+    let move = {t: 1, p: 0, m: gameData.MOVE_ARMY, l: gameData.movesPerTurn};
+    var gameState = new GameState(players, regions, {}, {}, {}, {}, {}, move);
 
     setupTemples();
 
