@@ -4,7 +4,7 @@ import gameData from './state/gameData.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
 import { ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
-import Upgrades from './state/model/Upgrades.js';
+import UPGRADES from './state/model/UPGRADES.js';
 
 // The AI running CPU players resides below.
 
@@ -96,7 +96,7 @@ function templeDangerousness(state, temple) {
 
 function buildSoldierAtBestTemple(player, state) {
     var temple = sequenceUtils.max(state.temples(player), templeDangerousness.bind(0, state));
-    return new BuildMove(Upgrades.SOLDIER, temple, temple.r);
+    return new BuildMove(UPGRADES.SOLDIER, temple, temple.r);
 }
 
 function minMaxDoSomeWork(node) {

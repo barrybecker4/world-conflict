@@ -11,15 +11,13 @@ const UPGRADES = [
     new Upgrade('Rebuild temple', 'Switch to a different upgrade.', [0], []),
 ];
 
-export default {
-     SOLDIER: UPGRADES[0],
-     WATER: UPGRADES[1],
-     FIRE: UPGRADES[2],
-     AIR: UPGRADES[3],
-     EARTH: UPGRADES[4],
-     RESPECT: UPGRADES[5],
+UPGRADES.SOLDIER = UPGRADES[0];
+UPGRADES.WATER = UPGRADES[1];
+UPGRADES.FIRE = UPGRADES[2];
+UPGRADES.AIR = UPGRADES[3];
+UPGRADES.EARTH = UPGRADES[4];
+UPGRADES.RESPECT = UPGRADES[5];
 
-     all: UPGRADES,
-}
+export default UPGRADES;
 
 

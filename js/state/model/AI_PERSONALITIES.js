@@ -1,6 +1,8 @@
-import Upgrades from './Upgrades.js';
+import UPGRADES from './UPGRADES.js';
 import AiPersonality from './AiPersonality.js';
-const { WATER, EARTH, FIRE } = Upgrades;
+const WATER = UPGRADES.WATER;
+const EARTH = UPGRADES.EARTH;
+const FIRE = UPGRADES.FIRE;
 
 // AI personalities - how eagerly it builds soldiers, and what upgrades it prefers
 export default [
