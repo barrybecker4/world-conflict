@@ -1,6 +1,7 @@
 import utils from '../utils/utils.js';
 import Player from './Player.js';
 import Upgrade from './Upgrade.js';
+import AiPersonality from './AiPersonality.js';
 
 // ==========================================================
 // Game-controlling constants
@@ -31,17 +32,20 @@ export default {
     movesPerTurn: 3,
     minimumAIThinkingTime: 1000,
     maximumAIThinkingTime: 5000,
-    // === The possible move types
+
+    // The possible move types
     MOVE_ARMY: 1,
     BUILD_ACTION: 2,
     END_TURN: 3,
-    // === Player properties
+
+    // Player properties
     PLAYER_TEMPLATES: [
         new Player(0, 'Amber', '#fd8', '#960', '#fd8', '#a80'),
         new Player(1, 'Crimson', '#f88', '#722', '#faa', '#944'),
         new Player(2, 'Lavender', '#d9d', '#537', '#faf', '#759'),
         new Player(3, 'Emerald', '#9d9','#262', '#bfb', '#484'),
     ],
+
     UPGRADES,
     LEVELS: ["Temple", "Cathedral"],
     SOLDIER, WATER, FIRE, AIR, EARTH, RESPEC,
@@ -64,14 +68,14 @@ export default {
 
     // == AI personalities - how eagerly it builds soldiers, and what upgrades it prefers
     AI_PERSONALITIES: [
-        {s: 1, u:[]},
-        {s: 0.2, u: [WATER, EARTH]},
-        {s: 0.25, u: [WATER, FIRE, FIRE]},
-        {s: 0.15, u: [WATER, WATER, EARTH, EARTH]},
-        {s: 0.4, u: [WATER]},
-        {s: 0.3, u: [WATER, WATER]},
-        {s: 0.25, u: [FIRE, FIRE]},
-        {s: 0.2, u: [EARTH, EARTH]}
+        new AiPersonality(1, []),
+        new AiPersonality(0.2, [WATER, EARTH]),
+        new AiPersonality(0.25, [WATER, FIRE, FIRE]),
+        new AiPersonality(0.15, [WATER, WATER, EARTH, EARTH]),
+        new AiPersonality(0.4, [WATER]),
+        new AiPersonality(0.3, [WATER, WATER]),
+        new AiPersonality(0.25, [FIRE, FIRE]),
+        new AiPersonality(0.2, [EARTH, EARTH]),
     ],
 };
 
