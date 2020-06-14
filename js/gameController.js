@@ -239,8 +239,8 @@ function uiPickMove(player, state, reportMoveCallback) {
             var level = (temple.u == upgrade) ? (temple.l+1) : ((upgrade == gameData.SOLDIER) ? (state.m.h || 0) : 0);
 
             var cost = upgrade.c[level];
-            var text = utils.template(upgrade.n, gameData.LEVELS[level]) + utils.elem('b', {}, " (" + cost + "&#9775;)");
-            var description = utils.template(upgrade.d, upgrade.x[level]);
+            var text = utils.template(upgrade.name, gameData.LEVELS[level]) + utils.elem('b', {}, " (" + cost + "&#9775;)");
+            var description = utils.template(upgrade.desc, upgrade.x[level]);
 
             var hidden = false;
             hidden = hidden || (upgrade == gameData.RESPEC && (!temple.u)); // respec only available if temple is upgraded
