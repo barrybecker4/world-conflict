@@ -82,7 +82,7 @@ function runSetupScreen() {
 
     // callback for the buttons on the bottom
     gameController.uiCallbacks.b = function(which) {
-        if (!setupValid()) return;
+        if (!isSetupValid()) return;
         if (which == 0) {
             regenerateMap();
         } else {
@@ -138,7 +138,7 @@ function runSetupScreen() {
         utils.map(['mv', 'undo-button', 'restart'], utils.show);
     }
 
-    function setupValid() {
+    function isSetupValid() {
         var enabledPlayers = sequenceUtils.sum(gameSetup.p, function(playerState) {
             return (playerState != gameData.PLAYER_OFF) ? 1 : 0;
         });
@@ -146,7 +146,7 @@ function runSetupScreen() {
     }
 
     function updateBottomButtons() {
-        var buttonsDisabled = !setupValid();
+        var buttonsDisabled = !isSetupValid();
         gameRenderer.updateButtons([
             {t: "Change map", o: buttonsDisabled},
             {t: "Start game", o: buttonsDisabled}
@@ -172,7 +172,7 @@ function runSetupScreen() {
     }
 
     function regenerateMap() {
-        if (setupValid()) {
+        if (isSetupValid()) {
             game = stateManager.makeInitialState(gameSetup);
             gameRenderer.showMap($('m'), game);
             gameRenderer.updateMapDisplay(game);
