@@ -354,11 +354,11 @@ function updateIngameUI(gameState) {
     // turn counter/building name
     if (buildingMode) {
         var info = stateManager.templeInfo(gameState, decisionState.w);
-        $('tc').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
+        $('turn-count').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
     } else {
-        $('tc').innerHTML =
+        $('turn-count').innerHTML =
             'Turn <b>' + gameState.m.t + '</b>' +
-            ((gameInitialization.gameSetup.tc != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.tc : '');
+            ((gameInitialization.gameSetup.turnCount != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
     }
 
     // player data

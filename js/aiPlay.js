@@ -221,8 +221,8 @@ function possibleMoves(state) {
 }
 
 function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
-    var dropOffTurn = dropOffPoint * gameInitialization.gameSetup.tc;
-    var alpha = (state.m.t - dropOffTurn) / (gameInitialization.gameSetup.tc - dropOffTurn);
+    var dropOffTurn = dropOffPoint * gameInitialization.gameSetup.turnCount;
+    var alpha = (state.m.t - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
     if (alpha < 0.0)
         alpha = 0.0;
     return (startOfGameValue + (endOfGameValue - startOfGameValue) * alpha);

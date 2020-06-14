@@ -8,7 +8,7 @@ var defaultSetup = {
     p: [gameData.PLAYER_HUMAN, gameData.PLAYER_AI, gameData.PLAYER_AI, gameData.PLAYER_OFF],
     l: gameData.AI_NICE,
     sound: true,
-    tc: 12,
+    turnCount: 12,
     tt: {},
 };
 
@@ -35,7 +35,7 @@ function retrieveSetup() {
 }
 
 // Tries to store user preferences in local storage.
-function     storeSetup(gameSetup) {
+function storeSetup(gameSetup) {
     if (localStorage) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(gameSetup));
     }

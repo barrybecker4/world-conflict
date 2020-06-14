@@ -519,9 +519,9 @@ function nextTurn(state) {
     } while (!stateManager.regionCount(state, upcomingPlayer));
 
     // did the game end by any chance?
-    if (state.m.t > gameInitialization.gameSetup.tc) {
+    if (state.m.t > gameInitialization.gameSetup.turnCount) {
         // end the game!
-        state.m.t = gameInitialization.gameSetup.tc;
+        state.m.t = gameInitialization.gameSetup.turnCount;
         state.e = determineGameWinner(state);
         return;
     }
@@ -553,7 +553,7 @@ function showEndGame(state) {
 
         gameRenderer.updateDisplay(state);
 
-        $('tc').innerHTML = "Game complete";
+        $('turn-count').innerHTML = "Game complete";
         $('in').innerHTML = utils.elem('p', {}, "Click the button below to start a new game.");
         $('in').style.background = '#555';
         $('mv').style.display = 'none';

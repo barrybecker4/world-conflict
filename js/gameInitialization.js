@@ -28,7 +28,7 @@ function prepareSetupUI() {
     }).join("");
     html += utils.div({i: 'pd', c: 'sc un'}, playerBoxes);
     html += buttonPanel("AI", "ai", ["Evil", "Mean", "Rude", "Nice"]);
-    html += buttonPanel("Turns", "tc", ["Endless", "15", "12", "9"]);
+    html += buttonPanel("Turns", "turn-count", ["Endless", "15", "12", "9"]);
 
     // realize the UI
     $('d').innerHTML = html;
@@ -49,14 +49,14 @@ function prepareSetupUI() {
             gameController.invokeUICallback.bind(0, index, 'ai')
         );
         utils.onClickOrTap(
-            $('tc' + index),
-            gameController.invokeUICallback.bind(0, gameData.TURN_COUNTS[index], 'tc')
+            $('turn-count' + index),
+            gameController.invokeUICallback.bind(0, gameData.TURN_COUNTS[index], 'turn-count')
         );
     });
 
     function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
         var buttons = utils.map(buttonLabels, function(label, index) {
-            var id = buttonIdPrefix + (buttonLabels.length-1-index);
+            var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
             return utils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
         }).join("");
         var properties = {i: buttonIdPrefix, c: 'sc ds', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
@@ -104,8 +104,8 @@ function runSetupScreen() {
         gameSetup.l = aiLevel;
         updateConfigButtons();
     };
-    gameController.uiCallbacks.tc = function(turnCount) {
-        gameSetup.tc = turnCount;
+    gameController.uiCallbacks['turn-count'] = function(turnCount) {
+        gameSetup.turnCount = turnCount;
         updateConfigButtons();
     };
 
@@ -113,7 +113,7 @@ function runSetupScreen() {
     // Prepares the whole sidebar on the left for gameplay use.
     function prepareIngameUI(gameState) {
         // turn counter
-        var html = utils.div({i: 'tc', c: 'sc'});
+        var html = utils.div({i: 'turn-count', c: 'sc'});
 
         // player box area
         html += utils.div({i: 'pd', c: 'sc un'}, utils.map(gameState.p, function(player) {
@@ -167,7 +167,7 @@ function runSetupScreen() {
         // update AI and turn count buttons
         utils.map(utils.range(0, 4), function(index) {
             utils.toggleClass('ai' + index, 'sl', index == gameSetup.l);
-            utils.toggleClass('tc' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.tc);
+            utils.toggleClass('turn-count' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.turnCount);
         });
     }
 
