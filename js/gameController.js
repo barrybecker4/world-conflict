@@ -6,6 +6,7 @@ import stateManager from './stateManager.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import appState from './appState.js';
+import oneAtaTime from './oneAtaTime.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from './aiPlay.js';
 const $ = utils.$
@@ -20,7 +21,7 @@ export default {
     makeMove,
     invokeUICallback,
     uiPickMove,
-    oneAtATime,
+    oneAtaTime,
     uiCallbacks,
 };
 
@@ -29,8 +30,8 @@ function playOneMove(state) {
     // we're playing the game now
     appState.setInGame(true);
 
-    // oneAtATime is used to ensure that all animations from previous moves complete before a new one is played
-    oneAtATime(150, function() {
+    // oneAtaTime is used to ensure that all animations from previous moves complete before a new one is played
+    oneAtaTime(150, function() {
         var controllingPlayer = stateManager.activePlayer(state); // who is the active player to make some kind of move?
 
         // let the player pick their move using UI or AI
@@ -44,7 +45,7 @@ function playOneMove(state) {
             // did the game end?
             if (newState.e) {
                 // yes, the game has ended
-                oneAtATime(150, gameRenderer.updateDisplay.bind(0, newState));
+                oneAtaTime(150, gameRenderer.updateDisplay.bind(0, newState));
                 showEndGame(newState);
                 return;
             } else {
@@ -255,28 +256,6 @@ function uiPickMove(player, state, reportMoveCallback) {
     }
 }
 
-// Helps organize game flow so things are displayed in order taking animation into account.
-var oaatQueue = [];
-function oneAtATime(duration, fn) {
-    oaatQueue.push({duration, fn});
-    if (oaatQueue.length == 1)
-        runOneTask();
-
-    function runOneTask() {
-        // start the first scheduled task
-        var task = oaatQueue[0];
-        task.fn();
-        // and wait for it to expire
-        setTimeout(function() {
-            // task done, remove from queue
-            oaatQueue.shift();
-            // is there something more to do?
-            if (oaatQueue.length)
-                runOneTask();
-        }, task.duration);
-    }
-}
-
 function afterMoveChecks(state) {
     // check for game loss by any of the players
     utils.map(state.p, function(player) {
@@ -294,7 +273,7 @@ function afterMoveChecks(state) {
                 state.m.l = 0;
             // show the world the good (or bad) news
             if (!state.a) {
-                oneAtATime(150, gameRenderer.updateDisplay.bind(0, state));
+                oneAtaTime(150, gameRenderer.updateDisplay.bind(0, state));
                 gameRenderer.showBanner('#222', player.n + " has been eliminated!", 900);
             }
         }
@@ -444,7 +423,7 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     var keyframe = stateManager.copyState(state);
     keyframe.sc = soundCue;
     keyframe.flt = floatingTexts;
-    oneAtATime(delay || 500, gameRenderer.updateDisplay.bind(0, keyframe));
+    oneAtaTime(delay || 500, gameRenderer.updateDisplay.bind(0, keyframe));
 }
 
 
@@ -543,7 +522,7 @@ function determineGameWinner(state) {
 }
 
 function showEndGame(state) {
-    oneAtATime(1, function() {
+    oneAtaTime(1, function() {
         var winner = state.e;
         if (winner != gameData.DRAW_GAME) {
             gameRenderer.showBanner(winner.d, winner.n + " wins the game!");

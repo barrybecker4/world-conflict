@@ -8,6 +8,7 @@ import gameInitialization from '../gameInitialization.js';
 import stateManager from '../stateManager.js';
 import undoManager from '../undoManager.js';
 import gameController from '../gameController.js';
+import oneAtaTime from '../oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
 const {
@@ -449,7 +450,7 @@ function updateDisplay(gameState) {
 
 function showBanner(background, text, delay) {
     delay = delay || 1;
-    gameController.oneAtATime(delay, function() {
+    oneAtaTime(delay, function() {
         // create a new banner div
         let banner = append('container', div({c: 'button'}, text));
         let styles = banner.style;
