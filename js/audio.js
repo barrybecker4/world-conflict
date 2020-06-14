@@ -1,5 +1,6 @@
 import utils from './utils.js';
 import audio from './audio.js';
+import storage from './storage.js';
 import gameInitialization from './gameInitialization.js';
 
 var audioCtx = window.AudioContext && (new AudioContext());
@@ -126,7 +127,7 @@ function playSound(sound) {
 
 function updateSoundControls() {
     utils.$('sound').innerHTML = gameInitialization.gameSetup.sound ? '♪' : ' ';
-    gameInitialization.storeSetupInLocalStorage(gameInitialization.gameSetup);
+    storage.storeSetupInLocalStorage(gameInitialization.gameSetup);
 }
 
 function toggleSound() {

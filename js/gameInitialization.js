@@ -4,51 +4,17 @@ import gameData from './gameData.js';
 import stateManager from './stateManager.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
+import storage from './storage.js';
 const $ = utils.$
-
-// the game setup screen config
-var defaultSetup = {
-    p: [gameData.PLAYER_HUMAN, gameData.PLAYER_AI, gameData.PLAYER_AI, gameData.PLAYER_OFF],
-    l: gameData.AI_NICE,
-    sound: true,
-    tc: 12,
-    tt: {},
-};
-
-var gameSetup = getSetupFromStorage();
-var appState = 0;
 
 export default {
     gameSetup,
-    getSetupFromStorage,
     runSetupScreen,
-    storeSetupInLocalStorage,
     appState,
 };
 
-// Gets user preferences from local storage, or returns false if there aren't any.
-function getSetupFromStorage() {
-    if (localStorage) {
-        var stored = localStorage.getItem("s");
-        if (stored) {
-            stored = JSON.parse(stored);
-            utils.forEachProperty(defaultSetup, function (value, name) {
-                if (stored[name] === undefined)
-                    stored[name] = value;
-            });
-            return stored;
-        }
-    }
-
-    return defaultSetup;
-}
-
-// Tries to store user preferences in local storage.
-function storeSetupInLocalStorage() {
-    if (localStorage) {
-        localStorage.setItem("s", JSON.stringify(gameSetup));
-    }
-}
+var gameSetup = storage.getSetupFromStorage();
+var appState = 0;
 
 function prepareSetupUI() {
     // player box area
@@ -181,7 +147,7 @@ function runSetupScreen() {
 
     function updateConfigButtons() {
         // somebody changed something, so store the new setup
-        storeSetupInLocalStorage(gameSetup);
+        storage.storeSetupInLocalStorage(gameSetup);
 
         // update player buttons
         utils.map(gameSetup.p, function(controller, playerIndex) {

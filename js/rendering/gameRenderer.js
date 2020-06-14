@@ -2,6 +2,7 @@ import audio from '../audio.js';
 import utils from '../utils.js';
 import sequenceUtils from '../sequenceUtils.js';
 import gameData from '../gameData.js';
+import storage from '../storage.js';
 import gameInitialization from '../gameInitialization.js';
 import stateManager from '../stateManager.js';
 import undoManager from '../undoManager.js';
@@ -210,8 +211,9 @@ function updateMapDisplay(gameState) {
     function showTooltipOver(region, text, width) {
         if (gameInitialization.gameSetup.tt[text]) return;
         setTimeout(function() {
-            gameInitialization.gameSetup.tt[text] = 1; // don't display it again (timeout to handle multiple updateDisplays() in a row)
-            gameInitialization.storeSetupInLocalStorage(gameInitialization.gameSetup);
+            // don't display it again (timeout to handle multiple updateDisplays() in a row)
+            gameInitialization.gameSetup.tt[text] = 1;
+            storage.storeSetupInLocalStorage(gameInitialization.gameSetup);
         }, 500);
 
         width = width || 7;
