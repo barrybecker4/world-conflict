@@ -1,5 +1,5 @@
 import stateManager from './stateManager.js';
-import gameController from './gameController.js';
+import gameController from '../gameController.js';
 
 export default {
     undoEnabled,

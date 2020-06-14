@@ -1,5 +1,5 @@
 import gameData from './gameData.js';
-import utils from './utils.js';
+import utils from '../utils/utils.js';
 
 const STORAGE_KEY = 'compact-conflict';
 

@@ -1,8 +1,8 @@
-import audio from './audio.js';
+import audio from './utils/audio.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import titleScreen from './titleScreen.js';
-import storage from './storage.js';
+import storage from './state/storage.js';
 
 
 // keep the aspect of the gameplay area correct

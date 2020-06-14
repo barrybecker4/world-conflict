@@ -1,4 +1,4 @@
-import utils from '../utils.js';
+import utils from '../utils/utils.js';
 
 // Generate a SVG gradient tag for the map.
 export default function makeGradient(id, light, dark) {

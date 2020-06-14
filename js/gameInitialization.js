@@ -1,11 +1,11 @@
-import utils from './utils.js';
-import sequenceUtils from './sequenceUtils.js';
-import gameData from './gameData.js';
-import stateManager from './stateManager.js';
+import utils from './utils/utils.js';
+import sequenceUtils from './utils/sequenceUtils.js';
+import gameData from './state/gameData.js';
+import storage from './state/storage.js';
+import appState from './state/appState.js';
+import stateManager from './state/stateManager.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
-import storage from './storage.js';
-import appState from './appState.js';
 const $ = utils.$
 
 export default {

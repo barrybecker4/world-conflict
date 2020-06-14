@@ -1,11 +1,11 @@
-import utils from './utils.js';
-import sequenceUtils from './sequenceUtils.js';
+import utils from '../utils/utils.js';
+import sequenceUtils from '../utils/sequenceUtils.js';
 import gameData from './gameData.js';
 import stateManager from './stateManager.js';
-import gameController from './gameController.js';
-import aiPlay from './aiPlay.js';
-import generateMap from './generateMap.js';
-import gameInitialization from './gameInitialization.js';
+import gameController from '../gameController.js';
+import aiPlay from '../aiPlay.js';
+import generateMap from '../generateMap.js';
+import gameInitialization from '../gameInitialization.js';
 const { map, deepCopy, rint, range, sum, forEachProperty, template } = utils;
 
 export default {

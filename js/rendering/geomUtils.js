@@ -1,5 +1,5 @@
-import utils from '../utils.js';
-import gameData from '../gameData.js';
+import utils from '../utils/utils.js';
+import gameData from '../state/gameData.js';
 
 export default {
     projectPoint, makePolygon, centerOfWeight, transformPoints,

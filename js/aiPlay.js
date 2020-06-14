@@ -1,7 +1,7 @@
-import utils from './utils.js';
-import sequenceUtils from './sequenceUtils.js';
-import gameData from './gameData.js';
-import stateManager from './stateManager.js';
+import utils from './utils/utils.js';
+import sequenceUtils from './utils/sequenceUtils.js';
+import gameData from './state/gameData.js';
+import stateManager from './state/stateManager.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
 
