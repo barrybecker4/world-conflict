@@ -13,7 +13,7 @@ export default {
     appState,
 };
 
-var gameSetup = storage.getSetupFromStorage();
+var gameSetup = storage.retrieveSetup();
 var appState = 0;
 
 function prepareSetupUI() {
@@ -147,7 +147,7 @@ function runSetupScreen() {
 
     function updateConfigButtons() {
         // somebody changed something, so store the new setup
-        storage.storeSetupInLocalStorage(gameSetup);
+        storage.    storeSetup(gameSetup);
 
         // update player buttons
         utils.map(gameSetup.p, function(controller, playerIndex) {

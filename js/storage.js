@@ -13,12 +13,12 @@ var defaultSetup = {
 };
 
 export default {
-    getSetupFromStorage,   // retrieveSetup
-    storeSetupInLocalStorage, // storeSetup
+    retrieveSetup,
+    storeSetup,
 };
 
 // Gets user preferences from local storage, or returns false if there aren't any.
-function getSetupFromStorage() {
+function retrieveSetup() {
     if (localStorage) {
         var stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -35,7 +35,7 @@ function getSetupFromStorage() {
 }
 
 // Tries to store user preferences in local storage.
-function storeSetupInLocalStorage(gameSetup) {
+function     storeSetup(gameSetup) {
     if (localStorage) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(gameSetup));
     }

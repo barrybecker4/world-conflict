@@ -11,7 +11,7 @@ import storage from './storage.js';
 // start the game
 window.onload = function() {
     setTimeout(function() {
-        gameInitialization.gameSetup = storage.getSetupFromStorage();
+        gameInitialization.gameSetup = storage.retrieveSetup();
         audio.setupAudio();
         gameInitialization.runSetupScreen();
         titleScreen.setupTitleScreen();

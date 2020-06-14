@@ -213,7 +213,7 @@ function updateMapDisplay(gameState) {
         setTimeout(function() {
             // don't display it again (timeout to handle multiple updateDisplays() in a row)
             gameInitialization.gameSetup.tt[text] = 1;
-            storage.storeSetupInLocalStorage(gameInitialization.gameSetup);
+            storage.    storeSetup(gameInitialization.gameSetup);
         }, 500);
 
         width = width || 7;

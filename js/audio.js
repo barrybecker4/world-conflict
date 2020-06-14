@@ -127,7 +127,7 @@ function playSound(sound) {
 
 function updateSoundControls() {
     utils.$('sound').innerHTML = gameInitialization.gameSetup.sound ? '♪' : ' ';
-    storage.storeSetupInLocalStorage(gameInitialization.gameSetup);
+    storage.    storeSetup(gameInitialization.gameSetup);
 }
 
 function toggleSound() {
