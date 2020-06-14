@@ -1,4 +1,5 @@
 import utils from '../utils/utils.js';
+import Player from './Player.js';
 import Upgrade from './Upgrade.js';
 
 // ==========================================================
@@ -36,10 +37,10 @@ export default {
     END_TURN: 3,
     // === Player properties
     PLAYER_TEMPLATES: [
-        {i:0, n: 'Amber', l: '#fd8', d:'#960', h: '#fd8', hd:'#a80'},
-        {i:1, n: 'Crimson', l: '#f88', d:'#722', h: '#faa', hd:'#944'},
-        {i:2, n: 'Lavender', l: '#d9d', d:'#537', h: '#faf', hd:'#759'},
-        {i:3, n: 'Emerald', l: '#9d9', d:'#262', h: '#bfb', hd:'#484'}
+        new Player(0, 'Amber', '#fd8', '#960', '#fd8', '#a80'),
+        new Player(1, 'Crimson', '#f88', '#722', '#faa', '#944'),
+        new Player(2, 'Lavender', '#d9d', '#537', '#faf', '#759'),
+        new Player(3, 'Emerald', '#9d9','#262', '#bfb', '#484'),
     ],
     UPGRADES,
     LEVELS: ["Temple", "Cathedral"],
