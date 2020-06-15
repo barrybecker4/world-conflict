@@ -33,8 +33,8 @@ function showMap(container, gameState) {
     // define gradients and clipping paths for rendering
     var defs = elem('defs', {},
             makeClipPaths() +
-            makeGradient('b', '#8af', '#478') +
-            makeGradient('l', '#fa6', '#530') +
+            makeGradient('b', '#69e', '#48b') +
+            makeGradient('l',  '#dba', '#b98') + //  '#da8', '#ba7') + // '#fa6', '#530') +//
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
@@ -171,7 +171,7 @@ function updateMapDisplay(gameState) {
             map(region.p, function(point) {
                 point = projectPoint(point);
                 var center = region.c;
-                var alpha = rint(30,100)/100;
+                var alpha = rint(30, 100) / 100;
                 var startPoint = [lerp(alpha, center[0], point[0]), lerp(alpha, center[1], point[1])];
                 var vx = (startPoint[0] - center[0]) / 2, vy = (startPoint[1] - center[1]) / 2 - 0.15;
                 spawnParticle(startPoint[0], startPoint[1], vx, vy, '#fff');
