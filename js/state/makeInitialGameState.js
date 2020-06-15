@@ -9,6 +9,7 @@ import GameState from './model/GameState.js';
 import Region from './model/Region.js';
 import { ArmyMove } from './model/Move.js';
 import AI_PERSONALITIES from './model/AI_PERSONALITIES.js';
+import PLAYERS from './model/PLAYERS.js';
 const { map, deepCopy, rint, range, sum } = utils;
 
 // initial game state happens here
@@ -18,7 +19,7 @@ export default function makeInitialGameState(setup) {
 
     map(setup.p, function(playerController, playerIndex) {
         if (playerController == gameData.PLAYER_OFF) return;
-        var player = deepCopy(gameData.PLAYER_TEMPLATES[playerIndex], 1);
+        var player = deepCopy(PLAYERS[playerIndex], 1);
 
         // set up as AI/human
         player.u = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;

@@ -4,6 +4,7 @@ import gameData from './state/gameData.js';
 import storage from './state/storage.js';
 import appState from './state/appState.js';
 import makeInitialGameState from './state/makeInitialGameState.js';
+import PLAYERS from './state/model/PLAYERS.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
 const $ = utils.$
@@ -18,7 +19,7 @@ var gameSetup = storage.retrieveSetup();
 function prepareSetupUI() {
     // player box area
     var html = utils.div({c: 'sc ds'}, "Player setup");
-    var playerBoxes = utils.map(gameData.PLAYER_TEMPLATES, function(player) {
+    var playerBoxes = utils.map(PLAYERS, function(player) {
         var pid = player.i;
         return buttonPanel(player.n, "sb" + player.i, ["AI", "Human", "Off"], {
             i: 'pl' + pid,
@@ -37,7 +38,7 @@ function prepareSetupUI() {
     utils.map(['mv', 'undo-button', 'restart'], utils.hide);
 
     // setup callbacks for players
-    utils.for2d(0, 0, gameData.PLAYER_TEMPLATES.length, 3, function(playerIndex, buttonIndex) {
+    utils.for2d(0, 0, PLAYERS.length, 3, function(playerIndex, buttonIndex) {
         utils.onClickOrTap(
             $('sb' + playerIndex + buttonIndex),
             gameController.invokeUICallback.bind(0, {p: playerIndex, b: buttonIndex}, 'sb')

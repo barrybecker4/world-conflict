@@ -1,14 +1,4 @@
 import utils from '../utils/utils.js';
-import Player from './model/Player.js';
-
-
-// Player properties
-const PLAYER_TEMPLATES = [
-    new Player(0, 'Amber', '#fd8', '#960', '#fd8', '#a80'),
-    new Player(1, 'Crimson', '#f88', '#722', '#faa', '#944'),
-    new Player(2, 'Lavender', '#d9d', '#537', '#faf', '#759'),
-    new Player(3, 'Emerald', '#9d9','#262', '#bfb', '#484'),
-];
 
 const UNLIMITED_TURNS = 1000000;
 
@@ -18,8 +8,6 @@ export default {
     movesPerTurn: 3,
     minimumAIThinkingTime: 1000,
     maximumAIThinkingTime: 5000,
-
-    PLAYER_TEMPLATES,
 
     LEVELS: ["Temple", "Cathedral"],
 
