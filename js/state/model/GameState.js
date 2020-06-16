@@ -11,10 +11,10 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, regions, o, temples, soldiers, cash, level, move, a, flt) {
+    constructor(players, regions, owner, temples, soldiers, cash, level, move, a, flt) {
         this.p = players;
         this.r = regions;
-        this.o = o;  // what is o?
+        this.o = owner;
         this.t = temples;
         this.s = soldiers;
         this.c = cash;
@@ -83,7 +83,7 @@ export default class GameState {
     }
 
     cash(player) {
-        return this.c[player.i];
+        return this.c[player.index];
     }
 
     rawUpgradeLevel(player, upgradeType) {

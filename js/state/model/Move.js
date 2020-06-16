@@ -11,7 +11,7 @@ class Move {
     constructor() {
         this.b = [
             { t: 'Cancel move', h:1 },
-            { t: 'End turn'},
+            { t: 'End turn' },
         ];
     }
 

@@ -190,7 +190,7 @@ function uiPickMove(player, state, reportMoveCallback) {
                 state.d.u = UPGRADES[which];
                 // if its a soldier, store UI state so it can be kept after the move is made
                 if (state.d.u === UPGRADES.SOLDIER)
-                    uiState[player.i] = state.d.r;
+                    uiState[player.index] = state.d.r;
                 // report the move
                 reportMoveCallback(state.d);
             }
@@ -212,9 +212,9 @@ function uiPickMove(player, state, reportMoveCallback) {
     };
 
     setCleanState();
-    if (uiState[player.i]) {
-        uiCallbacks.t(uiState[player.i]);
-        delete uiState[player.i];
+    if (uiState[player.index]) {
+        uiCallbacks.t(uiState[player.index]);
+        delete uiState[player.index];
     }
 
     function setCleanState() {
@@ -265,7 +265,7 @@ function afterMoveChecks(state) {
             // show the world the good (or bad) news
             if (!state.a) {
                 oneAtaTime(150, gameRenderer.updateDisplay.bind(0, state));
-                gameRenderer.showBanner('#222', player.n + " has been eliminated!", 900);
+                gameRenderer.showBanner('#222', player.name + " has been eliminated!", 900);
             }
         }
     });
@@ -361,7 +361,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                     // attacker wins, kill defender and pay the martyr bonus
                     toList.shift();
                     if (toOwner)
-                        state.c[toOwner.i] += 4;
+                        state.c[toOwner.index] += 4;
                     battleAnimationKeyframe(state, 250, audio.sounds.ENEMY_DEAD);
                 }
             });
@@ -371,7 +371,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 // and prevent anybody from moving in
                 incomingSoldiers = 0;
                 state.sc = audio.sounds.DEFEAT;
-                state.flt = [{r: toRegion, c: toOwner ? toOwner.h : '#fff', t: "Defended!", w: 7}];
+                state.flt = [{r: toRegion, c: toOwner ? toOwner.highlightStart : '#fff', t: "Defended!", w: 7}];
             }
         }
 
@@ -399,7 +399,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 delete temple.u;
             // play sound, launch particles!
             state.prt = toRegion;
-            state.flt = [{r: toRegion, c: fromOwner.h, t: "Conquered!", w: 7}];
+            state.flt = [{r: toRegion, c: fromOwner.highlightStart, t: "Conquered!", w: 7}];
             state.sc = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
         }
     }
@@ -426,7 +426,7 @@ function buildUpgrade(state, region, upgrade) {
         // soldiers work differently - they get progressively more expensive the more you buy in one turn
         if (!state.m.h)
             state.m.h = 0;
-        state.c[templeOwner.i] -= upgrade.cost[state.m.h++];
+        state.c[templeOwner.index] -= upgrade.cost[state.m.h++];
         return state.addSoldiers(region, 1);
     }
     if (upgrade === UPGRADES.RESPECT) {
@@ -446,7 +446,7 @@ function buildUpgrade(state, region, upgrade) {
     }
 
     // you have to pay for it, unfortunately
-    state.c[templeOwner.i] -= upgrade.cost[temple.l];
+    state.c[templeOwner.index] -= upgrade.cost[temple.l];
 
     // particles!
     state.prt = temple.r;
@@ -462,7 +462,7 @@ function nextTurn(state) {
 
     // cash is produced
     var playerIncome = state.income(player);
-    state.c[player.i] += playerIncome;
+    state.c[player.index] += playerIncome;
     if (playerIncome) {
         state.flt = [{r: state.temples(player)[0].r, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}];
     }
@@ -495,7 +495,7 @@ function nextTurn(state) {
     // if this is not simulated, we'd like a banner
     if (!state.a) {
         // show next turn banner
-        gameRenderer.showBanner(state.activePlayer().d, state.activePlayer().n + "'s turn");
+        gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
     }
 }
 
@@ -512,7 +512,7 @@ function showEndGame(state) {
     oneAtaTime(1, function() {
         var winner = state.e;
         if (winner != gameData.DRAW_GAME) {
-            gameRenderer.showBanner(winner.d, winner.n + " wins the game!");
+            gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!");
         } else {
             gameRenderer.showBanner('#333', "The game ends in a draw!");
         }

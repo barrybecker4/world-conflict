@@ -39,8 +39,8 @@ function showMap(container, gameState) {
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
             map(gameState.p, function(player, index) {
-                return makeGradient('p' + index, player.l, player.d) +
-                    makeGradient('p' + index + 'h', player.h, player.hd);
+                return makeGradient('p' + index, player.colorStart, player.colorEnd) +
+                    makeGradient('p' + index + 'h', player.highlightStart, player.highlightEnd);
             }).join(''));
 
     // create all the layers (5 per region)
@@ -150,7 +150,7 @@ function updateMapDisplay(gameState) {
 
     function updateRegionDisplay(region) {
         var regionOwner = gameState.owner(region);
-        var gradientName = (regionOwner ? 'p' + regionOwner.i : 'l');
+        var gradientName = (regionOwner ? 'p' + regionOwner.index : 'l');
 
         var highlighted = sequenceUtils.contains(gameState.d && gameState.d.h || [], region) ||    // a region is highlighted if it has an available move
                           (gameState.e && regionOwner == gameState.e);               // - or belongs to the winner (end game display highlights the winner)
@@ -349,7 +349,7 @@ function updateIngameUI(gameState) {
     var buildingMode = decisionState && decisionState.isBuildMove();
     var movingArmy = decisionState && decisionState.isArmyMove();
 
-    var active = gameState.activePlayer();
+    var activePlayer = gameState.activePlayer();
 
     // turn counter/building name
     if (buildingMode) {
@@ -363,7 +363,7 @@ function updateIngameUI(gameState) {
 
     // player data
     map(gameState.p, function(player, index) {
-        //$('pl' + index).className = (index == moveState.p) ? 'pl' : 'pi'; // active or not?
+        //$('pl' + index).className = (index == moveState.p) ? 'pl' : 'pi'; // activePlayer or not?
         var regions = gameState.regionCount(player);
         var gameWinner = gameState.e;
 
@@ -372,7 +372,7 @@ function updateIngameUI(gameState) {
             if (gameWinner) {
                 $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
             } else {
-                $('player-cash' + index).innerHTML = gameState.c[player.i] + '&#9775;'; // cash on hand
+                $('player-cash' + index).innerHTML = gameState.c[player.index] + '&#9775;'; // cash on hand
             }
         } else {
             $('particle' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
@@ -381,9 +381,9 @@ function updateIngameUI(gameState) {
     });
 
     let moveInfo;
-    if (active.u == gameController.uiPickMove) {
+    if (activePlayer.u == gameController.uiPickMove) {
         if (buildingMode) {
-            if (gameState.owner(decisionState.r) == active)
+            if (gameState.owner(decisionState.r) == activePlayer)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');
             else
                 moveInfo = '';
@@ -397,15 +397,15 @@ function updateIngameUI(gameState) {
                 elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
         }
     } else {
-        moveInfo = elem('p', {}, active.n + ' is taking her turn.');
+        moveInfo = elem('p', {}, activePlayer.name + ' is taking her turn.');
     }
     $('in').innerHTML = moveInfo;
-    $('in').style.background = active.d;
+    $('in').style.background = activePlayer.colorEnd;
 
-    // active player stats
+    // activePlayer stats
     $('pd').style.display =  buildingMode ? 'none' : 'block';
     $('mc').innerHTML = moveState.l + elem('span', {s: 'font-size: 80%'}, '&#10138;');
-    $('ft').innerHTML = gameState.c[active.i] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
+    $('ft').innerHTML = gameState.c[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
     // buttons
     updateButtons(decisionState && decisionState.b);

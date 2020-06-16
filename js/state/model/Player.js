@@ -1,13 +1,13 @@
 
 export default class Player {
 
-    constructor(index, name, colorStart, colorEnd, highlightColorStart, highlightColorEnd) {
-        this.i = index;
-        this.n = name;
-        this.l = colorStart;
-        this.d = colorEnd;
-        this.h = highlightColorStart;
-        this.hd = highlightColorEnd;
+    constructor(index, name, colorStart, colorEnd, highlightStart, highlightEnd) {
+        this.index = index;
+        this.name = name;
+        this.colorStart = colorStart;
+        this.colorEnd = colorEnd;
+        this.highlightStart = highlightStart;
+        this.highlightEnd = highlightEnd;
     }
 }
 

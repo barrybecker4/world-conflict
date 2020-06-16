@@ -29,7 +29,7 @@ export default function makeInitialGameState(setup) {
             player.p = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
         }
 
-        player.i = players.length;
+        player.index = players.length;
         players.push(player);
     });
 

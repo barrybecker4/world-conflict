@@ -20,11 +20,11 @@ function prepareSetupUI() {
     // player box area
     var html = utils.div({c: 'sc ds'}, "Player setup");
     var playerBoxes = utils.map(PLAYERS, function(player) {
-        var pid = player.i;
-        return buttonPanel(player.n, "sb" + player.i, ["AI", "Human", "Off"], {
+        var pid = player.index;
+        return buttonPanel(player.name, "sb" + player.index, ["AI", "Human", "Off"], {
             i: 'pl' + pid,
             c: 'pl',
-            s: 'background: ' + player.d
+            s: 'background: ' + player.colorEnd
         });
     }).join("");
     html += utils.div({i: 'pd', c: 'sc un'}, playerBoxes);
@@ -118,12 +118,12 @@ function runSetupScreen() {
 
         // player box area
         html += utils.div({i: 'pd', c: 'sc un'}, utils.map(gameState.p, function(player) {
-            var pid = player.i;
+            var pid = player.index;
             return utils.div({
                 i: 'pl' + pid,
                 c: 'pl',
-                style: 'background: ' + player.d
-            }, player.n +
+                style: 'background: ' + player.colorEnd
+            }, player.name +
                 utils.div({c: 'ad', i: 'particle' + pid}) +
                 utils.div({c: 'ad', i: 'player-cash' + pid})
             );

@@ -43,7 +43,7 @@ function shouldBuildSoldier(player, state) {
     var soldierPreference = player.p.getSoldierPreference();
 
     // calculate the relative cost of buying a soldier now
-    var relativeCost = state.soldierCost() / state.c[player.i];
+    var relativeCost = state.soldierCost() / state.c[player.index];
     if (relativeCost > 1)
         return false;
 
@@ -70,7 +70,7 @@ function upgradeToBuild(player, state) {
     var desire = player.p.preferredUpgrades[0];
     var currentLevel = state.rawUpgradeLevel(player, desire);
     // can we afford it?
-    if (state.c[player.i] < desire.cost[currentLevel])
+    if (state.c[player.index] < desire.cost[currentLevel])
         return;
 
     // do we have a place to build it?

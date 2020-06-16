@@ -30,8 +30,7 @@ export default function generateMap(playerCount) {
             if (count && !overlaps(bounds)) continue;
 
             // we shrink it until it no longer overlaps - this guarantees
-            // that it will border at least one other region, making the map
-            // contiguous
+            // that it will border at least one other region, making the map contiguous
             while (!shrink(bounds)) {
                 if (!overlaps(bounds)) {
                     regions.push(makeRegionAt(count++, bounds));

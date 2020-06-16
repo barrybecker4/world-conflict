@@ -1,6 +1,6 @@
 import utils from '../../utils/utils.js';
 
-// AI personalities
+// Describes the behavior of an AI
 export default class AiPersonality {
 
     /**

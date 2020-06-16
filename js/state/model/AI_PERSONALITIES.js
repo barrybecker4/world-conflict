@@ -1,5 +1,6 @@
 import UPGRADES from './UPGRADES.js';
 import AiPersonality from './AiPersonality.js';
+
 const WATER = UPGRADES.WATER;
 const EARTH = UPGRADES.EARTH;
 const FIRE = UPGRADES.FIRE;
