@@ -7,7 +7,7 @@ import undoManager from './state/undoManager.js';
 import appState from './state/appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
-import aiPlay from './aiPlay.js';
+import aiPlay from './server/aiPlay.js';
 import { Move, ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
 import UPGRADES from './state/model/UPGRADES.js';
 const $ = utils.$

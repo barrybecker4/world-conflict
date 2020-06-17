@@ -1,10 +1,10 @@
-import utils from './utils/utils.js';
-import sequenceUtils from './utils/sequenceUtils.js';
-import gameData from './state/gameData.js';
-import gameInitialization from './gameInitialization.js';
-import gameController from './gameController.js';
-import { ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
-import UPGRADES from './state/model/UPGRADES.js';
+import utils from '../utils/utils.js';
+import sequenceUtils from '../utils/sequenceUtils.js';
+import gameData from '../state/gameData.js';
+import gameInitialization from '../gameInitialization.js';
+import gameController from '../gameController.js';
+import { ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
+import UPGRADES from '../state/model/UPGRADES.js';
 
 // The AI running CPU players resides below.
 

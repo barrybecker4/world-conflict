@@ -2,7 +2,7 @@ import utils from '../utils/utils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import gameData from './gameData.js';
 import gameController from '../gameController.js';
-import aiPlay from '../aiPlay.js';
+import aiPlay from '../server/aiPlay.js';
 import generateMap from '../map/generateMap.js';
 import Temple from './model/Temple.js';
 import GameState from './model/GameState.js';
