@@ -208,7 +208,7 @@ function possibleMoves(state) {
            // iterate over all possible neighbours, and add two moves for each:
            // moving the entire army there, and half of it
            var soldiers = state.soldierCount(region);
-           utils.map(region.n, function(neighbour) {
+           utils.map(region.neighbors, function(neighbour) {
                addArmyMove(region, neighbour, soldiers);
                if (soldiers > 1)
                    addArmyMove(region, neighbour, Math.floor(soldiers / 2));
@@ -253,7 +253,7 @@ function heuristicForPlayer(player, state) {
 }
 
 function regionFullValue(state, region) {
-    var temple = state.t[region.i];
+    var temple = state.t[region.index];
     if (temple) {
         var templeBonus = slidingBonus(state, 6, 0, 0.5);
         var upgradeBonus = slidingBonus(state, 4, 0, 0.9);
@@ -269,7 +269,7 @@ function regionThreat(state, player, region) {
     if (gameInitialization.gameSetup.l === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
     var ourPresence = state.soldierCount(region);
-    var enemyPresence = sequenceUtils.max(utils.map(region.n, function(neighbour) {
+    var enemyPresence = sequenceUtils.max(utils.map(region.neighbors, function(neighbour) {
         // is this an enemy region?
         var nOwner = state.owner(neighbour);
         if ((nOwner == player) || !nOwner) return 0;
@@ -286,7 +286,7 @@ function regionThreat(state, player, region) {
 
             if (entry.d) {
                 // go deeper with the search
-                utils.map(entry.r.n.filter(function(candidate) {
+                utils.map(entry.r.neighbor.filter(function(candidate) {
                     return (!sequenceUtils.contains(visited, candidate)) &&
                         (state.owner(candidate) == nOwner);
                 }), function(r) {
@@ -309,7 +309,7 @@ function regionOpportunity(state, player, region) {
     if (!attackingSoldiers)
         return 0;
 
-    return sequenceUtils.sum(region.n, function(neighbour) {
+    return sequenceUtils.sum(region.neighbors, function(neighbour) {
         if (state.owner(neighbour) != player) {
             var defendingSoldiers = state.soldierCount(neighbour);
             return utils.clamp((attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5, 0, 0.5) * regionFullValue(state, neighbour);

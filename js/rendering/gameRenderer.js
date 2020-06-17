@@ -65,7 +65,7 @@ function showMap(container, gameState) {
     // hook up region objects to their HTML elements
     map(regions, function(region, index) {
         region.e = $('r' + index);
-        region.c = projectPoint(centerOfWeight(region.p));
+        region.c = projectPoint(centerOfWeight(region.points));
 
         region.hl = $('hl' + index);
         onClickOrTap(region.hl, gameController.invokeUICallback.bind(0, region, 'c'));
@@ -80,7 +80,7 @@ function showMap(container, gameState) {
     // makes clipping paths for the "highlight" polygons
     function makeClipPaths() {
         return map(regions, function(region, index) {
-            return elem('clipPath', {i: 'clip' + index}, makePolygon(region.p, 'cp' + index, 'l', ''));
+            return elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
         }).join('');
     }
 
@@ -90,7 +90,7 @@ function showMap(container, gameState) {
         return elem('g', {}, map(regions, function(region, index) {
             const clipRegion = clip ? 'url(#' + clip + index + ')' : '';
             return makePolygon(
-                transformPoints(region.p, xm, ym, xd, yd),
+                transformPoints(region.points, xm, ym, xd, yd),
                 idPrefix + index, gradient, stroke, clipRegion
             );
         }).join(''));
@@ -168,7 +168,7 @@ function updateMapDisplay(gameState) {
         // particles
         if (gameState.prt == region) {
             gameState.prt = 0; // only once
-            map(region.p, function(point) {
+            map(region.points, function(point) {
                 point = projectPoint(point);
                 var center = region.c;
                 var alpha = rint(30, 100) / 100;
@@ -191,8 +191,8 @@ function updateMapDisplay(gameState) {
         if (source)  {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
-            var furthest = sequenceUtils.max(source.n, function(neighbour) {
-                return Math.abs(source.c[0] - neighbour.c[0]) + Math.abs(source.c[1] - neighbour.c[1]);
+            var furthest = sequenceUtils.max(source.neighbors, function(neighbor) {
+                return Math.abs(source.c[0] - neighbor.c[0]) + Math.abs(source.c[1] - neighbor.c[1]);
             });
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
@@ -270,7 +270,7 @@ function updateMapDisplay(gameState) {
 
         var x = index % 4, y = Math.floor(index / 4);
         var xOffset = (-0.6 * columnWidth + x * 1.2);
-        var yOffset = y * rowHeight + (gameState.t[region.i] ? 1.5 : 0);
+        var yOffset = y * rowHeight + (gameState.t[region.index] ? 1.5 : 0);
         var xPosition = center[0] + xOffset - yOffset * 0.2;
         var yPosition = center[1] + xOffset * 0.2 + yOffset;
 

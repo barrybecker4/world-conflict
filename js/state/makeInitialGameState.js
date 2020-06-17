@@ -67,7 +67,7 @@ export default function makeInitialGameState(setup) {
         map(players, function(player, index) {
             var region = homes[index];
             // make one of the regions your own
-            gameState.o[region.i] = player;
+            gameState.o[region.index] = player;
             // put a temple and 3 soldiers in it
             putTemple(region, 3);
         });
@@ -109,7 +109,7 @@ export default function makeInitialGameState(setup) {
     }
 
     function putTemple(region, soldierCount) {
-        var index = region.i;
+        var index = region.index;
         gameState.t[index] = new Temple(index, region);
         gameState.addSoldiers(region, soldierCount);
     }

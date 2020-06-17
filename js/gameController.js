@@ -141,7 +141,7 @@ function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
                 state.d = new ArmyMove(null, null, null, region, null, state.soldierCount(region));
                 state.d.b[0].h = 0;
-                state.d.h = region.n.concat(region);
+                state.d.h = region.neighbors.concat(region);
             }
         } else if (region) {
             // we already have a move in progress
@@ -150,7 +150,7 @@ function uiPickMove(player, state, reportMoveCallback) {
             if (region == decisionState.s) {
                 // the one we're moving an army from - tweak soldier count
                 decisionState.c = decisionState.c % state.soldierCount(region) + 1;
-            } else if (decisionState.s.n.indexOf(region) > -1) {
+            } else if (decisionState.s.neighbors.indexOf(region) > -1) {
                 // one of the neighbours - let's finalize the move
                 uiCallbacks = {};
                 decisionState.d = region;
@@ -164,7 +164,7 @@ function uiPickMove(player, state, reportMoveCallback) {
     };
 
     uiCallbacks.t = function(region) {
-        var temple = state.t[region.i];
+        var temple = state.t[region.index];
         state.d = new BuildMove(null, temple, region, makeUpgradeButtons(temple));
         gameRenderer.updateDisplay(state);
     };
@@ -173,7 +173,7 @@ function uiPickMove(player, state, reportMoveCallback) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
         utils.map(state.r, function(region) {
-            if (sequenceUtils.contains(state.s[region.i], soldier))
+            if (sequenceUtils.contains(state.s[region.index], soldier))
                 soldierRegion = region;
         });
         if (soldierRegion)
@@ -281,8 +281,8 @@ function afterMoveChecks(state) {
 
 
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
-    var fromList = state.s[fromRegion.i];
-    var toList = state.s[toRegion.i] || (state.s[toRegion.i] = []);
+    var fromList = state.s[fromRegion.index];
+    var toList = state.s[toRegion.index] || (state.s[toRegion.index] = []);
     var fromOwner = state.owner(fromRegion);
     var toOwner = state.owner(toRegion);
 
@@ -390,11 +390,11 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 
         // if this didn't belong to us, it now does
         if (fromOwner != toOwner) {
-            state.o[toRegion.i] = fromOwner;
+            state.o[toRegion.index] = fromOwner;
             // mark as conquered to prevent moves from this region in the same turn
             state.m.z = (state.m.z || []).concat(toRegion);
             // if there was a temple, reset its upgrades
-            var temple = state.t[toRegion.i];
+            var temple = state.t[toRegion.index];
             if (temple)
                 delete temple.u;
             // play sound, launch particles!
@@ -419,7 +419,7 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
 
 
 function buildUpgrade(state, region, upgrade) {
-    var temple = state.t[region.i];
+    var temple = state.t[region.index];
     var templeOwner = state.owner(region);
 
     if (upgrade === UPGRADES.SOLDIER) {

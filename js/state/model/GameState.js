@@ -25,7 +25,7 @@ export default class GameState {
     }
 
     soldierCount(region) {
-        var list = this.s[region.i];
+        var list = this.s[region.index];
         return list ? list.length : 0;
     }
 
@@ -79,7 +79,7 @@ export default class GameState {
     }
 
     owner(region) {
-        return this.o[region.i];
+        return this.o[region.index];
     }
 
     cash(player) {
@@ -104,7 +104,7 @@ export default class GameState {
         let self = this;
         return sequenceUtils.max(utils.map(this.r, function(region) {
             // does it have a temple?
-            var temple = self.t[region.i];
+            var temple = self.t[region.index];
             if (!temple) return 0;
             // does it belong to us?
             if (self.owner(region) != player) return 0;
@@ -141,10 +141,10 @@ export default class GameState {
         utils.map(utils.range(0, count), function() {
             soldierCounter = (soldierCounter + 1) || 0;
 
-            var soldierList = self.s[region.i];
+            var soldierList = self.s[region.index];
             if (!soldierList) {
                 soldierList = [];
-                self.s[region.i] = [];
+                self.s[region.index] = [];
             }
 
             soldierList.push({ i: soldierCounter++ });

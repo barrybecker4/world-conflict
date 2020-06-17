@@ -78,7 +78,7 @@ export default function generateMap(playerCount) {
             points[w + i] = perturbedPoint(l+w,t+i);
             points[w + h + w + i] = perturbedPoint(l, t + h - i);
         });
-        var region = new Region(index, points, []);
+        var region = new Region(index, points);
 
         // mark it in the map
         utils.for2d(bounds.l, bounds.t, bounds.l + bounds.w, bounds.t + bounds.h, function(x, y){
@@ -103,8 +103,8 @@ export default function generateMap(playerCount) {
             if (region) {
                 utils.map([[-1, 0],[1, 0],[0, -1],[0, 1]],function(d) {
                     var potentialNeighbour = regionMap[x + d[0]][y + d[1]];
-                    if (potentialNeighbour && (potentialNeighbour != region) && (region.n.indexOf(potentialNeighbour) == -1))
-                        region.n.push(potentialNeighbour);
+                    if (potentialNeighbour && (potentialNeighbour != region) && (region.neighbors.indexOf(potentialNeighbour) == -1))
+                        region.neighbors.push(potentialNeighbour);
                 });
             }
         });
