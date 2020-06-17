@@ -27,7 +27,7 @@ function aiPickMove(player, state, reportMoveCallback) {
     }
 
     // the AI only analyzes its own moves (threats are handled in heuristic)
-    var depth = state.m.l || 1;
+    var depth = state.m.movesRemaining || 1;
 
     // use a min-max search to find the best move looking a few steps forward
     performMinMax(player, state, depth, reportMoveCallback);
@@ -85,7 +85,7 @@ function upgradeToBuild(player, state) {
 
     // build the upgrade!
     player.p.preferredUpgrades.shift();
-    return new BuildMove(desire, temple, temple.r);
+    return new BuildMove(desire, temple);
 }
 
 function templeDangerousness(state, temple) {
@@ -96,7 +96,7 @@ function templeDangerousness(state, temple) {
 
 function buildSoldierAtBestTemple(player, state) {
     var temple = sequenceUtils.max(state.temples(player), templeDangerousness.bind(0, state));
-    return new BuildMove(UPGRADES.SOLDIER, temple, temple.r);
+    return new BuildMove(UPGRADES.SOLDIER, temple);
 }
 
 function minMaxDoSomeWork(node) {
@@ -124,7 +124,7 @@ function minMaxDoSomeWork(node) {
 function minMaxReturnFromChild(node, child) {
     if (node) {
         // what sort of a node are we?
-        var activePlayer = node.s.p[node.s.m.p];
+        var activePlayer = node.s.p[node.s.m.playerIndex];
         var maximizingNode = activePlayer == node.a;
         // is the value from child better than what we have?
         var better = (!node.b) || (maximizingNode && (child.v > node.v)) || ((!maximizingNode) && (child.v < node));
@@ -187,7 +187,7 @@ function possibleMoves(state) {
     var player = state.activePlayer();
 
     // are we out of move points?
-    if (!state.m.l)
+    if (!state.m.movesRemaining)
         return moves; // yup, just end of turn available
 
     function addArmyMove(source, dest, count) {
@@ -223,7 +223,7 @@ function possibleMoves(state) {
 
 function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
     var dropOffTurn = dropOffPoint * gameInitialization.gameSetup.turnCount;
-    var alpha = (state.m.t - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
+    var alpha = (state.m.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
     if (alpha < 0.0)
         alpha = 0.0;
     return (startOfGameValue + (endOfGameValue - startOfGameValue) * alpha);

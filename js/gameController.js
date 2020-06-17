@@ -92,9 +92,9 @@ function makeMove(state, move) {
     const newState = state.copy();
 
     if (move.isArmyMove()) {
-        moveSoldiers(newState, move.s, move.d, move.c);
+        moveSoldiers(newState, move.source, move.destination, move.count);
     } else if (move.isBuildMove()) {
-        buildUpgrade(newState, move.r, move.u);
+        buildUpgrade(newState, move.region, move.upgrade);
     } else if (move.isEndMove()) {
         nextTurn(newState);
     } else {
@@ -135,25 +135,25 @@ function uiPickMove(player, state, reportMoveCallback) {
         if (!region || state.d.isBuildMove())
             setCleanState();
 
-        if (!state.d.s && region) {
+        if (!state.d.source && region) {
             // no move in progress - start a new move if this is legal
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
                 state.d = new ArmyMove(null, null, null, region, null, state.soldierCount(region));
-                state.d.b[0].h = 0;
+                state.d.buttons[0].h = 0;
                 state.d.h = region.neighbors.concat(region);
             }
         } else if (region) {
             // we already have a move in progress
             var decisionState = state.d;
             // what region did we click?
-            if (region == decisionState.s) {
+            if (region == decisionState.source) {
                 // the one we're moving an army from - tweak soldier count
-                decisionState.c = decisionState.c % state.soldierCount(region) + 1;
-            } else if (decisionState.s.neighbors.indexOf(region) > -1) {
+                decisionState.count = decisionState.count % state.soldierCount(region) + 1;
+            } else if (decisionState.source.neighbors.indexOf(region) > -1) {
                 // one of the neighbours - let's finalize the move
                 uiCallbacks = {};
-                decisionState.d = region;
+                decisionState.destination = region;
                 return reportMoveCallback(decisionState);
             } else {
                 // some random region - cancel move
@@ -165,7 +165,7 @@ function uiPickMove(player, state, reportMoveCallback) {
 
     uiCallbacks.t = function(region) {
         var temple = state.t[region.index];
-        state.d = new BuildMove(null, temple, region, makeUpgradeButtons(temple));
+        state.d = new BuildMove(null, temple, makeUpgradeButtons(temple));
         gameRenderer.updateDisplay(state);
     };
 
@@ -187,10 +187,10 @@ function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
             } else {
                 // build an upgrade!
-                state.d.u = UPGRADES[which];
+                state.d.upgrade = UPGRADES[which];
                 // if its a soldier, store UI state so it can be kept after the move is made
-                if (state.d.u === UPGRADES.SOLDIER)
-                    uiState[player.index] = state.d.r;
+                if (state.d.upgrade === UPGRADES.SOLDIER)
+                    uiState[player.index] = state.d.region;
                 // report the move
                 reportMoveCallback(state.d);
             }
@@ -261,7 +261,7 @@ function afterMoveChecks(state) {
             });
             // dead people get no more moves
             if (state.activePlayer() == player)
-                state.m.l = 0;
+                state.m.movesRemaining = 0;
             // show the world the good (or bad) news
             if (!state.a) {
                 oneAtaTime(150, gameRenderer.updateDisplay.bind(0, state));
@@ -405,7 +405,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
     }
 
     // use up the move
-    state.m.l--;
+    state.m.movesRemaining--;
 }
 
 
@@ -453,7 +453,7 @@ function buildUpgrade(state, region, upgrade) {
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)
-        state.m.l++;
+        state.m.movesRemaining++;
 }
 
 
@@ -478,16 +478,16 @@ function nextTurn(state) {
     // go to next player (skipping dead ones)
     do {
         var playerCount = state.p.length;
-        var playerIndex = (state.m.p + 1) % playerCount, upcomingPlayer = state.p[playerIndex],
-            turnNumber = state.m.t + (playerIndex ? 0 : 1);
+        var playerIndex = (state.m.playerIndex + 1) % playerCount, upcomingPlayer = state.p[playerIndex],
+            turnNumber = state.m.turnIndex + (playerIndex ? 0 : 1);
         var numMoves = gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
         state.m = new ArmyMove(turnNumber, playerIndex, numMoves);
     } while (!state.regionCount(upcomingPlayer));
 
     // did the game end by any chance?
-    if (state.m.t > gameInitialization.gameSetup.turnCount) {
+    if (state.m.turnIndex > gameInitialization.gameSetup.turnCount) {
         // end the game!
-        state.m.t = gameInitialization.gameSetup.turnCount;
+        state.m.turnIndex = gameInitialization.gameSetup.turnCount;
         state.e = determineGameWinner(state);
         return;
     }

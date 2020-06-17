@@ -49,7 +49,7 @@ export default class GameState {
     }
 
     regionHasActiveArmy(player, region) {
-        return (this.m.l > 0) &&
+        return (this.m.movesRemaining > 0) &&
             (this.owner(region) == player) && this.soldierCount(region) &&
             (!sequenceUtils.contains(this.m.z, region));
     }
@@ -75,7 +75,7 @@ export default class GameState {
     }
 
     activePlayer() {
-        return this.p[this.m.p];
+        return this.p[this.m.playerIndex];
     }
 
     owner(region) {

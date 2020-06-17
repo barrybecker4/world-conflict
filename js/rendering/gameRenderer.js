@@ -160,7 +160,7 @@ function updateMapDisplay(gameState) {
             gradientName += 'h';
         }
         var highlightedOpacity = 0.1 + region.c[0] * 0.003;
-        if (gameState.e || (gameState.d && gameState.d.s == region))
+        if (gameState.e || (gameState.d && gameState.d.source == region))
             highlightedOpacity *= 2;
         region.hl.style.opacity = highlighted ? highlightedOpacity : 0.0;
         region.hl.style.cursor = highlighted ? 'pointer' : 'default';
@@ -187,7 +187,7 @@ function updateMapDisplay(gameState) {
         if (gameState.activePlayer().u != gameController.uiPickMove) return;
 
         // "how to move" tooltips
-        var source = gameState.d && gameState.d.s;
+        var source = gameState.d && gameState.d.source;
         if (source)  {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
@@ -204,7 +204,7 @@ function updateMapDisplay(gameState) {
                 showTooltipOver({c: [-2, 80]}, "Once you're done, click 'End turn' here.");
             }
         }
-        if (gameState.m.t == 2 && gameState.m.l == 2) {
+        if (gameState.m.turnIndex == 2 && gameState.m.movesRemaining == 2) {
             showTooltipOver({c:[90,93]}, "If you want to undo a move or check the rules, use the buttons here.", 15);
         }
     }
@@ -244,7 +244,7 @@ function updateMapDisplay(gameState) {
             (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
         // highlight?
-        var selected = gameState.d && gameState.d.w == temple;
+        var selected = gameState.d && gameState.d.temple == temple;
         toggleClass(temple.e, 'l', selected);
     }
 
@@ -287,7 +287,7 @@ function updateMapDisplay(gameState) {
 
         // selected?
         var decisionState = gameState.d || {};
-        toggleClass(domElement, 'l', (decisionState.s == region) && (index < decisionState.c));
+        toggleClass(domElement, 'l', (decisionState.source == region) && (index < decisionState.count));
     }
 
     function updateSoldierTooltips() {
@@ -300,7 +300,7 @@ function updateMapDisplay(gameState) {
             // should we have a tooltip?
             var count = gameState.soldierCount(region);
             if (count > 8) {
-                var selected = (gameState.d && (gameState.d.s == region)) ? gameState.d.c : 0;
+                var selected = (gameState.d && (gameState.d.source == region)) ? gameState.d.count : 0;
                 selected += sequenceUtils.sum(gameState.s[regionIndex], function(soldier) {
                     return soldier.a ? 1 : 0;
                 });
@@ -332,7 +332,7 @@ function updateMapDisplay(gameState) {
                 x = parseFloat(node.style.left) + 0.2, y = parseFloat(node.style.top) + 0.2;
             }
 
-            x -= floater.w/2 + 0.5; y -= 4;
+            x -= floater.w / 2 + 0.5; y -= 4;
 
             var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.c + ";width:" + floater.w + "%";
             var floatingNode = append('m', div({c: 'tt', s: styles}, floater.t));
@@ -353,11 +353,11 @@ function updateIngameUI(gameState) {
 
     // turn counter/building name
     if (buildingMode) {
-        var info = gameState.templeInfo(decisionState.w);
+        var info = gameState.templeInfo(decisionState.temple);
         $('turn-count').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
     } else {
         $('turn-count').innerHTML =
-            'Turn <b>' + gameState.m.t + '</b>' +
+            'Turn <b>' + gameState.m.turnIndex + '</b>' +
             ((gameInitialization.gameSetup.turnCount != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
     }
 
@@ -383,7 +383,7 @@ function updateIngameUI(gameState) {
     let moveInfo;
     if (activePlayer.u == gameController.uiPickMove) {
         if (buildingMode) {
-            if (gameState.owner(decisionState.r) == activePlayer)
+            if (gameState.owner(decisionState.region) == activePlayer)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');
             else
                 moveInfo = '';
@@ -404,11 +404,11 @@ function updateIngameUI(gameState) {
 
     // activePlayer stats
     $('pd').style.display =  buildingMode ? 'none' : 'block';
-    $('mc').innerHTML = moveState.l + elem('span', {s: 'font-size: 80%'}, '&#10138;');
+    $('mc').innerHTML = moveState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
     $('ft').innerHTML = gameState.c[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
     // buttons
-    updateButtons(decisionState && decisionState.b);
+    updateButtons(decisionState && decisionState.buttons);
 
     // undo
     $('undo-button').innerHTML = undoManager.undoEnabled(gameState) ? "&#x21b6;" : "";

@@ -9,7 +9,7 @@ export {
 // A player is allowed some number of moves per turn.
 class Move {
     constructor() {
-        this.b = [
+        this.buttons = [
             { t: 'Cancel move', h:1 },
             { t: 'End turn' },
         ];
@@ -28,14 +28,14 @@ class Move {
 
 class ArmyMove extends Move {
 
-    constructor(turnIndex, playerIndex, movesPerTurn, source, dest, count) {
+    constructor(turnIndex, playerIndex, movesRemaining, source, destination, count) {
         super();
-        this.t = turnIndex;
-        this.p = playerIndex;
-        this.l = movesPerTurn;
-        this.s = source;
-        this.d = dest;
-        this.c = count;
+        this.turnIndex = turnIndex;  // t
+        this.playerIndex = playerIndex;
+        this.movesRemaining = movesRemaining; // l
+        this.source = source;            // s
+        this.destination = destination; // d
+        this.count = count;            // c
     }
     isArmyMove() {
         return true;
@@ -44,12 +44,12 @@ class ArmyMove extends Move {
 
 class BuildMove extends Move {
 
-    constructor(desire, temple, templeRegion, buttons) {
+    constructor(desiredUpgrade, temple, buttons) {
         super();
-        this.u = desire;
-        this.w = temple;
-        this.r = temple.r;
-        this.b = buttons;
+        this.upgrade = desiredUpgrade;     // u
+        this.temple = temple;     // w
+        this.region = temple.r;   // r
+        this.buttons = buttons;   // b
     }
     isBuildMove() {
         return true;
