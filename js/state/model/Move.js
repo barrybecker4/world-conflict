@@ -30,12 +30,12 @@ class ArmyMove extends Move {
 
     constructor(turnIndex, playerIndex, movesRemaining, source, destination, count) {
         super();
-        this.turnIndex = turnIndex;  // t
+        this.turnIndex = turnIndex;
         this.playerIndex = playerIndex;
-        this.movesRemaining = movesRemaining; // l
-        this.source = source;            // s
-        this.destination = destination; // d
-        this.count = count;            // c
+        this.movesRemaining = movesRemaining;
+        this.source = source;
+        this.destination = destination;
+        this.count = count;
     }
     isArmyMove() {
         return true;
@@ -46,10 +46,10 @@ class BuildMove extends Move {
 
     constructor(desiredUpgrade, temple, buttons) {
         super();
-        this.upgrade = desiredUpgrade;     // u
-        this.temple = temple;     // w
-        this.region = temple.r;   // r
-        this.buttons = buttons;   // b
+        this.upgrade = desiredUpgrade;
+        this.temple = temple;
+        this.region = temple.region;
+        this.buttons = buttons;
     }
     isBuildMove() {
         return true;

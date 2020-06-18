@@ -224,18 +224,18 @@ function uiPickMove(player, state, reportMoveCallback) {
     }
 
     function makeUpgradeButtons(temple) {
-        var templeOwner = state.owner(temple.r);
+        var templeOwner = state.owner(temple.region);
         var upgradeButtons = utils.map(UPGRADES, function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
-            var level = (temple.u == upgrade) ? (temple.l+1) : ((upgrade === UPGRADES.SOLDIER) ? (state.m.h || 0) : 0);
+            var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.m.h || 0) : 0);
 
             var cost = upgrade.cost[level];
             var text = utils.template(upgrade.name, gameData.LEVELS[level]) + utils.elem('b', {}, " (" + cost + "&#9775;)");
             var description = utils.template(upgrade.desc, upgrade.level[level]);
 
             var hidden = false;
-            hidden = hidden || (upgrade === UPGRADES.RESPECT && (!temple.u)); // respect only available if temple is upgraded
-            hidden = hidden || (temple.u && temple.u != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.RESPECT); // the temple is already upgraded with a different upgrade
+            hidden = hidden || (upgrade === UPGRADES.RESPECT && (!temple.upgrade)); // respect only available if temple is upgraded
+            hidden = hidden || (temple.upgrade && temple.upgrade != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.RESPECT); // the temple is already upgraded with a different upgrade
             hidden = hidden || (level >= upgrade.cost.length); // highest level reached
             hidden = hidden || (level < state.rawUpgradeLevel(templeOwner, upgrade)); // another temple has this upgrade already
             hidden = hidden || (templeOwner != player); // we're looking at an opponent's temple
@@ -396,7 +396,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             // if there was a temple, reset its upgrades
             var temple = state.t[toRegion.index];
             if (temple)
-                delete temple.u;
+                delete temple.upgrade;
             // play sound, launch particles!
             state.prt = toRegion;
             state.flt = [{r: toRegion, c: fromOwner.highlightStart, t: "Conquered!", w: 7}];
@@ -431,25 +431,25 @@ function buildUpgrade(state, region, upgrade) {
     }
     if (upgrade === UPGRADES.RESPECT) {
         // respecting is also different
-        delete temple.u;
+        delete temple.upgrade;
         return;
     }
 
     // upgrade the temple
-    if (temple.u != upgrade) {
+    if (temple.upgrade != upgrade) {
         // fresh level 1 upgrade!
-        temple.u = upgrade;
-        temple.l = 0;
+        temple.upgrade = upgrade;
+        temple.level = 0;
     } else {
         // upgrade to a higher level
-        temple.l++;
+        temple.level++;
     }
 
     // you have to pay for it, unfortunately
-    state.c[templeOwner.index] -= upgrade.cost[temple.l];
+    state.c[templeOwner.index] -= upgrade.cost[temple.level];
 
     // particles!
-    state.prt = temple.r;
+    state.prt = temple.region;
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)
@@ -464,14 +464,14 @@ function nextTurn(state) {
     var playerIncome = state.income(player);
     state.c[player.index] += playerIncome;
     if (playerIncome) {
-        state.flt = [{r: state.temples(player)[0].r, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}];
+        state.flt = [{r: state.temples(player)[0].region, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}];
     }
 
     // temples produce one soldier per turn automatically
     utils.forEachProperty(state.t, function(temple, regionIndex) {
         if (state.o[regionIndex] == player) {
             // this is our temple, add a soldier of the temple's element
-            state.addSoldiers(temple.r, 1);
+            state.addSoldiers(temple.region, 1);
         }
     });
 

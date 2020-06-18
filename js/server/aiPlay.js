@@ -75,7 +75,7 @@ function upgradeToBuild(player, state) {
 
     // do we have a place to build it?
     var possibleUpgrades = state.temples(player).filter(function(temple) {
-        return ((!temple.u) && (!currentLevel)) || (temple.u == desire);
+        return ((!temple.upgrade) && (!currentLevel)) || (temple.upgrade == desire);
     });
     if (!possibleUpgrades.length)
         return;
@@ -89,9 +89,9 @@ function upgradeToBuild(player, state) {
 }
 
 function templeDangerousness(state, temple) {
-    var templeOwner = state.owner(temple.r);
-    return regionThreat(state, templeOwner, temple.r) +
-           regionOpportunity(state, templeOwner, temple.r);
+    var templeOwner = state.owner(temple.region);
+    return regionThreat(state, templeOwner, temple.region) +
+           regionOpportunity(state, templeOwner, temple.region);
 }
 
 function buildSoldierAtBestTemple(player, state) {
@@ -257,7 +257,7 @@ function regionFullValue(state, region) {
     if (temple) {
         var templeBonus = slidingBonus(state, 6, 0, 0.5);
         var upgradeBonus = slidingBonus(state, 4, 0, 0.9);
-        var upgradeValue = temple.u ? (temple.l + 1) : 0;
+        var upgradeValue = temple.upgrade ? (temple.level + 1) : 0;
         return 1 + templeBonus + upgradeBonus * upgradeValue;
     } else {
         return 1;

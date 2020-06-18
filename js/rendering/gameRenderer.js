@@ -100,7 +100,7 @@ function showMap(container, gameState) {
     function makeTemples() {
         forEachProperty(gameState.t, function(temple) {
 
-            var center = temple.r.c,
+            var center = temple.region.c,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
             // create the temple <div>s
@@ -108,10 +108,10 @@ function showMap(container, gameState) {
                 c: 'o',
                 s: style
             }, div({c: 'i'}, div({c: 'i'}, div({c: 'i'}, div({c: 'i'})))));
-            temple.e = append('m', templeHTML);
+            temple.element = append('m', templeHTML);
 
             // retrieve elements and bind callbacks
-            onClickOrTap(temple.e, gameController.invokeUICallback.bind(0, temple.r, 't'));
+            onClickOrTap(temple.element, gameController.invokeUICallback.bind(0, temple.region, 't'));
         });
     }
 }
@@ -225,27 +225,27 @@ function updateMapDisplay(gameState) {
     }
 
     function updateTempleDisplay(temple) {
-        var element = temple.e;
+        var element = temple.element;
 
         // right color and right number of levels (corresponding to upgrade level)
-        var templeLevels = temple.u ? (temple.l + 3) : 2;
+        var templeLevels = temple.upgrade ? (temple.level + 3) : 2;
         while (element) {
             element.style.display = (templeLevels > 0) ? 'block' : 'none';
-            element.style.background = temple.u ? temple.u.b : '#999';
+            element.style.background = temple.upgrade ? temple.upgrade.b : '#999';
 
             templeLevels--;
             element = element.firstChild;
         }
 
         // which cursor should we use?
-        let templeOwner = gameState.owner(temple.r);
+        let templeOwner = gameState.owner(temple.region);
         let activePlayerIsTempleOwner = templeOwner == gameState.activePlayer();
-        temple.e.style.cursor = appState.isInGame() ?
+        temple.element.style.cursor = appState.isInGame() ?
             (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
         // highlight?
         var selected = gameState.d && gameState.d.temple == temple;
-        toggleClass(temple.e, 'l', selected);
+        toggleClass(temple.element, 'l', selected);
     }
 
     function updateSoldierDisplay(region, soldier, index) {

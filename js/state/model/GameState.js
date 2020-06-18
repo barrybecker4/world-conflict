@@ -40,7 +40,7 @@ export default class GameState {
         // 1 faith per each soldier at a temple
         const self = this;
         var fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
-            return self.soldierCount(temple.r);
+            return self.soldierCount(temple.region);
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
         if ((player.u == aiPlay.aiPickMove) && (gameInitialization.gameSetup.l == gameData.AI_EVIL))
@@ -88,8 +88,8 @@ export default class GameState {
 
     rawUpgradeLevel(player, upgradeType) {
         return sequenceUtils.max(utils.map(this.temples(player), function(temple) {
-            if (temple.u && temple.u == upgradeType)
-                return temple.l + 1;
+            if (temple.upgrade && temple.upgrade == upgradeType)
+                return temple.level + 1;
             else
                 return 0;
         }).concat(0));
@@ -109,7 +109,7 @@ export default class GameState {
             // does it belong to us?
             if (self.owner(region) != player) return 0;
             // does it have the right type of upgrade?
-            return (temple.u == upgradeType) ? upgradeType.level[temple.l] : 0;
+            return (temple.upgrade == upgradeType) ? upgradeType.level[temple.level] : 0;
         }));
     }
 
@@ -125,12 +125,12 @@ export default class GameState {
     }
 
     templeInfo(temple) {
-        if (!temple.u) {
-            var name = this.owner(temple.r) ? "Basic Temple" : "Neutral Temple";
+        if (!temple.upgrade) {
+            var name = this.owner(temple.region) ? "Basic Temple" : "Neutral Temple";
             return {n: name, d: "No upgrades."};
         } else {
-            let upgrade = temple.u;
-            let level = temple.l;
+            let upgrade = temple.upgrade;
+            let level = temple.level;
             let description = utils.template(upgrade.desc, upgrade.level[level]);
             return {n: utils.template(upgrade.name, gameData.LEVELS[level]), d: description};
         }
