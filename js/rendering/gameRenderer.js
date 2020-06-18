@@ -231,7 +231,7 @@ function updateMapDisplay(gameState) {
         var templeLevels = temple.upgrade ? (temple.level + 3) : 2;
         while (element) {
             element.style.display = (templeLevels > 0) ? 'block' : 'none';
-            element.style.background = temple.upgrade ? temple.upgrade.b : '#999';
+            element.style.background = temple.upgrade ? temple.upgrade.bgColor : '#999';
 
             templeLevels--;
             element = element.firstChild;
