@@ -117,7 +117,7 @@ function runSetupScreen() {
         var html = utils.div({i: 'turn-count', c: 'sc'});
 
         // player box area
-        html += utils.div({i: 'pd', c: 'sc un'}, utils.map(gameState.p, function(player) {
+        html += utils.div({i: 'pd', c: 'sc un'}, utils.map(gameState.players, function(player) {
             var pid = player.index;
             return utils.div({
                 i: 'pl' + pid,

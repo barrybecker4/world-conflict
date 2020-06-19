@@ -28,7 +28,7 @@ export default {
 // Creates the rendering of the game map as an SVG object.
 // Takes the map (regions) stored in gameState.r, and creates an SVG map out of it.
 function showMap(container, gameState) {
-    var regions = gameState.r;
+    var regions = gameState.regions;
 
     // define gradients and clipping paths for rendering
     var defs = elem('defs', {},
@@ -38,7 +38,7 @@ function showMap(container, gameState) {
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
-            map(gameState.p, function(player, index) {
+            map(gameState.players, function(player, index) {
                 return makeGradient('p' + index, player.colorStart, player.colorEnd) +
                     makeGradient('p' + index + 'h', player.highlightStart, player.highlightEnd);
             }).join(''));
@@ -98,7 +98,7 @@ function showMap(container, gameState) {
 
     // makes temple, which are just <div>s with nested <div>s (the towers)
     function makeTemples() {
-        forEachProperty(gameState.t, function(temple) {
+        forEachProperty(gameState.temples, function(temple) {
 
             var center = temple.region.c,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
@@ -121,12 +121,12 @@ function showMap(container, gameState) {
 var soldierDivsById = {};
 
 function updateMapDisplay(gameState) {
-    map(gameState.r, updateRegionDisplay);
-    forEachProperty(gameState.t, updateTempleDisplay);
+    map(gameState.regions, updateRegionDisplay);
+    forEachProperty(gameState.temples, updateTempleDisplay);
 
     var soldiersStillAlive = [];
-    forEachProperty(gameState.s, function(soldiers, regionIndex) {
-        map(soldiers, updateSoldierDisplay.bind(0, gameState.r[regionIndex]));
+    forEachProperty(gameState.soldiers, function(soldiers, regionIndex) {
+        map(soldiers, updateSoldierDisplay.bind(0, gameState.regions[regionIndex]));
     });
 
     forEachProperty(soldierDivsById, function(div, id) {
@@ -152,15 +152,17 @@ function updateMapDisplay(gameState) {
         var regionOwner = gameState.owner(region);
         var gradientName = (regionOwner ? 'p' + regionOwner.index : 'l');
 
-        var highlighted = sequenceUtils.contains(gameState.d && gameState.d.h || [], region) ||    // a region is highlighted if it has an available move
-                          (gameState.e && regionOwner == gameState.e);               // - or belongs to the winner (end game display highlights the winner)
+        // a region is highlighted if it has an available move, or belongs to the winner
+        // (end game display highlights the winner)
+        const hasAvailableMove = sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.h || [], region)
+        var highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
 
         // highlighting
         if (highlighted) {
             gradientName += 'h';
         }
         var highlightedOpacity = 0.1 + region.c[0] * 0.003;
-        if (gameState.e || (gameState.d && gameState.d.source == region))
+        if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region))
             highlightedOpacity *= 2;
         region.hl.style.opacity = highlighted ? highlightedOpacity : 0.0;
         region.hl.style.cursor = highlighted ? 'pointer' : 'default';
@@ -184,10 +186,10 @@ function updateMapDisplay(gameState) {
 
     function updateTooltips() {
         map(document.querySelectorAll('.ttp'), $('m').removeChild.bind($('m')));
-        if (gameState.activePlayer().u != gameController.uiPickMove) return;
+        if (gameState.activePlayer().pickMove != gameController.uiPickMove) return;
 
         // "how to move" tooltips
-        var source = gameState.d && gameState.d.source;
+        var source = gameState.moveDecision && gameState.moveDecision.source;
         if (source)  {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
@@ -198,14 +200,14 @@ function updateMapDisplay(gameState) {
         }
         if (!source) {
             // "conquering armies cannot move" tooltips
-            var inactiveArmies = gameState.m.z;
+            var inactiveArmies = gameState.move.z;
             if (inactiveArmies) {
                 showTooltipOver(inactiveArmies[inactiveArmies.length-1], "Armies that conquer a new region cannot move again.")
                 showTooltipOver({c: [-2, 80]}, "Once you're done, click 'End turn' here.");
             }
         }
-        if (gameState.m.turnIndex == 2 && gameState.m.movesRemaining == 2) {
-            showTooltipOver({c:[90,93]}, "If you want to undo a move or check the rules, use the buttons here.", 15);
+        if (gameState.move.turnIndex == 2 && gameState.move.movesRemaining == 2) {
+            showTooltipOver({ c:[90,93] }, "If you want to undo a move or check the rules, use the buttons here.", 15);
         }
     }
 
@@ -244,7 +246,7 @@ function updateMapDisplay(gameState) {
             (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
         // highlight?
-        var selected = gameState.d && gameState.d.temple == temple;
+        var selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
         toggleClass(temple.element, 'l', selected);
     }
 
@@ -270,7 +272,7 @@ function updateMapDisplay(gameState) {
 
         var x = index % 4, y = Math.floor(index / 4);
         var xOffset = (-0.6 * columnWidth + x * 1.2);
-        var yOffset = y * rowHeight + (gameState.t[region.index] ? 1.5 : 0);
+        var yOffset = y * rowHeight + (gameState.temples[region.index] ? 1.5 : 0);
         var xPosition = center[0] + xOffset - yOffset * 0.2;
         var yPosition = center[1] + xOffset * 0.2 + yOffset;
 
@@ -286,13 +288,13 @@ function updateMapDisplay(gameState) {
         domElement.style.display = 'block';
 
         // selected?
-        var decisionState = gameState.d || {};
+        var decisionState = gameState.moveDecision || {};
         toggleClass(domElement, 'l', (decisionState.source == region) && (index < decisionState.count));
     }
 
     function updateSoldierTooltips() {
 
-        map(gameState.r, function(region, regionIndex) {
+        map(gameState.regions, function(region, regionIndex) {
             var tooltipId = 'sc' + regionIndex;
             // delete previous tooltip, if present
             var tooltip = $(tooltipId);
@@ -300,8 +302,8 @@ function updateMapDisplay(gameState) {
             // should we have a tooltip?
             var count = gameState.soldierCount(region);
             if (count > 8) {
-                var selected = (gameState.d && (gameState.d.source == region)) ? gameState.d.count : 0;
-                selected += sequenceUtils.sum(gameState.s[regionIndex], function(soldier) {
+                var selected = (gameState.moveDecision && (gameState.moveDecision.source == region)) ? gameState.moveDecision.count : 0;
+                selected += sequenceUtils.sum(gameState.soldiers[regionIndex], function(soldier) {
                     return soldier.a ? 1 : 0;
                 });
                 if (selected)
@@ -323,7 +325,7 @@ function updateMapDisplay(gameState) {
     }
 
     function updateFloatingText() {
-        map(gameState.flt || [], function(floater) {
+        map(gameState.floatingText || [], function(floater) {
             var x, y;
             if (floater.r) {
                 x = floater.r.c[0]; y = floater.r.c[1];
@@ -339,13 +341,13 @@ function updateMapDisplay(gameState) {
             setTransform(floatingNode, "translate3d(0,0,0)");
             floatAway(floatingNode, 0, -3);
         });
-        gameState.flt = 0;
+        gameState.floatingText = 0;
     }
 }
 
 function updateIngameUI(gameState) {
-    var moveState = gameState.m;
-    var decisionState = gameState.d;
+    var moveState = gameState.move;
+    var decisionState = gameState.moveDecision;
     var buildingMode = decisionState && decisionState.isBuildMove();
     var movingArmy = decisionState && decisionState.isArmyMove();
 
@@ -357,22 +359,22 @@ function updateIngameUI(gameState) {
         $('turn-count').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
     } else {
         $('turn-count').innerHTML =
-            'Turn <b>' + gameState.m.turnIndex + '</b>' +
+            'Turn <b>' + gameState.move.turnIndex + '</b>' +
             ((gameInitialization.gameSetup.turnCount != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
     }
 
     // player data
-    map(gameState.p, function(player, index) {
+    map(gameState.players, function(player, index) {
         //$('pl' + index).className = (index == moveState.p) ? 'pl' : 'pi'; // activePlayer or not?
         var regions = gameState.regionCount(player);
-        var gameWinner = gameState.e;
+        var gameWinner = gameState.endResult;
 
         if (regions) {
             $('particle' + index).innerHTML = gameState.regionCount(player) + '&#9733;'; // region count
             if (gameWinner) {
                 $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
             } else {
-                $('player-cash' + index).innerHTML = gameState.c[player.index] + '&#9775;'; // cash on hand
+                $('player-cash' + index).innerHTML = gameState.cash[player.index] + '&#9775;'; // cash on hand
             }
         } else {
             $('particle' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
@@ -381,7 +383,7 @@ function updateIngameUI(gameState) {
     });
 
     let moveInfo;
-    if (activePlayer.u == gameController.uiPickMove) {
+    if (activePlayer.pickMove == gameController.uiPickMove) {
         if (buildingMode) {
             if (gameState.owner(decisionState.region) == activePlayer)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');
@@ -405,7 +407,7 @@ function updateIngameUI(gameState) {
     // activePlayer stats
     $('pd').style.display =  buildingMode ? 'none' : 'block';
     $('mc').innerHTML = moveState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
-    $('ft').innerHTML = gameState.c[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
+    $('ft').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
     // buttons
     updateButtons(decisionState && decisionState.buttons);

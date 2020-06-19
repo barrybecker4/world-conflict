@@ -11,27 +11,28 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, regions, owner, temples, soldiers, cash, level, move, a, flt) {
-        this.p = players;
-        this.r = regions;
-        this.o = owner;
-        this.t = temples;
-        this.s = soldiers;
-        this.c = cash;
-        this.l = level;
-        this.m = move;
-        this.a = a;
-        this.flt = flt;
+    constructor(players, regions, owners, temples, soldiers, cash, levels, move, simulatingPlayer, floatingText) {
+        this.players = players;
+        this.regions = regions;
+        this.owners = owners;
+        this.temples = temples;
+        this.soldiers = soldiers;
+        this.cash = cash; // Cash is equal to "faith" in the game
+        this.levels = levels;
+        this.move = move;
+        this.simulatingPlayer = simulatingPlayer;
+        this.floatingText = floatingText;
+        this.moveDecision = null;
     }
 
     soldierCount(region) {
-        var list = this.s[region.index];
+        var list = this.soldiers[region.index];
         return list ? list.length : 0;
     }
 
     income(player) {
         // no income with no temples
-        var playerTemples = this.temples(player);
+        var playerTemples = this.templesForPlayer(player);
         if (!playerTemples.length) return 0;
 
         // 1 faith per region
@@ -43,51 +44,51 @@ export default class GameState {
             return self.soldierCount(temple.region);
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
-        if ((player.u == aiPlay.aiPickMove) && (gameInitialization.gameSetup.l == gameData.AI_EVIL))
+        if ((player.pickMove == aiPlay.aiPickMove) && (gameInitialization.gameSetup.l == gameData.AI_EVIL))
             multiplier += 0.4;
         return Math.ceil(multiplier * (fromRegions + fromTemples));
     }
 
     regionHasActiveArmy(player, region) {
-        return (this.m.movesRemaining > 0) &&
+        return (this.move.movesRemaining > 0) &&
             (this.owner(region) == player) && this.soldierCount(region) &&
-            (!sequenceUtils.contains(this.m.z, region));
+            (!sequenceUtils.contains(this.move.z, region));
     }
 
     regionCount(player) {
         var total = 0;
         const self = this;
-        utils.map(this.r, function(region) {
+        utils.map(this.regions, function(region) {
             if (self.owner(region) == player)
                 total++;
         });
         return total;
     }
 
-    temples(player) {
-        var temples = [];
+    templesForPlayer(player) {
+        var playerTemples = [];
         let self = this;
-        utils.forEachProperty(this.t, function(temple, regionIndex) {
-            if (self.o[regionIndex] == player)
-                temples.push(temple);
+        utils.forEachProperty(this.temples, function(temple, regionIndex) {
+            if (self.owners[regionIndex] == player)
+                playerTemples.push(temple);
         });
-        return temples;
+        return playerTemples;
     }
 
     activePlayer() {
-        return this.p[this.m.playerIndex];
+        return this.players[this.move.playerIndex];
     }
 
     owner(region) {
-        return this.o[region.index];
+        return this.owners[region.index];
     }
 
-    cash(player) {
-        return this.c[player.index];
+    cashForPlayer(player) {
+        return this.cash[player.index];
     }
 
     rawUpgradeLevel(player, upgradeType) {
-        return sequenceUtils.max(utils.map(this.temples(player), function(temple) {
+        return sequenceUtils.max(utils.map(this.templesForPlayer(player), function(temple) {
             if (temple.upgrade && temple.upgrade == upgradeType)
                 return temple.level + 1;
             else
@@ -102,9 +103,9 @@ export default class GameState {
         }
 
         let self = this;
-        return sequenceUtils.max(utils.map(this.r, function(region) {
+        return sequenceUtils.max(utils.map(this.regions, function(region) {
             // does it have a temple?
-            var temple = self.t[region.index];
+            var temple = self.temples[region.index];
             if (!temple) return 0;
             // does it belong to us?
             if (self.owner(region) != player) return 0;
@@ -115,13 +116,13 @@ export default class GameState {
 
     totalSoldiers(player) {
         let self = this;
-        return sequenceUtils.sum(this.r, function(region) {
+        return sequenceUtils.sum(this.regions, function(region) {
             return (self.owner(region) == player) ? self.soldierCount(region) : 0;
         });
     }
 
     soldierCost() {
-        return UPGRADES.SOLDIER.cost[this.m.h || 0];
+        return UPGRADES.SOLDIER.cost[this.move.h || 0];
     }
 
     templeInfo(temple) {
@@ -141,10 +142,10 @@ export default class GameState {
         utils.map(utils.range(0, count), function() {
             soldierCounter = (soldierCounter + 1) || 0;
 
-            var soldierList = self.s[region.index];
+            var soldierList = self.soldiers[region.index];
             if (!soldierList) {
                 soldierList = [];
-                self.s[region.index] = [];
+                self.soldiers[region.index] = [];
             }
 
             soldierList.push({ i: soldierCounter++ });
@@ -154,16 +155,16 @@ export default class GameState {
     // Some properties are omitted - namely 'd', the current 'move decision' partial state
     copy(simulatingPlayer) {
         return new GameState(
-            this.p,
-            this.r,
-            utils.deepCopy(this.o, 1),
-            utils.deepCopy(this.t, 2),
-            utils.deepCopy(this.s, 3),
-            utils.deepCopy(this.c, 1),
-            utils.deepCopy(this.l, 1),
-            utils.deepCopy(this.m, 1),
-            this.a || simulatingPlayer,
-            this.flt
+            this.players,
+            this.regions,
+            utils.deepCopy(this.owners, 1),
+            utils.deepCopy(this.temples, 2),
+            utils.deepCopy(this.soldiers, 3),
+            utils.deepCopy(this.cash, 1),
+            utils.deepCopy(this.levels, 1),
+            utils.deepCopy(this.move, 1),
+            this.simulatingPlayer || simulatingPlayer,
+            this.floatingText
         );
     }
 }

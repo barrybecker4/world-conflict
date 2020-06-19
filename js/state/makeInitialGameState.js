@@ -22,7 +22,7 @@ export default function makeInitialGameState(setup) {
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
         // set up as AI/human
-        player.u = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
+        player.pickMove = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
 
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
@@ -52,14 +52,14 @@ export default function makeInitialGameState(setup) {
     function setupTemples() {
         // give the players some cash (or not)
         map(players, function(player, index) {
-            gameState.c[index] = 0;
-            gameState.l[index] = 0;
+            gameState.cash[index] = 0;
+            gameState.levels[index] = 0;
         });
 
         // pick three regions that are as far away as possible from each other
         // for the players' initial temples
         var possibleSetups = map(range(0, 1000), function() {
-            return map(gameState.p, randomRegion);
+            return map(gameState.players, randomRegion);
         });
         var homes = sequenceUtils.max(possibleSetups, distanceScore);
 
@@ -67,7 +67,7 @@ export default function makeInitialGameState(setup) {
         map(players, function(player, index) {
             var region = homes[index];
             // make one of the regions your own
-            gameState.o[region.index] = player;
+            gameState.owners[region.index] = player;
             // put a temple and 3 soldiers in it
             putTemple(region, 3);
         });
@@ -78,7 +78,7 @@ export default function makeInitialGameState(setup) {
         var templeCount = [3,3,4][players.length-2];
 
         map(range(0, templeCount), function() {
-            var bestRegion = sequenceUtils.max(gameState.r, function(region) {
+            var bestRegion = sequenceUtils.max(gameState.regions, function(region) {
                 return templeScore(region);
             });
 
@@ -110,7 +110,7 @@ export default function makeInitialGameState(setup) {
 
     function putTemple(region, soldierCount) {
         var index = region.index;
-        gameState.t[index] = new Temple(index, region);
+        gameState.temples[index] = new Temple(index, region);
         gameState.addSoldiers(region, soldierCount);
     }
 }

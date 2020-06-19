@@ -27,7 +27,7 @@ function aiPickMove(player, state, reportMoveCallback) {
     }
 
     // the AI only analyzes its own moves (threats are handled in heuristic)
-    var depth = state.m.movesRemaining || 1;
+    var depth = state.move.movesRemaining || 1;
 
     // use a min-max search to find the best move looking a few steps forward
     performMinMax(player, state, depth, reportMoveCallback);
@@ -35,7 +35,7 @@ function aiPickMove(player, state, reportMoveCallback) {
 
 function shouldBuildSoldier(player, state) {
     // do we have a temple to build it in?
-    if (!state.temples(player).length)
+    if (!state.templesForPlayer(player).length)
         return false;
 
     // get preference for soldiers from our personality
@@ -43,12 +43,12 @@ function shouldBuildSoldier(player, state) {
     var soldierPreference = player.p.getSoldierPreference();
 
     // calculate the relative cost of buying a soldier now
-    var relativeCost = state.soldierCost() / state.c[player.index];
+    var relativeCost = state.soldierCost() / state.cash[player.index];
     if (relativeCost > 1)
         return false;
 
     // see how far behind on soldier number we are
-    var forces = utils.map(state.p, force.bind(0, state));
+    var forces = utils.map(state.players, force.bind(0, state));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
     // this calculates whether we should build now - the further we are behind
@@ -70,11 +70,11 @@ function upgradeToBuild(player, state) {
     var desire = player.p.preferredUpgrades[0];
     var currentLevel = state.rawUpgradeLevel(player, desire);
     // can we afford it?
-    if (state.c[player.index] < desire.cost[currentLevel])
+    if (state.cash[player.index] < desire.cost[currentLevel])
         return;
 
     // do we have a place to build it?
-    var possibleUpgrades = state.temples(player).filter(function(temple) {
+    var possibleUpgrades = state.templesForPlayer(player).filter(function(temple) {
         return ((!temple.upgrade) && (!currentLevel)) || (temple.upgrade == desire);
     });
     if (!possibleUpgrades.length)
@@ -95,7 +95,7 @@ function templeDangerousness(state, temple) {
 }
 
 function buildSoldierAtBestTemple(player, state) {
-    var temple = sequenceUtils.max(state.temples(player), templeDangerousness.bind(0, state));
+    var temple = sequenceUtils.max(state.templesForPlayer(player), templeDangerousness.bind(0, state));
     return new BuildMove(UPGRADES.SOLDIER, temple);
 }
 
@@ -124,7 +124,7 @@ function minMaxDoSomeWork(node) {
 function minMaxReturnFromChild(node, child) {
     if (node) {
         // what sort of a node are we?
-        var activePlayer = node.s.p[node.s.m.playerIndex];
+        var activePlayer = node.s.players[node.s.move.playerIndex];
         var maximizingNode = activePlayer == node.a;
         // is the value from child better than what we have?
         var better = (!node.b) || (maximizingNode && (child.v > node.v)) || ((!maximizingNode) && (child.v < node));
@@ -187,7 +187,7 @@ function possibleMoves(state) {
     var player = state.activePlayer();
 
     // are we out of move points?
-    if (!state.m.movesRemaining)
+    if (!state.move.movesRemaining)
         return moves; // yup, just end of turn available
 
     function addArmyMove(source, dest, count) {
@@ -202,7 +202,7 @@ function possibleMoves(state) {
     }
 
     // let's see what moves we have available
-    utils.map(state.r, function(region) {
+    utils.map(state.regions, function(region) {
        if (state.regionHasActiveArmy(player, region)) {
            // there is a move from here!
            // iterate over all possible neighbours, and add two moves for each:
@@ -223,7 +223,7 @@ function possibleMoves(state) {
 
 function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
     var dropOffTurn = dropOffPoint * gameInitialization.gameSetup.turnCount;
-    var alpha = (state.m.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
+    var alpha = (state.move.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
     if (alpha < 0.0)
         alpha = 0.0;
     return (startOfGameValue + (endOfGameValue - startOfGameValue) * alpha);
@@ -245,7 +245,7 @@ function heuristicForPlayer(player, state) {
         return value;
     }
 
-    var regionTotal = sequenceUtils.sum(state.r, function (region) {
+    var regionTotal = sequenceUtils.sum(state.regions, function (region) {
         return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
     var faithTotal = state.income(player) * soldierBonus / 12; // each point of faith counts as 1/12th of a soldier
@@ -253,7 +253,7 @@ function heuristicForPlayer(player, state) {
 }
 
 function regionFullValue(state, region) {
-    var temple = state.t[region.index];
+    var temple = state.temples[region.index];
     if (temple) {
         var templeBonus = slidingBonus(state, 6, 0, 0.5);
         var upgradeBonus = slidingBonus(state, 4, 0, 0.9);
