@@ -23,6 +23,7 @@ export default class GameState {
         this.simulatingPlayer = simulatingPlayer;
         this.floatingText = floatingText;
         this.moveDecision = null;
+        this.soundCue = null;
     }
 
     soldierCount(region) {
@@ -128,7 +129,7 @@ export default class GameState {
     templeInfo(temple) {
         if (!temple.upgrade) {
             var name = this.owner(temple.region) ? "Basic Temple" : "Neutral Temple";
-            return {n: name, d: "No upgrades."};
+            return { n: name, d: "No upgrades." };
         } else {
             let upgrade = temple.upgrade;
             let level = temple.level;
@@ -152,7 +153,7 @@ export default class GameState {
         });
     }
 
-    // Some properties are omitted - namely 'd', the current 'move decision' partial state
+    // Some properties are omitted - like 'moveDecision' and 'soundCue'
     copy(simulatingPlayer) {
         return new GameState(
             this.players,

@@ -443,9 +443,9 @@ function updateDisplay(gameState) {
     updateMapDisplay(displayedState);
     updateIngameUI(displayedState);
 
-    if (displayedState.sc) {
-        audio.playSound(displayedState.sc);
-        displayedState.sc = null;
+    if (displayedState.soundCue) {
+        audio.playSound(displayedState.soundCue);
+        displayedState.soundCue = null;
     }
 }
 

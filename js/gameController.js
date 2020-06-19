@@ -367,7 +367,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             if (toList.length) {
                 // and prevent anybody from moving in
                 incomingSoldiers = 0;
-                state.sc = audio.sounds.DEFEAT;
+                state.soundCue = audio.sounds.DEFEAT;
                 state.floatingText = [{r: toRegion, c: toOwner ? toOwner.highlightStart : '#fff', t: "Defended!", w: 7}];
             }
         }
@@ -397,7 +397,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             // play sound, launch particles!
             state.prt = toRegion;
             state.floatingText = [{r: toRegion, c: fromOwner.highlightStart, t: "Conquered!", w: 7}];
-            state.sc = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
+            state.soundCue = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
         }
     }
 
@@ -408,7 +408,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.simulatingPlayer) return;
     const keyframe = state.copy();
-    keyframe.sc = soundCue;
+    keyframe.soundCue = soundCue;
     keyframe.floatingText = floatingTexts;
     oneAtaTime(delay || 500, gameRenderer.updateDisplay.bind(0, keyframe));
 }
