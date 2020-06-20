@@ -17,7 +17,7 @@ export default function makeInitialGameState(setup) {
 
     let players = [];
 
-    map(setup.p, function(playerController, playerIndex) {
+    map(setup.players, function(playerController, playerIndex) {
         if (playerController == gameData.PLAYER_OFF) return;
         var player = deepCopy(PLAYERS[playerIndex], 1);
 

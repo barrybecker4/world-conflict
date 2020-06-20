@@ -5,11 +5,11 @@ const STORAGE_KEY = 'compact-conflict';
 
 // the game setup screen config
 var defaultSetup = {
-    p: [gameData.PLAYER_HUMAN, gameData.PLAYER_AI, gameData.PLAYER_AI, gameData.PLAYER_OFF],
-    l: gameData.AI_NICE,
+    players: [gameData.PLAYER_HUMAN, gameData.PLAYER_AI, gameData.PLAYER_AI, gameData.PLAYER_OFF],
+    aiLevel: gameData.AI_NICE,
     sound: true,
     turnCount: 12,
-    tt: {},
+    tt: {},  // tooltips?
 };
 
 export default {

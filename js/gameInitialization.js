@@ -95,14 +95,14 @@ function runSetupScreen() {
     // callback for player setup buttons
     gameController.uiCallbacks.sb = function(event) {
         // set the controller type for the player
-        gameSetup.p[event.p] = event.b;
+        gameSetup.players[event.p] = event.b;
         updateConfigButtons();
         updateBottomButtons();
         regenerateMap();
     };
     // callback for config buttons
     gameController.uiCallbacks.ai = function(aiLevel) {
-        gameSetup.l = aiLevel;
+        gameSetup.aiLevel = aiLevel;
         updateConfigButtons();
     };
     gameController.uiCallbacks['turn-count'] = function(turnCount) {
@@ -140,7 +140,7 @@ function runSetupScreen() {
     }
 
     function isSetupValid() {
-        var enabledPlayers = sequenceUtils.sum(gameSetup.p, function(playerState) {
+        var enabledPlayers = sequenceUtils.sum(gameSetup.players, function(playerState) {
             return (playerState != gameData.PLAYER_OFF) ? 1 : 0;
         });
         return enabledPlayers > 1;
@@ -159,7 +159,7 @@ function runSetupScreen() {
         storage.storeSetup(gameSetup);
 
         // update player buttons
-        utils.map(gameSetup.p, function(controller, playerIndex) {
+        utils.map(gameSetup.players, function(controller, playerIndex) {
            utils.map(utils.range(0, 3), function(buttonIndex) {
                utils.toggleClass('sb' + playerIndex + buttonIndex, 'sl', (controller == buttonIndex));
            })
@@ -167,7 +167,7 @@ function runSetupScreen() {
 
         // update AI and turn count buttons
         utils.map(utils.range(0, 4), function(index) {
-            utils.toggleClass('ai' + index, 'sl', index == gameSetup.l);
+            utils.toggleClass('ai' + index, 'sl', index == gameSetup.aiLevel);
             utils.toggleClass('turn-count' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.turnCount);
         });
     }

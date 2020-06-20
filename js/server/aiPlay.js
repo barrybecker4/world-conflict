@@ -265,8 +265,8 @@ function regionFullValue(state, region) {
 }
 
 function regionThreat(state, player, region) {
-    var aiLevel = gameInitialization.gameSetup.l;
-    if (gameInitialization.gameSetup.l === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
+    var aiLevel = gameInitialization.gameSetup.aiLevel;
+    if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
     var ourPresence = state.soldierCount(region);
     var enemyPresence = sequenceUtils.max(utils.map(region.neighbors, function(neighbour) {
@@ -302,7 +302,7 @@ function regionThreat(state, player, region) {
 
 function regionOpportunity(state, player, region) {
     // the 'nice' AI doesn't see opportunities
-    if (gameInitialization.gameSetup.l === gameData.AI_NICE) return 0;
+    if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0;
 
     // how much conquest does this region enable?
     var attackingSoldiers = state.soldierCount(region);
