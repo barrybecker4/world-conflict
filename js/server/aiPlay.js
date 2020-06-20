@@ -286,7 +286,7 @@ function regionThreat(state, player, region) {
 
             if (entry.d) {
                 // go deeper with the search
-                utils.map(entry.r.neighbor.filter(function(candidate) {
+                utils.map(entry.r.neighbors.filter(function(candidate) {
                     return (!sequenceUtils.contains(visited, candidate)) &&
                         (state.owner(candidate) == nOwner);
                 }), function(r) {

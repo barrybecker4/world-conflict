@@ -2,6 +2,7 @@
 // Helps organize game flow so things are displayed in order taking animation into account.
 var oaatQueue = [];
 
+// Used to ensure that all animations from previous moves complete before a new one is played
 export default function oneAtaTime(duration, fn) {
     oaatQueue.push({duration, fn});
     if (oaatQueue.length == 1)

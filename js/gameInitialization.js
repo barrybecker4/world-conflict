@@ -41,7 +41,7 @@ function prepareSetupUI() {
     utils.for2d(0, 0, PLAYERS.length, 3, function(playerIndex, buttonIndex) {
         utils.onClickOrTap(
             $('sb' + playerIndex + buttonIndex),
-            gameController.invokeUICallback.bind(0, {p: playerIndex, b: buttonIndex}, 'sb')
+            gameController.invokeUICallback.bind(0, {p: playerIndex, b: buttonIndex}, 'setupButtons')
         );
     });
     utils.map(utils.range(0, 4), function(index) {
@@ -82,7 +82,7 @@ function runSetupScreen() {
     updateConfigButtons();
 
     // callback for the buttons on the bottom
-    gameController.uiCallbacks.b = function(which) {
+    gameController.uiCallbacks.build = function(which) {
         if (!isSetupValid()) return;
         if (which === 0) {
             regenerateMap();
@@ -93,7 +93,7 @@ function runSetupScreen() {
         }
     };
     // callback for player setup buttons
-    gameController.uiCallbacks.sb = function(event) {
+    gameController.uiCallbacks.setupButtons = function(event) {
         // set the controller type for the player
         gameSetup.players[event.p] = event.b;
         updateConfigButtons();

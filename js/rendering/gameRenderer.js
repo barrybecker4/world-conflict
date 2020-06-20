@@ -68,11 +68,11 @@ function showMap(container, gameState) {
         region.c = projectPoint(centerOfWeight(region.points));
 
         region.hl = $('hl' + index);
-        onClickOrTap(region.hl, gameController.invokeUICallback.bind(0, region, 'c'));
+        onClickOrTap(region.hl, gameController.invokeUICallback.bind(0, region, 'regionSelected'));
     });
 
     // additional callbacks for better UI
-    onClickOrTap(document.body, gameController.invokeUICallback.bind(0, null, 'c'));
+    onClickOrTap(document.body, gameController.invokeUICallback.bind(0, null, 'regionSelected'));
 
     // make the temple <div>s
     makeTemples();
@@ -111,7 +111,7 @@ function showMap(container, gameState) {
             temple.element = append('m', templeHTML);
 
             // retrieve elements and bind callbacks
-            onClickOrTap(temple.element, gameController.invokeUICallback.bind(0, temple.region, 't'));
+            onClickOrTap(temple.element, gameController.invokeUICallback.bind(0, temple.region, 'templeSelected'));
         });
     }
 }
@@ -260,7 +260,7 @@ function updateMapDisplay(gameState) {
             var html = div({c: 's', s: 'display: none'});
 
             domElement = soldierDivsById[soldier.i] = append('m', html);
-            onClickOrTap(domElement, gameController.invokeUICallback.bind(0, soldier, 's'));
+            onClickOrTap(domElement, gameController.invokeUICallback.bind(0, soldier, 'soldierSelected'));
         }
 
         // (re)calculate where the <div> should be
@@ -428,7 +428,7 @@ function updateButtons(buttons) {
         var buttonHTML = elem('a', {href: '#', c: button.o ? 'off' : ''}, buttonContents);
         var buttonNode = append('u', buttonHTML);
         if (!button.o) {
-            onClickOrTap(buttonNode, gameController.invokeUICallback.bind(0, index, 'b'));
+            onClickOrTap(buttonNode, gameController.invokeUICallback.bind(0, index, 'build'));
         }
     });
 }

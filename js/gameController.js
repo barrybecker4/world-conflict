@@ -28,10 +28,9 @@ export default {
 
 
 function playOneMove(state) {
-    // we're playing the game now
-    appState.setInGame(true);
 
-    // oneAtaTime is used to ensure that all animations from previous moves complete before a new one is played
+    appState.setInGame(true); // playing the game now
+
     oneAtaTime(150, function() {
         var controllingPlayer = state.activePlayer();
 
@@ -43,8 +42,8 @@ function playOneMove(state) {
 
             // the move is chosen - update state to a new immutable copy
             var newState = makeMove(state, move);
-            // did the game end?
-            if (newState.endResult) {
+
+            if (newState.endResult) { // did the game end?
                 oneAtaTime(150, gameRenderer.updateDisplay.bind(0, newState));
                 showEndGame(newState);
                 return;
@@ -129,7 +128,7 @@ function invokeUICallback(object, type, event) {
 var uiState = {};
 function uiPickMove(player, state, reportMoveCallback) {
 
-    uiCallbacks.c = function(region) {
+    uiCallbacks.regionSelected = function(region) {
         if (!region || state.moveDecision.isBuildMove())
             setCleanState();
 
@@ -161,13 +160,13 @@ function uiPickMove(player, state, reportMoveCallback) {
         gameRenderer.updateDisplay(state);
     };
 
-    uiCallbacks.t = function(region) {
+    uiCallbacks.templeSelected = function(region) {
         var temple = state.temples[region.index];
         state.moveDecision = new BuildMove(null, temple, makeUpgradeButtons(temple));
         gameRenderer.updateDisplay(state);
     };
 
-    uiCallbacks.s = function(soldier) {
+    uiCallbacks.soldierSelected = function(soldier) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
         utils.map(state.regions, function(region) {
@@ -175,10 +174,10 @@ function uiPickMove(player, state, reportMoveCallback) {
                 soldierRegion = region;
         });
         if (soldierRegion)
-            uiCallbacks.c(soldierRegion);
+            uiCallbacks.regionsSelected(soldierRegion);
     };
 
-    uiCallbacks.b = function(which) {
+    uiCallbacks.build = function(which) {
         if (state.moveDecision && state.moveDecision.isBuildMove()) {
             // build buttons handled here
             if (which >= UPGRADES.length) {
@@ -205,13 +204,13 @@ function uiPickMove(player, state, reportMoveCallback) {
         }
     };
 
-    uiCallbacks.un = function() {
+    uiCallbacks.undo = function() {
         undoManager.performUndo(state);
     };
 
     setCleanState();
     if (uiState[player.index]) {
-        uiCallbacks.t(uiState[player.index]);
+        uiCallbacks.templeSelected(uiState[player.index]);
         delete uiState[player.index];
     }
 
@@ -523,6 +522,6 @@ function showEndGame(state) {
         $('mv').style.display = 'none';
         gameRenderer.updateButtons([ {t: "New game"} ]);
 
-        uiCallbacks.b = gameInitialization.runSetupScreen;
+        uiCallbacks.build = gameInitialization.runSetupScreen;
     });
 }

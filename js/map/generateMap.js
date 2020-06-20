@@ -42,7 +42,6 @@ export default function generateMap(playerCount) {
                 }
             }
         }
-        console.log("retries = " + retries);
     } while (!retries);
 
     fillNeighbourLists();
