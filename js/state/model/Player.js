@@ -8,6 +8,7 @@ export default class Player {
         this.colorEnd = colorEnd;
         this.highlightStart = highlightStart;
         this.highlightEnd = highlightEnd;
+        this.personality = null;
     }
 }
 

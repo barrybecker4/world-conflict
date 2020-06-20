@@ -40,7 +40,7 @@ function shouldBuildSoldier(player, state) {
 
     // get preference for soldiers from our personality
     // if we don't want more upgrades, our preference becomes 1
-    var soldierEagerness = player.p.getSoldierEagerness();
+    var soldierEagerness = player.personality.getSoldierEagerness();
 
     // calculate the relative cost of buying a soldier now
     var relativeCost = state.soldierCost() / state.cash[player.index];
@@ -64,9 +64,9 @@ function force(state, player) {
 
 function upgradeToBuild(player, state) {
     // do we still want something?
-    if (!player.p.preferredUpgrades.length)
+    if (!player.personality.preferredUpgrades.length)
         return;
-    var desire = player.p.preferredUpgrades[0];
+    var desire = player.personality.preferredUpgrades[0];
     var currentLevel = state.rawUpgradeLevel(player, desire);
     // can we afford it?
     if (state.cash[player.index] < desire.cost[currentLevel])
@@ -83,7 +83,7 @@ function upgradeToBuild(player, state) {
     var temple = sequenceUtils.min(possibleUpgrades, templeDangerousness.bind(0, state));
 
     // build the upgrade!
-    player.p.preferredUpgrades.shift();
+    player.personality.preferredUpgrades.shift();
     return new BuildMove(desire, temple);
 }
 

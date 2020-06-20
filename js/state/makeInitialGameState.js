@@ -26,7 +26,7 @@ export default function makeInitialGameState(setup) {
 
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
-            player.p = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
+            player.personality = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
         }
 
         player.index = players.length;

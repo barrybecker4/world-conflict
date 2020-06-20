@@ -365,7 +365,7 @@ function updateIngameUI(gameState) {
 
     // player data
     map(gameState.players, function(player, index) {
-        //$('pl' + index).className = (index == moveState.p) ? 'pl' : 'pi'; // activePlayer or not?
+        //$('pl' + index).className = (index == moveState.player) ? 'pl' : 'pi'; // activePlayer or not?
         var regions = gameState.regionCount(player);
         var gameWinner = gameState.endResult;
 
