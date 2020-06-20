@@ -12,16 +12,16 @@ import AI_PERSONALITIES from './model/AI_PERSONALITIES.js';
 import PLAYERS from './model/PLAYERS.js';
 const { map, deepCopy, rint, range, sum } = utils;
 
-// initial game state happens here
+// Create game state based on setup configuration
 export default function makeInitialGameState(setup) {
 
     let players = [];
 
     map(setup.players, function(playerController, playerIndex) {
-        if (playerController == gameData.PLAYER_OFF) return;
+        if (playerController === gameData.PLAYER_OFF) return;
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
-        // set up as AI/human
+        // set up as AI or human
         player.pickMove = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
 
         // pick a random personality if we're AI
@@ -37,7 +37,7 @@ export default function makeInitialGameState(setup) {
     let move = new ArmyMove(1, 0, gameData.movesPerTurn);
     var gameState = new GameState(players, regions, {}, {}, {}, {}, {}, move);
 
-    setupTemples();
+    setupTemples(3);
 
     return gameState;
 
@@ -45,67 +45,76 @@ export default function makeInitialGameState(setup) {
         return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance));
     }
 
-    function randomRegion() {
-        return regions[rint(0, regions.length)];
-    }
+    /**
+     * @param initialSoldierCount number of solders to place at each temple location initially
+     */
+    function setupTemples(initialSoldierCount) {
 
-    function setupTemples() {
-        // give the players some cash (or not)
-        map(players, function(player, index) {
-            gameState.cash[index] = 0;
-            gameState.levels[index] = 0;
-        });
+        var homes = findHomeRegions();
 
-        // pick three regions that are as far away as possible from each other
-        // for the players' initial temples
-        var possibleSetups = map(range(0, 1000), function() {
-            return map(gameState.players, randomRegion);
-        });
-        var homes = sequenceUtils.max(possibleSetups, distanceScore);
+        setupPlayersWithTheirTemples(players, homes);
+        setupNeutralTemples(players, homes);
 
         // we have the regions, set up each player
-        map(players, function(player, index) {
-            var region = homes[index];
-            // make one of the regions your own
-            gameState.owners[region.index] = player;
-            // put a temple and 3 soldiers in it
-            putTemple(region, 3);
-        });
+        function setupPlayersWithTheirTemples(players, homes) {
+            map(players, function(player, index) {
+                // give the players some cash (or not)
+                gameState.cash[index] = 0;
+                gameState.levels[index] = 0;
 
-        // setup neutral temples
-        var distancesToTemples = map(homes, function() { return 0; });
-        var templeRegions = [];
-        var templeCount = [3,3,4][players.length-2];
-
-        map(range(0, templeCount), function() {
-            var bestRegion = sequenceUtils.max(gameState.regions, function(region) {
-                return templeScore(region);
-            });
-
-            putTemple(bestRegion, 3);
-
-            templeRegions.push(bestRegion);
-            distancesToTemples = updatedDistances(bestRegion);
-        });
-
-        function updatedDistances(newTempleRegion) {
-            return map(homes, function(home, index) {
-                return distancesToTemples[index] + home.distanceFrom(newTempleRegion);
+                var region = homes[index];
+                // make one of the regions your own
+                gameState.owners[region.index] = player;
+                // put a temple and 3 soldiers in it
+                putTemple(region, initialSoldierCount);
             });
         }
 
-        function templeScore(newTemple) {
-            if (sequenceUtils.contains(templeRegions, newTemple))
-                return -100;
+        function setupNeutralTemples(players, homes) {
+            var distancesToTemples = map(homes, function() { return 0; });
+            var templeRegions = [];
+            var neutralTempleCount = [3, 3, 4][players.length - 2];
 
-            var updated = updatedDistances(newTemple);
-            var inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
-            var templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple));
-            if (!templeDistances)
-                templeDistances = -5;
+            map(range(0, neutralTempleCount), function() {
+                var bestRegion = sequenceUtils.max(gameState.regions, function(region) {
+                    return templeScore(region);
+                });
 
-            return templeDistances - inequality;
+                putTemple(bestRegion, initialSoldierCount);
+
+                templeRegions.push(bestRegion);
+                distancesToTemples = updatedDistances(bestRegion);
+            });
+
+            function templeScore(newTemple) {
+                if (sequenceUtils.contains(templeRegions, newTemple))
+                    return -100;
+
+                var updated = updatedDistances(newTemple);
+                var inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
+                var templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple));
+                if (!templeDistances)
+                    templeDistances = -5;
+
+                return templeDistances - inequality;
+            }
+
+            function updatedDistances(newTempleRegion) {
+                return map(homes, function(home, index) {
+                    return distancesToTemples[index] + home.distanceFrom(newTempleRegion);
+                });
+            }
         }
+    }
+
+
+    // pick regions that are as far away as possible from each other for the players' initial temples
+    function findHomeRegions() {
+        const possibleSetups = map(range(0, 1000), function() {
+            return map(gameState.players, () => regions[rint(0, regions.length)]);
+        });
+        const homes = sequenceUtils.max(possibleSetups, distanceScore);
+        return homes;
     }
 
     function putTemple(region, soldierCount) {
