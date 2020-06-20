@@ -1,4 +1,3 @@
-import utils from '../../utils/utils.js';
 
 // Describes the behavior of an AI
 export default class AiPersonality {
@@ -12,7 +11,7 @@ export default class AiPersonality {
         this.preferredUpgrades = preferredUpgrades;
     }
 
-    getSoldierPreference() {
+    getSoldierEagerness() {
         return this.preferredUpgrades.length ? this.soldierEagerness : 1;
     }
 

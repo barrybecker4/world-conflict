@@ -26,7 +26,7 @@ export default {
 };
 
 // Creates the rendering of the game map as an SVG object.
-// Takes the map (regions) stored in gameState.r, and creates an SVG map out of it.
+// Takes the map (regions) stored in gameState.region, and creates an SVG map out of it.
 function showMap(container, gameState) {
     var regions = gameState.regions;
 

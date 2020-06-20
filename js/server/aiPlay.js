@@ -40,7 +40,7 @@ function shouldBuildSoldier(player, state) {
 
     // get preference for soldiers from our personality
     // if we don't want more upgrades, our preference becomes 1
-    var soldierPreference = player.p.getSoldierPreference();
+    var soldierEagerness = player.p.getSoldierEagerness();
 
     // calculate the relative cost of buying a soldier now
     var relativeCost = state.soldierCost() / state.cash[player.index];
@@ -51,10 +51,9 @@ function shouldBuildSoldier(player, state) {
     var forces = utils.map(state.players, force.bind(0, state));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
-    // this calculates whether we should build now - the further we are behind
-    // other players, the more likely we are to spend a big chunk of our cash
-    // on it
-    var decisionFactor = forceDisparity * soldierPreference - relativeCost;
+    // This calculates whether we should build now - the further we are behind other players,
+    // the more likely we are to spend a big chunk of our cash  on it
+    var decisionFactor = forceDisparity * soldierEagerness - relativeCost;
 
     return decisionFactor >= 0;
 }
@@ -171,7 +170,8 @@ function performMinMax(forPlayer, fromState, depth, moveCallback) {
 
                 // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
                 // so that whatever the AI does is easy to understand
-                setTimeout(moveCallback.bind(0, bestMove), sequenceUtils.max([gameData.minimumAIThinkingTime - elapsedTime, 1]));
+                const thinkTime = Math.max(gameData.minimumAIThinkingTime - elapsedTime, 1);
+                setTimeout(moveCallback.bind(0, bestMove), thinkTime);
                 return;
             }
         }
