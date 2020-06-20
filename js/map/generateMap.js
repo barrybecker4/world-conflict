@@ -2,17 +2,24 @@ import utils from '../utils/utils.js';
 import gameData from '../state/gameData.js';
 import Region from '../state/model/Region.js';
 
-// Generates a new procedural map for a given number of players.
+const MAX_REGION_SIZE = 11;
+const BASE_NUM_REGIONS = 13;
+const REGIONS_PER_PLAYER_ALLOCATION = 3;
+
+/**
+ * Generates a new procedural map for a given number of players.
+ * @return an array of Regions that will define the initial map.
+ */
 export default function generateMap(playerCount) {
-    var maxRegionSize = 11 - playerCount;
-    var neededRegions = 13 + playerCount * 3;
+    var maxRegionSize = MAX_REGION_SIZE - playerCount;
+    var neededRegions = BASE_NUM_REGIONS + playerCount * REGIONS_PER_PLAYER_ALLOCATION;
     var perturbConst = utils.rint(10000, 100000);
 
     var regionMap, regions, count, retries;
 
     // Repeat until we get a workable map
     do {
-        regionMap = utils.range(0, gameData.mapWidth).map(function(){return []});
+        regionMap = utils.range(0, gameData.mapWidth).map(() => []);
         regions = [];
         count = 0;
         retries = 2500;
@@ -22,9 +29,10 @@ export default function generateMap(playerCount) {
         while ((count < neededRegions) && (--retries > 0)) {
             // create a random region
             var bounds = {
-                l: utils.rint(1, gameData.mapWidth - maxRegionSize + 1),
-                t: utils.rint(1, gameData.mapHeight - maxRegionSize + 1),
-                w: utils.rint(3, maxRegionSize), h: utils.rint(3, maxRegionSize)
+                left: utils.rint(1, gameData.mapWidth - maxRegionSize + 1),
+                top: utils.rint(1, gameData.mapHeight - maxRegionSize + 1),
+                width: utils.rint(3, maxRegionSize),
+                height: utils.rint(3, maxRegionSize)
             };
             // it has to overlap one of the existing ones
             if (count && !overlaps(bounds)) continue;
@@ -33,11 +41,17 @@ export default function generateMap(playerCount) {
             // that it will border at least one other region, making the map contiguous
             while (!shrink(bounds)) {
                 if (!overlaps(bounds)) {
-                    regions.push(makeRegionAt(count++, bounds));
+                    const region = makeRegionAt(count++, bounds);
+                    regions.push(region);
+                    // mark it in the map
+                    utils.for2d(bounds.left, bounds.top, bounds.left + bounds.width, bounds.top + bounds.height, function(x, y){
+                        regionMap[x][y] = region;
+                    });
                     break;
                 }
             }
         }
+        console.log("retries = " + retries);
     } while (!retries);
 
     fillNeighbourLists();
@@ -46,16 +60,16 @@ export default function generateMap(playerCount) {
     // Shrink the region given by 'bounds' in a random direction
     function shrink(bounds) {
         var r = utils.rint(0, 4);
-        if (r % 2) bounds.w--; else bounds.h--;
-        if (r === 2) bounds.t++;
-        if (r === 3) bounds.l++;
-        return (bounds.w * bounds.h < 9);
+        if (r % 2) bounds.width--; else bounds.height--;
+        if (r === 2) bounds.top++;
+        if (r === 3) bounds.left++;
+        return (bounds.width * bounds.height < 9);
     }
 
     // Checks if the region given by 'bounds' overlaps any existing region.
     function overlaps(bounds) {
         var rv = false;
-        utils.for2d(bounds.l, bounds.t, bounds.l + bounds.w, bounds.t + bounds.h, function(x, y) {
+        utils.for2d(bounds.left, bounds.top, bounds.left + bounds.width, bounds.top + bounds.height, function(x, y) {
             rv = rv || regionMap[x][y];
         });
         return rv;
@@ -64,10 +78,10 @@ export default function generateMap(playerCount) {
     // Puts a new rectangular region at the position given in bounds {Left, Top, Width, Height}.
     function makeRegionAt(index, bounds) {
         // make points for the region
-        var l = bounds.l;
-        var t = bounds.t;
-        var w = bounds.w;
-        var h = bounds.h;
+        var l = bounds.left;
+        var t = bounds.top;
+        var w = bounds.width;
+        var h = bounds.height;
 
         var points = [];
         utils.map(utils.range(0, w), function(i) {
@@ -78,15 +92,7 @@ export default function generateMap(playerCount) {
             points[w + i] = perturbedPoint(l+w,t+i);
             points[w + h + w + i] = perturbedPoint(l, t + h - i);
         });
-        var region = new Region(index, points);
-
-        // mark it in the map
-        utils.for2d(bounds.l, bounds.t, bounds.l + bounds.w, bounds.t + bounds.h, function(x, y){
-            regionMap[x][y] = region;
-        });
-
-        // return
-        return region;
+        return new Region(index, points);
     }
 
     // Perturbs a point to give the region borders a natural feel.
@@ -101,7 +107,7 @@ export default function generateMap(playerCount) {
         utils.for2d(1, 1, gameData.mapWidth - 1, gameData.mapHeight - 1, function(x, y) {
             var region = regionMap[x][y];
             if (region) {
-                utils.map([[-1, 0],[1, 0],[0, -1],[0, 1]],function(d) {
+                utils.map([[-1, 0], [1, 0], [0, -1], [0, 1]], function(d) {
                     var potentialNeighbour = regionMap[x + d[0]][y + d[1]];
                     if (potentialNeighbour && (potentialNeighbour != region) && (region.neighbors.indexOf(potentialNeighbour) == -1))
                         region.neighbors.push(potentialNeighbour);

@@ -8,7 +8,6 @@ import UPGRADES from './UPGRADES.js';
 // global counter for the number of soldiers
 var soldierCounter;
 
-
 export default class GameState {
 
     constructor(players, regions, owners, temples, soldiers, cash, levels, move, simulatingPlayer, floatingText) {
