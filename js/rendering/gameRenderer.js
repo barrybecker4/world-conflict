@@ -356,7 +356,7 @@ function updateIngameUI(gameState) {
     // turn counter/building name
     if (buildingMode) {
         var info = gameState.templeInfo(decisionState.temple);
-        $('turn-count').innerHTML = div({}, info.n) + div({c: 'ds'}, info.d);
+        $('turn-count').innerHTML = div({}, info.name) + div({c: 'ds'}, info.description);
     } else {
         $('turn-count').innerHTML =
             'Turn <b>' + gameState.move.turnIndex + '</b>' +
