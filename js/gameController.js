@@ -394,7 +394,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             if (temple)
                 delete temple.upgrade;
             // play sound, launch particles!
-            state.prt = toRegion;
+            state.particleTempleRegion = toRegion;
             state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
             state.soundCue = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
         }
@@ -443,8 +443,8 @@ function buildUpgrade(state, region, upgrade) {
     // you have to pay for it, unfortunately
     state.cash[templeOwner.index] -= upgrade.cost[temple.level];
 
-    // particles!  (prt = particalsTempleRegion?)
-    state.prt = temple.region;
+    // particles!
+    state.particleTempleRegion = temple.region;
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)

@@ -168,8 +168,8 @@ function updateMapDisplay(gameState) {
         region.hl.style.cursor = highlighted ? 'pointer' : 'default';
 
         // particles
-        if (gameState.prt == region) {
-            gameState.prt = 0; // only once
+        if (gameState.particleTempleRegion == region) {
+            gameState.particleTempleRegion = 0; // only once
             map(region.points, function(point) {
                 point = projectPoint(point);
                 var center = region.center;
