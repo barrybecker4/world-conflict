@@ -22,6 +22,10 @@ export default class Region {
         return Region.distance(this, regionB);
     }
 
+    centerDistanceFrom(regionB) {
+        return Math.abs(this.center[0] - regionB.center[0]) + Math.abs(this.center[1] - regionB.center[1]);
+    }
+
     // Use breadth-first search and memoization to find distance from this (regionA) to some other regionB.
     static distance(regionA, regionB) {
         let queue = [{region: regionA, distance: 0}];

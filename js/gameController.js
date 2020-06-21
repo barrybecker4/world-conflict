@@ -304,7 +304,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         if (preemptiveDamage) {
             // animate it
             battleAnimationKeyframe(state, 50, audio.audioOursDead,
-                [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, weight: 9}]
+                [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
             );
             // apply it
             utils.map(utils.range(0, preemptiveDamage), function () {
@@ -350,7 +350,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                         battleAnimationKeyframe(state, 250, audio.audioOursDead);
                     } else {
                         battleAnimationKeyframe(state, 800, audio.audioOursDead,
-                            [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, weight: 11}]
+                            [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}]
                         );
                     }
                 } else {
@@ -367,7 +367,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 // and prevent anybody from moving in
                 incomingSoldiers = 0;
                 state.soundCue = audio.sounds.DEFEAT;
-                state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", weight: 7}];
+                state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}];
             }
         }
 
@@ -395,7 +395,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 delete temple.upgrade;
             // play sound, launch particles!
             state.prt = toRegion;
-            state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", weight: 7}];
+            state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
             state.soundCue = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
         }
     }
@@ -463,7 +463,7 @@ function nextTurn(state) {
             region: state.templesForPlayer(player)[0].region,
             text: "+" + playerIncome + "&#9775;",
             color: '#fff',
-            weight: 5
+            width: 5
         }];
     }
 

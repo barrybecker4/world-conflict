@@ -193,16 +193,14 @@ function updateMapDisplay(gameState) {
         if (source)  {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
-            var furthest = sequenceUtils.max(source.neighbors, function(neighbor) {
-                return Math.abs(source.center[0] - neighbor.center[0]) + Math.abs(source.center[1] - neighbor.center[1]);
-            });
+            var furthest = sequenceUtils.max(source.neighbors, source.centerDistanceFrom.bind(source));
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
         if (!source) {
             // "conquering armies cannot move" tooltips
             var inactiveArmies = gameState.move.z;
             if (inactiveArmies) {
-                showTooltipOver(inactiveArmies[inactiveArmies.length-1], "Armies that conquer a new region cannot move again.")
+                showTooltipOver(inactiveArmies[inactiveArmies.length - 1], "Armies that conquer a new region cannot move again.")
                 showTooltipOver({center: [-2, 80]}, "Once you're done, click 'End turn' here.");
             }
         }
@@ -334,9 +332,9 @@ function updateMapDisplay(gameState) {
                 x = parseFloat(node.style.left) + 0.2, y = parseFloat(node.style.top) + 0.2;
             }
 
-            x -= floater.weight / 2 + 0.5; y -= 4;
+            x -= floater.width / 2 + 0.5; y -= 4;
 
-            var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.weight + "%";
+            var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
             var floatingNode = append('m', div({c: 'tt', s: styles}, floater.text));
             setTransform(floatingNode, "translate3d(0,0,0)");
             floatAway(floatingNode, 0, -3);
