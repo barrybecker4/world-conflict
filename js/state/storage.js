@@ -4,12 +4,13 @@ import utils from '../utils/utils.js';
 const STORAGE_KEY = 'world-conflict';
 
 // the game setup screen config
+// firstTimeInstructions are shown only the first time the player plays on a given computer
 var defaultSetup = {
     players: [gameData.PLAYER_HUMAN, gameData.PLAYER_AI, gameData.PLAYER_AI, gameData.PLAYER_OFF],
     aiLevel: gameData.AI_NICE,
     sound: true,
     turnCount: 12,
-    tt: {},  // tooltips?
+    firstTimeInstructions: {},
 };
 
 export default {

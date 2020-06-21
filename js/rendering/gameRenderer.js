@@ -210,10 +210,10 @@ function updateMapDisplay(gameState) {
     }
 
     function showTooltipOver(region, text, width) {
-        if (gameInitialization.gameSetup.tt[text]) return;
+        if (gameInitialization.gameSetup.firstTimeInstructions[text]) return;
         setTimeout(function() {
             // don't display it again (timeout to handle multiple updateDisplays() in a row)
-            gameInitialization.gameSetup.tt[text] = 1;
+            gameInitialization.gameSetup.firstTimeInstructions[text] = 1;
             storage.storeSetup(gameInitialization.gameSetup);
         }, 500);
 
