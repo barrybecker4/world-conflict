@@ -478,7 +478,7 @@ function floatAway(elem, vx, vy) {
     setTimeout(function() {
         setTransform(elem, "translate3d(" + vx + "em," + vy + "em,0)");
         elem.style.opacity = 0.0;
-    }, 50);
+    }, 100);
     setTimeout(function() {
         $('m').removeChild(elem);
     }, 3050);

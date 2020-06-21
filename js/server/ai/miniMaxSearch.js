@@ -13,7 +13,7 @@ export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback)
     var unitOfWork = 100;
     var timeStart = Date.now();
 
-    setTimeout(doSomeWork, 1);
+    setTimeout(doSomeWork, 0); // was 1
 
     function doSomeWork() {
         var stepsRemaining = unitOfWork;
@@ -44,7 +44,7 @@ export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback)
         }
         // schedule some more work, we're not done yet
         // but we want to let some events happen
-        setTimeout(doSomeWork, 1);
+        setTimeout(doSomeWork, 0); // was 1
     }
 }
 

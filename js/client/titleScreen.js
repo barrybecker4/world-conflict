@@ -29,7 +29,7 @@ function setupTitleScreen() {
 
     switchTutorialCard(0);
 
-    setTimeout(setTitleScreenVisibility.bind(0,true), 10);
+    setTimeout(setTitleScreenVisibility.bind(0, true), 10);
 }
 
 var currentCard = 0;

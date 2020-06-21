@@ -15,5 +15,5 @@ window.onload = function() {
         audio.setupAudio();
         gameInitialization.runSetupScreen();
         titleScreen.setupTitleScreen();
-    }, 500);
+    }, 100);
 };
