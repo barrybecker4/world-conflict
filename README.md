@@ -1,9 +1,9 @@
-Compact Conflict
+World Conflict
 ================
 
-A risk-based strategy game created for [JS13k 2014](http://js13kgames.com/). 
+A risk-based strategy game originally created for [JS13k 2014](http://js13kgames.com/) by Jakub Wasilewski. This project modifies that code in order to support multiplayer online games. 
 
-You can **[play it right here](http://wasyl.eu/games/compact-conflict/play.html)**.
+You can **[play the original version here](http://wasyl.eu/games/compact-conflict/play.html)**. The new version will be available shortly.
 
 ![Example Game](images/game_middle.PNG)
 
@@ -17,6 +17,8 @@ If you want to build your own minified versions, `build.sh` can hook you up, but
 * htmlminifier
 
 Both are modules on **npm**.
+
+The new version of this code is more concerned with maintainability than compactness though.
 
 #### Thanks
 

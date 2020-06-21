@@ -1,7 +1,7 @@
 import gameData from './gameData.js';
 import utils from '../utils/utils.js';
 
-const STORAGE_KEY = 'compact-conflict';
+const STORAGE_KEY = 'world-conflict';
 
 // the game setup screen config
 var defaultSetup = {

@@ -59,14 +59,15 @@ function regionThreat(state, player, region) {
         var nOwner = state.owner(neighbour);
         if ((nOwner == player) || !nOwner) return 0;
 
-        // count soldiers that can reach us in 3 moves from this direction
-        // using a breadth-first search
-        var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2; // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us
+        // count soldiers that can reach us in 3 moves from this direction using a breadth-first search.
+        // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us.
+        var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2;
         var queue = [{region: neighbour, depth}], visited = [];
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
-            total += state.soldierCount(entry.region) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.depth) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
+            // soldiers further away count for less (at least if your AI_MEAN)
+            total += state.soldierCount(entry.region) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.depth) / 4 : 1);
             visited.push(entry.region);
 
             if (entry.depth) {
