@@ -1,8 +1,9 @@
-import utils from '../../utils/utils.js';
+import domUtils from '../utils/domUtils.js';
+const { elem } = domUtils;
 
 // Generate a SVG gradient tag for the map.
 export default function makeGradient(id, light, dark) {
-    return utils.elem('radialGradient', {
+    return elem('radialGradient', {
         i: id,
         cx: '-100%', cy: '50%',
         fx: '-100%', fy: '50%',
@@ -13,7 +14,7 @@ export default function makeGradient(id, light, dark) {
 
 // Generate a SVG gradient stop tag.
 function gradientStop(percent, color) {
-    return utils.elem('stop', {
+    return elem('stop', {
         offset: percent + '%',
         s: 'stop-color:' + color
     });

@@ -1,5 +1,6 @@
 import audio from './utils/audio.js';
 import utils from '../utils/utils.js';
+import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
 import gameData from '../state/gameData.js';
@@ -10,7 +11,7 @@ import gameInitialization from './gameInitialization.js';
 import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - neeps server API
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
 import UPGRADES from '../state/model/UPGRADES.js';
-const $ = utils.$
+const $ = domUtils.$;
 
 // All the game logic that runs in main loop resides in this module.
 
@@ -227,7 +228,7 @@ function uiPickMove(player, state, reportMoveCallback) {
             var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.move.h || 0) : 0);
 
             var cost = upgrade.cost[level];
-            var text = utils.template(upgrade.name, gameData.LEVELS[level]) + utils.elem('b', {}, " (" + cost + "&#9775;)");
+            var text = utils.template(upgrade.name, gameData.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");
             var description = utils.template(upgrade.desc, upgrade.level[level]);
 
             var hidden =

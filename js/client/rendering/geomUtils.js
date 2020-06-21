@@ -1,4 +1,5 @@
 import utils from '../../utils/utils.js';
+import domUtils from '../utils/domUtils.js';
 import gameData from '../../state/gameData.js';
 
 export default {
@@ -31,7 +32,7 @@ function makePolygon(points, id, fill, stroke, clip) {
        properties['clip-path'] = clip;
     }
 
-    return utils.elem('polygon', properties);
+    return domUtils.elem('polygon', properties);
 }
 
 

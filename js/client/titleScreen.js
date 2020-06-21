@@ -1,9 +1,10 @@
 import audio from './utils/audio.js';
 import utils from '../utils/utils.js';
+import domUtils from './utils/domUtils.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
-const $ = utils.$
+const { $, onClickOrTap } = domUtils;
 
 // This modules is responsible for the title screen.
 export default {
@@ -11,16 +12,16 @@ export default {
 };
 
 function setupTitleScreen() {
-    utils.map(['o','tutorial-button','sound'], function(id) { utils.showOrHide(id, 1); });
+    utils.map(['o','tutorial-button','sound'], function(id) { domUtils.showOrHide(id, 1); });
 
-    utils.onClickOrTap($('cancel-button'), setTitleScreenVisibility.bind(0, false));
-    utils.onClickOrTap($('next'), switchTutorialCard.bind(0, 1));
-    utils.onClickOrTap($('prev'), switchTutorialCard.bind(0, -1));
+    onClickOrTap($('cancel-button'), setTitleScreenVisibility.bind(0, false));
+    onClickOrTap($('next'), switchTutorialCard.bind(0, 1));
+    onClickOrTap($('prev'), switchTutorialCard.bind(0, -1));
 
-    utils.onClickOrTap($('tutorial-button'), setTitleScreenVisibility.bind(0, true));
-    utils.onClickOrTap($('sound'), audio.toggleSound);
-    utils.onClickOrTap($('undo-button'), gameController.invokeUICallback.bind(0, 0, 'undo'));
-    utils.onClickOrTap($('restart'), function() {
+    onClickOrTap($('tutorial-button'), setTitleScreenVisibility.bind(0, true));
+    onClickOrTap($('sound'), audio.toggleSound);
+    onClickOrTap($('undo-button'), gameController.invokeUICallback.bind(0, 0, 'undo'));
+    onClickOrTap($('restart'), function() {
         gameController.uiCallbacks = {};
         gameRenderer.updateDisplay();
         gameInitialization.runSetupScreen();
@@ -37,9 +38,9 @@ var totalCards = 5;
 function switchTutorialCard(direction) {
     currentCard = utils.clamp(currentCard + direction, 0, totalCards-1);
 
-    utils.setTransform($('tutorial-card'), "translate3d(" + (-currentCard * 100 / totalCards) + "%, 0, 0)");
-    utils.showOrHide('prev', currentCard > 0);
-    utils.showOrHide('next', currentCard < totalCards - 1);
+    domUtils.setTransform($('tutorial-card'), "translate3d(" + (-currentCard * 100 / totalCards) + "%, 0, 0)");
+    domUtils.showOrHide('prev', currentCard > 0);
+    domUtils.showOrHide('next', currentCard < totalCards - 1);
 }
 
 function setTitleScreenVisibility(visible) {
@@ -48,7 +49,7 @@ function setTitleScreenVisibility(visible) {
     }
 
     setTimeout(function() {
-        utils.toggleClass('title-screen', 'h', !visible);
+        domUtils.toggleClass('title-screen', 'h', !visible);
     }, 50);
 
     if (!visible) {

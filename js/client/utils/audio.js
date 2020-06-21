@@ -1,4 +1,5 @@
 import utils from '../../utils/utils.js';
+import domUtils from './domUtils.js';
 import audio from './audio.js';
 import storage from '../storage.js';
 import gameInitialization from '../gameInitialization.js';
@@ -126,7 +127,7 @@ function playSound(sound) {
 }
 
 function updateSoundControls() {
-    utils.$('sound').innerHTML = gameInitialization.gameSetup.sound ? '♪' : ' ';
+    domUtils.$('sound').innerHTML = gameInitialization.gameSetup.sound ? '♪' : ' ';
     storage.storeSetup(gameInitialization.gameSetup);
 }
 
