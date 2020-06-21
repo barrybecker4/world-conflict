@@ -14,6 +14,8 @@ export default class Region {
         this.points = points;
         this.distanceTo = distanceTo ? distanceTo : [];
         this.neighbors = neighbors ? neighbors : [];
+        this.center = null;
+        this.element = null;
     }
 
     distanceFrom(regionB) {

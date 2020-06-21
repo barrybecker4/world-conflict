@@ -295,7 +295,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
             // there will be a battle - move the soldiers halfway for animation
             if (!state.simulatingPlayer) {
                 utils.map(fromList.slice(0, incomingSoldiers), function (soldier) {
-                    soldier.a = toRegion;
+                    soldier.attackedRegion = toRegion;
                 });
             }
             battleAnimationKeyframe(state);
@@ -304,7 +304,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         if (preemptiveDamage) {
             // animate it
             battleAnimationKeyframe(state, 50, audio.audioOursDead,
-                [{s: fromList[0], t: "Earth kills " + preemptiveDamage + "!", c: UPGRADES.EARTH.b, w: 9}]
+                [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, weight: 9}]
             );
             // apply it
             utils.map(utils.range(0, preemptiveDamage), function () {
@@ -350,7 +350,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                         battleAnimationKeyframe(state, 250, audio.audioOursDead);
                     } else {
                         battleAnimationKeyframe(state, 800, audio.audioOursDead,
-                            [{s: fromList[0], t: "Protected by Fire!", c: UPGRADES.FIRE.b, w: 11}]
+                            [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, weight: 11}]
                         );
                     }
                 } else {
@@ -367,14 +367,14 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 // and prevent anybody from moving in
                 incomingSoldiers = 0;
                 state.soundCue = audio.sounds.DEFEAT;
-                state.floatingText = [{r: toRegion, c: toOwner ? toOwner.highlightStart : '#fff', t: "Defended!", w: 7}];
+                state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", weight: 7}];
             }
         }
 
         // reset "attacking status" on the soldiers - at this point they will
         // move back to the source region or occupy the destination
         utils.map(fromList, function(soldier) {
-            soldier.a = 0;
+            soldier.attackedRegion = null; // 0;
         });
     }
 
@@ -395,7 +395,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
                 delete temple.upgrade;
             // play sound, launch particles!
             state.prt = toRegion;
-            state.floatingText = [{r: toRegion, c: fromOwner.highlightStart, t: "Conquered!", w: 7}];
+            state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", weight: 7}];
             state.soundCue = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
         }
     }
@@ -459,9 +459,12 @@ function nextTurn(state) {
     var playerIncome = state.income(player);
     state.cash[player.index] += playerIncome;
     if (playerIncome) {
-        state.floatingText = [
-            { r: state.templesForPlayer(player)[0].region, t: "+" + playerIncome + "&#9775;", c: '#fff', w: 5}
-        ];
+        state.floatingText = [{
+            region: state.templesForPlayer(player)[0].region,
+            text: "+" + playerIncome + "&#9775;",
+            color: '#fff',
+            weight: 5
+        }];
     }
 
     // temples produce one soldier per turn automatically

@@ -64,8 +64,8 @@ function showMap(container, gameState) {
 
     // hook up region objects to their HTML elements
     map(regions, function(region, index) {
-        region.e = $('r' + index);
-        region.c = projectPoint(centerOfWeight(region.points));
+        region.element = $('r' + index);
+        region.center = projectPoint(centerOfWeight(region.points));
 
         region.hl = $('hl' + index);
         onClickOrTap(region.hl, gameController.invokeUICallback.bind(0, region, 'regionSelected'));
@@ -100,7 +100,7 @@ function showMap(container, gameState) {
     function makeTemples() {
         forEachProperty(gameState.temples, function(temple) {
 
-            var center = temple.region.c,
+            var center = temple.region.center,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
             // create the temple <div>s
@@ -161,7 +161,7 @@ function updateMapDisplay(gameState) {
         if (highlighted) {
             gradientName += 'h';
         }
-        var highlightedOpacity = 0.1 + region.c[0] * 0.003;
+        var highlightedOpacity = 0.1 + region.center[0] * 0.003;
         if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region))
             highlightedOpacity *= 2;
         region.hl.style.opacity = highlighted ? highlightedOpacity : 0.0;
@@ -172,7 +172,7 @@ function updateMapDisplay(gameState) {
             gameState.prt = 0; // only once
             map(region.points, function(point) {
                 point = projectPoint(point);
-                var center = region.c;
+                var center = region.center;
                 var alpha = rint(30, 100) / 100;
                 var startPoint = [lerp(alpha, center[0], point[0]), lerp(alpha, center[1], point[1])];
                 var vx = (startPoint[0] - center[0]) / 2, vy = (startPoint[1] - center[1]) / 2 - 0.15;
@@ -181,7 +181,7 @@ function updateMapDisplay(gameState) {
         }
 
         // fill
-        region.e.style.fill = 'url(#' + gradientName + ')';
+        region.element.style.fill = 'url(#' + gradientName + ')';
     }
 
     function updateTooltips() {
@@ -194,7 +194,7 @@ function updateMapDisplay(gameState) {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
             var furthest = sequenceUtils.max(source.neighbors, function(neighbor) {
-                return Math.abs(source.c[0] - neighbor.c[0]) + Math.abs(source.c[1] - neighbor.c[1]);
+                return Math.abs(source.center[0] - neighbor.center[0]) + Math.abs(source.center[1] - neighbor.center[1]);
             });
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
@@ -220,7 +220,7 @@ function updateMapDisplay(gameState) {
         }, 500);
 
         width = width || 7;
-        var left = region.c[0] - (width+1) * 0.5, bottom = 102 - region.c[1];
+        var left = region.center[0] - (width+1) * 0.5, bottom = 102 - region.center[1];
         var styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
 
         append('m', div({c: 'tt ttp', s: styles}, text));
@@ -264,7 +264,7 @@ function updateMapDisplay(gameState) {
         }
 
         // (re)calculate where the <div> should be
-        var center = region.c;
+        var center = region.center;
         var totalSoldiers = gameState.soldierCount(region);
 
         var columnWidth = sequenceUtils.min([totalSoldiers, 4]);
@@ -276,9 +276,9 @@ function updateMapDisplay(gameState) {
         var xPosition = center[0] + xOffset - yOffset * 0.2;
         var yPosition = center[1] + xOffset * 0.2 + yOffset;
 
-        if (soldier.a) {
+        if (soldier.attackedRegion) {
             // we're attacking right now - move us closer to target region
-            var targetCenter = soldier.a.c;
+            var targetCenter = soldier.attackedRegion.center;
             xPosition = (xPosition + targetCenter[0]) / 2;
             yPosition = (yPosition + targetCenter[1]) / 2;
         }
@@ -304,7 +304,7 @@ function updateMapDisplay(gameState) {
             if (count > 8) {
                 var selected = (gameState.moveDecision && (gameState.moveDecision.source == region)) ? gameState.moveDecision.count : 0;
                 selected += sequenceUtils.sum(gameState.soldiers[regionIndex], function(soldier) {
-                    return soldier.a ? 1 : 0;
+                    return soldier.attackedRegion ? 1 : 0;
                 });
                 if (selected)
                     count = selected + "<hr>" + count;
@@ -313,7 +313,7 @@ function updateMapDisplay(gameState) {
                     var tooltipHTML = div({
                         i: tooltipId,
                         c: 'tt stt',
-                        s: "left:" + (region.c[0] - 1.5) + '%;top:' + (region.c[1] + 1.2) + '%'
+                        s: "left:" + (region.center[0] - 1.5) + '%;top:' + (region.center[1] + 1.2) + '%'
                     }, '');
                     tooltip = append('m', tooltipHTML);
                 }
@@ -327,17 +327,17 @@ function updateMapDisplay(gameState) {
     function updateFloatingText() {
         map(gameState.floatingText || [], function(floater) {
             var x, y;
-            if (floater.r) {
-                x = floater.r.c[0]; y = floater.r.c[1];
+            if (floater.region) {
+                x = floater.region.center[0]; y = floater.region.center[1];
             } else {
-                var node = soldierDivsById[floater.s.i];
+                var node = soldierDivsById[floater.soldier.i];
                 x = parseFloat(node.style.left) + 0.2, y = parseFloat(node.style.top) + 0.2;
             }
 
-            x -= floater.w / 2 + 0.5; y -= 4;
+            x -= floater.weight / 2 + 0.5; y -= 4;
 
-            var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.c + ";width:" + floater.w + "%";
-            var floatingNode = append('m', div({c: 'tt', s: styles}, floater.t));
+            var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.weight + "%";
+            var floatingNode = append('m', div({c: 'tt', s: styles}, floater.text));
             setTransform(floatingNode, "translate3d(0,0,0)");
             floatAway(floatingNode, 0, -3);
         });

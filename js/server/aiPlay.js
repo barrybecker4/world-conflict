@@ -113,7 +113,9 @@ function minMaxDoSomeWork(node) {
         // spawn a child node
         var childState = gameController.makeMove(node.s, move);
         return {
-            p: node, a: node.a, d: node.d - 1,
+            p: node,
+            a: node.a,
+            d: node.d - 1,
             m: move,
             s: childState, u: possibleMoves(childState)
         };
@@ -277,20 +279,20 @@ function regionThreat(state, player, region) {
         // count soldiers that can reach us in 3 moves from this direction
         // using a breadth-first search
         var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2; // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us
-        var queue = [{r: neighbour, d: depth}], visited = [];
+        var queue = [{region: neighbour, depth}], visited = [];
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
-            total += state.soldierCount(entry.r) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.d) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
-            visited.push(entry.r);
+            total += state.soldierCount(entry.region) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.depth) / 4 : 1); // soldiers further away count for less (at least if your AI_MEAN)
+            visited.push(entry.region);
 
-            if (entry.d) {
+            if (entry.depth) {
                 // go deeper with the search
-                utils.map(entry.r.neighbors.filter(function(candidate) {
+                utils.map(entry.region.neighbors.filter(function(candidate) {
                     return (!sequenceUtils.contains(visited, candidate)) &&
                         (state.owner(candidate) == nOwner);
-                }), function(r) {
-                    queue.push({r: r, d: entry.d - 1});
+                }), function(region) {
+                    queue.push({region, depth: entry.depth - 1});
                 });
             }
         }
