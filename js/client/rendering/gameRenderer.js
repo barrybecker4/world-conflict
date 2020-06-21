@@ -11,6 +11,7 @@ import gameController from '../gameController.js';
 import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
+import uiPickMove from '../uiPickMove.js';
 const { map, range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
@@ -185,7 +186,7 @@ function updateMapDisplay(gameState) {
 
     function updateTooltips() {
         map(document.querySelectorAll('.ttp'), $('m').removeChild.bind($('m')));
-        if (gameState.activePlayer().pickMove != gameController.uiPickMove) return;
+        if (gameState.activePlayer().pickMove != uiPickMove) return;
 
         // "how to move" tooltips
         var source = gameState.moveDecision && gameState.moveDecision.source;
@@ -380,7 +381,7 @@ function updateIngameUI(gameState) {
     });
 
     let moveInfo;
-    if (activePlayer.pickMove == gameController.uiPickMove) {
+    if (activePlayer.pickMove == uiPickMove) {
         if (buildingMode) {
             if (gameState.owner(decisionState.region) == activePlayer)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');

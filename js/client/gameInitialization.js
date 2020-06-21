@@ -8,6 +8,7 @@ import makeInitialGameState from '../state/makeInitialGameState.js';
 import PLAYERS from '../state/model/PLAYERS.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
+import uiCallbacks from './uiCallbacks.js';
 const { $, div } = domUtils;
 
 export default {
@@ -83,7 +84,7 @@ function runSetupScreen() {
     updateConfigButtons();
 
     // callback for the buttons on the bottom
-    gameController.uiCallbacks.build = function(which) {
+    uiCallbacks.callbacks.build = function(which) {
         if (!isSetupValid()) return;
         if (which === 0) {
             regenerateMap();
@@ -94,7 +95,7 @@ function runSetupScreen() {
         }
     };
     // callback for player setup buttons
-    gameController.uiCallbacks.setupButtons = function(event) {
+    uiCallbacks.callbacks.setupButtons = function(event) {
         // set the controller type for the player
         gameSetup.players[event.p] = event.b;
         updateConfigButtons();
@@ -102,11 +103,11 @@ function runSetupScreen() {
         regenerateMap();
     };
     // callback for config buttons
-    gameController.uiCallbacks.ai = function(aiLevel) {
+    uiCallbacks.callbacks.ai = function(aiLevel) {
         gameSetup.aiLevel = aiLevel;
         updateConfigButtons();
     };
-    gameController.uiCallbacks['turn-count'] = function(turnCount) {
+    uiCallbacks.callbacks['turn-count'] = function(turnCount) {
         gameSetup.turnCount = turnCount;
         updateConfigButtons();
     };

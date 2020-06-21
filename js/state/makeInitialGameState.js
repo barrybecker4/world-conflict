@@ -4,6 +4,7 @@ import gameData from './gameData.js';
 import gameController from '../client/gameController.js';
 import aiPlay from '../server/ai/aiPlay.js';
 import generateMap from '../server/map/generateMap.js';
+import uiPickMove from '../client/uiPickMove.js';
 import Temple from './model/Temple.js';
 import GameState from './model/GameState.js';
 import Region from './model/Region.js';
@@ -22,7 +23,7 @@ export default function makeInitialGameState(setup) {
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
         // set up as AI or human
-        player.pickMove = (playerController == gameData.PLAYER_HUMAN) ? gameController.uiPickMove : aiPlay.aiPickMove;
+        player.pickMove = (playerController == gameData.PLAYER_HUMAN) ? uiPickMove : aiPlay.aiPickMove;
 
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
