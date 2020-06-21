@@ -19,7 +19,7 @@ var uiState = {};
 
 export default function uiPickMove(player, state, reportMoveCallback) {
 
-    uiCallbacks.callbacks.regionSelected = function(region) {
+    uiCallbacks.regionSelected = function(region) {
         if (!region || state.moveDecision.isBuildMove())
             setCleanState();
 
@@ -40,7 +40,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
             } else if (moveDecision.source.neighbors.indexOf(region) > -1) {
                 // one of the neighbours - let's finalize the move
-                uiCallbacks.callbacks = {};
+                uiCallbacks.clearAll();
                 moveDecision.destination = region;
                 return reportMoveCallback(moveDecision);
             } else {
@@ -51,13 +51,13 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         gameRenderer.updateDisplay(state);
     };
 
-    uiCallbacks.callbacks.templeSelected = function(region) {
+    uiCallbacks.templeSelected = function(region) {
         var temple = state.temples[region.index];
         state.moveDecision = new BuildMove(null, temple, makeUpgradeButtons(temple));
         gameRenderer.updateDisplay(state);
     };
 
-    uiCallbacks.callbacks.soldierSelected = function(soldier) {
+    uiCallbacks.soldierSelected = function(soldier) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
         utils.map(state.regions, function(region) {
@@ -65,10 +65,10 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 soldierRegion = region;
         });
         if (soldierRegion)
-            uiCallbacks.callbacks.regionsSelected(soldierRegion);
+            uiCallbacks.regionsSelected(soldierRegion);
     };
 
-    uiCallbacks.callbacks.build = function(which) {
+    uiCallbacks.build = function(which) {
         if (state.moveDecision && state.moveDecision.isBuildMove()) {
             // build buttons handled here
             if (which >= UPGRADES.length) {
@@ -86,7 +86,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             // move action buttons handled here
             if (which === 1) {
                 // end turn
-                uiCallbacks.callbacks = {};
+                uiCallbacks.clearAll();
                 reportMoveCallback(new EndMove());
             } else {
                 // cancel move
@@ -95,13 +95,13 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         }
     };
 
-    uiCallbacks.callbacks.undo = function() {
+    uiCallbacks.undo = function() {
         undoManager.performUndo(state);
     };
 
     setCleanState();
     if (uiState[player.index]) {
-        uiCallbacks.callbacks.templeSelected(uiState[player.index]);
+        uiCallbacks.templeSelected(uiState[player.index]);
         delete uiState[player.index];
     }
 

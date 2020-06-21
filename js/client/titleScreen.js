@@ -4,6 +4,7 @@ import domUtils from './utils/domUtils.js';
 import gameInitialization from './gameInitialization.js';
 import gameController from './gameController.js';
 import gameRenderer from './rendering/gameRenderer.js';
+import uiCallbacks from './uiCallbacks.js';
 const { $, onClickOrTap } = domUtils;
 
 // This modules is responsible for the title screen.
@@ -22,7 +23,7 @@ function setupTitleScreen() {
     onClickOrTap($('sound'), audio.toggleSound);
     onClickOrTap($('undo-button'), gameController.invokeUICallback.bind(0, 0, 'undo'));
     onClickOrTap($('restart'), function() {
-        gameController.uiCallbacks = {};
+        uiCallbacks.clearAll();
         gameRenderer.updateDisplay();
         gameInitialization.runSetupScreen();
     });

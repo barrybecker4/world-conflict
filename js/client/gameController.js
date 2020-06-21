@@ -105,7 +105,7 @@ function makeMove(state, move) {
  * Delegation through UI callbacks allows us to react differently depending on game-state.
  */
 function invokeUICallback(object, type, event) {
-    var callback = uiCallbacks.callbacks[type];
+    var callback = uiCallbacks[type];
     if (callback) {
         audio.playSound(audio.sounds.CLICK);
         callback(object);
@@ -397,6 +397,6 @@ function showEndGame(state) {
         $('mv').style.display = 'none';
         gameRenderer.updateButtons([ {t: "New game"} ]);
 
-        uiCallbacks.callbacks.build = gameInitialization.runSetupScreen;
+        uiCallbacks.build = gameInitialization.runSetupScreen;
     });
 }

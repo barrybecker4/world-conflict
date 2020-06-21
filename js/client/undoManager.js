@@ -26,7 +26,7 @@ function performUndo(currentState) {
         return;
 
     // clear the callbacks from previous UI interaction
-    gameController.uiCallbacks = {};
+    uiCallbacks.clearAll();
 
     // roll-back the state to "previous"
     var restoredState = previousState;

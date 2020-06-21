@@ -84,7 +84,7 @@ function runSetupScreen() {
     updateConfigButtons();
 
     // callback for the buttons on the bottom
-    uiCallbacks.callbacks.build = function(which) {
+    uiCallbacks.build = function(which) {
         if (!isSetupValid()) return;
         if (which === 0) {
             regenerateMap();
@@ -95,7 +95,7 @@ function runSetupScreen() {
         }
     };
     // callback for player setup buttons
-    uiCallbacks.callbacks.setupButtons = function(event) {
+    uiCallbacks.setupButtons = function(event) {
         // set the controller type for the player
         gameSetup.players[event.p] = event.b;
         updateConfigButtons();
@@ -103,11 +103,11 @@ function runSetupScreen() {
         regenerateMap();
     };
     // callback for config buttons
-    uiCallbacks.callbacks.ai = function(aiLevel) {
+    uiCallbacks.ai = function(aiLevel) {
         gameSetup.aiLevel = aiLevel;
         updateConfigButtons();
     };
-    uiCallbacks.callbacks['turn-count'] = function(turnCount) {
+    uiCallbacks['turn-count'] = function(turnCount) {
         gameSetup.turnCount = turnCount;
         updateConfigButtons();
     };
