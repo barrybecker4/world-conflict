@@ -1,4 +1,4 @@
-import gameController from '../gameController.js';
+import gameController from './gameController.js';
 
 export default {
     undoEnabled,

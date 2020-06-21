@@ -1,15 +1,16 @@
 import audio from '../utils/audio.js';
-import utils from '../utils/utils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from '../state/gameData.js';
-import storage from '../state/storage.js';
-import appState from '../state/appState.js';
+import utils from '../../utils/utils.js';
+import sequenceUtils from '../../utils/sequenceUtils.js';
+import gameData from '../../state/gameData.js';
+import storage from '../storage.js';
+import appState from '../appState.js';
 import gameInitialization from '../gameInitialization.js';
-import undoManager from '../state/undoManager.js';
+import undoManager from '../undoManager.js';
 import gameController from '../gameController.js';
 import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
+
 const {
     elem, div, map, $, range, rint, sum, append, lerp,
     onClickOrTap, forEachProperty, toggleClass, setTransform,

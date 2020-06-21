@@ -1,6 +1,6 @@
-import utils from './utils.js';
+import utils from '../../utils/utils.js';
 import audio from './audio.js';
-import storage from '../state/storage.js';
+import storage from '../storage.js';
 import gameInitialization from '../gameInitialization.js';
 
 var audioCtx = window.AudioContext && new AudioContext();

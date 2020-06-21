@@ -1,8 +1,8 @@
-import utils from '../utils/utils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from '../state/gameData.js';
-import gameController from '../gameController.js';
-import { ArmyMove, EndMove } from '../state/model/Move.js';
+import utils from '../../utils/utils.js';
+import sequenceUtils from '../../utils/sequenceUtils.js';
+import gameData from '../../state/gameData.js';
+import gameController from '../../client/gameController.js';
+import { ArmyMove, EndMove } from '../../state/model/Move.js';
 import heuristics from './heuristics.js';
 import Node from './Node.js';
 

@@ -1,5 +1,5 @@
-import utils from '../utils/utils.js';
-import gameData from '../state/gameData.js';
+import utils from '../../utils/utils.js';
+import gameData from '../../state/gameData.js';
 import Bounds from './Bounds.js';
 
 const MAX_REGION_SIZE = 11;

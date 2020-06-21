@@ -1,15 +1,15 @@
 import audio from './utils/audio.js';
-import utils from './utils/utils.js';
-import sequenceUtils from './utils/sequenceUtils.js';
+import utils from '../utils/utils.js';
+import sequenceUtils from '../utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
-import gameData from './state/gameData.js';
-import undoManager from './state/undoManager.js';
-import appState from './state/appState.js';
+import gameData from '../state/gameData.js';
+import undoManager from './undoManager.js';
+import appState from './appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
-import aiPlay from './server/aiPlay.js';
-import { Move, ArmyMove, BuildMove, EndMove } from './state/model/Move.js';
-import UPGRADES from './state/model/UPGRADES.js';
+import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - neeps server API
+import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
+import UPGRADES from '../state/model/UPGRADES.js';
 const $ = utils.$
 
 // All the game logic that runs in main loop resides in this module.

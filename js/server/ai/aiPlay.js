@@ -1,9 +1,9 @@
-import utils from '../utils/utils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from '../state/gameData.js';
-import gameController from '../gameController.js';
-import { BuildMove } from '../state/model/Move.js';
-import UPGRADES from '../state/model/UPGRADES.js';
+import utils from '../../utils/utils.js';
+import sequenceUtils from '../../utils/sequenceUtils.js';
+import gameData from '../../state/gameData.js';
+import gameController from '../../client/gameController.js';
+import { BuildMove } from '../../state/model/Move.js';
+import UPGRADES from '../../state/model/UPGRADES.js';
 import miniMaxSearch from './miniMaxSearch.js'
 import heuristics from './heuristics.js';
 

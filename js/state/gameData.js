@@ -1,5 +1,3 @@
-import utils from '../utils/utils.js';
-
 const UNLIMITED_TURNS = 1000000;
 
 export default {
