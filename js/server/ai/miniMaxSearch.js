@@ -1,9 +1,9 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import gameData from '../../state/gameData.js';
-import gameController from '../../client/gameController.js';
 import { ArmyMove, EndMove } from '../../state/model/Move.js';
 import heuristics from './heuristics.js';
+import makeMove from '../../client/makeMove.js';
 import Node from './Node.js';
 
 export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback) {
@@ -61,7 +61,7 @@ function minMaxDoSomeWork(node) {
         return minMaxReturnFromChild(node.parent, node);
     } else {
         // spawn a child node
-        var childState = gameController.makeMove(node.state, move);
+        var childState = makeMove(node.state, move);
         return new Node(node, node.activePlayer, node.depth - 1, move, childState, possibleMoves(childState));
     }
 }
