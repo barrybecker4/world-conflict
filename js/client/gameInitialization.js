@@ -43,17 +43,17 @@ function prepareSetupUI() {
     utils.for2d(0, 0, PLAYERS.length, 3, function(playerIndex, buttonIndex) {
         domUtils.onClickOrTap(
             $('sb' + playerIndex + buttonIndex),
-            gameController.invokeUICallback.bind(0, {p: playerIndex, b: buttonIndex}, 'setupButtons')
+            (event) => uiCallbacks.invokeCallback({p: playerIndex, b: buttonIndex}, 'setupButtons', event)
         );
     });
     utils.map(utils.range(0, 4), function(index) {
         domUtils.onClickOrTap(
             $('ai' + index),
-            gameController.invokeUICallback.bind(0, index, 'ai')
+            (event) => uiCallbacks.invokeCallback(index, 'ai', event)
         );
         domUtils.onClickOrTap(
             $('turn-count' + index),
-            gameController.invokeUICallback.bind(0, gameData.TURN_COUNTS[index], 'turn-count')
+            (event) => uiCallbacks.invokeCallback(gameData.TURN_COUNTS[index], 'turn-count', event)
         );
     });
 

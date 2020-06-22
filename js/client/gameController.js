@@ -20,7 +20,6 @@ const $ = domUtils.$;
 export default {
     playOneMove,
     makeMove,
-    invokeUICallback,
 };
 
 
@@ -100,22 +99,6 @@ function makeMove(state, move) {
     return newState;
 }
 
-/**
- * This is the handler that gets attached to most DOM elements.
- * Delegation through UI callbacks allows us to react differently depending on game-state.
- */
-function invokeUICallback(object, type, event) {
-    var callback = uiCallbacks[type];
-    if (callback) {
-        audio.playSound(audio.sounds.CLICK);
-        callback(object);
-    }
-    if (event.target.href && event.target.href != "#")
-        return 1;
-
-    event.stopPropagation();
-    return 0;
-}
 
 function afterMoveChecks(state) {
     // check for game loss by any of the players

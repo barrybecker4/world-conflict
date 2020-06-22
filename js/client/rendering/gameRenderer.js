@@ -7,7 +7,7 @@ import storage from '../storage.js';
 import appState from '../appState.js';
 import gameInitialization from '../gameInitialization.js';
 import undoManager from '../undoManager.js';
-import gameController from '../gameController.js';
+import uiCallbacks from '../uiCallbacks.js';
 import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
@@ -68,11 +68,11 @@ function showMap(container, gameState) {
         region.center = projectPoint(centerOfWeight(region.points));
 
         region.hl = $('hl' + index);
-        onClickOrTap(region.hl, gameController.invokeUICallback.bind(0, region, 'regionSelected'));
+        onClickOrTap(region.hl, (event) => uiCallbacks.invokeCallback(region, 'regionSelected', event));
     });
 
     // additional callbacks for better UI
-    onClickOrTap(document.body, gameController.invokeUICallback.bind(0, null, 'regionSelected'));
+    onClickOrTap(document.body, (event) => uiCallbacks.invokeCallback(null, 'regionSelected', event));
 
     // make the temple <div>s
     makeTemples();
@@ -111,7 +111,7 @@ function showMap(container, gameState) {
             temple.element = append('m', templeHTML);
 
             // retrieve elements and bind callbacks
-            onClickOrTap(temple.element, gameController.invokeUICallback.bind(0, temple.region, 'templeSelected'));
+            onClickOrTap(temple.element, (event) => uiCallbacks.invokeCallback(temple.region, 'templeSelected', event));
         });
     }
 }
@@ -133,7 +133,8 @@ function updateMapDisplay(gameState) {
         if (soldiersStillAlive.indexOf(parseInt(id)) < 0) {
             // this is an ex-div - in other words, the soldier it represented is dead
             $('m').removeChild(div);
-            delete soldierDivsById[id]; // surprisingly, this should be safe to do during iteration - http://stackoverflow.com/a/19564686
+            // surprisingly, this should be safe to do during iteration - http://stackoverflow.com/a/19564686
+            delete soldierDivsById[id];
 
             // spawn some particles
             var x = parseFloat(div.style.left), y = parseFloat(div.style.top);
@@ -258,7 +259,7 @@ function updateMapDisplay(gameState) {
             var html = div({c: 's', s: 'display: none'});
 
             domElement = soldierDivsById[soldier.i] = append('m', html);
-            onClickOrTap(domElement, gameController.invokeUICallback.bind(0, soldier, 'soldierSelected'));
+            onClickOrTap(domElement, (event) => uiCallbacks.invokeCallback(soldier, 'soldierSelected', event));
         }
 
         // (re)calculate where the <div> should be
@@ -300,7 +301,8 @@ function updateMapDisplay(gameState) {
             // should we have a tooltip?
             var count = gameState.soldierCount(region);
             if (count > 8) {
-                var selected = (gameState.moveDecision && (gameState.moveDecision.source == region)) ? gameState.moveDecision.count : 0;
+                const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region));
+                var selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
                 selected += sequenceUtils.sum(gameState.soldiers[regionIndex], function(soldier) {
                     return soldier.attackedRegion ? 1 : 0;
                 });
@@ -426,7 +428,7 @@ function updateButtons(buttons) {
         var buttonHTML = elem('a', {href: '#', c: button.o ? 'off' : ''}, buttonContents);
         var buttonNode = append('u', buttonHTML);
         if (!button.o) {
-            onClickOrTap(buttonNode, gameController.invokeUICallback.bind(0, index, 'build'));
+            onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
         }
     });
 }

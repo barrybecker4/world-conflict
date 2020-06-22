@@ -1,3 +1,4 @@
+import audio from './utils/audio.js';
 
 class UiCallbacks {
 
@@ -11,6 +12,23 @@ class UiCallbacks {
         this.setupButtons = null;
         this.ai = null;
         this['turn-count'] = null;
+    }
+
+    /**
+     * This is the handler that gets attached to most DOM elements.
+     * Delegation through UI callbacks allows us to react differently depending on game-state.
+     */
+    invokeCallback(object, type, event) {
+        var callback = this[type];
+        if (callback) {
+            audio.playSound(audio.sounds.CLICK);
+            callback(object);
+        }
+        if (event.target.href && event.target.href != "#")
+            return 1;
+
+        event.stopPropagation();
+        return 0;
     }
 
     clearAll() {

@@ -21,7 +21,7 @@ function setupTitleScreen() {
 
     onClickOrTap($('tutorial-button'), setTitleScreenVisibility.bind(0, true));
     onClickOrTap($('sound'), audio.toggleSound);
-    onClickOrTap($('undo-button'), gameController.invokeUICallback.bind(0, 0, 'undo'));
+    onClickOrTap($('undo-button'), (event) => uiCallbacks.invokeCallback(0, 'undo', event));
     onClickOrTap($('restart'), function() {
         uiCallbacks.clearAll();
         gameRenderer.updateDisplay();
