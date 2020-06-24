@@ -71,131 +71,149 @@ function afterMoveChecks(state) {
 }
 
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
-    var fromList = state.soldiers[fromRegion.index];
-    var toList = state.soldiers[toRegion.index] || (state.soldiers[toRegion.index] = []);
-    var fromOwner = state.owner(fromRegion);
-    var toOwner = state.owner(toRegion);
 
-    // do we have a fight?
-    if (fromOwner != toOwner) {   // move to separate method
-        var defendingSoldiers = toList.length;
+    let fromList = state.soldiers[fromRegion.index];
+    let toList = state.soldiers[toRegion.index] || (state.soldiers[toRegion.index] = []);
+    const numDefenders = toList.length;
 
-        // earth upgrade - preemptive damage on defense
-        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
-        var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
+    let remainingSoldiers = fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers);
 
-        if (preemptiveDamage || defendingSoldiers) {
-            // there will be a battle - move the soldiers halfway for animation
-            if (!state.simulatingPlayer) {
-                utils.map(fromList.slice(0, incomingSoldiers), function (soldier) {
-                    soldier.attackedRegion = toRegion;
-                });
-            }
-            battleAnimationKeyframe(state);
-        }
-
-        if (preemptiveDamage) {
-            // animate it
-            battleAnimationKeyframe(state, 50, audio.audioOursDead,
-                [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
-            );
-            // apply it
-            utils.map(utils.range(0, preemptiveDamage), function () {
-                fromList.shift();
-                incomingSoldiers--;
-            });
-            battleAnimationKeyframe(state);
-        }
-
-        // if there is still defense and offense, let's have a fight
-        if (defendingSoldiers && incomingSoldiers) {
-            // at this point, the outcome becomes random - so you can't undo your way out of it
-            state.undoDisabled = true;
-
-            var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
-            var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
-
-            var repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
-            var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
-
-            function randomNumberForFight(index) {
-                var maximum = 120 + attackerWinChance;
-                if (state.simulatingPlayer) {
-                    // Simulated fight - return some numbers
-                    // They're clustered about the center of the range to make the AI more "decisive"
-                    // (this exaggerates any advantage)
-                    return (index + 3) * maximum / (repeats + 5);
-                } else {
-                    // Not a simulated fight - return a real random number.
-                    // We're not using the full range 0 to maximum to make sure that randomness doesn't
-                    // give a feel-bad experience when we attack with a giant advantage
-                    return utils.rint(maximum * 0.12, maximum * 0.88);
-                }
-            }
-
-            utils.map(utils.range(0, repeats), function(index) {
-                if (randomNumberForFight(index) <= 120)
-                {
-                    // defender wins!
-                    if (invincibility-- <= 0) {
-                        fromList.shift();
-                        incomingSoldiers--;
-                        battleAnimationKeyframe(state, 250, audio.audioOursDead);
-                    } else {
-                        battleAnimationKeyframe(state, 800, audio.audioOursDead,
-                            [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}]
-                        );
-                    }
-                } else {
-                    // attacker wins, kill defender and pay the martyr bonus
-                    toList.shift();
-                    if (toOwner)
-                        state.cash[toOwner.index] += 4;
-                    battleAnimationKeyframe(state, 250, audio.sounds.ENEMY_DEAD);
-                }
-            });
-
-            // are there defenders left?
-            if (toList.length) {
-                // and prevent anybody from moving in
-                incomingSoldiers = 0;
-                state.soundCue = audio.sounds.DEFEAT;
-                state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}];
-            }
-        }
-
-        // reset "attacking status" on the soldiers - at this point they will
-        // move back to the source region or occupy the destination
-        utils.map(fromList, function(soldier) {
-            soldier.attackedRegion = null; // 0;
-        });
-    }
-
-    if (incomingSoldiers > 0) {
-        // move the (remaining) soldiers
-        utils.map(utils.range(0, incomingSoldiers), function() {
-            toList.push(fromList.shift());
-        });
-
-        // if this didn't belong to us, it now does
-        if (fromOwner != toOwner) {
-            state.owners[toRegion.index] = fromOwner;
-            // mark as conquered to prevent moves from this region in the same turn
-            state.move.z = (state.move.z || []).concat(toRegion);
-            // if there was a temple, reset its upgrades
-            var temple = state.temples[toRegion.index];
-            if (temple)
-                delete temple.upgrade;
-            // play sound, launch particles!
-            state.particleTempleRegion = toRegion;
-            state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
-            state.soundCue = defendingSoldiers ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
-        }
+    if (remainingSoldiers > 0) {
+        moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, remainingSoldiers, numDefenders)
     }
 
     state.move.movesRemaining--;
 }
 
+// maybe move battle simulation out to separate file
+function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers) {
+
+    var fromOwner = state.owner(fromRegion);
+    var toOwner = state.owner(toRegion);
+
+    if (fromOwner == toOwner) {
+        return incomingSoldiers; // no fight needed
+    }
+
+    var defendingSoldiers = toList.length;
+
+    // earth upgrade - preemptive damage on defense
+    var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
+    var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
+
+    if (preemptiveDamage || defendingSoldiers) {
+        // there will be a battle - move the soldiers halfway for animation
+        if (!state.simulatingPlayer) {
+            utils.map(fromList.slice(0, incomingSoldiers), function (soldier) {
+                soldier.attackedRegion = toRegion;
+            });
+        }
+        battleAnimationKeyframe(state);
+    }
+
+    if (preemptiveDamage) {
+        // animate it
+        battleAnimationKeyframe(state, 50, audio.audioOursDead,
+            [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
+        );
+        // apply it
+        utils.map(utils.range(0, preemptiveDamage), function () {
+            fromList.shift();
+            incomingSoldiers--;
+        });
+        battleAnimationKeyframe(state);
+    }
+
+    // if there is still defense and offense, let's have a fight
+    if (defendingSoldiers && incomingSoldiers) {
+        // at this point, the outcome becomes random - so you can't undo your way out of it
+        state.undoDisabled = true;
+
+        var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
+        var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
+
+        var repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
+        var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
+
+        function randomNumberForFight(index) {
+            var maximum = 120 + attackerWinChance;
+            if (state.simulatingPlayer) {
+                // Simulated fight - return some numbers
+                // They're clustered about the center of the range to make the AI more "decisive"
+                // (this exaggerates any advantage)
+                return (index + 3) * maximum / (repeats + 5);
+            } else {
+                // Not a simulated fight - return a real random number.
+                // We're not using the full range 0 to maximum to make sure that randomness doesn't
+                // give a feel-bad experience when we attack with a giant advantage
+                return utils.rint(maximum * 0.12, maximum * 0.88);
+            }
+        }
+
+        utils.map(utils.range(0, repeats), function(index) {
+            if (randomNumberForFight(index) <= 120)
+            {
+                // defender wins!
+                if (invincibility-- <= 0) {
+                    fromList.shift();
+                    incomingSoldiers--;
+                    battleAnimationKeyframe(state, 250, audio.audioOursDead);
+                } else {
+                    battleAnimationKeyframe(state, 800, audio.audioOursDead,
+                        [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}]
+                    );
+                }
+            } else {
+                // attacker wins, kill defender and pay the martyr bonus
+                toList.shift();
+                if (toOwner)
+                    state.cash[toOwner.index] += 4;
+                battleAnimationKeyframe(state, 250, audio.sounds.ENEMY_DEAD);
+            }
+        });
+
+        // are there defenders left?
+        if (toList.length) {
+            // and prevent anybody from moving in
+            incomingSoldiers = 0;
+            state.soundCue = audio.sounds.DEFEAT;
+            state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}];
+        }
+    }
+
+    // reset "attacking status" on the soldiers - at this point they will
+    // move back to the source region or occupy the destination
+    utils.map(fromList, function(soldier) {
+        soldier.attackedRegion = null; // 0;
+    });
+    return incomingSoldiers;
+}
+
+// move the (remaining) soldiers into the toRegion
+function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, numDefenders) {
+
+    var fromOwner = state.owner(fromRegion);
+    var toOwner = state.owner(toRegion);
+
+    utils.map(utils.range(0, incomingSoldiers), function() {
+        toList.push(fromList.shift());
+    });
+
+    // if this didn't belong to us, it now does
+    if (fromOwner != toOwner) {
+        state.owners[toRegion.index] = fromOwner;
+        // mark as conquered to prevent moves from this region in the same turn
+        state.move.z = (state.move.z || []).concat(toRegion);
+        // if there was a temple, reset its upgrades
+        var temple = state.temples[toRegion.index];
+        if (temple)
+            delete temple.upgrade;
+        // play sound, launch particles!
+        state.particleTempleRegion = toRegion;
+        state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
+        state.soundCue = numDefenders ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
+    }
+}
 
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.simulatingPlayer) return;
