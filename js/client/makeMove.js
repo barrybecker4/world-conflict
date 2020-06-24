@@ -12,7 +12,7 @@ const $ = domUtils.$;
 
 /**
  * Takes an existing state and a move, and returns a new game state with the move
- * already applied. The object returned is a copy and the original is left untouched.
+ * already applied. The object returned is a copy, and the original is left untouched.
  *
  * @param state an existing game state
  * @param move the move to be applied by the active players
@@ -110,7 +110,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         // if there is still defense and offense, let's have a fight
         if (defendingSoldiers && incomingSoldiers) {
             // at this point, the outcome becomes random - so you can't undo your way out of it
-            state.u = 1;
+            state.undoDisabled = true;
 
             var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
             var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
@@ -290,4 +290,13 @@ function nextTurn(state) {
         // show next turn banner
         gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
     }
+}
+
+function determineGameWinner(state) {
+    var pointsFn = player => state.regionCount(player);
+    var winner = sequenceUtils.max(state.players, pointsFn);
+    var otherPlayers = state.players.filter(function(player) { return player != winner; });
+    var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
+
+    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : gameData.DRAW_GAME;
 }

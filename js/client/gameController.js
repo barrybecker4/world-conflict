@@ -1,7 +1,6 @@
 import audio from './utils/audio.js';
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
 import gameData from '../state/gameData.js';
 import undoManager from './undoManager.js';
@@ -50,16 +49,6 @@ function playOneMove(state) {
 
         gameRenderer.updateDisplay(state);
     });
-}
-
-
-function determineGameWinner(state) {
-    var pointsFn = player => state.regionCount(player);
-    var winner = sequenceUtils.max(state.players, pointsFn);
-    var otherPlayers = state.players.filter(function(player) { return player != winner; });
-    var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
-
-    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : gameData.DRAW_GAME;
 }
 
 function showEndGame(state) {

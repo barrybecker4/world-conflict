@@ -83,7 +83,7 @@ function regionThreat(state, player, region) {
 
         return total;
     }));
-    return utils.clamp((enemyPresence / (ourPresence+0.0001) - 1) / 1.5, 0, (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1);
+    return utils.clamp((enemyPresence / (ourPresence + 0.0001) - 1) / 1.5, 0, (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1);
 }
 
 function regionOpportunity(state, player, region) {

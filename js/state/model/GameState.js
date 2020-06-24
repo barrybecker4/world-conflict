@@ -23,6 +23,7 @@ export default class GameState {
         this.floatingText = floatingText;
         this.moveDecision = null;
         this.soundCue = null;
+        this.undoDisabled = false;
     }
 
     soldierCount(region) {
@@ -152,7 +153,7 @@ export default class GameState {
         });
     }
 
-    // Some properties are omitted - like 'moveDecision' and 'soundCue'
+    // Some properties are omitted - like 'moveDecision', 'undoDisabled', and 'soundCue'
     copy(simulatingPlayer) {
         return new GameState(
             this.players,
