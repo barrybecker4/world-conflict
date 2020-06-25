@@ -1,7 +1,6 @@
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import gameController from './gameController.js';
 import gameData from '../state/gameData.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';

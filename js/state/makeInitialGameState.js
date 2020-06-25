@@ -1,7 +1,6 @@
 import utils from '../utils/utils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import gameData from './gameData.js';
-import gameController from '../client/gameController.js';
 import aiPlay from '../server/ai/aiPlay.js';
 import generateMap from '../server/map/generateMap.js';
 import uiPickMove from '../client/uiPickMove.js';

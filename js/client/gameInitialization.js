@@ -6,7 +6,7 @@ import storage from './storage.js';
 import appState from './appState.js';
 import makeInitialGameState from '../state/makeInitialGameState.js';
 import PLAYERS from '../state/model/PLAYERS.js';
-import gameController from './gameController.js';
+import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
 const { $, div } = domUtils;
@@ -91,7 +91,7 @@ function runSetupScreen() {
         } else {
             prepareIngameUI(gameState);
             gameRenderer.updateDisplay(gameState);
-            gameController.playOneMove(gameState);
+            playOneMove(gameState);
         }
     };
     // callback for player setup buttons

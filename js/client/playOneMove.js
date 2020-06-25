@@ -12,15 +12,9 @@ import uiCallbacks from './uiCallbacks.js';
 import makeMove from './makeMove.js';
 const $ = domUtils.$;
 
-// All the game logic that runs in main loop resides in this module.
 
 // Deals with responding to user actions.
-export default {
-    playOneMove,
-};
-
-
-function playOneMove(state) {
+export default function playOneMove(state) {
 
     appState.setInGame(true); // playing the game now
 

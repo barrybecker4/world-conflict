@@ -1,4 +1,4 @@
-import gameController from './gameController.js';
+import playOneMove from './playOneMove.js';
 import uiPickMove from './uiPickMove.js';
 import uiCallbacks from './uiCallbacks.js';
 
@@ -31,5 +31,5 @@ function performUndo(currentState) {
     // roll-back the state to "previous"
     var restoredState = previousState;
     previousState = null;
-    gameController.playOneMove(restoredState);
+    playOneMove(restoredState);
 }
