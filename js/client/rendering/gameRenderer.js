@@ -303,7 +303,7 @@ function updateMapDisplay(gameState) {
             if (count > 8) {
                 const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region));
                 var selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
-                selected += sequenceUtils.sum(gameState.soldiers[regionIndex], function(soldier) {
+                selected += sequenceUtils.sum(gameState.soldiersAtRegion(regionIndex), function(soldier) {
                     return soldier.attackedRegion ? 1 : 0;
                 });
                 if (selected)

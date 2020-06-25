@@ -60,7 +60,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
         utils.map(state.regions, function(region) {
-            if (sequenceUtils.contains(state.soldiers[region.index], soldier))
+            if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier))
                 soldierRegion = region;
         });
         if (soldierRegion)

@@ -7,7 +7,7 @@ import undoManager from './undoManager.js';
 import appState from './appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
-import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - neeps server API
+import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - needs server API
 import uiCallbacks from './uiCallbacks.js';
 import makeMove from './makeMove.js';
 const $ = domUtils.$;

@@ -27,8 +27,7 @@ export default class GameState {
     }
 
     soldierCount(region) {
-        var list = this.soldiers[region.index];
-        return list ? list.length : 0;
+        return this.soldiersAtRegion(region.index).length;
     }
 
     income(player) {
@@ -142,15 +141,13 @@ export default class GameState {
         const self = this;
         utils.map(utils.range(0, count), function() {
             soldierCounter = (soldierCounter + 1) || 0;
-
-            var soldierList = self.soldiers[region.index];
-            if (!soldierList) {
-                soldierList = [];
-                self.soldiers[region.index] = [];
-            }
-
+            var soldierList = self.soldiersAtRegion(region.index);
             soldierList.push({ i: soldierCounter++ });
         });
+    }
+
+    soldiersAtRegion(regionIndex) {
+        return this.soldiers[regionIndex] || (this.soldiers[regionIndex] = []);
     }
 
     // Some properties are omitted - like 'moveDecision', 'undoDisabled', and 'soundCue'

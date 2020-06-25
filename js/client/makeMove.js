@@ -72,8 +72,8 @@ function afterMoveChecks(state) {
 
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 
-    let fromList = state.soldiers[fromRegion.index];
-    let toList = state.soldiers[toRegion.index] || (state.soldiers[toRegion.index] = []);
+    let fromList = state.soldiersAtRegion(fromRegion.index);
+    let toList = state.soldiersAtRegion(toRegion.index);
     const numDefenders = toList.length;
 
     let remainingSoldiers = fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers);
@@ -86,6 +86,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 }
 
 // maybe move battle simulation out to separate file
+// The fight should produce a sequence of actions that can be sent back to the client and played forward in the UI.
 function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers) {
 
     var fromOwner = state.owner(fromRegion);
@@ -215,12 +216,14 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
     }
 }
 
+// Make this a class, and then a sequence of instances will constitute a replayable battle.
+// Required state properties are simulatingPlayer, soldiers
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.simulatingPlayer) return;
     const keyframe = state.copy();
     keyframe.soundCue = soundCue;
     keyframe.floatingText = floatingTexts;
-    oneAtaTime(delay || 500, gameRenderer.updateDisplay.bind(0, keyframe));
+    oneAtaTime(delay || 500, () => gameRenderer.updateDisplay(keyframe));
 }
 
 
