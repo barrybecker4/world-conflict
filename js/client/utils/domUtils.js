@@ -1,5 +1,5 @@
 export default {
-    div: elem.bind(0, 'div'),
+    div: (attrs, contents) => elem('div', attrs, contents),
     $, elem, append, setTransform,
     onClickOrTap,
     show, hide, toggleClass, showOrHide,

@@ -38,7 +38,7 @@ export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback)
                 // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
                 // so that whatever the AI does is easy to understand
                 const thinkTime = Math.max(gameData.minimumAIThinkingTime - elapsedTime, 1);
-                setTimeout(moveCallback.bind(0, bestMove), thinkTime);
+                setTimeout(() => moveCallback(bestMove), thinkTime);
                 return;
             }
         }

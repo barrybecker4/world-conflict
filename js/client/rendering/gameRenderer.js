@@ -126,7 +126,7 @@ function updateMapDisplay(gameState) {
 
     var soldiersStillAlive = [];
     forEachProperty(gameState.soldiers, function(soldiers, regionIndex) {
-        map(soldiers, updateSoldierDisplay.bind(0, gameState.regions[regionIndex]));
+        map(soldiers, (soldier, i) => updateSoldierDisplay(gameState.regions[regionIndex], soldier, i));
     });
 
     forEachProperty(soldierDivsById, function(div, id) {
@@ -186,7 +186,7 @@ function updateMapDisplay(gameState) {
     }
 
     function updateTooltips() {
-        map(document.querySelectorAll('.ttp'), $('m').removeChild.bind($('m')));
+        map(document.querySelectorAll('.ttp'), (element) => $('m').removeChild(element));
         if (gameState.activePlayer().pickMove != uiPickMove) return;
 
         // "how to move" tooltips
@@ -194,7 +194,7 @@ function updateMapDisplay(gameState) {
         if (source)  {
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbour
-            var furthest = sequenceUtils.max(source.neighbors, source.centerDistanceFrom.bind(source));
+            var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(nbr));
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
         if (!source) {

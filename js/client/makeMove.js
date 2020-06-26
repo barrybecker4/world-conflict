@@ -55,7 +55,7 @@ function afterMoveChecks(state) {
                 state.move.movesRemaining = 0;
             // show the world the good (or bad) news
             if (!state.simulatingPlayer) {
-                oneAtaTime(150, gameRenderer.updateDisplay.bind(0, state));
+                oneAtaTime(150, () => gameRenderer.updateDisplay(state));
                 gameRenderer.showBanner('#222', player.name + " has been eliminated!", 900);
             }
         }

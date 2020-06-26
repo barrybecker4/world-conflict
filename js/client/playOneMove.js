@@ -31,13 +31,13 @@ export default function playOneMove(state) {
             var newState = makeMove(state, move);
 
             if (newState.endResult) { // did the game end?
-                oneAtaTime(150, gameRenderer.updateDisplay.bind(0, newState));
+                oneAtaTime(150, () => gameRenderer.updateDisplay(newState));
                 showEndGame(newState);
                 return;
             } else {
                 undoManager.setPreviousState(state.copy());
                 // still more of the game to go - next move, please!
-                setTimeout(playOneMove.bind(0, newState), 1);
+                setTimeout(() => playOneMove(newState), 1);
             }
         });
 

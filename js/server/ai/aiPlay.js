@@ -15,13 +15,13 @@ function aiPickMove(player, state, reportMoveCallback) {
     // check for upgrade options first start with soldiers
     if (shouldBuildSoldier(player, state)) {
         var move = buildSoldierAtBestTemple(player, state);
-        return setTimeout(reportMoveCallback.bind(0, move), gameData.minimumAIThinkingTime);
+        return setTimeout(() => reportMoveCallback(move), gameData.minimumAIThinkingTime);
     }
 
     // we don't need soldiers, maybe we can upgrade a temple?
     var upgrade = upgradeToBuild(player, state);
     if (upgrade) {
-        return setTimeout(reportMoveCallback.bind(0, upgrade), gameData.minimumAIThinkingTime);
+        return setTimeout(() => reportMoveCallback(upgrade), gameData.minimumAIThinkingTime);
     }
 
     // the AI only analyzes its own moves (threats are handled in heuristic)
@@ -46,7 +46,7 @@ function shouldBuildSoldier(player, state) {
         return false;
 
     // see how far behind on soldier number we are
-    var forces = utils.map(state.players, force.bind(0, state));
+    var forces = utils.map(state.players, (player) => force(state, player));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
     // This calculates whether we should build now - the further we are behind other players,
@@ -71,14 +71,14 @@ function upgradeToBuild(player, state) {
         return;
 
     // do we have a place to build it?
-    var possibleUpgrades = state.templesForPlayer(player).filter(function(temple) {
+    var possibleTemplesToUpgrade = state.templesForPlayer(player).filter(function(temple) {
         return ((!temple.upgrade) && (!currentLevel)) || (temple.upgrade == desire);
     });
-    if (!possibleUpgrades.length)
+    if (!possibleTemplesToUpgrade.length)
         return;
 
     // pick the safest temple
-    var temple = sequenceUtils.min(possibleUpgrades, heuristics.templeDangerousness.bind(0, state));
+    var temple = sequenceUtils.min(possibleTemplesToUpgrade, (t) => heuristics.templeDangerousness(state, t));
 
     // build the upgrade!
     player.personality.preferredUpgrades.shift();
@@ -86,6 +86,6 @@ function upgradeToBuild(player, state) {
 }
 
 function buildSoldierAtBestTemple(player, state) {
-    var temple = sequenceUtils.max(state.templesForPlayer(player), heuristics.templeDangerousness.bind(0, state));
+    var temple = sequenceUtils.max(state.templesForPlayer(player), (t) => heuristics.templeDangerousness(state, t));
     return new BuildMove(UPGRADES.SOLDIER, temple);
 }

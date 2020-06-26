@@ -14,11 +14,11 @@ export default {
 function setupTitleScreen() {
     utils.map(['o','tutorial-button','sound'], function(id) { domUtils.showOrHide(id, 1); });
 
-    onClickOrTap($('cancel-button'), setTitleScreenVisibility.bind(0, false));
-    onClickOrTap($('next'), switchTutorialCard.bind(0, 1));
-    onClickOrTap($('prev'), switchTutorialCard.bind(0, -1));
+    onClickOrTap($('cancel-button'), () => setTitleScreenVisibility(false));
+    onClickOrTap($('next'), () => switchTutorialCard(1));
+    onClickOrTap($('prev'), () => switchTutorialCard(-1));
 
-    onClickOrTap($('tutorial-button'), setTitleScreenVisibility.bind(0, true));
+    onClickOrTap($('tutorial-button'), () => setTitleScreenVisibility(true));
     onClickOrTap($('sound'), audio.toggleSound);
     onClickOrTap($('undo-button'), (event) => uiCallbacks.invokeCallback(0, 'undo', event));
     onClickOrTap($('restart'), function() {
@@ -29,7 +29,7 @@ function setupTitleScreen() {
 
     switchTutorialCard(0);
 
-    setTimeout(setTitleScreenVisibility.bind(0, true), 10);
+    setTimeout(() => setTitleScreenVisibility(true), 10);
 }
 
 var currentCard = 0;
