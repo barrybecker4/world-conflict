@@ -483,7 +483,8 @@ function floatAway(elem, vx, vy) {
         elem.style.opacity = 0.0;
     }, 100);
     setTimeout(function() {
-        $('m').removeChild(elem);
+        if ($('m').contains(elem))
+            $('m').removeChild(elem);
     }, 3050);
 }
 

@@ -1,6 +1,6 @@
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
-import titleScreen from './titleScreen.js';
+import tutorialScreen from './tutorialScreen.js';
 import storage from './storage.js';
 
 
@@ -12,6 +12,6 @@ window.onload = function() {
     setTimeout(function() {
         gameInitialization.gameSetup = storage.retrieveSetup();
         gameInitialization.runSetupScreen();
-        titleScreen.setupTitleScreen();
+        tutorialScreen();
     }, 10);
 };
