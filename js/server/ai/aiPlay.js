@@ -25,7 +25,7 @@ function aiPickMove(player, state, reportMoveCallback) {
     }
 
     // the AI only analyzes its own moves (threats are handled in heuristic)
-    var depth = state.move.movesRemaining || 1;
+    var depth = state.movesRemaining || 1;
 
     // use a min-max search to find the best move looking a few steps forward
     miniMaxSearch(player, state, depth, reportMoveCallback);

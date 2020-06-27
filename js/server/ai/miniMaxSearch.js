@@ -69,7 +69,7 @@ function minMaxDoSomeWork(node) {
 function minMaxReturnFromChild(node, child) {
     if (node) {
         // what sort of a node are we?
-        var activePlayer = node.state.players[node.state.move.playerIndex];
+        var activePlayer = node.state.players[node.state.playerIndex];
         var maximizingNode = activePlayer == node.activePlayer;
         // is the value from child better than what we have?
         var better =
@@ -90,7 +90,7 @@ function possibleMoves(state) {
     var player = state.activePlayer();
 
     // are we out of move points?
-    if (!state.move.movesRemaining)
+    if (!state.movesRemaining)
         return moves; // yup, just end of turn available
 
     // add the move to the list, if it doesn't qualify as an obviously dumb one
@@ -101,7 +101,7 @@ function possibleMoves(state) {
             return;
 
         // not *obviously* dumb, so add it to the list!
-        moves.push(new ArmyMove(null, null, null, source, dest, count));
+        moves.push(new ArmyMove(source, dest, count));
     }
 
     // let's see what moves we have available

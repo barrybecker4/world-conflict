@@ -107,7 +107,7 @@ function regionOpportunity(state, player, region) {
 
 function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
     var dropOffTurn = dropOffPoint * gameInitialization.gameSetup.turnCount;
-    var alpha = (state.move.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
+    var alpha = (state.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
     if (alpha < 0.0)
         alpha = 0.0;
     return (startOfGameValue + (endOfGameValue - startOfGameValue) * alpha);

@@ -65,7 +65,7 @@ function updatePlayerRegions(state) {
             });
             // dead people get no more moves
             if (state.activePlayer() == player)
-                state.move.movesRemaining = 0;
+                state.movesRemaining = 0;
             // show the world the good (or bad) news
             if (!state.simulatingPlayer) {
                 oneAtaTime(150, () => gameRenderer.updateDisplay(state));
@@ -89,7 +89,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
         moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, remainingSoldiers, numDefenders)
     }
 
-    state.move.movesRemaining--;
+    state.movesRemaining--;
 }
 
 // maybe move battle simulation out to separate file
@@ -211,7 +211,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
     if (fromOwner != toOwner) {
         state.owners[toRegion.index] = fromOwner;
         // mark as conquered to prevent moves from this region in the same turn
-        state.move.z = (state.move.z || []).concat(toRegion);
+        state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
         // if there was a temple, reset its upgrades
         var temple = state.temples[toRegion.index];
         if (temple)
@@ -240,9 +240,9 @@ function buildUpgrade(state, region, upgrade) {
 
     if (upgrade === UPGRADES.SOLDIER) {
         // soldiers work differently - they get progressively more expensive the more you buy in one turn
-        if (!state.move.numBoughtSoldiers)
-            state.move.numBoughtSoldiers = 0;
-        state.cash[templeOwner.index] -= upgrade.cost[state.move.numBoughtSoldiers++];
+        if (!state.numBoughtSoldiers)
+            state.numBoughtSoldiers = 0;
+        state.cash[templeOwner.index] -= upgrade.cost[state.numBoughtSoldiers++];
         return state.addSoldiers(region, 1);
     }
     if (upgrade === UPGRADES.RESPECT) {
@@ -269,7 +269,7 @@ function buildUpgrade(state, region, upgrade) {
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)
-        state.move.movesRemaining++;
+        state.movesRemaining++;
 }
 
 
@@ -299,16 +299,18 @@ function nextTurn(state) {
     // go to next player (skipping dead ones)
     do {
         var playerCount = state.players.length;
-        var playerIndex = (state.move.playerIndex + 1) % playerCount, upcomingPlayer = state.players[playerIndex],
-            turnNumber = state.move.turnIndex + (playerIndex ? 0 : 1);
+        var playerIndex = (state.playerIndex + 1) % playerCount, upcomingPlayer = state.players[playerIndex],
+            turnNumber = state.turnIndex + (playerIndex ? 0 : 1);
         var numMoves = gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
-        state.move = new ArmyMove(turnNumber, playerIndex, numMoves);
+        state.turnIndex = turnNumber;
+        state.playerIndex = playerIndex;
+        state.movesRemaining = numMoves;
     } while (!state.regionCount(upcomingPlayer));
 
     // did the game end by any chance?
-    if (state.move.turnIndex > gameInitialization.gameSetup.turnCount) {
+    if (state.turnIndex > gameInitialization.gameSetup.turnCount) {
         // end the game!
-        state.move.turnIndex = gameInitialization.gameSetup.turnCount;
+        state.turnIndex = gameInitialization.gameSetup.turnCount;
         state.endResult = determineGameWinner(state);
         return;
     }

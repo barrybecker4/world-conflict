@@ -200,13 +200,13 @@ function updateMapDisplay(gameState) {
         }
         if (!source) {
             // "conquering armies cannot move" tooltips
-            var inactiveArmies = gameState.move.z;
+            var inactiveArmies = gameState.conqueredRegions;
             if (inactiveArmies) {
                 showTooltipOver(inactiveArmies[inactiveArmies.length - 1], "Armies that conquer a new region cannot move again.")
                 showTooltipOver({center: [-2, 80]}, "Once you're done, click 'End turn' here.");
             }
         }
-        if (gameState.move.turnIndex == 2 && gameState.move.movesRemaining == 2) {
+        if (gameState.turnIndex == 2 && gameState.movesRemaining == 2) {
             showTooltipOver({ center:[90,93] }, "If you want to undo a move or check the rules, use the buttons here.", 15);
         }
     }
@@ -347,7 +347,6 @@ function updateMapDisplay(gameState) {
 }
 
 function updateIngameUI(gameState) {
-    var moveState = gameState.move;
     var decisionState = gameState.moveDecision;
     var buildingMode = decisionState && decisionState.isBuildMove();
     var movingArmy = decisionState && decisionState.isArmyMove();
@@ -360,13 +359,13 @@ function updateIngameUI(gameState) {
         $('turn-count').innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
     } else {
         $('turn-count').innerHTML =
-            'Turn <b>' + gameState.move.turnIndex + '</b>' +
+            'Turn <b>' + gameState.turnIndex + '</b>' +
             ((gameInitialization.gameSetup.turnCount != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
     }
 
     // player data
     map(gameState.players, function(player, index) {
-        //$('pl' + index).className = (index == moveState.player) ? 'pl' : 'pi'; // activePlayer or not?
+        //$('pl' + index).className = (index == gameState.player) ? 'pl' : 'pi'; // activePlayer or not?
         var regions = gameState.regionCount(player);
         var gameWinner = gameState.endResult;
 
@@ -407,7 +406,7 @@ function updateIngameUI(gameState) {
 
     // activePlayer stats
     $('pd').style.display =  buildingMode ? 'none' : 'block';
-    $('mc').innerHTML = moveState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
+    $('mc').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
     $('ft').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
     // buttons

@@ -26,7 +26,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             // no move in progress - start a new move if this is legal
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
-                state.moveDecision = new ArmyMove(null, null, null, region, null, state.soldierCount(region));
+                state.moveDecision = new ArmyMove(region, null, state.soldierCount(region));
                 state.moveDecision.buttons[0].hidden = false;
                 state.moveDecision.highlitRegions = region.neighbors.concat(region);
             }
@@ -114,7 +114,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         var templeOwner = state.owner(temple.region);
         var upgradeButtons = utils.map(UPGRADES, function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
-            var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.move.numBoughtSoldiers || 0) : 0);
+            var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
 
             var cost = upgrade.cost[level];
             var text = utils.template(upgrade.name, gameData.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");

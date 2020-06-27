@@ -10,10 +10,12 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, regions, move, owners, temples, soldiers, cash, levels, simulatingPlayer, floatingText) {
+    constructor(players, regions, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash, levels, simulatingPlayer, floatingText) {
         this.players = players;
         this.regions = regions;
-        this.move = move;
+        this.turnIndex = turnIndex;
+        this.playerIndex = playerIndex;
+        this.movesRemaining = movesRemaining;
         this.owners = owners || [];
         this.temples = temples || [];
         this.soldiers = soldiers || [];
@@ -50,9 +52,9 @@ export default class GameState {
     }
 
     regionHasActiveArmy(player, region) {
-        return (this.move.movesRemaining > 0) &&
+        return (this.movesRemaining > 0) &&
             (this.owner(region) == player) && this.soldierCount(region) &&
-            (!sequenceUtils.contains(this.move.z, region));
+            (!sequenceUtils.contains(this.conqueredRegions, region));
     }
 
     regionCount(player) {
@@ -76,7 +78,7 @@ export default class GameState {
     }
 
     activePlayer() {
-        return this.players[this.move.playerIndex];
+        return this.players[this.playerIndex];
     }
 
     owner(region) {
@@ -122,7 +124,7 @@ export default class GameState {
     }
 
     soldierCost() {
-        return UPGRADES.SOLDIER.cost[this.move.numBoughtSoldiers || 0];
+        return UPGRADES.SOLDIER.cost[this.numBoughtSoldiers || 0];
     }
 
     templeInfo(temple) {
@@ -155,7 +157,9 @@ export default class GameState {
         return new GameState(
             this.players,
             this.regions,
-            utils.deepCopy(this.move, 3),
+            this.turnIndex,
+            this.playerIndex,
+            this.movesRemaining,
             utils.deepCopy(this.owners, 1),
             utils.deepCopy(this.temples, 2),
             utils.deepCopy(this.soldiers, 3),

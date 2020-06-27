@@ -28,11 +28,8 @@ class Move {
 
 class ArmyMove extends Move {
 
-    constructor(turnIndex, playerIndex, movesRemaining, source, destination, count) {
+    constructor(source, destination, count) {
         super();
-        this.turnIndex = turnIndex;
-        this.playerIndex = playerIndex;
-        this.movesRemaining = movesRemaining;
         this.source = source;
         this.destination = destination;
         this.count = count;
