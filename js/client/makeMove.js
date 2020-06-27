@@ -1,13 +1,13 @@
-import SOUNDS from '../state/model/SOUNDS.js';
+import SOUNDS from '../state/consts/SOUNDS.js';
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
-import gameData from '../state/gameData.js';
+import gameData from '../state/consts/gameData.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
-import UPGRADES from '../state/model/UPGRADES.js';
+import UPGRADES from '../state/consts/UPGRADES.js';
 const $ = domUtils.$;
 
 /**

@@ -1,6 +1,6 @@
 import utils from '../utils/utils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from './gameData.js';
+import gameData from './consts/gameData.js';
 import aiPlay from '../server/ai/aiPlay.js';
 import generateMap from '../server/map/generateMap.js';
 import uiPickMove from '../client/uiPickMove.js';
@@ -8,8 +8,8 @@ import Temple from './model/Temple.js';
 import GameState from './model/GameState.js';
 import Region from './model/Region.js';
 import { ArmyMove } from './model/Move.js';
-import AI_PERSONALITIES from './model/AI_PERSONALITIES.js';
-import PLAYERS from './model/PLAYERS.js';
+import AI_PERSONALITIES from './consts/AI_PERSONALITIES.js';
+import PLAYERS from './consts/PLAYERS.js';
 const { map, deepCopy, rint, range, sum } = utils;
 
 // Create game state based on setup configuration

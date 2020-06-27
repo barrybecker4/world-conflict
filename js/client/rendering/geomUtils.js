@@ -1,6 +1,6 @@
 import utils from '../../utils/utils.js';
 import domUtils from '../utils/domUtils.js';
-import gameData from '../../state/gameData.js';
+import gameData from '../../state/consts/gameData.js';
 
 export default {
     projectPoint, makePolygon, centerOfWeight, transformPoints,

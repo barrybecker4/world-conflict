@@ -1,4 +1,4 @@
-import Player from './Player.js';
+import Player from '../model/Player.js';
 
 // Player properties
 export default [

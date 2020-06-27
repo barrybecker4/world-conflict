@@ -1,8 +1,8 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import gameData from '../../state/gameData.js';
+import gameData from '../../state/consts/gameData.js';
 import { BuildMove } from '../../state/model/Move.js';
-import UPGRADES from '../../state/model/UPGRADES.js';
+import UPGRADES from '../../state/consts/UPGRADES.js';
 import miniMaxSearch from './miniMaxSearch.js'
 import heuristics from './heuristics.js';
 

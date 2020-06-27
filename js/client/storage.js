@@ -1,4 +1,4 @@
-import gameData from '../state/gameData.js';
+import gameData from '../state/consts/gameData.js';
 import utils from '../utils/utils.js';
 
 const STORAGE_KEY = 'world-conflict';

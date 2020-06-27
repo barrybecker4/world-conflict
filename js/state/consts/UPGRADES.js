@@ -1,5 +1,5 @@
 import utils from '../../utils/utils.js';
-import Upgrade from './Upgrade.js';
+import Upgrade from '../model/Upgrade.js';
 
 // Possible temple upgrades
 const UPGRADES = [

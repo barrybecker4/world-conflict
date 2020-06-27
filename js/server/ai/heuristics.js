@@ -1,6 +1,6 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import gameData from '../../state/gameData.js';
+import gameData from '../../state/consts/gameData.js';
 import gameInitialization from '../../client/gameInitialization.js';
 
 export default {

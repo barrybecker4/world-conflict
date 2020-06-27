@@ -1,5 +1,5 @@
 import audio from './utils/audio.js';
-import SOUNDS from '../state/model/SOUNDS.js';
+import SOUNDS from '../state/consts/SOUNDS.js';
 
 class UiCallbacks {
 
