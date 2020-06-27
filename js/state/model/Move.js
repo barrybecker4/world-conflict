@@ -10,8 +10,8 @@ export {
 class Move {
     constructor() {
         this.buttons = [
-            { t: 'Cancel move', h:1 },
-            { t: 'End turn' },
+            { text: 'Cancel move', hidden: true },
+            { text: 'End turn' },
         ];
     }
 

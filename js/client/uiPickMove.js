@@ -27,7 +27,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
                 state.moveDecision = new ArmyMove(null, null, null, region, null, state.soldierCount(region));
-                state.moveDecision.buttons[0].h = 0;
+                state.moveDecision.buttons[0].hidden = false;
                 state.moveDecision.highlitRegions = region.neighbors.concat(region);
             }
         } else if (region) {
@@ -127,9 +127,9 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 || (level < state.rawUpgradeLevel(templeOwner, upgrade)) // another temple has this upgrade already
                 || (templeOwner != player); // we're looking at an opponent's temple
 
-            return {t: text, d: description, o: cost > state.cashForPlayer(player), h: hidden};
+            return {text, description, disabled: cost > state.cashForPlayer(player), hidden};
         });
-        upgradeButtons.push({t: "Done"});
+        upgradeButtons.push({text: "Done"});
         return upgradeButtons;
     }
 }

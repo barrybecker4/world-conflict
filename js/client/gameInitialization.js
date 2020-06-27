@@ -151,8 +151,8 @@ function runSetupScreen() {
     function updateBottomButtons() {
         var buttonsDisabled = !isSetupValid();
         gameRenderer.updateButtons([
-            {t: "Change map", o: buttonsDisabled},
-            {t: "Start game", o: buttonsDisabled}
+            {text: "Change map", disabled: buttonsDisabled},
+            {text: "Start game", disabled: buttonsDisabled}
         ]);
     }
 

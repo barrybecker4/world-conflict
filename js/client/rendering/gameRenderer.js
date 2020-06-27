@@ -420,15 +420,15 @@ function updateIngameUI(gameState) {
 function updateButtons(buttons) {
     $('u').innerHTML = '';
     map(buttons || [], function(button, index) {
-        if (button.h) return;
+        if (button.hidden) return;
 
-        var buttonContents = div({}, button.t);
-        if (button.d)
-            buttonContents += div({c: 'description'}, button.d);
+        var buttonContents = div({}, button.text);
+        if (button.description)
+            buttonContents += div({c: 'description'}, button.description);
 
-        var buttonHTML = elem('a', {href: '#', c: button.o ? 'off' : ''}, buttonContents);
+        var buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : ''}, buttonContents);
         var buttonNode = append('u', buttonHTML);
-        if (!button.o) {
+        if (!button.disabled) {
             onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
         }
     });

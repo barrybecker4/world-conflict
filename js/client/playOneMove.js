@@ -61,7 +61,7 @@ function showEndGame(state) {
         $('in').innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
         $('in').style.background = '#555';
         $('mv').style.display = 'none';
-        gameRenderer.updateButtons([ {t: "New game"} ]);
+        gameRenderer.updateButtons([ {text: "New game"} ]);
 
         uiCallbacks.build = gameInitialization.runSetupScreen;
     });
