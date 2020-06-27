@@ -1,4 +1,5 @@
 import utils from '../utils/utils.js';
+import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import gameData from '../state/consts/gameData.js';
@@ -19,6 +20,7 @@ export default {
 var gameSetup = storage.retrieveSetup();
 
 function runSetupScreen() {
+    audio.setupAudio();
     appState.setInGame(false); // in setup
     var gameState = regenerateInitialState(null);
     createSetupUI(gameSetup);

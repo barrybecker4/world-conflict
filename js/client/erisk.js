@@ -1,4 +1,3 @@
-import audio from './utils/audio.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import titleScreen from './titleScreen.js';
@@ -12,8 +11,7 @@ import storage from './storage.js';
 window.onload = function() {
     setTimeout(function() {
         gameInitialization.gameSetup = storage.retrieveSetup();
-        audio.setupAudio();
         gameInitialization.runSetupScreen();
         titleScreen.setupTitleScreen();
-    }, 100);
+    }, 10);
 };

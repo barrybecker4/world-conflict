@@ -34,7 +34,7 @@ function showMap(container, gameState) {
     var defs = elem('defs', {},
             makeClipPaths() +
             makeGradient('b', '#69e', '#48b') +
-            makeGradient('l',  '#dba', '#b98') + //  '#da8', '#ba7') + // '#fa6', '#530') +//
+            makeGradient('l',  '#dba', '#b98') +
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
