@@ -53,7 +53,7 @@ export default function generateMap(playerCount) {
         utils.for2d(1, 1, gameData.mapWidth - 1, gameData.mapHeight - 1, function(x, y) {
             var region = regionMap[x][y];
             if (region) {
-                utils.map([[-1, 0], [1, 0], [0, -1], [0, 1]], function(d) {
+                [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {
                     var potentialNeighbour = regionMap[x + d[0]][y + d[1]];
                     if (potentialNeighbour && (potentialNeighbour != region) && (region.neighbors.indexOf(potentialNeighbour) == -1))
                         region.neighbors.push(potentialNeighbour);

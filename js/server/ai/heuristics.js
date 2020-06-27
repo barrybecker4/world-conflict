@@ -54,7 +54,7 @@ function regionThreat(state, player, region) {
     if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
     var ourPresence = state.soldierCount(region);
-    var enemyPresence = sequenceUtils.max(utils.map(region.neighbors, function(neighbour) {
+    var enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbour) {
         // is this an enemy region?
         var nOwner = state.owner(neighbour);
         if ((nOwner == player) || !nOwner) return 0;
@@ -72,12 +72,12 @@ function regionThreat(state, player, region) {
 
             if (entry.depth) {
                 // go deeper with the search
-                utils.map(entry.region.neighbors.filter(function(candidate) {
-                    return (!sequenceUtils.contains(visited, candidate)) &&
-                        (state.owner(candidate) == nOwner);
-                }), function(region) {
-                    queue.push({region, depth: entry.depth - 1});
-                });
+                let unvisitedNeighbors =
+                    entry.region.neighbors.filter(function(candidate) {
+                        return (!sequenceUtils.contains(visited, candidate)) &&
+                            (state.owner(candidate) == nOwner);
+                    });
+                unvisitedNeighbors.map(region => queue.push({region, depth: entry.depth - 1}));
             }
         }
 

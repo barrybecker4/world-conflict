@@ -12,7 +12,7 @@ import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
 import uiPickMove from '../uiPickMove.js';
-const { map, range, rint, sum, lerp, forEachProperty } = utils;
+const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
 
@@ -38,7 +38,7 @@ function showMap(container, gameState) {
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
-            map(gameState.players, function(player, index) {
+            gameState.players.map(function(player, index) {
                 return makeGradient('p' + index, player.colorStart, player.colorEnd) +
                     makeGradient('p' + index + 'h', player.highlightStart, player.highlightEnd);
             }).join(''));
@@ -63,7 +63,7 @@ function showMap(container, gameState) {
     soldierDivsById = {};
 
     // hook up region objects to their HTML elements
-    map(regions, function(region, index) {
+    regions.map(function(region, index) {
         region.element = $('r' + index);
         region.center = projectPoint(centerOfWeight(region.points));
 
@@ -79,15 +79,15 @@ function showMap(container, gameState) {
 
     // makes clipping paths for the "highlight" polygons
     function makeClipPaths() {
-        return map(regions, function(region, index) {
-            return elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
+        return regions.map((region, index) => {
+            elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
         }).join('');
     }
 
     // a helper for creating a polygon with a given setup for all regions
     function makeRegionPolys(idPrefix, gradient, xm, ym, xd, yd, stroke, clip) {
 
-        return elem('g', {}, map(regions, function(region, index) {
+        return elem('g', {}, regions.map((region, index) => {
             const clipRegion = clip ? 'url(#' + clip + index + ')' : '';
             return makePolygon(
                 transformPoints(region.points, xm, ym, xd, yd),
@@ -121,12 +121,12 @@ function showMap(container, gameState) {
 var soldierDivsById = {};
 
 function updateMapDisplay(gameState) {
-    map(gameState.regions, updateRegionDisplay);
+    gameState.regions.map(updateRegionDisplay);
     forEachProperty(gameState.temples, updateTempleDisplay);
 
     var soldiersStillAlive = [];
     forEachProperty(gameState.soldiers, function(soldiers, regionIndex) {
-        map(soldiers, (soldier, i) => updateSoldierDisplay(gameState.regions[regionIndex], soldier, i));
+        soldiers.map((soldier, i) => updateSoldierDisplay(gameState.regions[regionIndex], soldier, i));
     });
 
     forEachProperty(soldierDivsById, function(div, id) {
@@ -138,7 +138,8 @@ function updateMapDisplay(gameState) {
 
             // spawn some particles
             var x = parseFloat(div.style.left), y = parseFloat(div.style.top);
-            map(range(0, 20), function() {
+            let numParticles = 20;
+            range(0, numParticles).map(function() {
                 var angle = Math.random() * 6.28, dist = rint(0,100) / 80;
                 spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#000');
             });
@@ -172,7 +173,7 @@ function updateMapDisplay(gameState) {
         // particles
         if (gameState.particleTempleRegion == region) {
             gameState.particleTempleRegion = 0; // only once
-            map(region.points, function(point) {
+            region.points.map(function(point) {
                 point = projectPoint(point);
                 var center = region.center;
                 var alpha = rint(30, 100) / 100;
@@ -187,7 +188,7 @@ function updateMapDisplay(gameState) {
     }
 
     function updateTooltips() {
-        map(document.querySelectorAll('.ttp'), (element) => $('m').removeChild(element));
+        [].slice.call(document.querySelectorAll('.ttp')).map(element => $('m').removeChild(element));
         if (gameState.activePlayer().pickMove != uiPickMove) return;
 
         // "how to move" tooltips
@@ -294,7 +295,7 @@ function updateMapDisplay(gameState) {
 
     function updateSoldierTooltips() {
 
-        map(gameState.regions, function(region, regionIndex) {
+        gameState.regions.map(function(region, regionIndex) {
             var tooltipId = 'sc' + regionIndex;
             // delete previous tooltip, if present
             var tooltip = $(tooltipId);
@@ -326,7 +327,8 @@ function updateMapDisplay(gameState) {
     }
 
     function updateFloatingText() {
-        map(gameState.floatingText || [], function(floater) {
+        let floaters = gameState.floatingText || [];
+        floaters.map(function(floater) {
             var x, y;
             if (floater.region) {
                 x = floater.region.center[0]; y = floater.region.center[1];
@@ -364,7 +366,7 @@ function updateIngameUI(gameState) {
     }
 
     // player data
-    map(gameState.players, function(player, index) {
+    gameState.players.map(function(player, index) {
         //$('pl' + index).className = (index == gameState.player) ? 'pl' : 'pi'; // activePlayer or not?
         var regions = gameState.regionCount(player);
         var gameWinner = gameState.endResult;
@@ -418,7 +420,7 @@ function updateIngameUI(gameState) {
 
 function updateButtons(buttons) {
     $('u').innerHTML = '';
-    map(buttons || [], function(button, index) {
+    (buttons || []).map(function(button, index) {
         if (button.hidden) return;
 
         var buttonContents = div({}, button.text);

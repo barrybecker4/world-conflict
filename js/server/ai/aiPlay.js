@@ -1,4 +1,3 @@
-import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import gameData from '../../state/consts/gameData.js';
 import { BuildMove } from '../../state/model/Move.js';
@@ -46,7 +45,7 @@ function shouldBuildSoldier(player, state) {
         return false;
 
     // see how far behind on soldier number we are
-    var forces = utils.map(state.players, (player) => force(state, player));
+    var forces = state.players.map(player => force(state, player));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
     // This calculates whether we should build now - the further we are behind other players,

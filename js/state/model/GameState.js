@@ -60,7 +60,7 @@ export default class GameState {
     regionCount(player) {
         var total = 0;
         const self = this;
-        utils.map(this.regions, function(region) {
+        this.regions.map(region => {
             if (self.owner(region) == player)
                 total++;
         });
@@ -90,7 +90,7 @@ export default class GameState {
     }
 
     rawUpgradeLevel(player, upgradeType) {
-        return sequenceUtils.max(utils.map(this.templesForPlayer(player), function(temple) {
+        return sequenceUtils.max(this.templesForPlayer(player).map(function(temple) {
             if (temple.upgrade && temple.upgrade == upgradeType)
                 return temple.level + 1;
             else
@@ -105,7 +105,7 @@ export default class GameState {
         }
 
         let self = this;
-        return sequenceUtils.max(utils.map(this.regions, function(region) {
+        return sequenceUtils.max(this.regions.map(function(region) {
             // does it have a temple?
             var temple = self.temples[region.index];
             if (!temple) return 0;
@@ -141,7 +141,7 @@ export default class GameState {
 
     addSoldiers(region, count) {
         const self = this;
-        utils.map(utils.range(0, count), function() {
+        utils.range(0, count).map(function() {
             soldierCounter = (soldierCounter + 1) || 0;
             var soldierList = self.soldiersAtRegion(region.index);
             soldierList.push({ i: soldierCounter++ });

@@ -10,14 +10,14 @@ import Region from './model/Region.js';
 import { ArmyMove } from './model/Move.js';
 import AI_PERSONALITIES from './consts/AI_PERSONALITIES.js';
 import PLAYERS from './consts/PLAYERS.js';
-const { map, deepCopy, rint, range, sum } = utils;
+const { deepCopy, rint, range, sum } = utils;
 
 // Create game state based on setup configuration
 export default function makeInitialGameState(setup) {
 
     let players = [];
 
-    map(setup.players, function(playerController, playerIndex) {
+    setup.players.map(function(playerController, playerIndex) {
         if (playerController === gameData.PLAYER_OFF) return;
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
@@ -56,7 +56,7 @@ export default function makeInitialGameState(setup) {
 
         // we have the regions, set up each player
         function setupPlayersWithTheirTemples(players, homes) {
-            map(players, function(player, index) {
+            players.map(function(player, index) {
                 // give the players some cash (or not)
                 gameState.cash[index] = 0;
                 gameState.levels[index] = 0;
@@ -70,11 +70,11 @@ export default function makeInitialGameState(setup) {
         }
 
         function setupNeutralTemples(players, homes) {
-            var distancesToTemples = map(homes, function() { return 0; });
+            var distancesToTemples = homes.map(function() { return 0; });
             var templeRegions = [];
             var neutralTempleCount = [3, 3, 4][players.length - 2];
 
-            map(range(0, neutralTempleCount), function() {
+            range(0, neutralTempleCount).map(function() {
                 var bestRegion = sequenceUtils.max(gameState.regions, function(region) {
                     return templeScore(region);
                 });
@@ -99,7 +99,7 @@ export default function makeInitialGameState(setup) {
             }
 
             function updatedDistances(newTempleRegion) {
-                return map(homes, function(home, index) {
+                return homes.map(function(home, index) {
                     return distancesToTemples[index] + home.distanceFrom(newTempleRegion);
                 });
             }
@@ -109,8 +109,8 @@ export default function makeInitialGameState(setup) {
 
     // pick regions that are as far away as possible from each other for the players' initial temples
     function findHomeRegions() {
-        const possibleSetups = map(range(0, 1000), function() {
-            return map(gameState.players, () => regions[rint(0, regions.length)]);
+        const possibleSetups = range(0, 1000).map(function() {
+            return gameState.players.map(() => regions[rint(0, regions.length)]);
         });
         const homes = sequenceUtils.max(possibleSetups, distanceScore);
         return homes;

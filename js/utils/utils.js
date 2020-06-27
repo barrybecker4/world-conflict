@@ -1,6 +1,5 @@
 export default {
-    rint, range, identity, deepCopy, clamp, lerp, template,
-    map, forEachProperty, for2d
+    rint, range, identity, deepCopy, clamp, lerp, template, forEachProperty, for2d
 };
 
 // Returns a random number between low (inclusive) and high (exclusive).
@@ -26,7 +25,7 @@ function deepCopy(obj, depth) {
 
     var copy = (obj.length !== undefined) ? [] : {};
     forEachProperty(obj, function(value, key) {
-        copy[key] = deepCopy(value, depth-1);
+        copy[key] = deepCopy(value, depth - 1);
     });
     return copy;
 }
@@ -46,11 +45,6 @@ function template(text, replacement) {
     return text.replace(/X/g, replacement);
 }
 
-// Same as array.map, but can be called on non-arrays (and minifies better).
-function map(seq, fn) {
-    return [].slice.call(seq).map(fn);
-}
-
 // Iterates over all properties of an object, and calls the callback with (value, propertyName).
 function forEachProperty(obj, fn) {
     for (var property in obj)
@@ -59,7 +53,7 @@ function forEachProperty(obj, fn) {
 
 // Iterates over a rectangle (x1, y1) - (x2, y2), and calls fn with (x, y) of each integer point.
 function for2d(x1, y1, x2, y2, fn) {
-    map(range(x1, x2), function(x) {
-        map(range(y1, y2), y => fn(x, y));
+    range(x1, x2).map(function(x) {
+        range(y1, y2).map(y => fn(x, y));
     });
 }

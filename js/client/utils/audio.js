@@ -55,14 +55,14 @@ function wRamp(from, to, after, fn) {
 }
 
 function wNotes(notes) {
-    utils.map(notes, function(note) {
+    notes.map(function(note) {
         note.f = adsr(0.01, 0.03, 0.03 * note.d, 0.03 * note.d, 0.7, wSin(note.p));
     });
     var t = 0.0;
     return function(dt) {
         t += dt;
         var v = 0.0;
-        utils.map(notes, function(note) {
+        notes.map(function(note) {
             if (t >= note.t)
                 v += note.f(dt);
         });

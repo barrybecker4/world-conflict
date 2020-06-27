@@ -59,7 +59,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
     uiCallbacks.setSoldierSelectedCB(function(soldier) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
-        utils.map(state.regions, function(region) {
+        state.regions.map(function(region) {
             if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier))
                 soldierRegion = region;
         });
@@ -110,7 +110,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
     function makeUpgradeButtons(temple) {
         var templeOwner = state.owner(temple.region);
-        var upgradeButtons = utils.map(UPGRADES, function(upgrade) {
+        var upgradeButtons = UPGRADES.map(function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
             var level = (temple.upgrade == upgrade) ?
                 (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);

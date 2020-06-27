@@ -3,7 +3,7 @@ import Upgrade from '../model/Upgrade.js';
 
 // Possible temple upgrades
 const UPGRADES = [
-    new Upgrade('Extra soldier', '', utils.map(utils.range(0, 100), function(n) { return 8 + n * 4; }), []),
+    new Upgrade('Extra soldier', '', utils.range(0, 100).map(n => 8 + n * 4 ), []),
     new Upgrade('X of Water', 'Income: X% more each turn.', [15, 25], [20, 40], '#66f'),
     new Upgrade('X of Fire', 'Attack: X invincible soldier(s).', [20, 30], [1, 2], '#f88'),
     new Upgrade('X of Air', 'Move: X extra move(s) per turn.', [25, 35], [1, 2], '#ffa'),

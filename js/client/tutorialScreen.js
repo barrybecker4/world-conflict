@@ -8,7 +8,7 @@ const { $, onClickOrTap } = domUtils;
 
 
 export default function tutorialScreen() {
-    utils.map(['o','tutorial-button','sound'], (id) => domUtils.showOrHide(id, 1));
+    ['o','tutorial-button','sound'].map(id => domUtils.showOrHide(id, 1));
 
     onClickOrTap($('cancel-button'), () => setTutorialScreenVisibility(false));
     onClickOrTap($('next'), () => switchTutorialCard(1));

@@ -9,7 +9,7 @@ export default {
 function min(seq, keyFn) {
     keyFn = keyFn || utils.identity;
     var smallestValue = keyFn(seq[0]), smallestElement;
-    utils.map(seq, function(e) {
+    seq.map(e => {
         if (keyFn(e) <= smallestValue) {
             smallestElement = e;
             smallestValue = keyFn(e);
@@ -27,9 +27,7 @@ function max(seq, keyFn) {
 // Returns the sum of a sequences, optionally taking a function that maps elements to numbers.
 function sum(seq, keyFn) {
     var total = 0;
-    utils.map(seq, function(elem){
-        total += keyFn(elem);
-    });
+    seq.map(elem => total += keyFn(elem) );
     return total;
 }
 
@@ -42,8 +40,8 @@ function contains(seq, elem) {
 // on all possible pairs of elements.
 function pairwise(array, fn) {
     var result = [];
-    utils.map(array, function(elem1, index) {
-        utils.map(array.slice(index + 1), function(elem2) {
+    array.map(function(elem1, index) {
+        array.slice(index + 1).map(function(elem2) {
             result.push(fn(elem1, elem2));
         });
     });
@@ -52,7 +50,7 @@ function pairwise(array, fn) {
 
 // Shuffles a sequence (in place) and returns it.
 function shuffle(seq) {
-    utils.map(seq, function(_, index) {
+    seq.map(function(_, index) {
         var otherIndex = utils.rint(index, seq.length);
         var t = seq[otherIndex];
         seq[otherIndex] = seq[index];

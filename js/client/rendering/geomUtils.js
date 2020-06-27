@@ -24,7 +24,7 @@ function makePolygon(points, id, fill, stroke, clip) {
 
     var properties = {
         i: id,
-        points: utils.map(points, projectPoint).join(' '),
+        points: points.map(projectPoint).join(' '),
         s: 'fill:' + fill + ";" + stroke + ';'
     };
 
@@ -41,7 +41,7 @@ function centerOfWeight(points) {
     let xc = 0.0;
     let yc = 0.0;
     let len = points.length;
-    utils.map(points, function(p) {
+    points.map(function(p) {
         xc += p[0];
         yc += p[1];
     });
@@ -51,7 +51,5 @@ function centerOfWeight(points) {
 // Affine transform of a sequence of points: [x*xm+xd,y*ym+yd]
 function transformPoints(points, xm, ym, xd, yd) {
     var c = centerOfWeight(points);
-    return utils.map(points, function(p) {
-        return [c[0] + (p[0] - c[0]) * xm + xd, c[1] + (p[1] - c[1]) * ym + yd];
-    });
+    return points.map(p => [c[0] + (p[0] - c[0]) * xm + xd, c[1] + (p[1] - c[1]) * ym + yd] );
 }

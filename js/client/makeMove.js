@@ -53,7 +53,7 @@ function afterMoveChecks(state) {
 
 // update region ownership and notify if any players eliminated
 function updatePlayerRegions(state) {
-    utils.map(state.players, function(player) {
+    state.players.map(function(player) {
         var totalSoldiers = sequenceUtils.sum(state.regions, function(region) {
             return state.owner(region) == player ? state.soldierCount(region) : 0;
         });
@@ -112,9 +112,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
     if (preemptiveDamage || defendingSoldiers) {
         // there will be a battle - move the soldiers halfway for animation
         if (!state.simulatingPlayer) {
-            utils.map(fromList.slice(0, incomingSoldiers), function (soldier) {
-                soldier.attackedRegion = toRegion;
-            });
+            fromList.slice(0, incomingSoldiers).map(soldier => { soldier.attackedRegion = toRegion; });
         }
         battleAnimationKeyframe(state);
     }
@@ -125,7 +123,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
             [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
         );
         // apply it
-        utils.map(utils.range(0, preemptiveDamage), function () {
+        utils.range(0, preemptiveDamage).map(function () {
             fromList.shift();
             incomingSoldiers--;
         });
@@ -158,7 +156,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
             }
         }
 
-        utils.map(utils.range(0, repeats), function(index) {
+        utils.range(0, repeats).map(function(index) {
             if (randomNumberForFight(index) <= 120)
             {
                 // defender wins!
@@ -191,7 +189,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
 
     // reset "attacking status" on the soldiers - at this point they have either
     // moved back to the source region or occupy the destination
-    utils.map(fromList, function(soldier) {
+    fromList.map(function(soldier) {
         soldier.attackedRegion = null;
     });
     return incomingSoldiers;
@@ -203,9 +201,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
     var fromOwner = state.owner(fromRegion);
     var toOwner = state.owner(toRegion);
 
-    utils.map(utils.range(0, incomingSoldiers), function() {
-        toList.push(fromList.shift());
-    });
+    utils.range(0, incomingSoldiers).map(() => toList.push(fromList.shift()) );
 
     // if this didn't belong to us, it now does
     if (fromOwner != toOwner) {

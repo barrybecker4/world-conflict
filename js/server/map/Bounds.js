@@ -45,11 +45,11 @@ export default class Bounds {
         var height = this.height;
 
         var points = [];
-        utils.map(utils.range(0, width), function(i) {
+        utils.range(0, width).map(function(i) {
             points[i] = perturbPoint(left + i, top);
             points[width + height + i] = perturbPoint(left + width - i, top + height);
         });
-        utils.map(utils.range(0, height), function(i) {
+        utils.range(0, height).map(function(i) {
             points[width + i] = perturbPoint(left + width, top + i);
             points[width + height + width + i] = perturbPoint(left, top + height - i);
         });

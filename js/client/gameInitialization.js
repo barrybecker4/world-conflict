@@ -67,7 +67,7 @@ function prepareIngameUI(gameState) {
     var html = div({i: 'turn-count', c: 'sc'});
 
     // player box area
-    html += div({i: 'pd', c: 'sc un'}, utils.map(gameState.players, function(player) {
+    html += div({i: 'pd', c: 'sc un'}, gameState.players.map(player => {
         var pid = player.index;
         return div({
             i: 'pl' + pid,
@@ -86,7 +86,7 @@ function prepareIngameUI(gameState) {
     $('d').innerHTML = html;
 
     // show stat box and undo button
-    utils.map(['mv', 'undo-button', 'restart'], domUtils.show);
+    ['mv', 'undo-button', 'restart'].map(domUtils.show);
 }
 
 function regenerateInitialState(gameState) {
@@ -104,14 +104,14 @@ function updateConfigButtons() {
     storage.storeSetup(gameSetup);
 
     // update player buttons
-    utils.map(gameSetup.players, function(controller, playerIndex) {
-       utils.map(utils.range(0, 3), function(buttonIndex) {
-           domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'sl', (controller == buttonIndex));
-       })
+    gameSetup.players.map(function(controller, playerIndex) {
+       utils.range(0, 3).map(buttonIndex =>
+           domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'sl', (controller == buttonIndex))
+       )
     });
 
     // update AI and turn count buttons
-    utils.map(utils.range(0, 4), function(index) {
+    utils.range(0, 4).map(function(index) {
         domUtils.toggleClass('ai' + index, 'sl', index == gameSetup.aiLevel);
         domUtils.toggleClass('turn-count' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.turnCount);
     });
@@ -137,14 +137,14 @@ function prepareSetupUI() {
     createPlayerBoxArea();
 
     // hide stat box and undo button
-    utils.map(['mv', 'undo-button', 'restart'], domUtils.hide);
+    ['mv', 'undo-button', 'restart'].map(domUtils.hide);
 
     setupButtonHandlersForPlayers();
 }
 
 function createPlayerBoxArea() {
     var html = div({c: 'sc description'}, "Player setup");
-    var playerBoxes = utils.map(PLAYERS, function(player) {
+    var playerBoxes = PLAYERS.map(function(player) {
         var pid = player.index;
         return buttonPanel(player.name, "sb" + player.index, ["AI", "Human", "Off"], {
             i: 'pl' + pid,
@@ -160,7 +160,7 @@ function createPlayerBoxArea() {
 }
 
 function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
-    var buttons = utils.map(buttonLabels, function(label, index) {
+    var buttons = buttonLabels.map(function(label, index) {
         var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
         return domUtils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
     }).join("");
@@ -179,7 +179,7 @@ function setupButtonHandlersForPlayers() {
             (event) => uiCallbacks.invokeCallback({ playerIndex, buttonIndex }, 'setupButtons', event)
         );
     });
-    utils.map(utils.range(0, 4), function(index) {
+    utils.range(0, 4).map(function(index) {
         domUtils.onClickOrTap(
             $('ai' + index),
             (event) => uiCallbacks.invokeCallback(index, 'ai', event)

@@ -51,7 +51,7 @@ export default class Region {
                     bound = sequenceUtils.min([bound, region.distanceTo[regionB.index] + distanceFromA]);
 
                 // look in all unvisited neighbours
-                utils.map(region.neighbors, function (neighbor) {
+                region.neighbors.map(function (neighbor) {
                     if (!sequenceUtils.contains(visited, neighbor))
                         queue.push({region: neighbor, distance: distanceFromA + 1});
                 });

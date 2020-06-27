@@ -105,13 +105,13 @@ function possibleMoves(state) {
     }
 
     // let's see what moves we have available
-    utils.map(state.regions, function(region) {
+    state.regions.map(function(region) {
        if (state.regionHasActiveArmy(player, region)) {
            // There is a move from here!
            // Iterate over all possible neighbours, and add two moves for each:
            // moving the entire army there, and half of it
            var soldiers = state.soldierCount(region);
-           utils.map(region.neighbors, function(neighbour) {
+           region.neighbors.map(function(neighbour) {
                addArmyMove(region, neighbour, soldiers);
                if (soldiers > 1)
                    addArmyMove(region, neighbour, Math.floor(soldiers / 2));
