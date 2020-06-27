@@ -18,6 +18,118 @@ export default {
 
 var gameSetup = storage.retrieveSetup();
 
+function runSetupScreen() {
+    appState.setInGame(false); // in setup
+
+    // generate initial setup and game state
+    var gameState = regenerateMap(null);
+
+    // prepare UI
+    prepareSetupUI();
+    updateBottomButtons();
+    updateConfigButtons();
+
+    // callback for the buttons on the bottom
+    uiCallbacks.build = function(which) {
+        if (!isSetupValid()) return;
+        if (which === 0) {
+            gameState = regenerateMap(gameState);
+        } else {
+            prepareIngameUI(gameState);
+            gameRenderer.updateDisplay(gameState);
+            playOneMove(gameState);
+        }
+    };
+    // callback for player setup buttons
+    uiCallbacks.setupButtons = function(event) {
+        // set the controller type for the player
+        gameSetup.players[event.playerIndex] = event.buttonIndex;
+        updateConfigButtons();
+        updateBottomButtons();
+        gameState = regenerateMap(gameState);
+    };
+    // callback for config buttons
+    uiCallbacks.ai = function(aiLevel) {
+        gameSetup.aiLevel = aiLevel;
+        updateConfigButtons();
+    };
+    uiCallbacks['turn-count'] = function(turnCount) {
+        gameSetup.turnCount = turnCount;
+        updateConfigButtons();
+    };
+}
+
+// Prepares the whole sidebar on the left for gameplay use.
+function prepareIngameUI(gameState) {
+    // turn counter
+    var html = div({i: 'turn-count', c: 'sc'});
+
+    // player box area
+    html += div({i: 'pd', c: 'sc un'}, utils.map(gameState.players, function(player) {
+        var pid = player.index;
+        return div({
+            i: 'pl' + pid,
+            c: 'pl',
+            style: 'background: ' + player.colorEnd
+        }, player.name +
+            div({c: 'ad', i: 'particle' + pid}) +
+            div({c: 'ad', i: 'player-cash' + pid})
+        );
+    }).join(''));
+
+    // info box
+    html += div({c: 'sc un description', i: 'in'});
+
+    // set it all
+    $('d').innerHTML = html;
+
+    // show stat box and undo button
+    utils.map(['mv', 'undo-button', 'restart'], domUtils.show);
+}
+
+function regenerateMap(gameState) {
+    let newGameState = gameState;
+    if (isSetupValid()) {
+        newGameState = makeInitialGameState(gameSetup);
+        gameRenderer.showMap($('m'), newGameState);
+        gameRenderer.updateMapDisplay(newGameState);
+    }
+    return newGameState;
+}
+
+function updateConfigButtons() {
+    // somebody changed something, so store the new setup
+    storage.storeSetup(gameSetup);
+
+    // update player buttons
+    utils.map(gameSetup.players, function(controller, playerIndex) {
+       utils.map(utils.range(0, 3), function(buttonIndex) {
+           domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'sl', (controller == buttonIndex));
+       })
+    });
+
+    // update AI and turn count buttons
+    utils.map(utils.range(0, 4), function(index) {
+        domUtils.toggleClass('ai' + index, 'sl', index == gameSetup.aiLevel);
+        domUtils.toggleClass('turn-count' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.turnCount);
+    });
+}
+
+function isSetupValid() {
+    var enabledPlayers = sequenceUtils.sum(gameSetup.players, function(playerState) {
+        return (playerState != gameData.PLAYER_OFF) ? 1 : 0;
+    });
+    return enabledPlayers > 1;
+}
+
+function updateBottomButtons() {
+    var buttonsDisabled = !isSetupValid();
+    gameRenderer.updateButtons([
+        {text: "Change map", disabled: buttonsDisabled},
+        {text: "Start game", disabled: buttonsDisabled}
+    ]);
+}
+
 // UI to configure the game to be played before it is played
 function prepareSetupUI() {
 
@@ -76,117 +188,4 @@ function setupButtonHandlersForPlayers() {
             (event) => uiCallbacks.invokeCallback(gameData.TURN_COUNTS[index], 'turn-count', event)
         );
     });
-}
-
-function runSetupScreen() {
-    // we're in setup now
-    appState.setInGame(false);
-
-    // generate initial setup and game state
-    var gameState;
-    regenerateMap();
-
-    // prepare UI
-    prepareSetupUI();
-    updateBottomButtons();
-    updateConfigButtons();
-
-    // callback for the buttons on the bottom
-    uiCallbacks.build = function(which) {
-        if (!isSetupValid()) return;
-        if (which === 0) {
-            regenerateMap();
-        } else {
-            prepareIngameUI(gameState);
-            gameRenderer.updateDisplay(gameState);
-            playOneMove(gameState);
-        }
-    };
-    // callback for player setup buttons
-    uiCallbacks.setupButtons = function(event) {
-        // set the controller type for the player
-        gameSetup.players[event.playerIndex] = event.buttonIndex;
-        updateConfigButtons();
-        updateBottomButtons();
-        regenerateMap();
-    };
-    // callback for config buttons
-    uiCallbacks.ai = function(aiLevel) {
-        gameSetup.aiLevel = aiLevel;
-        updateConfigButtons();
-    };
-    uiCallbacks['turn-count'] = function(turnCount) {
-        gameSetup.turnCount = turnCount;
-        updateConfigButtons();
-    };
-
-
-    // Prepares the whole sidebar on the left for gameplay use.
-    function prepareIngameUI(gameState) {
-        // turn counter
-        var html = div({i: 'turn-count', c: 'sc'});
-
-        // player box area
-        html += div({i: 'pd', c: 'sc un'}, utils.map(gameState.players, function(player) {
-            var pid = player.index;
-            return div({
-                i: 'pl' + pid,
-                c: 'pl',
-                style: 'background: ' + player.colorEnd
-            }, player.name +
-                div({c: 'ad', i: 'particle' + pid}) +
-                div({c: 'ad', i: 'player-cash' + pid})
-            );
-        }).join(''));
-
-        // info box
-        html += div({c: 'sc un description', i: 'in'});
-
-        // set it all
-        $('d').innerHTML = html;
-
-        // show stat box and undo button
-        utils.map(['mv', 'undo-button', 'restart'], domUtils.show);
-    }
-
-    function isSetupValid() {
-        var enabledPlayers = sequenceUtils.sum(gameSetup.players, function(playerState) {
-            return (playerState != gameData.PLAYER_OFF) ? 1 : 0;
-        });
-        return enabledPlayers > 1;
-    }
-
-    function updateBottomButtons() {
-        var buttonsDisabled = !isSetupValid();
-        gameRenderer.updateButtons([
-            {text: "Change map", disabled: buttonsDisabled},
-            {text: "Start game", disabled: buttonsDisabled}
-        ]);
-    }
-
-    function updateConfigButtons() {
-        // somebody changed something, so store the new setup
-        storage.storeSetup(gameSetup);
-
-        // update player buttons
-        utils.map(gameSetup.players, function(controller, playerIndex) {
-           utils.map(utils.range(0, 3), function(buttonIndex) {
-               domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'sl', (controller == buttonIndex));
-           })
-        });
-
-        // update AI and turn count buttons
-        utils.map(utils.range(0, 4), function(index) {
-            domUtils.toggleClass('ai' + index, 'sl', index == gameSetup.aiLevel);
-            domUtils.toggleClass('turn-count' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.turnCount);
-        });
-    }
-
-    function regenerateMap() {
-        if (isSetupValid()) {
-            gameState = makeInitialGameState(gameSetup);
-            gameRenderer.showMap($('m'), gameState);
-            gameRenderer.updateMapDisplay(gameState);
-        }
-    }
 }
