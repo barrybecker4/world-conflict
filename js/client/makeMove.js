@@ -38,18 +38,30 @@ export default function makeMove(state, move) {
     return newState;
 }
 
-
+// Check to see if the game is over
 function afterMoveChecks(state) {
-    // check for game loss by any of the players
+    updatePlayerRegions(state);
+
+    // do we still have more than one player?
+    var gameStillOn = state.players.filter(player => state.regionCount(player)).length > 1;
+    if (!gameStillOn) {
+        // oh gosh, it's done - by elimination!
+        state.endResult = determineGameWinner(state);
+        return;
+    }
+}
+
+// update region ownership and notify if any players eliminated
+function updatePlayerRegions(state) {
     utils.map(state.players, function(player) {
         var totalSoldiers = sequenceUtils.sum(state.regions, function(region) {
             return state.owner(region) == player ? state.soldierCount(region) : 0;
         });
         if (!totalSoldiers && state.regionCount(player)) {
             // lost!
-            utils.forEachProperty(state.owners, function(p, r) {
-                if (player == p)
-                    delete state.owners[r];
+            utils.forEachProperty(state.owners, function(owner, regionIdx) {
+                if (player == owner)
+                    delete state.owners[regionIdx];
             });
             // dead people get no more moves
             if (state.activePlayer() == player)
@@ -61,15 +73,9 @@ function afterMoveChecks(state) {
             }
         }
     });
-
-    // do we still have more than one player?
-    var gameStillOn = state.players.filter(player => state.regionCount(player)).length > 1;
-    if (!gameStillOn) {
-        // oh gosh, it's done - by elimination!
-        state.endResult = determineGameWinner(state);
-        return;
-    }
 }
+
+
 
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 
