@@ -47,7 +47,7 @@ function runSetupScreen() {
         gameSetup.aiLevel = aiLevel;
         updateConfigButtons();
     };
-    uiCallbacks['turn-count'] = function(turnCount) {
+    uiCallbacks.turnCount = function(turnCount) {
         gameSetup.turnCount = turnCount;
         updateConfigButtons();
     };
@@ -184,7 +184,7 @@ function setupButtonHandlersForPlayers() {
         );
         domUtils.onClickOrTap(
             $('turn-count' + index),
-            (event) => uiCallbacks.invokeCallback(gameData.TURN_COUNTS[index], 'turn-count', event)
+            (event) => uiCallbacks.invokeCallback(gameData.TURN_COUNTS[index], 'turnCount', event)
         );
     });
 }

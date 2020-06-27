@@ -12,7 +12,7 @@ class UiCallbacks {
         this.undo = undo;
         this.setupButtons = null;
         this.ai = null;
-        this['turn-count'] = null;
+        this.turnCount= null;
     }
 
     /**
