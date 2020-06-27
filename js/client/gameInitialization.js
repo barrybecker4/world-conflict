@@ -18,8 +18,18 @@ export default {
 
 var gameSetup = storage.retrieveSetup();
 
+// UI to configure the game to be played before it is played
 function prepareSetupUI() {
-    // player box area
+
+    createPlayerBoxArea();
+
+    // hide stat box and undo button
+    utils.map(['mv', 'undo-button', 'restart'], domUtils.hide);
+
+    setupButtonHandlersForPlayers();
+}
+
+function createPlayerBoxArea() {
     var html = div({c: 'sc description'}, "Player setup");
     var playerBoxes = utils.map(PLAYERS, function(player) {
         var pid = player.index;
@@ -33,17 +43,27 @@ function prepareSetupUI() {
     html += buttonPanel("AI", "ai", ["Evil", "Mean", "Rude", "Nice"]);
     html += buttonPanel("Turns", "turn-count", ["Endless", "15", "12", "9"]);
 
-    // realize the UI
     $('d').innerHTML = html;
+}
 
-    // hide stat box and undo button
-    utils.map(['mv', 'undo-button', 'restart'], domUtils.hide);
+function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
+    var buttons = utils.map(buttonLabels, function(label, index) {
+        var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
+        return domUtils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
+    }).join("");
+    var properties = {i: buttonIdPrefix, c: 'sc description', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
+    utils.forEachProperty(additionalProperties, function(value, name) {
+        properties[name] = value;
+    });
+    return div(properties, title + buttons);
+}
 
-    // setup callbacks for players
+// setup callbacks for buttons in the player setup panel
+function setupButtonHandlersForPlayers() {
     utils.for2d(0, 0, PLAYERS.length, 3, function(playerIndex, buttonIndex) {
         domUtils.onClickOrTap(
             $('sb' + playerIndex + buttonIndex),
-            (event) => uiCallbacks.invokeCallback({p: playerIndex, b: buttonIndex}, 'setupButtons', event)
+            (event) => uiCallbacks.invokeCallback({ playerIndex, buttonIndex }, 'setupButtons', event)
         );
     });
     utils.map(utils.range(0, 4), function(index) {
@@ -56,18 +76,6 @@ function prepareSetupUI() {
             (event) => uiCallbacks.invokeCallback(gameData.TURN_COUNTS[index], 'turn-count', event)
         );
     });
-
-    function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
-        var buttons = utils.map(buttonLabels, function(label, index) {
-            var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
-            return domUtils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
-        }).join("");
-        var properties = {i: buttonIdPrefix, c: 'sc description', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
-        utils.forEachProperty(additionalProperties, function(value, name) {
-            properties[name] = value;
-        });
-        return div(properties, title + buttons);
-    }
 }
 
 function runSetupScreen() {
@@ -97,7 +105,7 @@ function runSetupScreen() {
     // callback for player setup buttons
     uiCallbacks.setupButtons = function(event) {
         // set the controller type for the player
-        gameSetup.players[event.p] = event.b;
+        gameSetup.players[event.playerIndex] = event.buttonIndex;
         updateConfigButtons();
         updateBottomButtons();
         regenerateMap();
