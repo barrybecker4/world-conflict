@@ -128,7 +128,7 @@ export default class GameState {
     templeInfo(temple) {
         if (!temple.upgrade) {
             var name = this.owner(temple.region) ? "Basic Temple" : "Neutral Temple";
-            return { name, description: "No upgrades." };
+            return { name, description: "No upgrades" };
         } else {
             let upgrade = temple.upgrade;
             let level = temple.level;

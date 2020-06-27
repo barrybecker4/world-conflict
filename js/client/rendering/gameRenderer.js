@@ -357,7 +357,7 @@ function updateIngameUI(gameState) {
     // turn counter/building name
     if (buildingMode) {
         var info = gameState.templeInfo(decisionState.temple);
-        $('turn-count').innerHTML = div({}, info.name) + div({c: 'ds'}, info.description);
+        $('turn-count').innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
     } else {
         $('turn-count').innerHTML =
             'Turn <b>' + gameState.move.turnIndex + '</b>' +
@@ -424,7 +424,7 @@ function updateButtons(buttons) {
 
         var buttonContents = div({}, button.t);
         if (button.d)
-            buttonContents += div({c: 'ds'}, button.d);
+            buttonContents += div({c: 'description'}, button.d);
 
         var buttonHTML = elem('a', {href: '#', c: button.o ? 'off' : ''}, buttonContents);
         var buttonNode = append('u', buttonHTML);

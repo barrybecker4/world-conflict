@@ -20,7 +20,7 @@ var gameSetup = storage.retrieveSetup();
 
 function prepareSetupUI() {
     // player box area
-    var html = div({c: 'sc ds'}, "Player setup");
+    var html = div({c: 'sc description'}, "Player setup");
     var playerBoxes = utils.map(PLAYERS, function(player) {
         var pid = player.index;
         return buttonPanel(player.name, "sb" + player.index, ["AI", "Human", "Off"], {
@@ -62,7 +62,7 @@ function prepareSetupUI() {
             var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
             return domUtils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
         }).join("");
-        var properties = {i: buttonIdPrefix, c: 'sc ds', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
+        var properties = {i: buttonIdPrefix, c: 'sc description', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
         utils.forEachProperty(additionalProperties, function(value, name) {
             properties[name] = value;
         });
@@ -132,7 +132,7 @@ function runSetupScreen() {
         }).join(''));
 
         // info box
-        html += div({c: 'sc un ds', i: 'in'});
+        html += div({c: 'sc un description', i: 'in'});
 
         // set it all
         $('d').innerHTML = html;
