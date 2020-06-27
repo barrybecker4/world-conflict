@@ -10,15 +10,15 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, regions, owners, temples, soldiers, cash, levels, move, simulatingPlayer, floatingText) {
+    constructor(players, regions, move, owners, temples, soldiers, cash, levels, simulatingPlayer, floatingText) {
         this.players = players;
         this.regions = regions;
-        this.owners = owners;
-        this.temples = temples;
-        this.soldiers = soldiers;
-        this.cash = cash; // Cash is equal to "faith" in the game
-        this.levels = levels;
         this.move = move;
+        this.owners = owners || [];
+        this.temples = temples || [];
+        this.soldiers = soldiers || [];
+        this.cash = cash || {}; // Cash is equal to "faith" in the game
+        this.levels = levels || {};
         this.simulatingPlayer = simulatingPlayer;
         this.floatingText = floatingText;
         this.moveDecision = null;
@@ -122,7 +122,7 @@ export default class GameState {
     }
 
     soldierCost() {
-        return UPGRADES.SOLDIER.cost[this.move.h || 0];
+        return UPGRADES.SOLDIER.cost[this.move.numBoughtSoldiers || 0];
     }
 
     templeInfo(temple) {
@@ -155,12 +155,12 @@ export default class GameState {
         return new GameState(
             this.players,
             this.regions,
+            utils.deepCopy(this.move, 3),
             utils.deepCopy(this.owners, 1),
             utils.deepCopy(this.temples, 2),
             utils.deepCopy(this.soldiers, 3),
             utils.deepCopy(this.cash, 1),
             utils.deepCopy(this.levels, 1),
-            utils.deepCopy(this.move, 1),
             this.simulatingPlayer || simulatingPlayer,
             this.floatingText
         );

@@ -35,7 +35,7 @@ export default function makeInitialGameState(setup) {
 
     var regions = generateMap(players.length);
     let move = new ArmyMove(1, 0, gameData.movesPerTurn);
-    var gameState = new GameState(players, regions, {}, {}, {}, {}, {}, move);
+    var gameState = new GameState(players, regions, move);
 
     setupTemples(3);
 

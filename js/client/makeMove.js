@@ -22,6 +22,7 @@ export default function makeMove(state, move) {
     const newState = state.copy();
 
     if (move.isArmyMove()) {
+        // for this case, if there is a fight, then it will be added to the move
         moveSoldiers(newState, move.source, move.destination, move.count);
     } else if (move.isBuildMove()) {
         buildUpgrade(newState, move.region, move.upgrade);
@@ -160,7 +161,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
                     incomingSoldiers--;
                     battleAnimationKeyframe(state, 250, SOUNDS.OURS_DEAD);
                 } else {
-                    battleAnimationKeyframe(state, 800, SOUNDS_OURS_DEAD,
+                    battleAnimationKeyframe(state, 800, SOUNDS.OURS_DEAD,
                         [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}]
                     );
                 }
@@ -182,10 +183,10 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
         }
     }
 
-    // reset "attacking status" on the soldiers - at this point they will
-    // move back to the source region or occupy the destination
+    // reset "attacking status" on the soldiers - at this point they have either
+    // moved back to the source region or occupy the destination
     utils.map(fromList, function(soldier) {
-        soldier.attackedRegion = null; // 0;
+        soldier.attackedRegion = null;
     });
     return incomingSoldiers;
 }
@@ -216,7 +217,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
     }
 }
 
-// Make this a class, and then a sequence of instances will constitute a replayable battle.
+// Make this a class, and then a sequence of instances will constitute a re-playable battle.
 // Required state properties are simulatingPlayer, soldiers
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.simulatingPlayer) return;
@@ -233,9 +234,9 @@ function buildUpgrade(state, region, upgrade) {
 
     if (upgrade === UPGRADES.SOLDIER) {
         // soldiers work differently - they get progressively more expensive the more you buy in one turn
-        if (!state.move.h)
-            state.move.h = 0;
-        state.cash[templeOwner.index] -= upgrade.cost[state.move.h++];
+        if (!state.move.numBoughtSoldiers)
+            state.move.numBoughtSoldiers = 0;
+        state.cash[templeOwner.index] -= upgrade.cost[state.move.numBoughtSoldiers++];
         return state.addSoldiers(region, 1);
     }
     if (upgrade === UPGRADES.RESPECT) {

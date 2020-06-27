@@ -28,7 +28,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
                 state.moveDecision = new ArmyMove(null, null, null, region, null, state.soldierCount(region));
                 state.moveDecision.buttons[0].h = 0;
-                state.moveDecision.h = region.neighbors.concat(region);
+                state.moveDecision.highlitRegions = region.neighbors.concat(region);
             }
         } else if (region) {
             // we already have a move in progress
@@ -106,7 +106,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
     function setCleanState() {  // maybe move first two lines to method on state
         state.moveDecision = new Move();
-        state.moveDecision.h = state.regions.filter(region => state.regionHasActiveArmy(player, region));
+        state.moveDecision.highlitRegions = state.regions.filter(region => state.regionHasActiveArmy(player, region));
         gameRenderer.updateDisplay(state);
     }
 
@@ -114,7 +114,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         var templeOwner = state.owner(temple.region);
         var upgradeButtons = utils.map(UPGRADES, function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
-            var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.move.h || 0) : 0);
+            var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.move.numBoughtSoldiers || 0) : 0);
 
             var cost = upgrade.cost[level];
             var text = utils.template(upgrade.name, gameData.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");

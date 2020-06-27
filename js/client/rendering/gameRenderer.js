@@ -155,7 +155,8 @@ function updateMapDisplay(gameState) {
 
         // a region is highlighted if it has an available move, or belongs to the winner
         // (end game display highlights the winner)
-        const hasAvailableMove = sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.h || [], region)
+        const hasAvailableMove =
+            sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], region);
         var highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
 
         // highlighting
