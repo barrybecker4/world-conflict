@@ -20,20 +20,14 @@ var gameSetup = storage.retrieveSetup();
 
 function runSetupScreen() {
     appState.setInGame(false); // in setup
-
-    // generate initial setup and game state
-    var gameState = regenerateMap(null);
-
-    // prepare UI
-    prepareSetupUI();
-    updateBottomButtons();
-    updateConfigButtons();
+    var gameState = regenerateInitialState(null);
+    createSetupUI(gameSetup);
 
     // callback for the buttons on the bottom
     uiCallbacks.build = function(which) {
         if (!isSetupValid()) return;
         if (which === 0) {
-            gameState = regenerateMap(gameState);
+            gameState = regenerateInitialState(gameState);
         } else {
             prepareIngameUI(gameState);
             gameRenderer.updateDisplay(gameState);
@@ -46,7 +40,7 @@ function runSetupScreen() {
         gameSetup.players[event.playerIndex] = event.buttonIndex;
         updateConfigButtons();
         updateBottomButtons();
-        gameState = regenerateMap(gameState);
+        gameState = regenerateInitialState(gameState);
     };
     // callback for config buttons
     uiCallbacks.ai = function(aiLevel) {
@@ -57,6 +51,12 @@ function runSetupScreen() {
         gameSetup.turnCount = turnCount;
         updateConfigButtons();
     };
+}
+
+function createSetupUI(gameState) {
+    prepareSetupUI();
+    updateBottomButtons();
+    updateConfigButtons();
 }
 
 // Prepares the whole sidebar on the left for gameplay use.
@@ -87,7 +87,7 @@ function prepareIngameUI(gameState) {
     utils.map(['mv', 'undo-button', 'restart'], domUtils.show);
 }
 
-function regenerateMap(gameState) {
+function regenerateInitialState(gameState) {
     let newGameState = gameState;
     if (isSetupValid()) {
         newGameState = makeInitialGameState(gameSetup);
@@ -132,7 +132,6 @@ function updateBottomButtons() {
 
 // UI to configure the game to be played before it is played
 function prepareSetupUI() {
-
     createPlayerBoxArea();
 
     // hide stat box and undo button
