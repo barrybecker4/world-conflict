@@ -5,13 +5,12 @@ import storage from '../storage.js';
 import gameInitialization from '../gameInitialization.js';
 
 var audioCtx = window.AudioContext && new AudioContext();
-var sounds = {};
+var soundMap = {};
 
 export default {
     setupAudio,
     playSound,
     toggleSound,
-    sounds,
 };
 
 function adsr(a, d, s, r, sl, fn) {
@@ -87,27 +86,28 @@ function makeBuffer(fn, len, vol) {
     return buffer;
 }
 
+
 function setupAudio() {
     if (!audioCtx) // do we have WebAudio?
         return;
 
-    sounds.CLICK = makeBuffer(adsr(0.01, 0.03, 0.01, 0.01, 0.2,
+    soundMap['CLICK'] = makeBuffer(adsr(0.01, 0.03, 0.01, 0.01, 0.2,
         wSin(110)
     ), 0.1);
-    sounds.ENEMY_DEAD = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
+    soundMap['ENEMY_DEAD'] = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
         wSlide(1.0, 0.3, 0.1, wSin(300))
     ), 0.2, 0.6);
-    sounds.OURS_DEAD = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
+    soundMap['OURS_DEAD'] = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
         wSlide(1.0, 0.3, 0.1, wSin(200))
     ), 0.2, 0.6);
-    sounds.TAKE_OVER = makeBuffer(wNotes([
+    soundMap['TAKE_OVER'] = makeBuffer(wNotes([
         {t:0, p:261, d:1}, {t:0.1, p:329, d:2}     // C-E
     ]), 0.6, 0.2);
-    sounds.VICTORY = makeBuffer(wNotes([
+    soundMap['VICTORY'] = makeBuffer(wNotes([
         {t:0, p:261,d:1}, {t:0.0, p:329, d:2}, {t:0.0, p:392, d:3},     // C-E-G
         {t:0.2, p:261,d:1}, {t:0.2, p:349, d:2}, {t:0.2, p:440, d:3}    // C-F-A
     ]), 0.6, 0.2);
-    sounds.DEFEAT = makeBuffer(wNotes([
+    soundMap['DEFEAT'] = makeBuffer(wNotes([
         {t:0, p:392, d:3},{t:0.15, p:329, d: 2}, {t:0.3, p:261, d:1}
     ]), 0.6, 0.2);
 
@@ -115,7 +115,8 @@ function setupAudio() {
     updateSoundControls();
 }
 
-function playSound(sound) {
+function playSound(soundKey) {
+    const sound = soundMap[soundKey];
     let soundEnabled = sound && gameInitialization.gameSetup.sound;
     if (!soundEnabled)
         return;

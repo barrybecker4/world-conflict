@@ -1,4 +1,4 @@
-import audio from './utils/audio.js';
+import SOUNDS from '../state/model/SOUNDS.js';
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
@@ -114,7 +114,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
 
     if (preemptiveDamage) {
         // animate it
-        battleAnimationKeyframe(state, 50, audio.audioOursDead,
+        battleAnimationKeyframe(state, 50, SOUNDS.OURS_DEAD,
             [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
         );
         // apply it
@@ -158,9 +158,9 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
                 if (invincibility-- <= 0) {
                     fromList.shift();
                     incomingSoldiers--;
-                    battleAnimationKeyframe(state, 250, audio.audioOursDead);
+                    battleAnimationKeyframe(state, 250, SOUNDS.OURS_DEAD);
                 } else {
-                    battleAnimationKeyframe(state, 800, audio.audioOursDead,
+                    battleAnimationKeyframe(state, 800, SOUNDS_OURS_DEAD,
                         [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}]
                     );
                 }
@@ -169,7 +169,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
                 toList.shift();
                 if (toOwner)
                     state.cash[toOwner.index] += 4;
-                battleAnimationKeyframe(state, 250, audio.sounds.ENEMY_DEAD);
+                battleAnimationKeyframe(state, 250, SOUNDS.ENEMY_DEAD);
             }
         });
 
@@ -177,7 +177,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
         if (toList.length) {
             // and prevent anybody from moving in
             incomingSoldiers = 0;
-            state.soundCue = audio.sounds.DEFEAT;
+            state.soundCue = SOUNDS.DEFEAT;
             state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}];
         }
     }
@@ -212,7 +212,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
         // play sound, launch particles!
         state.particleTempleRegion = toRegion;
         state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
-        state.soundCue = numDefenders ? audio.sounds.VICTORY : audio.sounds.TAKE_OVER;
+        state.soundCue = numDefenders ? SOUNDS.VICTORY : SOUNDS.TAKE_OVER;
     }
 }
 

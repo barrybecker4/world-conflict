@@ -1,5 +1,6 @@
-import audio from './utils/audio.js';
+import SOUNDS from '../state/model/SOUNDS.js';
 import utils from '../utils/utils.js';
+import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
 import gameData from '../state/gameData.js';
@@ -25,7 +26,7 @@ export default function playOneMove(state) {
         pickMove(controllingPlayer, state, function(move) {
             // AI makes sounds when playing
             if (controllingPlayer.pickMove == aiPlay.aiPickMove)
-                audio.playSound(audio.sounds.CLICK);
+                audio.playSound(SOUNDS.CLICK);
 
             // the move is chosen - update state to a new immutable copy
             var newState = makeMove(state, move);

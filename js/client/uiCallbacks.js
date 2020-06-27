@@ -1,4 +1,5 @@
 import audio from './utils/audio.js';
+import SOUNDS from '../state/model/SOUNDS.js';
 
 class UiCallbacks {
 
@@ -21,7 +22,7 @@ class UiCallbacks {
     invokeCallback(object, type, event) {
         var callback = this[type];
         if (callback) {
-            audio.playSound(audio.sounds.CLICK);
+            audio.playSound(SOUNDS.CLICK);
             callback(object);
         }
         if (event.target.href && event.target.href != "#")
