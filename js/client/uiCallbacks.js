@@ -3,16 +3,31 @@ import SOUNDS from '../state/consts/SOUNDS.js';
 
 class UiCallbacks {
 
-    // TODO: enforce that only these methods can be set
-    constructor(regionSelected, templeSelected, soldierSelected, build, undo) {
+    constructor() {
+    }
+    setRegionSelectedCB(regionSelected) {
         this.regionSelected = regionSelected;
+    }
+    setTempleSelectedCB(templeSelected) {
         this.templeSelected = templeSelected;
+    }
+    setSoldierSelectedCB(soldierSelected) {
         this.soldierSelected = soldierSelected;
+    }
+    setBuildCB(build) {
         this.build = build;
+    }
+    setUndoCB(undo) {
         this.undo = undo;
-        this.setupButtons = null;
-        this.ai = null;
-        this.turnCount= null;
+    }
+    setSetupButtonsCB(setupButtons) {
+        this.setupButtons = setupButtons;
+    }
+    setAiCB(ai) {
+        this.ai = ai;
+    }
+    setTurnCountCB(turnCount) {
+        this.turnCount = turnCount;
     }
 
     /**

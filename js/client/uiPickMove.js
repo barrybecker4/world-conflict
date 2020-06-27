@@ -18,7 +18,7 @@ var uiState = {};
 
 export default function uiPickMove(player, state, reportMoveCallback) {
 
-    uiCallbacks.regionSelected = function(region) {
+    uiCallbacks.setRegionSelectedCB(function(region) {
         if (!region || state.moveDecision.isBuildMove())
             setCleanState();
 
@@ -35,7 +35,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             var moveDecision = state.moveDecision;
             // what region did we click?
             if (region == moveDecision.source) {
-                // the one we're moving an army from - tweak soldier count
+                // the one we're moving an army from - tweak number of selected soldiers
                 moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
             } else if (moveDecision.source.neighbors.indexOf(region) > -1) {
                 // one of the neighbours - let's finalize the move
@@ -48,15 +48,15 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             }
         }
         gameRenderer.updateDisplay(state);
-    };
+    });
 
-    uiCallbacks.templeSelected = function(region) {
+    uiCallbacks.setTempleSelectedCB(function(region) {
         var temple = state.temples[region.index];
         state.moveDecision = new BuildMove(null, temple, makeUpgradeButtons(temple));
         gameRenderer.updateDisplay(state);
-    };
+    });
 
-    uiCallbacks.soldierSelected = function(soldier) {
+    uiCallbacks.setSoldierSelectedCB(function(soldier) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
         utils.map(state.regions, function(region) {
@@ -65,9 +65,9 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         });
         if (soldierRegion)
             uiCallbacks.regionsSelected(soldierRegion);
-    };
+    });
 
-    uiCallbacks.build = function(which) {
+    uiCallbacks.setBuildCB(function(which) {
         if (state.moveDecision && state.moveDecision.isBuildMove()) {
             // build buttons handled here
             if (which >= UPGRADES.length) {
@@ -92,15 +92,13 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
             }
         }
-    };
+    });
 
-    uiCallbacks.undo = function() {
-        undoManager.performUndo(state);
-    };
+    uiCallbacks.setUndoCB(() => undoManager.performUndo(state));
 
     setCleanState();
     if (uiState[player.index]) {
-        uiCallbacks.templeSelected(uiState[player.index]);
+        uiCallbacks.setTempleSelectedCB(uiState[player.index]);
         delete uiState[player.index];
     }
 
@@ -114,18 +112,22 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         var templeOwner = state.owner(temple.region);
         var upgradeButtons = utils.map(UPGRADES, function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
-            var level = (temple.upgrade == upgrade) ? (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
+            var level = (temple.upgrade == upgrade) ?
+                (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
 
             var cost = upgrade.cost[level];
             var text = utils.template(upgrade.name, gameData.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");
             var description = utils.template(upgrade.desc, upgrade.level[level]);
 
+            let curUpgrade = temple.upgrade;
+            let inconsistentUpgrade = // the temple is already upgraded with a different upgrade
+                curUpgrade && curUpgrade != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.RESPECT;
             var hidden =
-                (upgrade === UPGRADES.RESPECT && (!temple.upgrade)) // respect only available if temple is upgraded
-                || (temple.upgrade && temple.upgrade != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.RESPECT) // the temple is already upgraded with a different upgrade
-                || (level >= upgrade.cost.length) // highest level reached
-                || (level < state.rawUpgradeLevel(templeOwner, upgrade)) // another temple has this upgrade already
-                || (templeOwner != player); // we're looking at an opponent's temple
+                (upgrade === UPGRADES.RESPECT && !curUpgrade) // respect only available if temple is upgraded
+                || inconsistentUpgrade
+                || level >= upgrade.cost.length // highest level reached
+                || level < state.rawUpgradeLevel(templeOwner, upgrade) // another temple has this upgrade already
+                || templeOwner != player; // we're looking at an opponent's temple
 
             return {text, description, disabled: cost > state.cashForPlayer(player), hidden};
         });

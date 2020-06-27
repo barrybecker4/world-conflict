@@ -63,7 +63,7 @@ function showEndGame(state) {
         $('mv').style.display = 'none';
         gameRenderer.updateButtons([ {text: "New game"} ]);
 
-        uiCallbacks.build = gameInitialization.runSetupScreen;
+        uiCallbacks.setBuildCB(gameInitialization.runSetupScreen);
     });
 }
 

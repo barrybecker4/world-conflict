@@ -24,7 +24,7 @@ function runSetupScreen() {
     createSetupUI(gameSetup);
 
     // callback for the buttons on the bottom
-    uiCallbacks.build = function(which) {
+    uiCallbacks.setBuildCB(function(which) {
         if (!isSetupValid()) return;
         if (which === 0) {
             gameState = regenerateInitialState(gameState);
@@ -33,24 +33,24 @@ function runSetupScreen() {
             gameRenderer.updateDisplay(gameState);
             playOneMove(gameState);
         }
-    };
+    });
     // callback for player setup buttons
-    uiCallbacks.setupButtons = function(event) {
+    uiCallbacks.setSetupButtonsCB(function(event) {
         // set the controller type for the player
         gameSetup.players[event.playerIndex] = event.buttonIndex;
         updateConfigButtons();
         updateBottomButtons();
         gameState = regenerateInitialState(gameState);
-    };
-    // callback for config buttons
-    uiCallbacks.ai = function(aiLevel) {
+    });
+    // callback for AI config buttons
+    uiCallbacks.setAiCB(function(aiLevel) {
         gameSetup.aiLevel = aiLevel;
         updateConfigButtons();
-    };
-    uiCallbacks.turnCount = function(turnCount) {
+    });
+    uiCallbacks.setTurnCountCB(function(turnCount) {
         gameSetup.turnCount = turnCount;
         updateConfigButtons();
-    };
+    });
 }
 
 function createSetupUI(gameState) {
