@@ -56,12 +56,12 @@ export default function makeInitialGameState(setup) {
 
         // we have the regions, set up each player
         function setupPlayersWithTheirTemples(players, homes) {
-            players.map(function(player, index) {
+            players.map(function(player, playerIndex) {
                 // give the players some cash (or not)
-                gameState.cash[index] = 0;
-                var region = homes[index];
+                gameState.cash[playerIndex] = 0;
+                var region = homes[playerIndex];
                 // make one of the regions your own
-                gameState.owners[region.index] = player;
+                gameState.owners[region.index] = playerIndex;
                 // put a temple and 3 soldiers in it
                 putTemple(region, initialSoldierCount);
             });

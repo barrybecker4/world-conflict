@@ -59,8 +59,8 @@ function updatePlayerRegions(state) {
         });
         if (!totalSoldiers && state.regionCount(player)) {
             // lost!
-            utils.forEachProperty(state.owners, function(owner, regionIdx) {
-                if (player == owner)
+            utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
+                if (player == state.players[ownerIdx])
                     delete state.owners[regionIdx];
             });
             // dead people get no more moves
@@ -205,7 +205,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
 
     // if this didn't belong to us, it now does
     if (fromOwner != toOwner) {
-        state.owners[toRegion.index] = fromOwner;
+        state.owners[toRegion.index] = fromOwner.index;
         // mark as conquered to prevent moves from this region in the same turn
         state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
         // if there was a temple, reset its upgrades
@@ -286,7 +286,7 @@ function nextTurn(state) {
 
     // temples produce one soldier per turn automatically
     utils.forEachProperty(state.temples, function(temple, regionIndex) {
-        if (state.owners[regionIndex] == player) {
+        if (state.owner(regionIndex) == player) {
             // this is our temple, add a soldier of the temple's element
             state.addSoldiers(temple.region, 1);
         }

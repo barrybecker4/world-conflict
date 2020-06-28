@@ -47,8 +47,9 @@ function template(text, replacement) {
 
 // Iterates over all properties of an object, and calls the callback with (value, propertyName).
 function forEachProperty(obj, fn) {
-    for (var property in obj)
-        fn(obj[property], property);
+    const isArray = Array.isArray(obj)
+    for (const property in obj)
+        fn(obj[property], isArray ? +property : property);
 }
 
 // Iterates over a rectangle (x1, y1) - (x2, y2), and calls fn with (x, y) of each integer point.

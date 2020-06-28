@@ -70,7 +70,7 @@ export default class GameState {
         var playerTemples = [];
         let self = this;
         utils.forEachProperty(this.temples, function(temple, regionIndex) {
-            if (self.owners[regionIndex] == player)
+            if (self.owner(regionIndex) == player)
                 playerTemples.push(temple);
         });
         return playerTemples;
@@ -81,7 +81,8 @@ export default class GameState {
     }
 
     owner(region) {
-        return this.owners[region.index];
+        let idx = (typeof region == 'number') ? region : region.index;
+        return this.players[this.owners[idx]];
     }
 
     cashForPlayer(player) {
