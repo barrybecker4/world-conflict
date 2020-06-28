@@ -59,8 +59,6 @@ export default function makeInitialGameState(setup) {
             players.map(function(player, index) {
                 // give the players some cash (or not)
                 gameState.cash[index] = 0;
-                gameState.levels[index] = 0;
-
                 var region = homes[index];
                 // make one of the regions your own
                 gameState.owners[region.index] = player;

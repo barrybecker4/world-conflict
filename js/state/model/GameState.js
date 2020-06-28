@@ -10,7 +10,7 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, regions, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash, levels, simulatingPlayer, floatingText) {
+    constructor(players, regions, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash, simulatingPlayer, floatingText) {
         this.players = players;
         this.regions = regions;
         this.turnIndex = turnIndex;
@@ -20,7 +20,6 @@ export default class GameState {
         this.temples = temples || [];
         this.soldiers = soldiers || [];
         this.cash = cash || {}; // Cash is equal to "faith" in the game
-        this.levels = levels || {};
         this.simulatingPlayer = simulatingPlayer;
         this.floatingText = floatingText;
         this.moveDecision = null;
@@ -164,7 +163,6 @@ export default class GameState {
             utils.deepCopy(this.temples, 2),
             utils.deepCopy(this.soldiers, 3),
             utils.deepCopy(this.cash, 1),
-            utils.deepCopy(this.levels, 1),
             this.simulatingPlayer || simulatingPlayer,
             this.floatingText
         );
