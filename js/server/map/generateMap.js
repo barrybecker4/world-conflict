@@ -1,5 +1,4 @@
 import utils from '../../utils/utils.js';
-import gameData from '../../state/consts/gameData.js';
 import Bounds from './Bounds.js';
 
 const MAX_REGION_SIZE = 11;
@@ -10,14 +9,14 @@ const REGIONS_PER_PLAYER_ALLOCATION = 3;
  * Generates a new procedural map for a given number of players.
  * @return an array of Regions that will define the initial map.
  */
-export default function generateMap(playerCount) {
+export default function generateMap(playerCount, mapWidth, mapHeight) {
     const maxRegionSize = MAX_REGION_SIZE - playerCount;
     const neededRegions = BASE_NUM_REGIONS + playerCount * REGIONS_PER_PLAYER_ALLOCATION;
     let regionMap, regions, count, retries;
 
     // Repeat until we get a workable map
     do {
-        regionMap = utils.range(0, gameData.mapWidth).map(() => []);
+        regionMap = utils.range(0, mapWidth).map(() => []);
         regions = [];
         count = 0;
         retries = 2500;
@@ -26,7 +25,7 @@ export default function generateMap(playerCount) {
         // handle cases where the map generator runs into a dead end.
         while (count < neededRegions && --retries > 0) {
             // create a random bounded region
-            const bounds = new Bounds(maxRegionSize, gameData.mapWidth, gameData.mapHeight);
+            const bounds = new Bounds(maxRegionSize, mapWidth, mapHeight);
 
             // it has to overlap one of the existing ones
             if (count && !bounds.overlaps(regionMap)) continue;
@@ -50,7 +49,7 @@ export default function generateMap(playerCount) {
 
     // Figures out who borders with who, using the 2d grid in 'regionMap'.
     function fillNeighbourLists() {
-        utils.for2d(1, 1, gameData.mapWidth - 1, gameData.mapHeight - 1, function(x, y) {
+        utils.for2d(1, 1, mapWidth - 1, mapHeight - 1, function(x, y) {
             var region = regionMap[x][y];
             if (region) {
                 [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {

@@ -2,16 +2,20 @@ import utils from '../../utils/utils.js';
 import domUtils from '../utils/domUtils.js';
 import gameData from '../../state/consts/gameData.js';
 
+const MAP_WIDTH = 30;
+const MAP_HEIGHT = 20;
+
 export default {
     projectPoint, makePolygon, centerOfWeight, transformPoints,
+    MAP_WIDTH, MAP_HEIGHT,
 }
 
 // Optional 3d projection for the map.
 // The alpha value can be used to pseudo rotate the map.
-// The transformation leaves space on the left for the sidepanel.
-function projectPoint(pt, width, height) {
-    var x = pt[0] / gameData.mapWidth;
-    var y = pt[1] / gameData.mapHeight;
+// The transformation leaves space on the left for the side-panel.
+function projectPoint(pt) {
+    var x = pt[0] / MAP_WIDTH;
+    var y = pt[1] / MAP_HEIGHT;
     // var alpha = x * .2 + .6;
     // y = y * alpha + 0.5 * (1 - alpha);
     return [x * 97 + 3, y * 100];

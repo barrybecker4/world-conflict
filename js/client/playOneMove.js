@@ -49,7 +49,7 @@ export default function playOneMove(state) {
 function showEndGame(state) {
     oneAtaTime(1, function() {
         var winner = state.endResult;
-        if (winner != gameData.DRAW_GAME) {
+        if (winner != gameData.DRAWN_GAME) {
             gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!");
         } else {
             gameRenderer.showBanner('#333', "The game ends in a draw!");

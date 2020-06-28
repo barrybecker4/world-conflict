@@ -1,9 +1,8 @@
 const UNLIMITED_TURNS = 1000000;
 
 export default {
-    mapWidth: 30,
-    mapHeight: 20,
-    movesPerTurn: 3,
+
+    BASE_MOVES_PER_TURN: 3,
 
     LEVELS: ["Temple", "Cathedral"],
 
@@ -21,7 +20,7 @@ export default {
     TURN_COUNTS: [9, 12, 15, UNLIMITED_TURNS],
 
     // == Special "player" for signifying a draw game
-    DRAW_GAME: {},
+    DRAWN_GAME: {},
 };
 
 

@@ -1,5 +1,6 @@
 import gameData from '../state/consts/gameData.js';
 import utils from '../utils/utils.js';
+import geomUtils from './rendering/geomUtils.js';
 
 const STORAGE_KEY = 'world-conflict';
 
@@ -11,6 +12,8 @@ var defaultSetup = {
     sound: true,
     turnCount: 12,
     firstTimeInstructions: {},
+    mapWidth: geomUtils.MAP_WIDTH,
+    mapHeight: geomUtils.MAP_HEIGHT,
 };
 
 export default {

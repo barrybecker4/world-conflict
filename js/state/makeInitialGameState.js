@@ -33,8 +33,8 @@ export default function makeInitialGameState(setup) {
         players.push(player);
     });
 
-    var regions = generateMap(players.length);
-    var gameState = new GameState(players, 1, 0, gameData.movesPerTurn);
+    var regions = generateMap(players.length, setup.mapWidth, setup.mapHeight);
+    var gameState = new GameState(players, 1, 0, gameData.BASE_MOVES_PER_TURN);
 
     setupTemples(3, regions);
 

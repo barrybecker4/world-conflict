@@ -300,7 +300,7 @@ function nextTurn(state) {
         var playerCount = state.players.length;
         var playerIndex = (state.playerIndex + 1) % playerCount, upcomingPlayer = state.players[playerIndex],
             turnNumber = state.turnIndex + (playerIndex ? 0 : 1);
-        var numMoves = gameData.movesPerTurn + state.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
+        var numMoves = gameData.BASE_MOVES_PER_TURN + state.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
         state.turnIndex = turnNumber;
         state.playerIndex = playerIndex;
         state.movesRemaining = numMoves;
@@ -327,5 +327,5 @@ function determineGameWinner(state) {
     var otherPlayers = state.players.filter(function(player) { return player != winner; });
     var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
 
-    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : gameData.DRAW_GAME;
+    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : gameData.DRAWN_GAME;
 }

@@ -45,7 +45,7 @@ function showMap(container, gameState, regions) {
 
     // create all the layers (5 per region)
     var ocean = makePolygon(
-        [[0,0], [gameData.mapWidth,0], [gameData.mapWidth, gameData.mapHeight], [0, gameData.mapHeight]],
+        [[0,0], [geomUtils.MAP_WIDTH, 0], [geomUtils.MAP_WIDTH, geomUtils.MAP_HEIGHT], [0, geomUtils.MAP_HEIGHT]],
         'b', 'b'
     );
     var tops = makeRegionPolys('r', 'l', 1, 1, 0, 0);
