@@ -1,13 +1,12 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import gameData from '../../state/consts/gameData.js';
 import { ArmyMove, EndMove } from '../../state/model/Move.js';
 import heuristics from './heuristics.js';
 import makeMove from '../../client/makeMove.js';
 import Node from './Node.js';
 import map from '../../client/map.js';
 
-export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback) {
+export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback, minTime, maxTime) {
     var simulation = fromState.copy(forPlayer);
     var initialNode = new Node(null, forPlayer, depth, null, simulation, possibleMoves(fromState));
     var currentNode = initialNode;
@@ -25,11 +24,7 @@ export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback)
             // cap thinking time
             var elapsedTime = Date.now() - timeStart;
 
-            if (elapsedTime > gameData.maximumAIThinkingTime) {  // this can be simplified
-                currentNode = null;
-            }
-
-            if (!currentNode) {
+            if (!currentNode || elapsedTime > maxTime) {  // this can be simplified
                 // we're done, let's see what's the best move we found!
                 var bestMove = initialNode.bestMove;
                 if (!bestMove) {
@@ -38,13 +33,12 @@ export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback)
 
                 // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
                 // so that whatever the AI does is easy to understand
-                const thinkTime = Math.max(gameData.minimumAIThinkingTime - elapsedTime, 1);
+                const thinkTime = Math.max(minTime - elapsedTime, 1);
                 setTimeout(() => moveCallback(bestMove), thinkTime);
                 return;
             }
         }
-        // schedule some more work, we're not done yet
-        // but we want to let some events happen
+        // Schedule some more work. We're not done yet but we want to let some events happen
         setTimeout(doSomeWork, 0); // was 1
     }
 }

@@ -4,8 +4,6 @@ export default {
     mapWidth: 30,
     mapHeight: 20,
     movesPerTurn: 3,
-    minimumAIThinkingTime: 1000,
-    maximumAIThinkingTime: 5000,
 
     LEVELS: ["Temple", "Cathedral"],
 

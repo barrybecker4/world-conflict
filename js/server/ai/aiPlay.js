@@ -1,9 +1,11 @@
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import gameData from '../../state/consts/gameData.js';
 import { BuildMove } from '../../state/model/Move.js';
 import UPGRADES from '../../state/consts/UPGRADES.js';
 import miniMaxSearch from './miniMaxSearch.js'
 import heuristics from './heuristics.js';
+
+const MIN_THINK_TIME = 1000;
+const MAX_THINK_TIME = 5000;
 
 // Logic for AI (non-human) players .
 export default {
@@ -14,20 +16,20 @@ function aiPickMove(player, state, reportMoveCallback) {
     // check for upgrade options first start with soldiers
     if (shouldBuildSoldier(player, state)) {
         var move = buildSoldierAtBestTemple(player, state);
-        return setTimeout(() => reportMoveCallback(move), gameData.minimumAIThinkingTime);
+        return setTimeout(() => reportMoveCallback(move), MIN_THINK_TIME);
     }
 
     // we don't need soldiers, maybe we can upgrade a temple?
     var upgrade = upgradeToBuild(player, state);
     if (upgrade) {
-        return setTimeout(() => reportMoveCallback(upgrade), gameData.minimumAIThinkingTime);
+        return setTimeout(() => reportMoveCallback(upgrade), MIN_THINK_TIME);
     }
 
     // the AI only analyzes its own moves (threats are handled in heuristic)
     var depth = state.movesRemaining || 1;
 
     // use a min-max search to find the best move looking a few steps forward
-    miniMaxSearch(player, state, depth, reportMoveCallback);
+    miniMaxSearch(player, state, depth, reportMoveCallback, MIN_THINK_TIME, MAX_THINK_TIME);
 }
 
 function shouldBuildSoldier(player, state) {
