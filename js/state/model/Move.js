@@ -45,7 +45,7 @@ class BuildMove extends Move {
         super();
         this.upgrade = desiredUpgrade;
         this.temple = temple;
-        this.region = temple.region;
+        this.regionIndex = temple.regionIndex;
         this.buttons = buttons;
     }
     isBuildMove() {

@@ -77,7 +77,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 state.moveDecision.upgrade = UPGRADES[which];
                 // if its a soldier, store UI state so it can be kept after the move is made
                 if (state.moveDecision.upgrade === UPGRADES.SOLDIER)
-                    uiState[player.index] = state.moveDecision.region;
+                    uiState[player.index] = state.regions[state.moveDecision.regionIndex];
                 // report the move
                 reportMoveCallback(state.moveDecision);
             }
@@ -109,7 +109,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
     }
 
     function makeUpgradeButtons(temple) {
-        var templeOwner = state.owner(temple.region);
+        var templeOwner = state.owner(temple.regionIndex);
         var upgradeButtons = UPGRADES.map(function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
             var level = (temple.upgrade == upgrade) ?

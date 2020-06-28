@@ -44,16 +44,17 @@ function regionFullValue(state, region) {
 }
 
 function templeDangerousness(state, temple) {
-    var templeOwner = state.owner(temple.region);
-    return regionThreat(state, templeOwner, temple.region) +
-           regionOpportunity(state, templeOwner, temple.region);
+    var templeOwner = state.owner(temple.regionIndex);
+    return regionThreat(state, templeOwner, temple.regionIndex) +
+           regionOpportunity(state, templeOwner, temple.regionIndex);
 }
 
-function regionThreat(state, player, region) {
+function regionThreat(state, player, regionIndex) {
     var aiLevel = gameInitialization.gameSetup.aiLevel;
     if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
-    var ourPresence = state.soldierCount(region);
+    var ourPresence = state.soldierCount(regionIndex);
+    var region = state.regions[regionIndex];
     var enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbour) {
         // is this an enemy region?
         var nOwner = state.owner(neighbour);
@@ -86,15 +87,16 @@ function regionThreat(state, player, region) {
     return utils.clamp((enemyPresence / (ourPresence + 0.0001) - 1) / 1.5, 0, (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1);
 }
 
-function regionOpportunity(state, player, region) {
+function regionOpportunity(state, player, regionIndex) {
     // the 'nice' AI doesn't see opportunities
     if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0;
 
     // how much conquest does this region enable?
-    var attackingSoldiers = state.soldierCount(region);
+    var attackingSoldiers = state.soldierCount(regionIndex);
     if (!attackingSoldiers)
         return 0;
 
+    let region = state.regions[regionIndex];
     return sequenceUtils.sum(region.neighbors, function(neighbour) {
         if (state.owner(neighbour) != player) {
             var defendingSoldiers = state.soldierCount(neighbour);

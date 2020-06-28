@@ -28,7 +28,8 @@ export default class GameState {
     }
 
     soldierCount(region) {
-        return this.soldiersAtRegion(region.index).length;
+        let idx = (typeof region == 'number') ? region : region.index;
+        return this.soldiersAtRegion(idx).length;
     }
 
     income(player) {
@@ -42,7 +43,7 @@ export default class GameState {
         // 1 faith per each soldier at a temple
         const self = this;
         var fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
-            return self.soldierCount(temple.region);
+            return self.soldierCount(temple.regionIndex);
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
         if ((player.pickMove == aiPlay.aiPickMove) && (gameInitialization.gameSetup.aiLevel == gameData.AI_EVIL))
@@ -129,7 +130,7 @@ export default class GameState {
 
     templeInfo(temple) {
         if (!temple.upgrade) {
-            var name = this.owner(temple.region) ? "Basic Temple" : "Neutral Temple";
+            var name = this.owner(temple.regionIndex) ? "Basic Temple" : "Neutral Temple";
             return { name, description: "No upgrades" };
         } else {
             let upgrade = temple.upgrade;
@@ -139,11 +140,11 @@ export default class GameState {
         }
     }
 
-    addSoldiers(region, count) {
+    addSoldiers(regionIndex, count) {
         const self = this;
         utils.range(0, count).map(function() {
             soldierCounter = (soldierCounter + 1) || 0;
-            var soldierList = self.soldiersAtRegion(region.index);
+            var soldierList = self.soldiersAtRegion(regionIndex);
             soldierList.push({ i: soldierCounter++ });
         });
     }

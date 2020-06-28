@@ -100,7 +100,7 @@ function showMap(container, gameState) {
     function makeTemples() {
         forEachProperty(gameState.temples, function(temple) {
 
-            var center = temple.region.center,
+            var center = gameState.regions[temple.regionIndex].center,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
             // create the temple <div>s
@@ -111,7 +111,9 @@ function showMap(container, gameState) {
             temple.element = append('m', templeHTML);
 
             // retrieve elements and bind callbacks
-            onClickOrTap(temple.element, (event) => uiCallbacks.invokeCallback(temple.region, 'templeSelected', event));
+            onClickOrTap(temple.element, event =>
+                uiCallbacks.invokeCallback(gameState.regions[temple.regionIndex], 'templeSelected', event)
+            );
         });
     }
 }
@@ -241,7 +243,7 @@ function updateMapDisplay(gameState) {
         }
 
         // which cursor should we use?
-        let templeOwner = gameState.owner(temple.region);
+        let templeOwner = gameState.owner(temple.regionIndex);
         let activePlayerIsTempleOwner = templeOwner == gameState.activePlayer();
         temple.element.style.cursor = appState.isInGame() ?
             (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
@@ -331,10 +333,14 @@ function updateMapDisplay(gameState) {
         floaters.map(function(floater) {
             var x, y;
             if (floater.region) {
-                x = floater.region.center[0]; y = floater.region.center[1];
-            } else {
+                x = floater.region.center[0];
+                y = floater.region.center[1];
+            } else if (floater.soldier) {
                 var node = soldierDivsById[floater.soldier.i];
-                x = parseFloat(node.style.left) + 0.2, y = parseFloat(node.style.top) + 0.2;
+                x = parseFloat(node.style.left) + 0.2;
+                y = parseFloat(node.style.top) + 0.2;
+            } else {
+                throw new Error("The floater had niether region, nor soldier:\n" + JSON.stringify(floater));
             }
 
             x -= floater.width / 2 + 0.5; y -= 4;
@@ -387,7 +393,7 @@ function updateIngameUI(gameState) {
     let moveInfo;
     if (activePlayer.pickMove == uiPickMove) {
         if (buildingMode) {
-            if (gameState.owner(decisionState.region) == activePlayer)
+            if (gameState.owner(decisionState.regionIndex) == activePlayer)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');
             else
                 moveInfo = '';

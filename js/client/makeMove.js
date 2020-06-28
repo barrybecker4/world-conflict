@@ -25,7 +25,7 @@ export default function makeMove(state, move) {
         // for this case, if there is a fight, then it will be added to the move
         moveSoldiers(newState, move.source, move.destination, move.count);
     } else if (move.isBuildMove()) {
-        buildUpgrade(newState, move.region, move.upgrade);
+        buildUpgrade(newState, move.regionIndex, move.upgrade);
     } else if (move.isEndMove()) {
         nextTurn(newState);
     } else {
@@ -183,7 +183,9 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
             // and prevent anybody from moving in
             incomingSoldiers = 0;
             state.soundCue = SOUNDS.DEFEAT;
-            state.floatingText = [{region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}];
+            state.floatingText = [
+                {region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}
+            ];
         }
     }
 
@@ -230,16 +232,16 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
 }
 
 
-function buildUpgrade(state, region, upgrade) {
-    var temple = state.temples[region.index];
-    var templeOwner = state.owner(region);
+function buildUpgrade(state, regionIndex, upgrade) {
+    var temple = state.temples[regionIndex];
+    var templeOwner = state.owner(regionIndex);
 
     if (upgrade === UPGRADES.SOLDIER) {
         // soldiers work differently - they get progressively more expensive the more you buy in one turn
         if (!state.numBoughtSoldiers)
             state.numBoughtSoldiers = 0;
         state.cash[templeOwner.index] -= upgrade.cost[state.numBoughtSoldiers++];
-        return state.addSoldiers(region, 1);
+        return state.addSoldiers(regionIndex, 1);
     }
     if (upgrade === UPGRADES.RESPECT) {
         // respecting is also different
@@ -261,7 +263,7 @@ function buildUpgrade(state, region, upgrade) {
     state.cash[templeOwner.index] -= upgrade.cost[temple.level];
 
     // particles!
-    state.particleTempleRegion = temple.region;
+    state.particleTempleRegion = state.regions[regionIndex];
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)
@@ -277,7 +279,7 @@ function nextTurn(state) {
     state.cash[player.index] += playerIncome;
     if (playerIncome) {
         state.floatingText = [{
-            region: state.templesForPlayer(player)[0].region,
+            region: state.regions[state.templesForPlayer(player)[0].regionIndex],
             text: "+" + playerIncome + "&#9775;",
             color: '#fff',
             width: 5
@@ -288,7 +290,7 @@ function nextTurn(state) {
     utils.forEachProperty(state.temples, function(temple, regionIndex) {
         if (state.owner(regionIndex) == player) {
             // this is our temple, add a soldier of the temple's element
-            state.addSoldiers(temple.region, 1);
+            state.addSoldiers(regionIndex, 1);
         }
     });
 
