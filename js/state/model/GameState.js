@@ -4,15 +4,15 @@ import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import aiPlay from '../../server/ai/aiPlay.js';
 import UPGRADES from '../consts/UPGRADES.js';
+import map from '../../client/map.js';
 
 // global counter for the number of soldiers
 var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, regions, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash, simulatingPlayer, floatingText) {
+    constructor(players, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash, simulatingPlayer, floatingText) {
         this.players = players;
-        this.regions = regions;
         this.turnIndex = turnIndex;
         this.playerIndex = playerIndex;
         this.movesRemaining = movesRemaining;
@@ -60,7 +60,7 @@ export default class GameState {
     regionCount(player) {
         var total = 0;
         const self = this;
-        this.regions.map(region => {
+        map.regions.map(region => {
             if (self.owner(region) == player)
                 total++;
         });
@@ -106,7 +106,7 @@ export default class GameState {
         }
 
         let self = this;
-        return sequenceUtils.max(this.regions.map(function(region) {
+        return sequenceUtils.max(map.regions.map(function(region) {
             // does it have a temple?
             var temple = self.temples[region.index];
             if (!temple) return 0;
@@ -119,7 +119,7 @@ export default class GameState {
 
     totalSoldiers(player) {
         let self = this;
-        return sequenceUtils.sum(this.regions, function(region) {
+        return sequenceUtils.sum(map.regions, function(region) {
             return (self.owner(region) == player) ? self.soldierCount(region) : 0;
         });
     }
@@ -157,7 +157,6 @@ export default class GameState {
     copy(simulatingPlayer) {
         return new GameState(
             this.players,
-            this.regions,
             this.turnIndex,
             this.playerIndex,
             this.movesRemaining,

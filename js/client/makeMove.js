@@ -8,6 +8,7 @@ import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
 import UPGRADES from '../state/consts/UPGRADES.js';
+import map from './map.js';
 const $ = domUtils.$;
 
 /**
@@ -54,7 +55,7 @@ function afterMoveChecks(state) {
 // update region ownership and notify if any players eliminated
 function updatePlayerRegions(state) {
     state.players.map(function(player) {
-        var totalSoldiers = sequenceUtils.sum(state.regions, function(region) {
+        var totalSoldiers = sequenceUtils.sum(map.regions, function(region) {
             return state.owner(region) == player ? state.soldierCount(region) : 0;
         });
         if (!totalSoldiers && state.regionCount(player)) {
@@ -263,7 +264,7 @@ function buildUpgrade(state, regionIndex, upgrade) {
     state.cash[templeOwner.index] -= upgrade.cost[temple.level];
 
     // particles!
-    state.particleTempleRegion = state.regions[regionIndex];
+    state.particleTempleRegion = map.regions[regionIndex];
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)
@@ -279,7 +280,7 @@ function nextTurn(state) {
     state.cash[player.index] += playerIncome;
     if (playerIncome) {
         state.floatingText = [{
-            region: state.regions[state.templesForPlayer(player)[0].regionIndex],
+            region: map.regions[state.templesForPlayer(player)[0].regionIndex],
             text: "+" + playerIncome + "&#9775;",
             color: '#fff',
             width: 5

@@ -7,6 +7,7 @@ import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
 import UPGRADES from '../state/consts/UPGRADES.js';
+import map from './map.js';
 
 
 /**
@@ -59,7 +60,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
     uiCallbacks.setSoldierSelectedCB(function(soldier) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
-        state.regions.map(function(region) {
+        map.regions.map(function(region) {
             if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier))
                 soldierRegion = region;
         });
@@ -77,7 +78,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 state.moveDecision.upgrade = UPGRADES[which];
                 // if its a soldier, store UI state so it can be kept after the move is made
                 if (state.moveDecision.upgrade === UPGRADES.SOLDIER)
-                    uiState[player.index] = state.regions[state.moveDecision.regionIndex];
+                    uiState[player.index] = map.regions[state.moveDecision.regionIndex];
                 // report the move
                 reportMoveCallback(state.moveDecision);
             }
@@ -104,7 +105,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
     function setCleanState() {  // maybe move first two lines to method on state
         state.moveDecision = new Move();
-        state.moveDecision.highlitRegions = state.regions.filter(region => state.regionHasActiveArmy(player, region));
+        state.moveDecision.highlitRegions = map.regions.filter(region => state.regionHasActiveArmy(player, region));
         gameRenderer.updateDisplay(state);
     }
 

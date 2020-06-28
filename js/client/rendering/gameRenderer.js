@@ -12,6 +12,7 @@ import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
 import uiPickMove from '../uiPickMove.js';
+import map from '../map.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
@@ -27,8 +28,7 @@ export default {
 
 // Creates the rendering of the game map as an SVG object.
 // Takes the map (regions) stored in gameState.region, and creates an SVG map out of it.
-function showMap(container, gameState) {
-    var regions = gameState.regions;
+function showMap(container, gameState, regions) {
 
     // define gradients and clipping paths for rendering
     var defs = elem('defs', {},
@@ -68,11 +68,11 @@ function showMap(container, gameState) {
         region.center = projectPoint(centerOfWeight(region.points));
 
         region.hl = $('hl' + index);
-        onClickOrTap(region.hl, (event) => uiCallbacks.invokeCallback(region, 'regionSelected', event));
+        onClickOrTap(region.hl, event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
     });
 
     // additional callbacks for better UI
-    onClickOrTap(document.body, (event) => uiCallbacks.invokeCallback(null, 'regionSelected', event));
+    onClickOrTap(document.body, event => uiCallbacks.invokeCallback(null, 'regionSelected', event));
 
     // make the temple <div>s
     makeTemples();
@@ -100,7 +100,7 @@ function showMap(container, gameState) {
     function makeTemples() {
         forEachProperty(gameState.temples, function(temple) {
 
-            var center = gameState.regions[temple.regionIndex].center,
+            var center = regions[temple.regionIndex].center,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
             // create the temple <div>s
@@ -112,7 +112,7 @@ function showMap(container, gameState) {
 
             // retrieve elements and bind callbacks
             onClickOrTap(temple.element, event =>
-                uiCallbacks.invokeCallback(gameState.regions[temple.regionIndex], 'templeSelected', event)
+                uiCallbacks.invokeCallback(regions[temple.regionIndex], 'templeSelected', event)
             );
         });
     }
@@ -122,13 +122,13 @@ function showMap(container, gameState) {
 
 var soldierDivsById = {};
 
-function updateMapDisplay(gameState) {
-    gameState.regions.map(updateRegionDisplay);
+function updateMapDisplay(gameState, regions) {
+    regions.map(updateRegionDisplay);
     forEachProperty(gameState.temples, updateTempleDisplay);
 
     var soldiersStillAlive = [];
     forEachProperty(gameState.soldiers, function(soldiers, regionIndex) {
-        soldiers.map((soldier, i) => updateSoldierDisplay(gameState.regions[regionIndex], soldier, i));
+        soldiers.map((soldier, i) => updateSoldierDisplay(regions[regionIndex], soldier, i));
     });
 
     forEachProperty(soldierDivsById, function(div, id) {
@@ -296,8 +296,7 @@ function updateMapDisplay(gameState) {
     }
 
     function updateSoldierTooltips() {
-
-        gameState.regions.map(function(region, regionIndex) {
+        regions.map(function(region, regionIndex) {
             var tooltipId = 'sc' + regionIndex;
             // delete previous tooltip, if present
             var tooltip = $(tooltipId);
@@ -448,7 +447,7 @@ function updateDisplay(gameState) {
         displayedState = gameState;
     }
 
-    updateMapDisplay(displayedState);
+    updateMapDisplay(displayedState, map.regions);
     updateIngameUI(displayedState);
 
     if (displayedState.soundCue) {

@@ -10,6 +10,7 @@ import PLAYERS from '../state/consts/PLAYERS.js';
 import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
+import map from './map.js';
 const { $, div } = domUtils;
 
 export default {
@@ -22,18 +23,19 @@ var gameSetup = storage.retrieveSetup();
 function runSetupScreen() {
     audio.setupAudio();
     appState.setInGame(false); // in setup
-    var gameState = regenerateInitialState(null);
+    let { gameState, regions } = regenerateInitialState({});
     createSetupUI(gameSetup);
 
     // callback for the buttons on the bottom
     uiCallbacks.setBuildCB(function(which) {
         if (!isSetupValid()) return;
         if (which === 0) {
-            gameState = regenerateInitialState(gameState);
+            ({ gameState, regions } = regenerateInitialState({gameState, regions}));
         } else {
+            map.regions = regions;
             prepareIngameUI(gameState);
             gameRenderer.updateDisplay(gameState);
-            playOneMove(gameState);
+            playOneMove(gameState); // start the game
         }
     });
     // callback for player setup buttons
@@ -42,7 +44,7 @@ function runSetupScreen() {
         gameSetup.players[event.playerIndex] = event.buttonIndex;
         updateConfigButtons();
         updateBottomButtons();
-        gameState = regenerateInitialState(gameState);
+        ({ gameState, regions } = regenerateInitialState({gameState, regions}));
     });
     // callback for AI config buttons
     uiCallbacks.setAiCB(function(aiLevel) {
@@ -86,14 +88,14 @@ function prepareIngameUI(gameState) {
     ['mv', 'undo-button', 'restart'].map(domUtils.show);
 }
 
-function regenerateInitialState(gameState) {
-    let newGameState = gameState;
+function regenerateInitialState(stateAndRegions) {
+    let newStateAndRegions = stateAndRegions;
     if (isSetupValid()) {
-        newGameState = makeInitialGameState(gameSetup);
-        gameRenderer.showMap($('m'), newGameState);
-        gameRenderer.updateMapDisplay(newGameState);
+        newStateAndRegions = makeInitialGameState(gameSetup);
+        gameRenderer.showMap($('m'), newStateAndRegions.gameState, newStateAndRegions.regions);
+        gameRenderer.updateMapDisplay(newStateAndRegions.gameState, newStateAndRegions.regions);
     }
-    return newGameState;
+    return newStateAndRegions;
 }
 
 function updateConfigButtons() {

@@ -5,6 +5,7 @@ import { ArmyMove, EndMove } from '../../state/model/Move.js';
 import heuristics from './heuristics.js';
 import makeMove from '../../client/makeMove.js';
 import Node from './Node.js';
+import map from '../../client/map.js';
 
 export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback) {
     var simulation = fromState.copy(forPlayer);
@@ -105,7 +106,7 @@ function possibleMoves(state) {
     }
 
     // let's see what moves we have available
-    state.regions.map(function(region) {
+    map.regions.map(function(region) {
        if (state.regionHasActiveArmy(player, region)) {
            // There is a move from here!
            // Iterate over all possible neighbours, and add two moves for each:

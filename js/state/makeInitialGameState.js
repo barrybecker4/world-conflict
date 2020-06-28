@@ -34,11 +34,11 @@ export default function makeInitialGameState(setup) {
     });
 
     var regions = generateMap(players.length);
-    var gameState = new GameState(players, regions, 1, 0, gameData.movesPerTurn);
+    var gameState = new GameState(players, 1, 0, gameData.movesPerTurn);
 
-    setupTemples(3);
+    setupTemples(3, regions);
 
-    return gameState;
+    return {regions, gameState};
 
     function distanceScore(regions) {
         return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance));
@@ -47,12 +47,12 @@ export default function makeInitialGameState(setup) {
     /**
      * @param initialSoldierCount number of solders to place at each temple location initially
      */
-    function setupTemples(initialSoldierCount) {
+    function setupTemples(initialSoldierCount, regions) {
 
-        var homes = findHomeRegions();
+        var homes = findHomeRegions(regions);
 
         setupPlayersWithTheirTemples(players, homes);
-        setupNeutralTemples(players, homes);
+        setupNeutralTemples(players, homes, regions);
 
         // we have the regions, set up each player
         function setupPlayersWithTheirTemples(players, homes) {
@@ -67,13 +67,13 @@ export default function makeInitialGameState(setup) {
             });
         }
 
-        function setupNeutralTemples(players, homes) {
+        function setupNeutralTemples(players, homes, regions) {
             var distancesToTemples = homes.map(function() { return 0; });
             var templeRegions = [];
             var neutralTempleCount = [3, 3, 4][players.length - 2];
 
             range(0, neutralTempleCount).map(function() {
-                var bestRegion = sequenceUtils.max(gameState.regions, function(region) {
+                var bestRegion = sequenceUtils.max(regions, function(region) {
                     return templeScore(region);
                 });
 
@@ -106,7 +106,7 @@ export default function makeInitialGameState(setup) {
 
 
     // pick regions that are as far away as possible from each other for the players' initial temples
-    function findHomeRegions() {
+    function findHomeRegions(regions) {
         const possibleSetups = range(0, 1000).map(function() {
             return gameState.players.map(() => regions[rint(0, regions.length)]);
         });

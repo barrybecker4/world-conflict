@@ -1,6 +1,6 @@
 import Player from '../model/Player.js';
 
-// Player properties
+// There are up to 4 possible Players. Each can be human or AI.
 export default [
     new Player(0, 'Amber', '#fe8', '#c81', '#fd8', '#a80'),
     new Player(1, 'Crimson', '#f88', '#a44', '#faa', '#944'),

@@ -2,6 +2,7 @@ import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import gameData from '../../state/consts/gameData.js';
 import gameInitialization from '../../client/gameInitialization.js';
+import map from '../../client/map.js';
 
 export default {
     heuristicForPlayer,
@@ -24,7 +25,7 @@ function heuristicForPlayer(player, state) {
         return value;
     }
 
-    var regionTotal = sequenceUtils.sum(state.regions, function (region) {
+    var regionTotal = sequenceUtils.sum(map.regions, function (region) {
         return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
     var faithTotal = state.income(player) * soldierBonus / 12; // each point of faith counts as 1/12th of a soldier
@@ -54,7 +55,7 @@ function regionThreat(state, player, regionIndex) {
     if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
 
     var ourPresence = state.soldierCount(regionIndex);
-    var region = state.regions[regionIndex];
+    var region = map.regions[regionIndex];
     var enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbour) {
         // is this an enemy region?
         var nOwner = state.owner(neighbour);
@@ -96,7 +97,7 @@ function regionOpportunity(state, player, regionIndex) {
     if (!attackingSoldiers)
         return 0;
 
-    let region = state.regions[regionIndex];
+    let region = map.regions[regionIndex];
     return sequenceUtils.sum(region.neighbors, function(neighbour) {
         if (state.owner(neighbour) != player) {
             var defendingSoldiers = state.soldierCount(neighbour);
