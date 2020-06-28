@@ -206,11 +206,13 @@ function updateMapDisplay(gameState, regions) {
             var inactiveArmies = gameState.conqueredRegions;
             if (inactiveArmies) {
                 showTooltipOver(inactiveArmies[inactiveArmies.length - 1], "Armies that conquer a new region cannot move again.")
-                showTooltipOver({center: [-2, 80]}, "Once you're done, click 'End turn' here.");
+                showTooltipOver({center: [-2, 80]},
+                    "Once you're done, click 'End turn' here.");
             }
         }
         if (gameState.turnIndex == 2 && gameState.movesRemaining == 2) {
-            showTooltipOver({ center:[90,93] }, "If you want to undo a move or check the rules, use the buttons here.", 15);
+            showTooltipOver({ center:[90, 93] },
+                "If you want to undo a move or check the rules, use the buttons here.", 15);
         }
     }
 

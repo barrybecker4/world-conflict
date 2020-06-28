@@ -10,8 +10,8 @@ export default {
 }
 
 function heuristicForPlayer(player, state) {
-    var soldierBonus = slidingBonus(state, 0.25, 0, 0.83),
-        threatOpportunityMultiplier = slidingBonus(state, 1.0, 0.0, 0.83);
+    const soldierBonus = slidingBonus(state, 0.25, 0, 0.83);
+    const threatOpportunityMultiplier = slidingBonus(state, 1.0, 0.0, 0.83);
 
     function adjustedRegionValue(region) {
         // count the value of the region itself
@@ -25,7 +25,7 @@ function heuristicForPlayer(player, state) {
         return value;
     }
 
-    var regionTotal = sequenceUtils.sum(map.regions, function (region) {
+    const regionTotal = sequenceUtils.sum(map.regions, function (region) {
         return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
     var faithTotal = state.income(player) * soldierBonus / 12; // each point of faith counts as 1/12th of a soldier
@@ -33,30 +33,31 @@ function heuristicForPlayer(player, state) {
 }
 
 function regionFullValue(state, region) {
-    var temple = state.temples[region.index];
+    const temple = state.temples[region.index];
     if (temple) {
-        var templeBonus = slidingBonus(state, 6, 0, 0.5);
-        var upgradeBonus = slidingBonus(state, 4, 0, 0.9);
-        var upgradeValue = temple.upgrade ? (temple.level + 1) : 0;
+        const templeBonus = slidingBonus(state, 6, 0, 0.5);
+        const upgradeBonus = slidingBonus(state, 4, 0, 0.9);
+        const upgradeValue = temple.upgrade ? (temple.level + 1) : 0;
         return 1 + templeBonus + upgradeBonus * upgradeValue;
     } else {
-        return 1;slidingBon
+        return 1;
     }
 }
 
 function templeDangerousness(state, temple) {
-    var templeOwner = state.owner(temple.regionIndex);
+    const templeOwner = state.owner(temple.regionIndex);
     return regionThreat(state, templeOwner, temple.regionIndex) +
            regionOpportunity(state, templeOwner, temple.regionIndex);
 }
 
 function regionThreat(state, player, regionIndex) {
-    var aiLevel = gameInitialization.gameSetup.aiLevel;
-    if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0; // 'nice' AI doesn't consider threat
+    const aiLevel = gameInitialization.gameSetup.aiLevel;
+    if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE)
+        return 0; // 'nice' AI doesn't consider threat
 
-    var ourPresence = state.soldierCount(regionIndex);
-    var region = map.regions[regionIndex];
-    var enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbour) {
+    let ourPresence = state.soldierCount(regionIndex);
+    let region = map.regions[regionIndex];
+    let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbour) {
         // is this an enemy region?
         var nOwner = state.owner(neighbour);
         if ((nOwner == player) || !nOwner) return 0;
@@ -85,7 +86,9 @@ function regionThreat(state, player, regionIndex) {
 
         return total;
     }));
-    return utils.clamp((enemyPresence / (ourPresence + 0.0001) - 1) / 1.5, 0, (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1);
+    const clampHigh = (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1
+    const threatLevel = (enemyPresence / (ourPresence + 0.0001) - 1) / 1.5;
+    return utils.clamp(threatLevel, 0, clampHigh);
 }
 
 function regionOpportunity(state, player, regionIndex) {
@@ -101,7 +104,8 @@ function regionOpportunity(state, player, regionIndex) {
     return sequenceUtils.sum(region.neighbors, function(neighbour) {
         if (state.owner(neighbour) != player) {
             var defendingSoldiers = state.soldierCount(neighbour);
-            return utils.clamp((attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5, 0, 0.5) * regionFullValue(state, neighbour);
+            const opp = (attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5;
+            return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighbour);
         } else {
             return 0;
         }
@@ -113,5 +117,5 @@ function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
     var alpha = (state.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
     if (alpha < 0.0)
         alpha = 0.0;
-    return (startOfGameValue + (endOfGameValue - startOfGameValue) * alpha);
+    return startOfGameValue + (endOfGameValue - startOfGameValue) * alpha;
 }

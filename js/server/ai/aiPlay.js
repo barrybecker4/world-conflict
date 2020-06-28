@@ -7,7 +7,7 @@ import heuristics from './heuristics.js';
 const MIN_THINK_TIME = 1000;
 const MAX_THINK_TIME = 5000;
 
-// Logic for AI (non-human) players .
+// Logic for AI (non-human) players
 export default {
     aiPickMove,
 };
@@ -37,21 +37,20 @@ function shouldBuildSoldier(player, state) {
     if (!state.templesForPlayer(player).length)
         return false;
 
-    // get preference for soldiers from our personality
-    // if we don't want more upgrades, our preference becomes 1
+    // Get preference for soldiers from our personality.
     var soldierEagerness = player.personality.getSoldierEagerness();
 
-    // calculate the relative cost of buying a soldier now
+    // Calculate the relative cost of buying a soldier now.
     var relativeCost = state.soldierCost() / state.cash[player.index];
     if (relativeCost > 1)
         return false;
 
-    // see how far behind on soldier number we are
+    // See how far behind on soldier number we are.
     var forces = state.players.map(player => force(state, player));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
     // This calculates whether we should build now - the further we are behind other players,
-    // the more likely we are to spend a big chunk of our cash  on it
+    // the more likely we are to spend a big chunk of our cash on it
     var decisionFactor = forceDisparity * soldierEagerness - relativeCost;
 
     return decisionFactor >= 0;
@@ -67,6 +66,7 @@ function upgradeToBuild(player, state) {
         return;
     var desire = player.personality.preferredUpgrades[0];
     var currentLevel = state.rawUpgradeLevel(player, desire);
+
     // can we afford it?
     if (state.cash[player.index] < desire.cost[currentLevel])
         return;

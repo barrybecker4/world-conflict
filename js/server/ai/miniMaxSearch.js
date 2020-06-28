@@ -7,26 +7,26 @@ import Node from './Node.js';
 import map from '../../client/map.js';
 
 export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback, minTime, maxTime) {
-    var simulation = fromState.copy(forPlayer);
-    var initialNode = new Node(null, forPlayer, depth, null, simulation, possibleMoves(fromState));
-    var currentNode = initialNode;
-    var unitOfWork = 100;
-    var timeStart = Date.now();
+    let simulation = fromState.copy(forPlayer);
+    let initialNode = new Node(null, forPlayer, depth, null, simulation, possibleMoves(fromState));
+    let currentNode = initialNode;
+    let unitOfWork = 100;
+    let timeStart = Date.now();
 
-    setTimeout(doSomeWork, 0); // was 1
+    setTimeout(doSomeWork, 0);
 
     function doSomeWork() {
-        var stepsRemaining = unitOfWork;
+        let stepsRemaining = unitOfWork;
         while (stepsRemaining--) {
             // do some thinking
             currentNode = minMaxDoSomeWork(currentNode);
 
             // cap thinking time
-            var elapsedTime = Date.now() - timeStart;
+            let elapsedTime = Date.now() - timeStart;
 
             if (!currentNode || elapsedTime > maxTime) {  // this can be simplified
                 // we're done, let's see what's the best move we found!
-                var bestMove = initialNode.bestMove;
+                let bestMove = initialNode.bestMove;
                 if (!bestMove) {
                     bestMove = new EndMove();
                 }
@@ -50,13 +50,13 @@ function minMaxDoSomeWork(node) {
         return minMaxReturnFromChild(node.parent, node);
     }
 
-    var move = node.possibleMoves.shift();
+    let move = node.possibleMoves.shift();
     if (!move) {
         // we're done analyzing here, return value to parent
         return minMaxReturnFromChild(node.parent, node);
     } else {
         // spawn a child node
-        var childState = makeMove(node.state, move);
+        let childState = makeMove(node.state, move);
         return new Node(node, node.activePlayer, node.depth - 1, move, childState, possibleMoves(childState));
     }
 }
@@ -64,10 +64,10 @@ function minMaxDoSomeWork(node) {
 function minMaxReturnFromChild(node, child) {
     if (node) {
         // what sort of a node are we?
-        var activePlayer = node.state.players[node.state.playerIndex];
-        var maximizingNode = activePlayer == node.activePlayer;
+        let activePlayer = node.state.players[node.state.playerIndex];
+        let maximizingNode = activePlayer == node.activePlayer;
         // is the value from child better than what we have?
-        var better =
+        let better =
             !node.bestMove || (maximizingNode && child.value > node.value) || (!maximizingNode && child.value < node.value);
         if (better) {
             node.bestMove = child.move;
@@ -81,22 +81,22 @@ function minMaxReturnFromChild(node, child) {
 
 function possibleMoves(state) {
     // ending your turn is always an option
-    var moves = [new EndMove()];
-    var player = state.activePlayer();
+    let moves = [new EndMove()];
+    let player = state.activePlayer();
 
     // are we out of move points?
     if (!state.movesRemaining)
-        return moves; // yup, just end of turn available
+        return moves;
 
-    // add the move to the list, if it doesn't qualify as an obviously dumb one
-    function addArmyMove(source, dest, count) {
+    // add the move to the list, if it isn't dumb or illegal
+    function addArmyMove(source, dest, soldierCount) {
 
         // suicide moves, for example, are dumb.
-        if ((state.owner(dest) != player) && (state.soldierCount(dest) > count))
+        if ((state.owner(dest) != player) && (state.soldierCount(dest) > soldierCount))
             return;
 
         // not *obviously* dumb, so add it to the list!
-        moves.push(new ArmyMove(source, dest, count));
+        moves.push(new ArmyMove(source, dest, soldierCount));
     }
 
     // let's see what moves we have available
@@ -104,8 +104,8 @@ function possibleMoves(state) {
        if (state.regionHasActiveArmy(player, region)) {
            // There is a move from here!
            // Iterate over all possible neighbours, and add two moves for each:
-           // moving the entire army there, and half of it
-           var soldiers = state.soldierCount(region);
+           // Add a move for moving the entire army there, and another one with half the army.
+           let soldiers = state.soldierCount(region);
            region.neighbors.map(function(neighbour) {
                addArmyMove(region, neighbour, soldiers);
                if (soldiers > 1)

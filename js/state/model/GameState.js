@@ -11,7 +11,8 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash, simulatingPlayer, floatingText) {
+    constructor(players, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash,
+                simulatingPlayer, floatingText, conqueredRegions) {
         this.players = players;
         this.turnIndex = turnIndex;
         this.playerIndex = playerIndex;
@@ -25,6 +26,20 @@ export default class GameState {
         this.moveDecision = null;
         this.soundCue = null;
         this.undoDisabled = false;
+        this.conqueredRegions = conqueredRegions;
+    }
+
+    advanceToNextPlayer() {
+        const playerCount = this.players.length;
+        const playerIndex = (this.playerIndex + 1) % playerCount;
+        const upcomingPlayer = this.players[playerIndex];
+        const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
+        const numMoves = gameData.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
+        this.turnIndex = turnNumber;
+        this.playerIndex = playerIndex;
+        this.movesRemaining = numMoves;
+        this.conqueredRegions = null;
+        return upcomingPlayer;
     }
 
     soldierCount(region) {
@@ -54,7 +69,7 @@ export default class GameState {
     regionHasActiveArmy(player, region) {
         return (this.movesRemaining > 0) &&
             (this.owner(region) == player) && this.soldierCount(region) &&
-            (!sequenceUtils.contains(this.conqueredRegions, region));
+            !sequenceUtils.contains(this.conqueredRegions, region.index);
     }
 
     regionCount(player) {
@@ -165,7 +180,8 @@ export default class GameState {
             utils.deepCopy(this.soldiers, 3),
             utils.deepCopy(this.cash, 1),
             this.simulatingPlayer || simulatingPlayer,
-            this.floatingText
+            this.floatingText,
+            this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
         );
     }
 }

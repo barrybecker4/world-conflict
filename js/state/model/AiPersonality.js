@@ -11,6 +11,7 @@ export default class AiPersonality {
         this.preferredUpgrades = preferredUpgrades;
     }
 
+    // If we don't want more upgrades, our preference becomes 1.
     getSoldierEagerness() {
         return this.preferredUpgrades.length ? this.soldierEagerness : 1;
     }

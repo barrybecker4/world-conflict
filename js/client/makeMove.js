@@ -210,7 +210,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
     if (fromOwner != toOwner) {
         state.owners[toRegion.index] = fromOwner.index;
         // mark as conquered to prevent moves from this region in the same turn
-        state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
+        state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion.index);
         // if there was a temple, reset its upgrades
         var temple = state.temples[toRegion.index];
         if (temple)
@@ -296,14 +296,9 @@ function nextTurn(state) {
     });
 
     // go to next player (skipping dead ones)
+    let upcomingPlayer;
     do {
-        var playerCount = state.players.length;
-        var playerIndex = (state.playerIndex + 1) % playerCount, upcomingPlayer = state.players[playerIndex],
-            turnNumber = state.turnIndex + (playerIndex ? 0 : 1);
-        var numMoves = gameData.BASE_MOVES_PER_TURN + state.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
-        state.turnIndex = turnNumber;
-        state.playerIndex = playerIndex;
-        state.movesRemaining = numMoves;
+        upcomingPlayer = state.advanceToNextPlayer();
     } while (!state.regionCount(upcomingPlayer));
 
     // did the game end by any chance?
