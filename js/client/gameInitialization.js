@@ -69,13 +69,10 @@ function prepareIngameUI(gameState) {
     // player box area
     html += div({i: 'pd', c: 'sc un'}, gameState.players.map(player => {
         var pid = player.index;
-        return div({
-            i: 'pl' + pid,
-            c: 'pl',
-            style: 'background: ' + player.colorEnd
-        }, player.name +
-            div({c: 'ad', i: 'particle' + pid}) +
-            div({c: 'ad', i: 'player-cash' + pid})
+        return div({ i: 'pl' + pid, c: 'pl', style: 'background: ' + player.colorEnd },
+            player.name +
+            div({ c: 'ad', i: 'region-count' + pid, tt: 'number of countries owned' }) +
+            div({ c: 'ad', i: 'player-cash' + pid, tt: 'amount of faith' })
         );
     }).join(''));
 

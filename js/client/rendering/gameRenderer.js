@@ -372,14 +372,14 @@ function updateIngameUI(gameState) {
         var gameWinner = gameState.endResult;
 
         if (regions) {
-            $('particle' + index).innerHTML = gameState.regionCount(player) + '&#9733;'; // region count
+            $('region-count' + index).innerHTML = gameState.regionCount(player) + '&#9733;';
             if (gameWinner) {
                 $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
             } else {
-                $('player-cash' + index).innerHTML = gameState.cash[player.index] + '&#9775;'; // cash on hand
+                $('player-cash' + index).innerHTML = gameState.cash[player.index] + '&#9775;'; // faith
             }
         } else {
-            $('particle' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
+            $('region-count' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
             $('player-cash' + index).innerHTML = '';
         }
     });

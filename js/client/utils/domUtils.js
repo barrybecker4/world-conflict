@@ -16,7 +16,8 @@ function elem(tag, attrs, contents) {
     var shorthanded = {
         c: 'class',
         s: 'style',
-        i: 'id'
+        i: 'id',
+        tt: 'title',
     };
     var html = '<' + tag + ' ';
     for (var attributeName in attrs) {
