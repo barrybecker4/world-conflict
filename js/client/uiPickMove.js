@@ -23,27 +23,29 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         if (!region || state.moveDecision.isBuildMove())
             setCleanState();
 
-        if (!state.moveDecision.source && region) {
+        if (typeof state.moveDecision.source == 'undefined' && region) {
             // no move in progress - start a new move if this is legal
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
-                state.moveDecision = new ArmyMove(region, null, state.soldierCount(region));
+                state.moveDecision = new ArmyMove(region.index, undefined, state.soldierCount(region));
                 state.moveDecision.buttons[0].hidden = false;
-                state.moveDecision.highlitRegions = region.neighbors.concat(region);
+                state.moveDecision.highlitRegions = region.neighbors.map((r) => r.index).concat(region.index);
             }
         } else if (region) {
             // we already have a move in progress
             var moveDecision = state.moveDecision;
             // what region did we click?
-            if (region == moveDecision.source) {
+            if (region.index == moveDecision.source) {
                 // the one we're moving an army from - tweak number of selected soldiers
                 moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
-            } else if (moveDecision.source.neighbors.indexOf(region) > -1) {
-                // one of the neighbours - let's finalize the move
+            }
+            else if (map.regions[moveDecision.source].neighbors.indexOf(region) > -1) {
+                // one of the neighbors - let's finalize the move
                 uiCallbacks.clearAll();
-                moveDecision.destination = region;
+                moveDecision.destination = region.index;
                 return reportMoveCallback(moveDecision);
-            } else {
+            }
+            else {
                 // some random region - cancel move
                 setCleanState();
             }
@@ -105,7 +107,8 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
     function setCleanState() {  // maybe move first two lines to method on state
         state.moveDecision = new Move();
-        state.moveDecision.highlitRegions = map.regions.filter(region => state.regionHasActiveArmy(player, region));
+        state.moveDecision.highlitRegions =
+            map.regions.filter(region => state.regionHasActiveArmy(player, region)).map((r) => r.index);
         gameRenderer.updateDisplay(state);
     }
 

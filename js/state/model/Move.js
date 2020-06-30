@@ -30,6 +30,8 @@ class ArmyMove extends Move {
 
     constructor(source, destination, count) {
         super();
+        if (source && typeof source !== 'number') throw new Error("source not an index: " + source);
+        if (destination && typeof destination !== 'number') throw new Error("destination not an index: " + destination);
         this.source = source;
         this.destination = destination;
         this.count = count;

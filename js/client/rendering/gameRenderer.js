@@ -159,7 +159,7 @@ function updateMapDisplay(gameState, regions) {
         // a region is highlighted if it has an available move, or belongs to the winner
         // (end game display highlights the winner)
         const hasAvailableMove =
-            sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], region);
+            sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], region.index);
         var highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
 
         // highlighting
@@ -167,7 +167,7 @@ function updateMapDisplay(gameState, regions) {
             gradientName += 'h';
         }
         var highlightedOpacity = 0.1 + region.center[0] * 0.003;
-        if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region))
+        if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region.index))
             highlightedOpacity *= 2;
         region.hl.style.opacity = highlighted ? highlightedOpacity : 0.0;
         region.hl.style.cursor = highlighted ? 'pointer' : 'default';
@@ -194,14 +194,15 @@ function updateMapDisplay(gameState, regions) {
         if (gameState.activePlayer().pickMove != uiPickMove) return;
 
         // "how to move" tooltips
-        var source = gameState.moveDecision && gameState.moveDecision.source;
-        if (source)  {
+        const hasSource = gameState.moveDecision && typeof gameState.moveDecision.source == 'number';
+        if (hasSource)  {
+            const source = map.regions[gameState.moveDecision.source];
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
-            // pick the furthest neighbour
+            // pick the furthest neighbor
             var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(nbr));
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
-        if (!source) {
+        else {
             // "conquering armies cannot move" tooltips
             var inactiveArmies = gameState.conqueredRegions;
             if (inactiveArmies) {
@@ -294,7 +295,7 @@ function updateMapDisplay(gameState, regions) {
 
         // selected?
         var decisionState = gameState.moveDecision || {};
-        toggleClass(domElement, 'l', (decisionState.source == region) && (index < decisionState.count));
+        toggleClass(domElement, 'l', (decisionState.source == region.index && index < decisionState.count));
     }
 
     function updateSoldierTooltips() {
@@ -306,7 +307,7 @@ function updateMapDisplay(gameState, regions) {
             // should we have a tooltip?
             var count = gameState.soldierCount(region);
             if (count > 8) {
-                const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region));
+                const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region.index));
                 var selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
                 selected += sequenceUtils.sum(gameState.soldiersAtRegion(regionIndex), function(soldier) {
                     return soldier.attackedRegion ? 1 : 0;

@@ -96,20 +96,20 @@ function possibleMoves(state) {
             return;
 
         // not *obviously* dumb, so add it to the list!
-        moves.push(new ArmyMove(source, dest, soldierCount));
+        moves.push(new ArmyMove(source.index, dest.index, soldierCount));
     }
 
     // let's see what moves we have available
     map.regions.map(function(region) {
        if (state.regionHasActiveArmy(player, region)) {
            // There is a move from here!
-           // Iterate over all possible neighbours, and add two moves for each:
+           // Iterate over all possible neighbors, and add two moves for each:
            // Add a move for moving the entire army there, and another one with half the army.
            let soldiers = state.soldierCount(region);
-           region.neighbors.map(function(neighbour) {
-               addArmyMove(region, neighbour, soldiers);
+           region.neighbors.map(function(neighbor) {
+               addArmyMove(region, neighbor, soldiers);
                if (soldiers > 1)
-                   addArmyMove(region, neighbour, Math.floor(soldiers / 2));
+                   addArmyMove(region, neighbor, Math.floor(soldiers / 2));
            });
        }
     });

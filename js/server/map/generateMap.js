@@ -43,19 +43,19 @@ export default function generateMap(playerCount, mapWidth, mapHeight) {
         }
     } while (!retries);
 
-    fillNeighbourLists();
+    fillNeighborLists();
     return regions;
 
 
     // Figures out who borders with who, using the 2d grid in 'regionMap'.
-    function fillNeighbourLists() {
+    function fillNeighborLists() {
         utils.for2d(1, 1, mapWidth - 1, mapHeight - 1, function(x, y) {
             var region = regionMap[x][y];
             if (region) {
                 [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {
-                    var potentialNeighbour = regionMap[x + d[0]][y + d[1]];
-                    if (potentialNeighbour && (potentialNeighbour != region) && (region.neighbors.indexOf(potentialNeighbour) == -1))
-                        region.neighbors.push(potentialNeighbour);
+                    var potentialNeighbor = regionMap[x + d[0]][y + d[1]];
+                    if (potentialNeighbor && (potentialNeighbor != region) && (region.neighbors.indexOf(potentialNeighbor) == -1))
+                        region.neighbors.push(potentialNeighbor);
                 });
             }
         });

@@ -67,9 +67,10 @@ export default class GameState {
     }
 
     regionHasActiveArmy(player, region) {
+        let regionIdx = (typeof region == 'number') ? region : region.index;
         return (this.movesRemaining > 0) &&
-            (this.owner(region) == player) && this.soldierCount(region) &&
-            !sequenceUtils.contains(this.conqueredRegions, region.index);
+            (this.owner(regionIdx) == player) && this.soldierCount(regionIdx) &&
+            !sequenceUtils.contains(this.conqueredRegions, regionIdx);
     }
 
     regionCount(player) {
@@ -135,7 +136,7 @@ export default class GameState {
     totalSoldiers(player) {
         let self = this;
         return sequenceUtils.sum(map.regions, function(region) {
-            return (self.owner(region) == player) ? self.soldierCount(region) : 0;
+            return (self.owner(region.index) == player) ? self.soldierCount(region.index) : 0;
         });
     }
 

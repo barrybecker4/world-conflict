@@ -57,15 +57,15 @@ function regionThreat(state, player, regionIndex) {
 
     let ourPresence = state.soldierCount(regionIndex);
     let region = map.regions[regionIndex];
-    let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbour) {
+    let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbor) {
         // is this an enemy region?
-        var nOwner = state.owner(neighbour);
+        var nOwner = state.owner(neighbor.index);
         if ((nOwner == player) || !nOwner) return 0;
 
         // count soldiers that can reach us in 3 moves from this direction using a breadth-first search.
-        // 'rude' AI only looks at direct neighbours, harder AIs look at all soldiers that can reach us.
+        // 'rude' AI only looks at direct neighbors, harder AIs look at all soldiers that can reach us.
         var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2;
-        var queue = [{region: neighbour, depth}], visited = [];
+        var queue = [{region: neighbor, depth}], visited = [];
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
@@ -101,11 +101,11 @@ function regionOpportunity(state, player, regionIndex) {
         return 0;
 
     let region = map.regions[regionIndex];
-    return sequenceUtils.sum(region.neighbors, function(neighbour) {
-        if (state.owner(neighbour) != player) {
-            var defendingSoldiers = state.soldierCount(neighbour);
+    return sequenceUtils.sum(region.neighbors, function(neighbor) {
+        if (state.owner(neighbor) != player) {
+            var defendingSoldiers = state.soldierCount(neighbor);
             const opp = (attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5;
-            return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighbour);
+            return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighbor);
         } else {
             return 0;
         }

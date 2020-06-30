@@ -76,12 +76,10 @@ function updatePlayerRegions(state) {
     });
 }
 
-
-
 function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
 
-    let fromList = state.soldiersAtRegion(fromRegion.index);
-    let toList = state.soldiersAtRegion(toRegion.index);
+    let fromList = state.soldiersAtRegion(fromRegion);
+    let toList = state.soldiersAtRegion(toRegion);
     const numDefenders = toList.length;
 
     let remainingSoldiers = fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers);
@@ -113,7 +111,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
     if (preemptiveDamage || defendingSoldiers) {
         // there will be a battle - move the soldiers halfway for animation
         if (!state.simulatingPlayer) {
-            fromList.slice(0, incomingSoldiers).map(soldier => { soldier.attackedRegion = toRegion; });
+            fromList.slice(0, incomingSoldiers).map(soldier => { soldier.attackedRegion = map.regions[toRegion]; });
         }
         battleAnimationKeyframe(state);
     }
@@ -185,7 +183,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
             incomingSoldiers = 0;
             state.soundCue = SOUNDS.DEFEAT;
             state.floatingText = [
-                {region: toRegion, color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}
+                {region: map.regions[toRegion], color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}
             ];
         }
     }
@@ -208,16 +206,16 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
 
     // if this didn't belong to us, it now does
     if (fromOwner != toOwner) {
-        state.owners[toRegion.index] = fromOwner.index;
+        state.owners[toRegion] = fromOwner.index;
         // mark as conquered to prevent moves from this region in the same turn
-        state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion.index);
+        state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
         // if there was a temple, reset its upgrades
-        var temple = state.temples[toRegion.index];
+        var temple = state.temples[toRegion];
         if (temple)
             delete temple.upgrade;
         // play sound, launch particles!
-        state.particleTempleRegion = toRegion;
-        state.floatingText = [{region: toRegion, color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
+        state.particleTempleRegion = map.regions[toRegion];
+        state.floatingText = [{region: map.regions[toRegion], color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
         state.soundCue = numDefenders ? SOUNDS.VICTORY : SOUNDS.TAKE_OVER;
     }
 }
