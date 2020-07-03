@@ -10,6 +10,7 @@ import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - needs server API
 import uiCallbacks from './uiCallbacks.js';
+import uiPickMove from './uiPickMove.js';
 import makeMove from './makeMove.js';
 const $ = domUtils.$;
 
@@ -25,7 +26,7 @@ export default function playOneMove(state) {
         // let the player pick their move using UI or AI
         pickMove(controllingPlayer, state, function(move) {
             // AI makes sounds when playing
-            if (controllingPlayer.pickMove == aiPlay.aiPickMove)
+            if (controllingPlayer.personality)
                 audio.playSound(SOUNDS.CLICK);
 
             // the move is chosen - update state to a new immutable copy
@@ -81,5 +82,6 @@ function pickMove(player, state, reportMoveCallback) {
         return reportMoveCallback(new EndMove());
 
     // delegate to whoever handles this player
-    player.pickMove(player, state, reportMoveCallback);
+    let doPickMove = player.personality ? aiPlay.aiPickMove : uiPickMove;
+    doPickMove(player, state, reportMoveCallback);
 }

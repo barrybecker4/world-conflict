@@ -61,7 +61,7 @@ export default class GameState {
             return self.soldierCount(temple.regionIndex);
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
-        if ((player.pickMove == aiPlay.aiPickMove) && (gameInitialization.gameSetup.aiLevel == gameData.AI_EVIL))
+        if (player.personality && (gameInitialization.gameSetup.aiLevel == gameData.AI_EVIL))
             multiplier += 0.4;
         return Math.ceil(multiplier * (fromRegions + fromTemples));
     }

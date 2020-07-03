@@ -21,9 +21,6 @@ export default function makeInitialGameState(setup) {
         if (playerController === gameData.PLAYER_OFF) return;
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
-        // set up as AI or human
-        player.pickMove = (playerController == gameData.PLAYER_HUMAN) ? uiPickMove : aiPlay.aiPickMove;
-
         // pick a random personality if we're AI
         if (playerController == gameData.PLAYER_AI) {
             player.personality = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();

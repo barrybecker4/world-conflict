@@ -190,7 +190,7 @@ function updateMapDisplay(gameState, regions) {
 
     function updateTooltips() {
         [].slice.call(document.querySelectorAll('.ttp')).map(element => $('m').removeChild(element));
-        if (gameState.activePlayer().pickMove != uiPickMove) return;
+        if (gameState.activePlayer().personality) return;
 
         // "how to move" tooltips
         const hasSource = gameState.moveDecision && typeof gameState.moveDecision.source == 'number';
@@ -392,7 +392,7 @@ function updateIngameUI(gameState) {
     });
 
     let moveInfo;
-    if (activePlayer.pickMove == uiPickMove) {
+    if (!activePlayer.personality) {
         if (buildingMode) {
             if (gameState.owner(decisionState.regionIndex) == activePlayer)
                 moveInfo = elem('p', {}, 'Choose an upgrade to build.');
