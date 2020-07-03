@@ -38,11 +38,12 @@ function contains(seq, elem) {
 
 // Takes an array, and returns another array containing the result of applying a function
 // on all possible pairs of elements.
-function pairwise(array, fn) {
-    var result = [];
+function pairwise(array, fn, globalArray) {
+    const result = [];
+    const fullArray = globalArray ? globalArray : array;
     array.map(function(elem1, index) {
         array.slice(index + 1).map(function(elem2) {
-            result.push(fn(elem1, elem2));
+            result.push(fn(elem1, elem2, fullArray));
         });
     });
     return result;

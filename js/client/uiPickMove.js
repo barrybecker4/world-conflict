@@ -29,7 +29,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 setCleanState();
                 state.moveDecision = new ArmyMove(region.index, undefined, state.soldierCount(region));
                 state.moveDecision.buttons[0].hidden = false;
-                state.moveDecision.highlitRegions = region.neighbors.map((r) => r.index).concat(region.index);
+                state.moveDecision.highlitRegions = region.neighbors.concat(region.index);
             }
         } else if (region) {
             // we already have a move in progress
@@ -39,7 +39,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 // the one we're moving an army from - tweak number of selected soldiers
                 moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
             }
-            else if (map.regions[moveDecision.source].neighbors.indexOf(region) > -1) {
+            else if (map.regions[moveDecision.source].neighbors.indexOf(region.index) > -1) {
                 // one of the neighbors - let's finalize the move
                 uiCallbacks.clearAll();
                 moveDecision.destination = region.index;

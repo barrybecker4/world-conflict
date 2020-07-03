@@ -15,7 +15,7 @@ function heuristicForPlayer(player, state) {
 
     function adjustedRegionValue(region) {
         // count the value of the region itself
-        var value = regionFullValue(state, region);
+        var value = regionFullValue(state, region.index);
         // but also take into account the threat other players pose to it, and the opportunities it offers
         value += regionOpportunity(state, player, region) * threatOpportunityMultiplier -
                  regionThreat(state, player, region) * threatOpportunityMultiplier * value;
@@ -32,8 +32,8 @@ function heuristicForPlayer(player, state) {
     return regionTotal + faithTotal;
 }
 
-function regionFullValue(state, region) {
-    const temple = state.temples[region.index];
+function regionFullValue(state, regionIdx) {
+    const temple = state.temples[regionIdx];
     if (temple) {
         const templeBonus = slidingBonus(state, 6, 0, 0.5);
         const upgradeBonus = slidingBonus(state, 4, 0, 0.9);
@@ -57,15 +57,15 @@ function regionThreat(state, player, regionIndex) {
 
     let ourPresence = state.soldierCount(regionIndex);
     let region = map.regions[regionIndex];
-    let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighbor) {
+    let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighborIdx) {
         // is this an enemy region?
-        var nOwner = state.owner(neighbor.index);
+        var nOwner = state.owner(neighborIdx);
         if ((nOwner == player) || !nOwner) return 0;
 
         // count soldiers that can reach us in 3 moves from this direction using a breadth-first search.
         // 'rude' AI only looks at direct neighbors, harder AIs look at all soldiers that can reach us.
         var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2;
-        var queue = [{region: neighbor, depth}], visited = [];
+        var queue = [{region: map.regions[neighborIdx], depth}], visited = [];
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
@@ -76,8 +76,8 @@ function regionThreat(state, player, regionIndex) {
             if (entry.depth) {
                 // go deeper with the search
                 let unvisitedNeighbors =
-                    entry.region.neighbors.filter(function(candidate) {
-                        return (!sequenceUtils.contains(visited, candidate)) &&
+                    entry.region.neighbors.filter(function(candidateIdx) {
+                        return (!sequenceUtils.contains(visited, map.regions[candidateIdx])) &&
                             (state.owner(candidate) == nOwner);
                     });
                 unvisitedNeighbors.map(region => queue.push({region, depth: entry.depth - 1}));
@@ -101,11 +101,11 @@ function regionOpportunity(state, player, regionIndex) {
         return 0;
 
     let region = map.regions[regionIndex];
-    return sequenceUtils.sum(region.neighbors, function(neighbor) {
-        if (state.owner(neighbor) != player) {
-            var defendingSoldiers = state.soldierCount(neighbor);
+    return sequenceUtils.sum(region.neighbors, function(neighborIdx) {
+        if (state.owner(neighborIdx) != player) {
+            var defendingSoldiers = state.soldierCount(neighborIdx);
             const opp = (attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5;
-            return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighbor);
+            return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighborIdx);
         } else {
             return 0;
         }

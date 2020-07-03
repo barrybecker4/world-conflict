@@ -54,8 +54,8 @@ export default function generateMap(playerCount, mapWidth, mapHeight) {
             if (region) {
                 [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {
                     var potentialNeighbor = regionMap[x + d[0]][y + d[1]];
-                    if (potentialNeighbor && (potentialNeighbor != region) && (region.neighbors.indexOf(potentialNeighbor) == -1))
-                        region.neighbors.push(potentialNeighbor);
+                    if (potentialNeighbor && (potentialNeighbor != region) && (region.neighbors.indexOf(potentialNeighbor.index) == -1))
+                        region.neighbors.push(potentialNeighbor.index);
                 });
             }
         });

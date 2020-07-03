@@ -106,7 +106,8 @@ function possibleMoves(state) {
            // Iterate over all possible neighbors, and add two moves for each:
            // Add a move for moving the entire army there, and another one with half the army.
            let soldiers = state.soldierCount(region);
-           region.neighbors.map(function(neighbor) {
+           region.neighbors.map(function(neighborIdx) {
+               let neighbor = map.regions[neighborIdx];
                addArmyMove(region, neighbor, soldiers);
                if (soldiers > 1)
                    addArmyMove(region, neighbor, Math.floor(soldiers / 2));

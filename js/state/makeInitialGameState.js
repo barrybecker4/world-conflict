@@ -40,8 +40,8 @@ export default function makeInitialGameState(setup) {
 
     return {regions, gameState};
 
-    function distanceScore(regions) {
-        return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance));
+    function distanceScore(regions, allRegions) {
+        return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
     }
 
     /**
@@ -89,7 +89,7 @@ export default function makeInitialGameState(setup) {
 
                 var updated = updatedDistances(newTemple);
                 var inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
-                var templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple));
+                var templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple), regions);
                 if (!templeDistances)
                     templeDistances = -5;
 
@@ -98,7 +98,7 @@ export default function makeInitialGameState(setup) {
 
             function updatedDistances(newTempleRegion) {
                 return homes.map(function(home, index) {
-                    return distancesToTemples[index] + home.distanceFrom(newTempleRegion);
+                    return distancesToTemples[index] + home.distanceFrom(newTempleRegion, regions);
                 });
             }
         }
@@ -110,7 +110,7 @@ export default function makeInitialGameState(setup) {
         const possibleSetups = range(0, 1000).map(function() {
             return gameState.players.map(() => regions[rint(0, regions.length)]);
         });
-        const homes = sequenceUtils.max(possibleSetups, distanceScore);
+        const homes = sequenceUtils.max(possibleSetups, setup => distanceScore(setup, regions));
         return homes;
     }
 

@@ -199,7 +199,7 @@ function updateMapDisplay(gameState, regions) {
             const source = map.regions[gameState.moveDecision.source];
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbor
-            var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(nbr));
+            var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(map.regions[nbr]));
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
         else {
