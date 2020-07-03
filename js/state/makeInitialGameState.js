@@ -10,6 +10,7 @@ import Region from './model/Region.js';
 import { ArmyMove } from './model/Move.js';
 import AI_PERSONALITIES from './consts/AI_PERSONALITIES.js';
 import PLAYERS from './consts/PLAYERS.js';
+import gameData from './gameData.js';
 const { deepCopy, rint, range, sum } = utils;
 
 // Create game state, regions, and players based on setup configuration
@@ -36,7 +37,9 @@ export default function makeInitialGameState(setup) {
 
     setupTemples(3, regions);
 
-    return {regions, players, gameState};
+    gameData.regions = regions;
+    gameData.players = players;
+    return gameState;
 
     function distanceScore(regions, allRegions) {
         return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));

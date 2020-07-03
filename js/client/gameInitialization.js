@@ -23,16 +23,16 @@ var gameSetup = storage.retrieveSetup();
 function runSetupScreen() {
     audio.setupAudio();
     appState.setInGame(false); // in setup
-    let { gameState, players, regions } = regenerateInitialState({});
+    let gameState = regenerateInitialState();
     createSetupUI(gameSetup);
 
     // callback for the buttons on the bottom
     uiCallbacks.setBuildCB(function(whichButton) {
         if (!isSetupValid()) return;
         if (whichButton === 0) {
-            ({ gameState, players, regions } = regenerateInitialState({gameState, players, regions}));
+            gameState = regenerateInitialState(gameState);
         } else {
-            prepareIngameUI(gameState);
+            prepareInGameUI(gameState);
             gameRenderer.updateDisplay(gameState);
             playOneMove(gameState); // start the game
         }
@@ -43,7 +43,7 @@ function runSetupScreen() {
         gameSetup.players[event.playerIndex] = event.buttonIndex;
         updateConfigButtons();
         updateBottomButtons();
-        ({ gameState, players, regions } = regenerateInitialState({gameState, players, regions}));
+        gameState = regenerateInitialState(gameState);
     });
     // callback for AI config buttons
     uiCallbacks.setAiCB(function(aiLevel) {
@@ -63,7 +63,7 @@ function createSetupUI(gameState) {
 }
 
 // Prepares the whole sidebar on the left for gameplay use.
-function prepareIngameUI(gameState) {
+function prepareInGameUI(gameState) {
     // turn counter
     var html = div({i: 'turn-count', c: 'sc'});
 
@@ -87,16 +87,14 @@ function prepareIngameUI(gameState) {
     ['mv', 'undo-button', 'restart'].map(domUtils.show);
 }
 
-function regenerateInitialState(globalState) {
-    let newGlobalState = globalState;
+function regenerateInitialState(gameState) {
+    let newGameState = gameState;
     if (isSetupValid()) {
-        newGlobalState = makeInitialGameState(gameSetup);
-        gameData.regions = newGlobalState.regions;
-        gameData.players = newGlobalState.players;
-        gameRenderer.showMap($('m'), newGlobalState.gameState);
-        gameRenderer.updateMapDisplay(newGlobalState.gameState);
+        newGameState = makeInitialGameState(gameSetup);
+        gameRenderer.showMap($('m'), newGameState);
+        gameRenderer.updateMapDisplay(newGameState);
     }
-    return newGlobalState;
+    return newGameState;
 }
 
 function updateConfigButtons() {
