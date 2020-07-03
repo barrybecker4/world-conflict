@@ -10,7 +10,7 @@ import PLAYERS from '../state/consts/PLAYERS.js';
 import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
-import gameData from './gameData.js';
+import gameData from '../state/gameData.js';
 const { $, div } = domUtils;
 
 export default {

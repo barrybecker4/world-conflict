@@ -4,7 +4,7 @@ import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import aiPlay from '../../server/ai/aiPlay.js';
 import UPGRADES from '../consts/UPGRADES.js';
-import gameData from '../../client/gameData.js';
+import gameData from '../gameData.js';
 
 // global counter for the number of soldiers
 var soldierCounter;

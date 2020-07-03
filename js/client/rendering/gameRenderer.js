@@ -12,7 +12,7 @@ import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
 import uiPickMove from '../uiPickMove.js';
-import gameData from '../gameData.js';
+import gameData from '../../state/gameData.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils

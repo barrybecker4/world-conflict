@@ -8,7 +8,7 @@ import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
 import UPGRADES from '../state/consts/UPGRADES.js';
-import gameData from './gameData.js';
+import gameData from '../state/gameData.js';
 const $ = domUtils.$;
 
 /**

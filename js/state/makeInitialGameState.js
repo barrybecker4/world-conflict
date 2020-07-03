@@ -13,6 +13,7 @@ import PLAYERS from './consts/PLAYERS.js';
 const { deepCopy, rint, range, sum } = utils;
 
 // Create game state, regions, and players based on setup configuration
+// Update regions and players in the global gameData
 export default function makeInitialGameState(setup) {
 
     let players = [];
