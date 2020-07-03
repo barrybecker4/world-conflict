@@ -3,6 +3,7 @@ import { BuildMove } from '../../state/model/Move.js';
 import UPGRADES from '../../state/consts/UPGRADES.js';
 import miniMaxSearch from './miniMaxSearch.js'
 import heuristics from './heuristics.js';
+import gameData from '../../client/gameData.js';
 
 const MIN_THINK_TIME = 1000;
 const MAX_THINK_TIME = 5000;
@@ -46,7 +47,7 @@ function shouldBuildSoldier(player, state) {
         return false;
 
     // See how far behind on soldier number we are.
-    var forces = state.players.map(player => force(state, player));
+    var forces = gameData.players.map(player => force(state, player));
     var forceDisparity = sequenceUtils.max(forces) / force(state, player);
 
     // This calculates whether we should build now - the further we are behind other players,

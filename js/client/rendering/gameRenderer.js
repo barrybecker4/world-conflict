@@ -28,7 +28,7 @@ export default {
 
 // Creates the rendering of the game map as an SVG object.
 // Takes the map (regions) stored in gameState.region, and creates an SVG map out of it.
-function showMap(container, gameState, regions) {
+function showMap(container, gameState) {
 
     // define gradients and clipping paths for rendering
     var defs = elem('defs', {},
@@ -38,7 +38,7 @@ function showMap(container, gameState, regions) {
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
-            gameState.players.map(function(player, index) {
+            gameData.players.map(function(player, index) {
                 return makeGradient('p' + index, player.colorStart, player.colorEnd) +
                     makeGradient('p' + index + 'h', player.highlightStart, player.highlightEnd);
             }).join(''));
@@ -63,7 +63,7 @@ function showMap(container, gameState, regions) {
     soldierDivsById = {};
 
     // hook up region objects to their HTML elements
-    regions.map(function(region, index) {
+    gameData.regions.map(function(region, index) {
         region.element = $('r' + index);
         region.center = projectPoint(centerOfWeight(region.points));
 
@@ -79,7 +79,7 @@ function showMap(container, gameState, regions) {
 
     // makes clipping paths for the "highlight" polygons
     function makeClipPaths() {
-        return regions.map((region, index) => {
+        return gameData.regions.map((region, index) => {
             elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
         }).join('');
     }
@@ -87,7 +87,7 @@ function showMap(container, gameState, regions) {
     // a helper for creating a polygon with a given setup for all regions
     function makeRegionPolys(idPrefix, gradient, xm, ym, xd, yd, stroke, clip) {
 
-        return elem('g', {}, regions.map((region, index) => {
+        return elem('g', {}, gameData.regions.map((region, index) => {
             const clipRegion = clip ? 'url(#' + clip + index + ')' : '';
             return makePolygon(
                 transformPoints(region.points, xm, ym, xd, yd),
@@ -100,7 +100,7 @@ function showMap(container, gameState, regions) {
     function makeTemples() {
         forEachProperty(gameState.temples, function(temple) {
 
-            var center = regions[temple.regionIndex].center,
+            var center = gameData.regions[temple.regionIndex].center,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
             // create the temple <div>s
@@ -111,7 +111,7 @@ function showMap(container, gameState, regions) {
             temple.element = append('m', templeHTML);
 
             onClickOrTap(temple.element, event =>
-                uiCallbacks.invokeCallback(regions[temple.regionIndex], 'templeSelected', event)
+                uiCallbacks.invokeCallback(gameData.regions[temple.regionIndex], 'templeSelected', event)
             );
         });
     }
@@ -121,13 +121,13 @@ function showMap(container, gameState, regions) {
 
 var soldierDivsById = {};
 
-function updateMapDisplay(gameState, regions) {
-    regions.map(updateRegionDisplay);
+function updateMapDisplay(gameState) {
+    gameData.regions.map(updateRegionDisplay);
     forEachProperty(gameState.temples, updateTempleDisplay);
 
     var soldiersStillAlive = [];
     forEachProperty(gameState.soldiers, function(soldiers, regionIndex) {
-        soldiers.map((soldier, i) => updateSoldierDisplay(regions[regionIndex], soldier, i));
+        soldiers.map((soldier, i) => updateSoldierDisplay(gameData.regions[regionIndex], soldier, i));
     });
 
     forEachProperty(soldierDivsById, function(div, id) {
@@ -298,7 +298,7 @@ function updateMapDisplay(gameState, regions) {
     }
 
     function updateSoldierTooltips() {
-        regions.map(function(region, regionIndex) {
+        gameData.regions.map(function(region, regionIndex) {
             var tooltipId = 'sc' + regionIndex;
             // delete previous tooltip, if present
             var tooltip = $(tooltipId);
@@ -373,12 +373,12 @@ function updateIngameUI(gameState) {
     }
 
     // player data
-    gameState.players.map(function(player, index) {
+    gameData.players.map(function(player, index) {
         //$('pl' + index).className = (index == gameState.player) ? 'pl' : 'pi'; // activePlayer or not?
-        var regions = gameState.regionCount(player);
+        var hasRegions = gameState.regionCount(player);
         var gameWinner = gameState.endResult;
 
-        if (regions) {
+        if (hasRegions) {
             $('region-count' + index).innerHTML = gameState.regionCount(player) + '&#9733;';
             if (gameWinner) {
                 $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
@@ -449,7 +449,7 @@ function updateDisplay(gameState) {
         displayedState = gameState;
     }
 
-    updateMapDisplay(displayedState, gameData.regions);
+    updateMapDisplay(displayedState);
     updateIngameUI(displayedState);
 
     if (displayedState.soundCue) {

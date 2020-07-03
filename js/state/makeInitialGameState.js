@@ -12,7 +12,7 @@ import AI_PERSONALITIES from './consts/AI_PERSONALITIES.js';
 import PLAYERS from './consts/PLAYERS.js';
 const { deepCopy, rint, range, sum } = utils;
 
-// Create game state based on setup configuration
+// Create game state, regions, and players based on setup configuration
 export default function makeInitialGameState(setup) {
 
     let players = [];
@@ -30,12 +30,12 @@ export default function makeInitialGameState(setup) {
         players.push(player);
     });
 
-    var regions = generateMap(players.length, setup.mapWidth, setup.mapHeight);
-    var gameState = new GameState(players, 1, 0, CONSTS.BASE_MOVES_PER_TURN);
+    let regions = generateMap(players.length, setup.mapWidth, setup.mapHeight);
+    let gameState = new GameState(1, 0, CONSTS.BASE_MOVES_PER_TURN);
 
     setupTemples(3, regions);
 
-    return {regions, gameState};
+    return {regions, players, gameState};
 
     function distanceScore(regions, allRegions) {
         return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
@@ -105,7 +105,7 @@ export default function makeInitialGameState(setup) {
     // pick regions that are as far away as possible from each other for the players' initial temples
     function findHomeRegions(regions) {
         const possibleSetups = range(0, 1000).map(function() {
-            return gameState.players.map(() => regions[rint(0, regions.length)]);
+            return players.map(() => regions[rint(0, regions.length)]);
         });
         const homes = sequenceUtils.max(possibleSetups, setup => distanceScore(setup, regions));
         return homes;

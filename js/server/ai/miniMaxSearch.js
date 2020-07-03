@@ -64,7 +64,7 @@ function minMaxDoSomeWork(node) {
 function minMaxReturnFromChild(node, child) {
     if (node) {
         // what sort of a node are we?
-        let activePlayer = node.state.players[node.state.playerIndex];
+        let activePlayer = gameData.players[node.state.playerIndex];
         let maximizingNode = activePlayer == node.activePlayer;
         // is the value from child better than what we have?
         let better =

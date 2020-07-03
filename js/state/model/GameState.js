@@ -11,9 +11,8 @@ var soldierCounter;
 
 export default class GameState {
 
-    constructor(players, turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash,
+    constructor(turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash,
                 simulatingPlayer, floatingText, conqueredRegions) {
-        this.players = players;
         this.turnIndex = turnIndex;
         this.playerIndex = playerIndex;
         this.movesRemaining = movesRemaining;
@@ -30,9 +29,9 @@ export default class GameState {
     }
 
     advanceToNextPlayer() {
-        const playerCount = this.players.length;
+        const playerCount = gameData.players.length;
         const playerIndex = (this.playerIndex + 1) % playerCount;
-        const upcomingPlayer = this.players[playerIndex];
+        const upcomingPlayer = gameData.players[playerIndex];
         const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
         const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
         this.turnIndex = turnNumber;
@@ -94,12 +93,12 @@ export default class GameState {
     }
 
     activePlayer() {
-        return this.players[this.playerIndex];
+        return gameData.players[this.playerIndex];
     }
 
     owner(region) {
         let idx = (typeof region == 'number') ? region : region.index;
-        return this.players[this.owners[idx]];
+        return gameData.players[this.owners[idx]];
     }
 
     cashForPlayer(player) {
@@ -172,7 +171,6 @@ export default class GameState {
     // Some properties are omitted - like 'moveDecision', 'undoDisabled', and 'soundCue'
     copy(simulatingPlayer) {
         return new GameState(
-            this.players,
             this.turnIndex,
             this.playerIndex,
             this.movesRemaining,

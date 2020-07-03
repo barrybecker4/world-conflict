@@ -44,7 +44,7 @@ function afterMoveChecks(state) {
     updatePlayerRegions(state);
 
     // do we still have more than one player?
-    var gameStillOn = state.players.filter(player => state.regionCount(player)).length > 1;
+    var gameStillOn = gameData.players.filter(player => state.regionCount(player)).length > 1;
     if (!gameStillOn) {
         // oh gosh, it's done - by elimination!
         state.endResult = determineGameWinner(state);
@@ -54,14 +54,14 @@ function afterMoveChecks(state) {
 
 // update region ownership and notify if any players eliminated
 function updatePlayerRegions(state) {
-    state.players.map(function(player) {
+    gameData.players.map(function(player) {
         var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
             return state.owner(region) == player ? state.soldierCount(region) : 0;
         });
         if (!totalSoldiers && state.regionCount(player)) {
             // lost!
             utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
-                if (player == state.players[ownerIdx])
+                if (player == gameData.players[ownerIdx])
                     delete state.owners[regionIdx];
             });
             // dead people get no more moves
@@ -316,8 +316,8 @@ function nextTurn(state) {
 
 function determineGameWinner(state) {
     var pointsFn = player => state.regionCount(player);
-    var winner = sequenceUtils.max(state.players, pointsFn);
-    var otherPlayers = state.players.filter(function(player) { return player != winner; });
+    var winner = sequenceUtils.max(gameData.players, pointsFn);
+    var otherPlayers = gameData.players.filter(function(player) { return player != winner; });
     var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
 
     return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : CONSTS.DRAWN_GAME;
