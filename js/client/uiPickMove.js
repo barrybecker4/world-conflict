@@ -101,7 +101,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
     setCleanState();
     if (uiState[player.index]) {
-        uiCallbacks.setTempleSelectedCB(uiState[player.index]);
+        uiCallbacks.templeSelected(uiState[player.index]);
         delete uiState[player.index];
     }
 

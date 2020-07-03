@@ -110,7 +110,6 @@ function showMap(container, gameState, regions) {
             }, div({c: 'i'}, div({c: 'i'}, div({c: 'i'}, div({c: 'i'})))));
             temple.element = append('m', templeHTML);
 
-            // retrieve elements and bind callbacks
             onClickOrTap(temple.element, event =>
                 uiCallbacks.invokeCallback(regions[temple.regionIndex], 'templeSelected', event)
             );

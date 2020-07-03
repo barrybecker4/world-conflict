@@ -20,8 +20,8 @@ export default class Region {
     }
 
     // regionArray is optional. Needed only if we don't have the map yet.
-    distanceFrom(regionB, regionArray) {
-        return Region.distance(this, regionB, regionArray);
+    distanceFrom(regionB, regions) {
+        return Region.distance(this, regionB, regions);
     }
 
     centerDistanceFrom(regionB) {
@@ -29,13 +29,11 @@ export default class Region {
     }
 
     // Use breadth-first search and memoization to find distance from this (regionA) to some other regionB.
-    // regionArray is optional. Needed only if we don't have the map yet.
-    static distance(regionA, regionB, regionArray) {
+    static distance(regionA, regionB, regions) {
         let queue = [{region: regionA, distance: 0}];
         let visited = [regionA];
         let answer = -1;
         let bound = 100;
-        let regions = regionArray ? regionArray : map.regions;
 
         while (answer < 0) {
             let item = queue.shift();
