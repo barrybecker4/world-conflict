@@ -1,7 +1,10 @@
 // The world map gets initialized during game setup.
 // Once the game starts, it does not change.
-const map = {
+
+
+const gameData = {
+    players: null,
     regions: null
 }
 
-export default map;
+export default gameData;

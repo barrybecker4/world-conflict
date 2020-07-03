@@ -4,7 +4,7 @@ import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import aiPlay from '../../server/ai/aiPlay.js';
 import UPGRADES from '../consts/UPGRADES.js';
-import map from '../../client/map.js';
+import gameData from '../../client/gameData.js';
 
 // global counter for the number of soldiers
 var soldierCounter;
@@ -76,7 +76,7 @@ export default class GameState {
     regionCount(player) {
         var total = 0;
         const self = this;
-        map.regions.map(region => {
+        gameData.regions.map(region => {
             if (self.owner(region) == player)
                 total++;
         });
@@ -122,7 +122,7 @@ export default class GameState {
         }
 
         let self = this;
-        return sequenceUtils.max(map.regions.map(function(region) {
+        return sequenceUtils.max(gameData.regions.map(function(region) {
             // does it have a temple?
             var temple = self.temples[region.index];
             if (!temple) return 0;
@@ -135,7 +135,7 @@ export default class GameState {
 
     totalSoldiers(player) {
         let self = this;
-        return sequenceUtils.sum(map.regions, function(region) {
+        return sequenceUtils.sum(gameData.regions, function(region) {
             return (self.owner(region.index) == player) ? self.soldierCount(region.index) : 0;
         });
     }

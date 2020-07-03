@@ -7,7 +7,7 @@ import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
 import UPGRADES from '../state/consts/UPGRADES.js';
-import map from './map.js';
+import gameData from './gameData.js';
 
 
 /**
@@ -39,7 +39,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 // the one we're moving an army from - tweak number of selected soldiers
                 moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
             }
-            else if (map.regions[moveDecision.source].neighbors.indexOf(region.index) > -1) {
+            else if (gameData.regions[moveDecision.source].neighbors.indexOf(region.index) > -1) {
                 // one of the neighbors - let's finalize the move
                 uiCallbacks.clearAll();
                 moveDecision.destination = region.index;
@@ -62,7 +62,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
     uiCallbacks.setSoldierSelectedCB(function(soldier) {
         // delegate to the region click handler, after finding out which region it is
         var soldierRegion = null;
-        map.regions.map(function(region) {
+        gameData.regions.map(function(region) {
             if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier))
                 soldierRegion = region;
         });
@@ -80,7 +80,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 state.moveDecision.upgrade = UPGRADES[which];
                 // if its a soldier, store UI state so it can be kept after the move is made
                 if (state.moveDecision.upgrade === UPGRADES.SOLDIER)
-                    uiState[player.index] = map.regions[state.moveDecision.regionIndex];
+                    uiState[player.index] = gameData.regions[state.moveDecision.regionIndex];
                 // report the move
                 reportMoveCallback(state.moveDecision);
             }
@@ -108,7 +108,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
     function setCleanState() {  // maybe move first two lines to method on state
         state.moveDecision = new Move();
         state.moveDecision.highlitRegions =
-            map.regions.filter(region => state.regionHasActiveArmy(player, region)).map((r) => r.index);
+            gameData.regions.filter(region => state.regionHasActiveArmy(player, region)).map((r) => r.index);
         gameRenderer.updateDisplay(state);
     }
 

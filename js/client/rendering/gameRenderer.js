@@ -12,7 +12,7 @@ import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
 import uiPickMove from '../uiPickMove.js';
-import map from '../map.js';
+import gameData from '../gameData.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
@@ -195,10 +195,10 @@ function updateMapDisplay(gameState, regions) {
         // "how to move" tooltips
         const hasSource = gameState.moveDecision && typeof gameState.moveDecision.source == 'number';
         if (hasSource)  {
-            const source = map.regions[gameState.moveDecision.source];
+            const source = gameData.regions[gameState.moveDecision.source];
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbor
-            var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(map.regions[nbr]));
+            var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(gameData.regions[nbr]));
             showTooltipOver(furthest, "Click a bordering region to move.");
         }
         else {
@@ -449,7 +449,7 @@ function updateDisplay(gameState) {
         displayedState = gameState;
     }
 
-    updateMapDisplay(displayedState, map.regions);
+    updateMapDisplay(displayedState, gameData.regions);
     updateIngameUI(displayedState);
 
     if (displayedState.soundCue) {

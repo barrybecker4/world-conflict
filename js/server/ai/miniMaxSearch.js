@@ -4,7 +4,7 @@ import { ArmyMove, EndMove } from '../../state/model/Move.js';
 import heuristics from './heuristics.js';
 import makeMove from '../../client/makeMove.js';
 import Node from './Node.js';
-import map from '../../client/map.js';
+import gameData from '../../client/gameData.js';
 
 export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback, minTime, maxTime) {
     let simulation = fromState.copy(forPlayer);
@@ -100,14 +100,14 @@ function possibleMoves(state) {
     }
 
     // let's see what moves we have available
-    map.regions.map(function(region) {
+    gameData.regions.map(function(region) {
        if (state.regionHasActiveArmy(player, region)) {
            // There is a move from here!
            // Iterate over all possible neighbors, and add two moves for each:
            // Add a move for moving the entire army there, and another one with half the army.
            let soldiers = state.soldierCount(region);
            region.neighbors.map(function(neighborIdx) {
-               let neighbor = map.regions[neighborIdx];
+               let neighbor = gameData.regions[neighborIdx];
                addArmyMove(region, neighbor, soldiers);
                if (soldiers > 1)
                    addArmyMove(region, neighbor, Math.floor(soldiers / 2));

@@ -1,6 +1,6 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import map from '../../client/map.js';
+
 
 export default class Region {
 

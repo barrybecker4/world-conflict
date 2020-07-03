@@ -10,7 +10,7 @@ import PLAYERS from '../state/consts/PLAYERS.js';
 import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
-import map from './map.js';
+import gameData from './gameData.js';
 const { $, div } = domUtils;
 
 export default {
@@ -27,12 +27,12 @@ function runSetupScreen() {
     createSetupUI(gameSetup);
 
     // callback for the buttons on the bottom
-    uiCallbacks.setBuildCB(function(which) {
+    uiCallbacks.setBuildCB(function(whichButton) {
         if (!isSetupValid()) return;
-        if (which === 0) {
+        if (whichButton === 0) {
             ({ gameState, regions } = regenerateInitialState({gameState, regions}));
         } else {
-            map.regions = regions;
+            gameData.regions = regions;
             prepareIngameUI(gameState);
             gameRenderer.updateDisplay(gameState);
             playOneMove(gameState); // start the game
