@@ -3,7 +3,7 @@ import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
-import gameData from '../state/consts/gameData.js';
+import CONSTS from '../state/consts/CONSTS.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
@@ -320,5 +320,5 @@ function determineGameWinner(state) {
     var otherPlayers = state.players.filter(function(player) { return player != winner; });
     var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
 
-    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : gameData.DRAWN_GAME;
+    return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : CONSTS.DRAWN_GAME;
 }

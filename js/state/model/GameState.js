@@ -1,5 +1,5 @@
 import gameInitialization from '../../client/gameInitialization.js';
-import gameData from '../consts/gameData.js';
+import CONSTS from '../consts/CONSTS.js';
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import aiPlay from '../../server/ai/aiPlay.js';
@@ -34,7 +34,7 @@ export default class GameState {
         const playerIndex = (this.playerIndex + 1) % playerCount;
         const upcomingPlayer = this.players[playerIndex];
         const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
-        const numMoves = gameData.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
+        const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
         this.turnIndex = turnNumber;
         this.playerIndex = playerIndex;
         this.movesRemaining = numMoves;
@@ -61,7 +61,7 @@ export default class GameState {
             return self.soldierCount(temple.regionIndex);
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
-        if (player.personality && (gameInitialization.gameSetup.aiLevel == gameData.AI_EVIL))
+        if (player.personality && (gameInitialization.gameSetup.aiLevel == CONSTS.AI_EVIL))
             multiplier += 0.4;
         return Math.ceil(multiplier * (fromRegions + fromTemples));
     }
@@ -152,7 +152,7 @@ export default class GameState {
             let upgrade = temple.upgrade;
             let level = temple.level;
             let description = utils.template(upgrade.desc, upgrade.level[level]);
-            return {name: utils.template(upgrade.name, gameData.LEVELS[level]), description};
+            return {name: utils.template(upgrade.name, CONSTS.LEVELS[level]), description};
         }
     }
 

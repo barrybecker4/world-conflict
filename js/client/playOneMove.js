@@ -3,7 +3,7 @@ import utils from '../utils/utils.js';
 import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
-import gameData from '../state/consts/gameData.js';
+import CONSTS from '../state/consts/CONSTS.js';
 import undoManager from './undoManager.js';
 import appState from './appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
@@ -50,7 +50,7 @@ export default function playOneMove(state) {
 function showEndGame(state) {
     oneAtaTime(1, function() {
         var winner = state.endResult;
-        if (winner != gameData.DRAWN_GAME) {
+        if (winner != CONSTS.DRAWN_GAME) {
             gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!");
         } else {
             gameRenderer.showBanner('#333', "The game ends in a draw!");

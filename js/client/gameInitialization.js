@@ -2,7 +2,7 @@ import utils from '../utils/utils.js';
 import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from '../state/consts/gameData.js';
+import CONSTS from '../state/consts/CONSTS.js';
 import storage from './storage.js';
 import appState from './appState.js';
 import makeInitialGameState from '../state/makeInitialGameState.js';
@@ -112,13 +112,13 @@ function updateConfigButtons() {
     // update AI and turn count buttons
     utils.range(0, 4).map(function(index) {
         domUtils.toggleClass('ai' + index, 'sl', index == gameSetup.aiLevel);
-        domUtils.toggleClass('turn-count' + index, 'sl', gameData.TURN_COUNTS[index] == gameSetup.turnCount);
+        domUtils.toggleClass('turn-count' + index, 'sl', CONSTS.TURN_COUNTS[index] == gameSetup.turnCount);
     });
 }
 
 function isSetupValid() {
     var enabledPlayers = sequenceUtils.sum(gameSetup.players, function(playerState) {
-        return (playerState != gameData.PLAYER_OFF) ? 1 : 0;
+        return (playerState != CONSTS.PLAYER_OFF) ? 1 : 0;
     });
     return enabledPlayers > 1;
 }
@@ -185,7 +185,7 @@ function setupButtonHandlersForPlayers() {
         );
         domUtils.onClickOrTap(
             $('turn-count' + index),
-            (event) => uiCallbacks.invokeCallback(gameData.TURN_COUNTS[index], 'turnCount', event)
+            (event) => uiCallbacks.invokeCallback(CONSTS.TURN_COUNTS[index], 'turnCount', event)
         );
     });
 }

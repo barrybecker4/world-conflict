@@ -1,6 +1,6 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import gameData from '../../state/consts/gameData.js';
+import CONSTS from '../../state/consts/CONSTS.js';
 import gameInitialization from '../../client/gameInitialization.js';
 import map from '../../client/map.js';
 
@@ -52,7 +52,7 @@ function templeDangerousness(state, temple) {
 
 function regionThreat(state, player, regionIndex) {
     const aiLevel = gameInitialization.gameSetup.aiLevel;
-    if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE)
+    if (gameInitialization.gameSetup.aiLevel === CONSTS.AI_NICE)
         return 0; // 'nice' AI doesn't consider threat
 
     let ourPresence = state.soldierCount(regionIndex);
@@ -64,13 +64,13 @@ function regionThreat(state, player, regionIndex) {
 
         // count soldiers that can reach us in 3 moves from this direction using a breadth-first search.
         // 'rude' AI only looks at direct neighbors, harder AIs look at all soldiers that can reach us.
-        var depth = (aiLevel === gameData.AI_RUDE) ? 0 : 2;
+        var depth = (aiLevel === CONSTS.AI_RUDE) ? 0 : 2;
         var queue = [{region: map.regions[neighborIdx], depth}], visited = [];
         var total = 0;
         while (queue.length) {
             var entry = queue.shift();
             // soldiers further away count for less (at least if your AI_MEAN)
-            total += state.soldierCount(entry.region) * ((aiLevel > gameData.AI_RUDE) ? (2 + entry.depth) / 4 : 1);
+            total += state.soldierCount(entry.region) * ((aiLevel > CONSTS.AI_RUDE) ? (2 + entry.depth) / 4 : 1);
             visited.push(entry.region);
 
             if (entry.depth) {
@@ -86,14 +86,14 @@ function regionThreat(state, player, regionIndex) {
 
         return total;
     }));
-    const clampHigh = (aiLevel === gameData.AI_RUDE) ? 0.5 : 1.1
+    const clampHigh = (aiLevel === CONSTS.AI_RUDE) ? 0.5 : 1.1
     const threatLevel = (enemyPresence / (ourPresence + 0.0001) - 1) / 1.5;
     return utils.clamp(threatLevel, 0, clampHigh);
 }
 
 function regionOpportunity(state, player, regionIndex) {
     // the 'nice' AI doesn't see opportunities
-    if (gameInitialization.gameSetup.aiLevel === gameData.AI_NICE) return 0;
+    if (gameInitialization.gameSetup.aiLevel === CONSTS.AI_NICE) return 0;
 
     // how much conquest does this region enable?
     var attackingSoldiers = state.soldierCount(regionIndex);

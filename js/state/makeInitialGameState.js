@@ -1,6 +1,6 @@
 import utils from '../utils/utils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from './consts/gameData.js';
+import CONSTS from './consts/CONSTS.js';
 import aiPlay from '../server/ai/aiPlay.js';
 import generateMap from '../server/map/generateMap.js';
 import uiPickMove from '../client/uiPickMove.js';
@@ -18,11 +18,11 @@ export default function makeInitialGameState(setup) {
     let players = [];
 
     setup.players.map(function(playerController, playerIndex) {
-        if (playerController === gameData.PLAYER_OFF) return;
+        if (playerController === CONSTS.PLAYER_OFF) return;
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
         // pick a random personality if we're AI
-        if (playerController == gameData.PLAYER_AI) {
+        if (playerController == CONSTS.PLAYER_AI) {
             player.personality = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
         }
 
@@ -31,7 +31,7 @@ export default function makeInitialGameState(setup) {
     });
 
     var regions = generateMap(players.length, setup.mapWidth, setup.mapHeight);
-    var gameState = new GameState(players, 1, 0, gameData.BASE_MOVES_PER_TURN);
+    var gameState = new GameState(players, 1, 0, CONSTS.BASE_MOVES_PER_TURN);
 
     setupTemples(3, regions);
 

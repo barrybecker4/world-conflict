@@ -2,7 +2,7 @@ import audio from '../utils/audio.js';
 import utils from '../../utils/utils.js';
 import domUtils from '../utils/domUtils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import gameData from '../../state/consts/gameData.js';
+import CONSTS from '../../state/consts/CONSTS.js';
 import storage from '../storage.js';
 import appState from '../appState.js';
 import gameInitialization from '../gameInitialization.js';
@@ -369,7 +369,7 @@ function updateIngameUI(gameState) {
     } else {
         $('turn-count').innerHTML =
             'Turn <b>' + gameState.turnIndex + '</b>' +
-            ((gameInitialization.gameSetup.turnCount != gameData.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
+            ((gameInitialization.gameSetup.turnCount != CONSTS.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
     }
 
     // player data

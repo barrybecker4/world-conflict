@@ -1,7 +1,7 @@
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import gameData from '../state/consts/gameData.js';
+import CONSTS from '../state/consts/CONSTS.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
@@ -120,7 +120,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
 
             var cost = upgrade.cost[level];
-            var text = utils.template(upgrade.name, gameData.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");
+            var text = utils.template(upgrade.name, CONSTS.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");
             var description = utils.template(upgrade.desc, upgrade.level[level]);
 
             let curUpgrade = temple.upgrade;

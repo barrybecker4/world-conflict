@@ -1,4 +1,4 @@
-import gameData from '../state/consts/gameData.js';
+import CONSTS from '../state/consts/CONSTS.js';
 import utils from '../utils/utils.js';
 import geomUtils from './rendering/geomUtils.js';
 
@@ -7,8 +7,8 @@ const STORAGE_KEY = 'world-conflict';
 // the game setup screen config
 // firstTimeInstructions are shown only the first time the player plays on a given computer
 var defaultSetup = {
-    players: [gameData.PLAYER_HUMAN, gameData.PLAYER_AI, gameData.PLAYER_AI, gameData.PLAYER_OFF],
-    aiLevel: gameData.AI_NICE,
+    players: [CONSTS.PLAYER_HUMAN, CONSTS.PLAYER_AI, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF],
+    aiLevel: CONSTS.AI_NICE,
     sound: true,
     turnCount: 12,
     firstTimeInstructions: {},
