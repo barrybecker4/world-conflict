@@ -7,7 +7,8 @@ import UPGRADES from '../consts/UPGRADES.js';
 import gameData from '../gameData.js';
 
 // global counter for the number of soldiers
-var soldierCounter;
+var soldierId = 0;
+var stateId = 0;
 
 export default class GameState {
 
@@ -26,6 +27,7 @@ export default class GameState {
         this.soundCue = null;
         this.undoDisabled = false;
         this.conqueredRegions = conqueredRegions;
+        this.id = stateId++;
     }
 
     advanceToNextPlayer() {
@@ -158,9 +160,8 @@ export default class GameState {
     addSoldiers(regionIndex, count) {
         const self = this;
         utils.range(0, count).map(function() {
-            soldierCounter = (soldierCounter + 1) || 0;
             var soldierList = self.soldiersAtRegion(regionIndex);
-            soldierList.push({ i: soldierCounter++ });
+            soldierList.push({ i: soldierId++ });
         });
     }
 
