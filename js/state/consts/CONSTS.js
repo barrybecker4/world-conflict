@@ -21,6 +21,9 @@ export default {
 
     // == Special "player" for signifying a draw game
     DRAWN_GAME: {},
+
+    // pause before move in millisecons
+    MOVE_DELAY: 0,
 };
 
 

@@ -20,7 +20,7 @@ export default function playOneMove(state) {
 
     appState.setInGame(true); // playing the game now
 
-    oneAtaTime(150, function() {
+    oneAtaTime(CONSTS.MOVE_DELAY, function() {
         var controllingPlayer = state.activePlayer();
 
         // let the player pick their move using UI or AI
@@ -33,7 +33,7 @@ export default function playOneMove(state) {
             var newState = makeMove(state, move);
 
             if (newState.endResult) { // did the game end?
-                oneAtaTime(150, () => gameRenderer.updateDisplay(newState));
+                oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(newState));
                 showEndGame(newState);
                 return;
             } else {

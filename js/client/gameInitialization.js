@@ -13,16 +13,18 @@ import uiCallbacks from './uiCallbacks.js';
 import gameData from '../state/gameData.js';
 const { $, div } = domUtils;
 
+var gameSetup = storage.retrieveSetup();
+
 export default {
     gameSetup,
     runSetupScreen,
 };
 
-var gameSetup = storage.retrieveSetup();
 
 function runSetupScreen() {
     audio.setupAudio();
     appState.setInGame(false); // in setup
+
     let gameState = regenerateInitialState();
     createSetupUI(gameSetup);
 

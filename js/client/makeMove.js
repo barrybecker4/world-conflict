@@ -69,7 +69,7 @@ function updatePlayerRegions(state) {
                 state.movesRemaining = 0;
             // show the world the good (or bad) news
             if (!state.simulatingPlayer) {
-                oneAtaTime(150, () => gameRenderer.updateDisplay(state));
+                oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
                 gameRenderer.showBanner('#222', player.name + " has been eliminated!", 900);
             }
         }

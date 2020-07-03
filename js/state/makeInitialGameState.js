@@ -13,6 +13,8 @@ import PLAYERS from './consts/PLAYERS.js';
 import gameData from './gameData.js';
 const { deepCopy, rint, range, sum } = utils;
 
+var gameId = 0;
+
 // Create game state, regions, and players based on setup configuration
 // Update regions and players in the global gameData
 export default function makeInitialGameState(setup) {
@@ -39,6 +41,7 @@ export default function makeInitialGameState(setup) {
 
     gameData.regions = regions;
     gameData.players = players;
+    gameData.gameId = gameId++;
     return gameState;
 
     function distanceScore(regions, allRegions) {

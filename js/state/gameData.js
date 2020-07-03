@@ -2,6 +2,7 @@
 // Once the game starts, they does not change.
 
 export default {
-   players: null,
-   regions: null
+   gameId: undefined,
+   players: undefined,
+   regions: undefined,
 }
