@@ -13,21 +13,35 @@ import uiPickMove from './uiPickMove.js';
 import makeMove from './makeMove.js';
 const $ = domUtils.$;
 
+var humanMoveStates = [];
+var lastPlayer = undefined;
 
 // Deals with responding to user actions - whterh human or AI.
 export default function playOneMove(state) {
 
     oneAtaTime(CONSTS.MOVE_DELAY, function() {
 
-        // keep track of the states and last player, and when the player changes, if that player is an AI,
-        // play forward all the moves/state changes all at once.
-        // 1) if controllingPlayer is human, then do as below (but store the newState in an array).
-        //    when done simulate call out to server where we pass the human moves just made
-        // 2) if not human, then call out to server with []
-        // 3) when returning from server call, wait 1 second, then request the latest moves from the server
-        // 4) play forward whatever moves are retrieved and keep requesting more, until the state indicates
-        //    that the controlling player is human again.
-        var player = state.activePlayer();
+        const player = state.activePlayer();
+        if (!lastPlayer || player.personality != lastPlayer.personality) { // player changed from human to AI or vv
+            if (humanMoveStates.length) {
+                // send the moves to the server to be recorded in firestore
+            }
+            if (player.personality) {
+                // request that the computer make the AI moves (asynchronously, and also store them in firestore) but do not actually show them.
+                aiPlay.aiPickMove(player, state, function(move) {
+                    audio.playSound(SOUNDS.CLICK);
+                    const newState = makeMove(state, move);
+
+                    if (newState.endResult) { // did the game end?
+                        showEndGame(newState);
+                        return;
+                    }
+                    else setTimeout(() => playOneMove(newState), 1); // recursive call
+                });
+            }
+            humanMoveStates = [];
+            lastPlayer == player;
+        }
 
         // automatically end the turn of dead players
         if (!state.regionCount(player))
@@ -35,28 +49,19 @@ export default function playOneMove(state) {
 
         if (!player.personality) {
             uiPickMove(player, state, function(move) {
-                var newState = makeMove(state, move);
+                const newState = makeMove(state, move);
 
                 if (newState.endResult) { // did the game end?
                     showEndGame(newState);
                     return;
                 } else {
-                    undoManager.setPreviousState(state.copy());
-                    setTimeout(() => playOneMove(newState), 1);   // recursive call to continue
+                    undoManager.setPreviousState(state.copy()); // only humans can undo
+                    setTimeout(() => playOneMove(newState), 1); // recursive call
                 }
             });
-        }
-        else { // AI player
-            aiPlay.aiPickMove(player, state, function(move) {
-                audio.playSound(SOUNDS.CLICK);
-                var newState = makeMove(state, move);
-
-                if (newState.endResult) { // did the game end?
-                    showEndGame(newState);
-                    return;
-                }
-                else setTimeout(() => playOneMove(newState), 1);
-            });
+        } else {
+            // wait 1 second, then request from the server, whatever moves were made from the last state that we saw.
+            // in the resultHandler, play back those moves visually (by calling oneAtATime). This continues until the state indicatest that the player is human again.
         }
 
         gameRenderer.updateDisplay(state);
@@ -66,11 +71,13 @@ export default function playOneMove(state) {
 function showEndGame(state) {
     oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
     oneAtaTime(CONSTS.MOVE_DELAY, function() {
-        var winner = state.endResult;
+        const winner = state.endResult;
+        const delay = 200;
+        const duration = 4000;
         if (winner != CONSTS.DRAWN_GAME) {
-            gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!");
+            gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!", delay, duration);
         } else {
-            gameRenderer.showBanner('#333', "The game ends in a draw!");
+            gameRenderer.showBanner('#333', "The game ends in a draw!", delay, duration);
         }
 
         gameRenderer.updateDisplay(state);

@@ -458,8 +458,9 @@ function updateDisplay(gameState) {
     }
 }
 
-function showBanner(background, text, delay) {
+function showBanner(background, text, delay, duration) {
     delay = delay || 1;
+    duration = duration || 1800;
     oneAtaTime(delay, function() {
         // create a new banner div
         let banner = append('container', div({c: 'button'}, text));
@@ -469,10 +470,10 @@ function showBanner(background, text, delay) {
         styles.opacity = 0.0;
         setTransform(banner, transform(-1));
 
-        setTimeout(function() { styles.opacity = 1.0; setTransform(banner, transform(1)); }, 100),
-        setTimeout(function() { styles.opacity = 1.0; }, 600),
-        setTimeout(function() { styles.opacity = 0.0; }, 1100),
-        setTimeout(function() { banner.parentNode.removeChild(banner); }, 1600)
+        setTimeout(function() { styles.opacity = 1.0; setTransform(banner, transform(1)); }, 0.1 * duration);
+        setTimeout(function() { styles.opacity = 1.0; }, 0.5 * duration);
+        setTimeout(function() { styles.opacity = 0.0; }, 0.7 * duration);
+        setTimeout(function() { banner.parentNode.removeChild(banner); }, duration);
     });
 
     function transform(offset) {

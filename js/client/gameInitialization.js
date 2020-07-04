@@ -155,7 +155,8 @@ function createPlayerBoxArea() {
     }).join("");
     html += div({i: 'pd', c: 'sc un'}, playerBoxes);
     html += buttonPanel("AI", "ai", ["Evil", "Mean", "Rude", "Nice"]);
-    html += buttonPanel("Turns", "turn-count", ["Endless", "15", "12", "9"]);
+    const labels = CONSTS.TURN_COUNTS.map(ct => (ct == CONSTS.UNLIMITED_TURNS) ? "Endless" : "" + ct).reverse();
+    html += buttonPanel("Turns", "turn-count", labels);
 
     $('d').innerHTML = html;
 }

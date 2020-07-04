@@ -87,12 +87,10 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         } else {
             // move action buttons handled here
             if (which === 1) {
-                // end turn
-                uiCallbacks.clearAll();
+                uiCallbacks.clearAll(); // end turn
                 reportMoveCallback(new EndMove());
             } else {
-                // cancel move
-                setCleanState();
+                setCleanState(); // cancel move
             }
         }
     });
