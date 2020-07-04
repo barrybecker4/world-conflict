@@ -21,6 +21,12 @@ export default function playOneMove(state) {
 
         // keep track of the states and last player, and when the player changes, if that player is an AI,
         // play forward all the moves/state changes all at once.
+        // 1) if controllingPlayer is human, then do as below (but store the newStats in an array).
+        //    when done simulate call out to server where we pass the human moves just made
+        // 2) if not human, then call out to server with []
+        // 3) when returning from server call, wait 1 second, then request the latest moves from the server
+        // 4) play forward whatever moves are retrieved and keep requesting more, until the state indicates
+        //    that the controlling player is human again.
         var controllingPlayer = state.activePlayer();
 
         // let the player pick their move using UI or AI
@@ -33,10 +39,10 @@ export default function playOneMove(state) {
             var newState = makeMove(state, move);
 
             if (newState.endResult) { // did the game end?
-                oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(newState));
                 showEndGame(newState);
                 return;
-            } else {
+            }
+            else {
                 undoManager.setPreviousState(state.copy());
                 // still more of the game to go - next move, please!
                 setTimeout(() => playOneMove(newState), 1);   // recursive call
@@ -48,7 +54,8 @@ export default function playOneMove(state) {
 }
 
 function showEndGame(state) {
-    oneAtaTime(1, function() {
+    oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
+    oneAtaTime(CONSTS.MOVE_DELAY, function() {
         var winner = state.endResult;
         if (winner != CONSTS.DRAWN_GAME) {
             gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!");

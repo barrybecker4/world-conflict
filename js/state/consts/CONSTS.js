@@ -23,7 +23,7 @@ export default {
     DRAWN_GAME: {},
 
     // pause before move in milliseconds
-    MOVE_DELAY: 0,
+    MOVE_DELAY: 100,
 };
 
 

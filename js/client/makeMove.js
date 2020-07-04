@@ -156,8 +156,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
         }
 
         utils.range(0, repeats).map(function(index) {
-            if (randomNumberForFight(index) <= 120)
-            {
+            if (randomNumberForFight(index) <= 120) {
                 // defender wins!
                 if (invincibility-- <= 0) {
                     fromList.shift();
@@ -182,8 +181,9 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
             // and prevent anybody from moving in
             incomingSoldiers = 0;
             state.soundCue = SOUNDS.DEFEAT;
+            const color = toOwner ? toOwner.highlightStart : '#fff';
             state.floatingText = [
-                {region: gameData.regions[toRegion], color: toOwner ? toOwner.highlightStart : '#fff', text: "Defended!", width: 7}
+                {region: gameData.regions[toRegion], color, text: "Defended!", width: 7}
             ];
         }
     }
@@ -215,7 +215,8 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
             delete temple.upgrade;
         // play sound, launch particles!
         state.particleTempleRegion = gameData.regions[toRegion];
-        state.floatingText = [{region: gameData.regions[toRegion], color: fromOwner.highlightStart, text: "Conquered!", width: 7}];
+        const color = fromOwner.highlightStart;
+        state.floatingText = [{region: gameData.regions[toRegion], color, text: "Conquered!", width: 7}];
         state.soundCue = numDefenders ? SOUNDS.VICTORY : SOUNDS.TAKE_OVER;
     }
 }
