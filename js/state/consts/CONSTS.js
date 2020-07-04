@@ -22,7 +22,7 @@ export default {
     // == Special "player" for signifying a draw game
     DRAWN_GAME: {},
 
-    // pause before move in millisecons
+    // pause before move in milliseconds
     MOVE_DELAY: 0,
 };
 

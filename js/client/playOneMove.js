@@ -5,7 +5,6 @@ import domUtils from './utils/domUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
 import CONSTS from '../state/consts/CONSTS.js';
 import undoManager from './undoManager.js';
-import appState from './appState.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - needs server API
@@ -18,9 +17,10 @@ const $ = domUtils.$;
 // Deals with responding to user actions.
 export default function playOneMove(state) {
 
-    appState.setInGame(true); // playing the game now
-
     oneAtaTime(CONSTS.MOVE_DELAY, function() {
+
+        // keep track of the states and last player, and when the player changes, if that player is an AI,
+        // play forward all the moves/state changes all at once.
         var controllingPlayer = state.activePlayer();
 
         // let the player pick their move using UI or AI
@@ -39,7 +39,7 @@ export default function playOneMove(state) {
             } else {
                 undoManager.setPreviousState(state.copy());
                 // still more of the game to go - next move, please!
-                setTimeout(() => playOneMove(newState), 1);
+                setTimeout(() => playOneMove(newState), 1);   // recursive call
             }
         });
 

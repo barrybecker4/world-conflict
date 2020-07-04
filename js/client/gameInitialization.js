@@ -36,7 +36,8 @@ function runSetupScreen() {
         } else {
             prepareInGameUI(gameState);
             gameRenderer.updateDisplay(gameState);
-            playOneMove(gameState); // start the game
+            appState.setInGame(true); // playing the game now
+            playOneMove(gameState);
         }
     });
     // callback for player setup buttons
