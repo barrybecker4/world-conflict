@@ -12,6 +12,7 @@ var stateId = 0;
 
 export default class GameState {
 
+    // The simulatingPlayer is used during min/max search so we do not show the computer thinking.
     constructor(turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash,
                 simulatingPlayer, floatingText, conqueredRegions) {
         this.turnIndex = turnIndex;
@@ -63,7 +64,7 @@ export default class GameState {
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
         if (player.personality && (gameInitialization.gameSetup.aiLevel == CONSTS.AI_EVIL))
-            multiplier += 0.4;
+            multiplier += 0.4; // cheating - cause its evil...
         return Math.ceil(multiplier * (fromRegions + fromTemples));
     }
 

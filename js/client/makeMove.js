@@ -223,32 +223,34 @@ function buildUpgrade(state, regionIndex, upgrade) {
     var templeOwner = state.owner(regionIndex);
 
     if (upgrade === UPGRADES.SOLDIER) {
-        // soldiers work differently - they get progressively more expensive the more you buy in one turn
-        if (!state.numBoughtSoldiers)
-            state.numBoughtSoldiers = 0;
-        state.cash[templeOwner.index] -= upgrade.cost[state.numBoughtSoldiers++];
-        return state.addSoldiers(regionIndex, 1);
+        buySoldier(state, templeOwner, upgrade, regionIndex);
     }
-    if (upgrade === UPGRADES.REBUILD) {
+    else if (upgrade === UPGRADES.REBUILD) {
         delete temple.upgrade; // remove current upgrade
-        return;
     }
+    else upgradeTemple(state, temple, templeOwner, upgrade);
+}
 
-    // upgrade the temple
-    if (temple.upgrade != upgrade) {
-        // fresh level 1 upgrade!
+// soldiers work differently - they get progressively more expensive the more you buy in one turn
+function buySoldier(state, templeOwner, upgrade, regionIndex) {
+    if (!state.numBoughtSoldiers)
+        state.numBoughtSoldiers = 0;
+    state.cash[templeOwner.index] -= upgrade.cost[state.numBoughtSoldiers++];
+    state.addSoldiers(regionIndex, 1);
+}
+
+function upgradeTemple(state, temple, templeOwner, upgrade) {
+    if (temple.upgrade != upgrade) { // virgin upgrade
         temple.upgrade = upgrade;
         temple.level = 0;
-    } else {
-        // upgrade to a higher level
-        temple.level++;
     }
+    else temple.level++; // upgrade to a higher level
 
     // you have to pay for it, unfortunately
     state.cash[templeOwner.index] -= upgrade.cost[temple.level];
 
-    // particles!
-    state.particleTempleRegion = gameData.regions[regionIndex];
+    // particles to celebrate upgrading!
+    state.particleTempleRegion = gameData.regions[temple.regionIndex];
 
     // the AIR upgrade takes effect immediately
     if (upgrade == UPGRADES.AIR)
@@ -259,9 +261,9 @@ function buildUpgrade(state, regionIndex, upgrade) {
 function nextTurn(state) {
     var player = state.activePlayer();
 
-    // cash is produced
     var playerIncome = state.income(player);
     state.cash[player.index] += playerIncome;
+
     if (playerIncome) {
         state.floatingText = [{
             region: gameData.regions[state.templesForPlayer(player)[0].regionIndex],
@@ -271,33 +273,41 @@ function nextTurn(state) {
         }];
     }
 
-    // temples produce one soldier per turn automatically
+    generateSoldersAtTemples(state, player);
+    const upcomingPlayer = findNextPlayer(state);
+
+    // did the game end by any chance?
+    if (state.turnIndex > gameInitialization.gameSetup.turnCount) {
+        endTheGame(state);
+    }
+    else if (!state.simulatingPlayer) {
+        // if this is not simulated (as during search), we'd like a "next turn" banner
+        gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
+    }
+}
+
+// temples produce one soldier per turn automatically
+function generateSoldersAtTemples(state, player) {
     utils.forEachProperty(state.temples, function(temple, regionIndex) {
         if (state.owner(regionIndex) == player) {
-            // this is our temple, add a soldier of the temple's element
+            // this is our temple, add a soldier to the temple's element
             state.addSoldiers(regionIndex, 1);
         }
     });
+}
 
-    // go to next player (skipping dead ones)
+// go to next player (skipping dead ones)
+function findNextPlayer(state) {
     let upcomingPlayer;
     do {
         upcomingPlayer = state.advanceToNextPlayer();
     } while (!state.regionCount(upcomingPlayer));
+    return upcomingPlayer;
+}
 
-    // did the game end by any chance?
-    if (state.turnIndex > gameInitialization.gameSetup.turnCount) {
-        // end the game!
-        state.turnIndex = gameInitialization.gameSetup.turnCount;
-        state.endResult = determineGameWinner(state);
-        return;
-    }
-
-    // if this is not simulated, we'd like a banner
-    if (!state.simulatingPlayer) {
-        // show next turn banner
-        gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
-    }
+function endTheGame(state) {
+   state.turnIndex = gameInitialization.gameSetup.turnCount;
+   state.endResult = determineGameWinner(state);
 }
 
 function determineGameWinner(state) {
