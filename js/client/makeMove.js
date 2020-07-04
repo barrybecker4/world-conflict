@@ -23,8 +23,7 @@ export default function makeMove(state, move) {
     const newState = state.copy();
 
     if (move.isArmyMove()) {
-        // for this case, if there is a fight, then it will be added to the move
-        moveSoldiers(newState, move.source, move.destination, move.count);
+        move = moveSoldiers(newState, move);
     } else if (move.isBuildMove()) {
         buildUpgrade(newState, move.regionIndex, move.upgrade);
     } else if (move.isEndMove()) {
@@ -33,40 +32,23 @@ export default function makeMove(state, move) {
         throw new Error("Unexpected move: " + move);
     }
 
-    afterMoveChecks(newState);
-
-    return newState;
+    return afterMoveChecks(newState);
 }
 
-// update region ownership and notify if any players are eliminated
-function updatePlayerRegions(state) {
-    gameData.players.map(function(player) {
-        var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
-            return state.owner(region) == player ? state.soldierCount(region) : 0;
-        });
-        if (!totalSoldiers && state.regionCount(player)) {
-            // lost!
-            utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
-                if (player == gameData.players[ownerIdx])
-                    delete state.owners[regionIdx];
-            });
-            // dead people get no more moves
-            if (state.activePlayer() == player)
-                state.movesRemaining = 0;
-            // show the world the good (or bad) news
-            if (!state.simulatingPlayer) {
-                oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
-                gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
-            }
-        }
-    });
-}
+// If there is a fight while moving, then add the fight sequence to the move.
+function moveSoldiers(state, move) {
 
-function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
-
-    let fromList = state.soldiersAtRegion(fromRegion);
-    let toList = state.soldiersAtRegion(toRegion);
+    const fromRegion = move.source;
+    const toRegion = move.destination;
+    const incomingSoldiers = move.count;
+    const fromList = state.soldiersAtRegion(fromRegion);
+    const toList = state.soldiersAtRegion(toRegion);
     const numDefenders = toList.length;
+
+    // break into 2 parts
+    // soldierMovement = { attackSequence, numDefenders, remainingSoldiers }
+    //move.soldierMovement = createSolderMovement(fromList.concat(), toList.concat());
+    //showSoldierMovement(move);
 
     let remainingSoldiers = fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers);
 
@@ -75,6 +57,7 @@ function moveSoldiers(state, fromRegion, toRegion, incomingSoldiers) {
     }
 
     state.movesRemaining--;
+    return move;
 }
 
 // maybe move battle simulation out to separate file
@@ -97,7 +80,7 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
     if (preemptiveDamage || defendingSoldiers) {
         // there will be a battle - move the soldiers halfway for animation
         if (!state.simulatingPlayer) {
-            fromList.slice(0, incomingSoldiers).map(soldier => { soldier.attackedRegion = gameData.regions[toRegion]; });
+            fromList.slice(0, incomingSoldiers).map(soldier => { soldier.attackedRegion = gameData.regions[toRegion] });
         }
         battleAnimationKeyframe(state);
     }
@@ -329,4 +312,29 @@ function afterMoveChecks(state) {
         // oh gosh, it's done - by elimination!
         state.endResult = determineGameWinner(state);
     }
+    return state;
+}
+
+// update region ownership and notify if any players are eliminated
+function updatePlayerRegions(state) {
+    gameData.players.map(function(player) {
+        var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
+            return state.owner(region) == player ? state.soldierCount(region) : 0;
+        });
+        if (!totalSoldiers && state.regionCount(player)) {
+            // lost!
+            utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
+                if (player == gameData.players[ownerIdx])
+                    delete state.owners[regionIdx];
+            });
+            // dead people get no more moves
+            if (state.activePlayer() == player)
+                state.movesRemaining = 0;
+            // show the world the good (or bad) news
+            if (!state.simulatingPlayer) {
+                oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
+                gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
+            }
+        }
+    });
 }
