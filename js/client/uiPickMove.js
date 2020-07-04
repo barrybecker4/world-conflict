@@ -123,9 +123,9 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
             let curUpgrade = temple.upgrade;
             let inconsistentUpgrade = // the temple is already upgraded with a different upgrade
-                curUpgrade && curUpgrade != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.RESPECT;
+                curUpgrade && curUpgrade != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.REBUILD;
             var hidden =
-                (upgrade === UPGRADES.RESPECT && !curUpgrade) // respect only available if temple is upgraded
+                (upgrade === UPGRADES.REBUILD && !curUpgrade) // rebuild only available if temple is upgraded
                 || inconsistentUpgrade
                 || level >= upgrade.cost.length // highest level reached
                 || level < state.rawUpgradeLevel(templeOwner, upgrade) // another temple has this upgrade already

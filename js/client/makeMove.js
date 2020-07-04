@@ -33,23 +33,9 @@ export default function makeMove(state, move) {
         throw new Error("Unexpected move: " + move);
     }
 
-    // updates that happen after each move (checking for players losing, etc.)
     afterMoveChecks(newState);
 
     return newState;
-}
-
-// Check to see if the game is over
-function afterMoveChecks(state) {
-    updatePlayerRegions(state);
-
-    // do we still have more than one player?
-    var gameStillOn = gameData.players.filter(player => state.regionCount(player)).length > 1;
-    if (!gameStillOn) {
-        // oh gosh, it's done - by elimination!
-        state.endResult = determineGameWinner(state);
-        return;
-    }
 }
 
 // update region ownership and notify if any players are eliminated
@@ -243,9 +229,8 @@ function buildUpgrade(state, regionIndex, upgrade) {
         state.cash[templeOwner.index] -= upgrade.cost[state.numBoughtSoldiers++];
         return state.addSoldiers(regionIndex, 1);
     }
-    if (upgrade === UPGRADES.RESPECT) {
-        // respecting is also different
-        delete temple.upgrade;
+    if (upgrade === UPGRADES.REBUILD) {
+        delete temple.upgrade; // remove current upgrade
         return;
     }
 
@@ -322,4 +307,16 @@ function determineGameWinner(state) {
     var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
 
     return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : CONSTS.DRAWN_GAME;
+}
+
+// Updates that happen after each move (checking for players losing, etc.)
+function afterMoveChecks(state) {
+    updatePlayerRegions(state);
+
+    // do we still have more than one player?
+    const gameStillOn = gameData.players.filter(player => state.regionCount(player)).length > 1;
+    if (!gameStillOn) {
+        // oh gosh, it's done - by elimination!
+        state.endResult = determineGameWinner(state);
+    }
 }
