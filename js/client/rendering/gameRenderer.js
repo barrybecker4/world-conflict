@@ -460,7 +460,7 @@ function updateDisplay(gameState) {
 
 function showBanner(background, text, delay, duration) {
     delay = delay || 1;
-    duration = duration || 1800;
+    duration = duration || 1600;
     oneAtaTime(delay, function() {
         // create a new banner div
         let banner = append('container', div({c: 'button'}, text));

@@ -11,6 +11,8 @@ import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - n
 import uiCallbacks from './uiCallbacks.js';
 import uiPickMove from './uiPickMove.js';
 import makeMove from './makeMove.js';
+import gameData from '../state/gameData.js';
+import firestore from '../state/firestore.js';
 const $ = domUtils.$;
 
 var humanMoveStates = [];
@@ -24,16 +26,16 @@ export default function playOneMove(state) {
         const player = state.activePlayer();
         if (!lastPlayer || player.personality != lastPlayer.personality) { // player changed from human to AI or vv
             if (humanMoveStates.length) {
-                // send the moves to the server to be recorded in firestore
+                firestore.appendStatesForGame(gameData.gameId, humanMoveStates);
             }
             if (player.personality) {
                 // request that the computer make the AI moves (asynchronously, and also store them in firestore) but do not actually show them.
                 aiPlay.aiPickMove(player, state, function(move) {
-                    audio.playSound(SOUNDS.CLICK);
-                    const newState = makeMove(state, move);
+                    audio.playSound(SOUNDS.CLICK); // this will happen on playback
+                    const newState = makeMove(state, move); // plays a transition forward. A transition consists of a move and a state.
 
                     if (newState.endResult) { // did the game end?
-                        showEndGame(newState);
+                        showEndGame(newState); // this will happen on playback
                         return;
                     }
                     else setTimeout(() => playOneMove(newState), 1); // recursive call
@@ -50,6 +52,7 @@ export default function playOneMove(state) {
         if (!player.personality) {
             uiPickMove(player, state, function(move) {
                 const newState = makeMove(state, move);
+                humanMoveStates.push(newState);
 
                 if (newState.endResult) { // did the game end?
                     showEndGame(newState);

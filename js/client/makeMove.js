@@ -52,7 +52,7 @@ function afterMoveChecks(state) {
     }
 }
 
-// update region ownership and notify if any players eliminated
+// update region ownership and notify if any players are eliminated
 function updatePlayerRegions(state) {
     gameData.players.map(function(player) {
         var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {

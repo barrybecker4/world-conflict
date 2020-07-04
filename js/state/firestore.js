@@ -6,6 +6,7 @@ const gameCollection = {};
 
 export default {
     getStatesForGame,
+    appendStatesForGame,
 }
 
 /**
@@ -20,8 +21,8 @@ function getStatesForGame(gameId, lastStateId) {
  * Add games states for a particular game
  */
 function appendStatesForGame(gameId, newGameStates) {
-    if (gameStates && gameStates.length > 0) {
-        let states = gameCollection[gameId];
+    if (newGameStates && newGameStates.length > 0) {
+        let states = gameCollection[gameId] || [];
         gameCollection[gameId] = states.concat(newGameStates);
     }
 }
