@@ -1,13 +1,14 @@
-import SOUNDS from '../state/consts/SOUNDS.js';
+
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
-import CONSTS from '../state/consts/CONSTS.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
+import CONSTS from '../state/consts/CONSTS.js';
 import UPGRADES from '../state/consts/UPGRADES.js';
+import SOUNDS from '../state/consts/SOUNDS.js';
 import gameData from '../state/gameData.js';
 const $ = domUtils.$;
 
@@ -45,63 +46,58 @@ function moveSoldiers(state, move) {
     const toList = state.soldiersAtRegion(toRegion);
     const numDefenders = toList.length;
 
-    // break into 2 parts
-    // soldierMovement = { attackSequence, numDefenders, remainingSoldiers }
-    //move.soldierMovement = createSolderMovement(fromList.concat(), toList.concat());
-    //showSoldierMovement(move);
+    move.attackSequence = createAttackSequenceIfFight(state.copy(),
+        fromRegion, toRegion, fromList.concat(), toList.concat(), incomingSoldiers);
 
-    let remainingSoldiers = fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers);
+    const remainingSoldiers = move.attackSequence ?
+        showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, move.attackSequence) :
+        incomingSoldiers;
 
     if (remainingSoldiers > 0) {
-        moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, remainingSoldiers, numDefenders)
+        moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, remainingSoldiers, numDefenders);
     }
 
     state.movesRemaining--;
     return move;
 }
 
-// maybe move battle simulation out to separate file
-// The fight should produce a sequence of actions that can be sent back to the client and played forward in the UI.
-function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSoldiers) {
+// This will run on server. Move to different file.
+// If there is fight, produce a sequence of troop reductions that can be sent back to the client and shown later.
+function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers) {
 
-    var fromOwner = state.owner(fromRegion);
-    var toOwner = state.owner(toRegion);
+    const fromOwner = state.owner(fromRegion);
+    const toOwner = state.owner(toRegion);
 
     if (fromOwner == toOwner) {
-        return incomingSoldiers; // no fight needed
+        return null; // no fight needed
     }
 
-    var defendingSoldiers = toList.length;
+    let defendingSoldiers = toList.length;
+    let attackSequence = null;
 
-    // earth upgrade - preemptive damage on defense
+    // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
     var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
     var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
 
     if (preemptiveDamage || defendingSoldiers) {
-        // there will be a battle - move the soldiers halfway for animation
-        if (!state.simulatingPlayer) {
-            fromList.slice(0, incomingSoldiers).map(soldier => { soldier.attackedRegion = gameData.regions[toRegion] });
-        }
-        battleAnimationKeyframe(state);
+        attackSequence = [];
     }
 
     if (preemptiveDamage) {
-        // animate it
-        battleAnimationKeyframe(state, 50, SOUNDS.OURS_DEAD,
-            [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
-        );
-        // apply it
+        attackSequence.push({
+            attackerCasualties: preemptiveDamage,
+            soundCue: SOUNDS.OURS_DEAD,
+            delay: 50,
+            floatingText: [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
+        });
         utils.range(0, preemptiveDamage).map(function () {
             fromList.shift();
             incomingSoldiers--;
         });
-        battleAnimationKeyframe(state);
     }
 
-    // if there is still defense and offense, let's have a fight
+    // if there is still defense and offense, let's record a fight
     if (defendingSoldiers && incomingSoldiers) {
-        // at this point, the outcome becomes random - so you can't undo your way out of it
-        state.undoDisabled = true;
 
         var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
         var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
@@ -130,18 +126,27 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
                 if (invincibility-- <= 0) {
                     fromList.shift();
                     incomingSoldiers--;
-                    battleAnimationKeyframe(state, 250, SOUNDS.OURS_DEAD);
+                    attackSequence.push({
+                        attackerCasualties: 1,
+                        soundCue: SOUNDS.OURS_DEAD,
+                        delay: 260,
+                    });
                 } else {
-                    battleAnimationKeyframe(state, 800, SOUNDS.OURS_DEAD,
-                        [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}]
-                    );
+                    attackSequence.push({
+                        soundCue: SOUNDS.OURS_DEAD,
+                        delay: 800,
+                        floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}],
+                    });
                 }
             } else {
                 // attacker wins, kill defender and pay the martyr bonus
+                attackSequence.push({
+                    defenderCasualties: 1,
+                    soundCue: SOUNDS.OURS_DEAD,
+                    delay: 800,
+                    floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}],
+                });
                 toList.shift();
-                if (toOwner)
-                    state.cash[toOwner.index] += 4;
-                battleAnimationKeyframe(state, 250, SOUNDS.ENEMY_DEAD);
             }
         });
 
@@ -157,12 +162,66 @@ function fightIfNeeded(state, fromRegion, toRegion, fromList, toList, incomingSo
         }
     }
 
-    // reset "attacking status" on the soldiers - at this point they have either
-    // moved back to the source region or occupy the destination
+    return attackSequence;
+}
+
+// Show the fight using the attackSequence that was generated on the server.
+function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, attackSequence) {
+
+    var fromOwner = state.owner(fromRegion);
+    var toOwner = state.owner(toRegion);
+    var defendingSoldiers = toList.length;
+
+    // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
+    var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
+    var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
+
+    state.undoDisabled = true; // fights cannot be undone
+    showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion);
+
+    attackSequence.forEach(function(frame) {
+        if (frame.attackerCasualties) {
+            utils.range(0, frame.attackerCasualties).map(function () {
+                fromList.shift();
+                incomingSoldiers--;
+            });
+        }
+        else if (frame.defenderCasualties) {
+            utils.range(0, frame.defenderCasualties).map(function () {
+                toList.shift();
+            });
+        }
+        battleAnimationKeyframe(state, frame.delay, frame.soundCur, frame.floatingText);
+    });
+
+    // are there defenders left?
+    if (toList.length) {
+        incomingSoldiers = 0; // prevent anybody from moving in
+        state.soundCue = SOUNDS.DEFEAT;
+        const color = toOwner ? toOwner.highlightStart : '#fff';
+        state.floatingText = [
+            {region: gameData.regions[toRegion], color, text: "Defended!", width: 7}
+        ];
+    }
+
+    resetAttackStatus(fromList);
+    return incomingSoldiers;
+}
+
+function showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion) {
+    // move the soldiers halfway for animation
+    if (!state.simulatingPlayer) {
+        fromList.slice(0, incomingSoldiers)
+            .map(soldier => { soldier.attackedRegion = gameData.regions[toRegion] });
+    }
+    battleAnimationKeyframe(state);
+}
+
+// Reset "attacking status" on the soldiers. They have either moved back to the source region or occupy the destination.
+function resetAttackStatus(fromList) {
     fromList.map(function(soldier) {
         soldier.attackedRegion = null;
     });
-    return incomingSoldiers;
 }
 
 // move the (remaining) soldiers into the toRegion
@@ -194,6 +253,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
 // Required state properties are simulatingPlayer, soldiers
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.simulatingPlayer) return;
+
     const keyframe = state.copy();
     keyframe.soundCue = soundCue;
     keyframe.floatingText = floatingTexts;
