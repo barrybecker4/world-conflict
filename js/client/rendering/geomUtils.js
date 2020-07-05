@@ -21,7 +21,7 @@ function projectPoint(pt) {
     return [x * 97 + 3, y * 100];
 }
 
-// Creates a new polygon with the given fill, stroke and clipping path.
+// Creates a new polygon with the given fill, stroke, and clipping path.
 function makePolygon(points, id, fill, stroke, clip) {
     stroke = stroke || "stroke:#000;stroke-width:0.25;";
     fill = fill ? "url(#" + fill + ")" : 'transparent';

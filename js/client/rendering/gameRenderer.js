@@ -35,7 +35,7 @@ function showMap(container, gameState) {
     var defs = elem('defs', {},
             makeClipPaths() +
             makeGradient('b', '#69e', '#48b') +
-            makeGradient('l',  '#dba', '#b98') +
+            makeGradient('l', '#dba', '#b98') +
             makeGradient('lh', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
@@ -81,7 +81,7 @@ function showMap(container, gameState) {
     // makes clipping paths for the "highlight" polygons
     function makeClipPaths() {
         return gameData.regions.map((region, index) => {
-            elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
+            return elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
         }).join('');
     }
 
@@ -182,7 +182,6 @@ function updateMapDisplay(gameState) {
             });
         }
 
-        // fill
         region.element.style.fill = 'url(#' + gradientName + ')';
     }
 
