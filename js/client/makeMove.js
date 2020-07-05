@@ -77,7 +77,6 @@ function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toLi
 
     // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
     var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
-    var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
 
     if (preemptiveDamage || defendingSoldiers) {
         attackSequence = [];
@@ -85,71 +84,24 @@ function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toLi
 
     if (preemptiveDamage) {
         attackSequence.push({
-            attackerCasualties: preemptiveDamage,
             soundCue: SOUNDS.OURS_DEAD,
             delay: 50,
-            floatingText: [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.b, width: 9}]
+            floatingText: [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.bgColor, width: 9}]
         });
         utils.range(0, preemptiveDamage).map(function () {
             fromList.shift();
             incomingSoldiers--;
+        });
+        attackSequence.push({
+            attackerCasualties: preemptiveDamage,
         });
     }
 
     // if there is still defense and offense, let's record a fight
     if (defendingSoldiers && incomingSoldiers) {
 
-        var incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
-        var defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
-
-        var repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
-        var attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
-
-        function randomNumberForFight(index) {
-            var maximum = 120 + attackerWinChance;
-            if (state.simulatingPlayer) {
-                // Simulated fight - return some numbers
-                // They're clustered about the center of the range to make the AI more "decisive"
-                // (this exaggerates any advantage)
-                return (index + 3) * maximum / (repeats + 5);
-            } else {
-                // Not a simulated fight - return a real random number.
-                // We're not using the full range 0 to maximum to make sure that randomness doesn't
-                // give a feel-bad experience when we attack with a giant advantage
-                return utils.rint(maximum * 0.12, maximum * 0.88);
-            }
-        }
-
-        utils.range(0, repeats).map(function(index) {
-            if (randomNumberForFight(index) <= 120) {
-                // defender wins!
-                if (invincibility-- <= 0) {
-                    fromList.shift();
-                    incomingSoldiers--;
-                    attackSequence.push({
-                        attackerCasualties: 1,
-                        soundCue: SOUNDS.OURS_DEAD,
-                        delay: 260,
-                    });
-                } else {
-                    attackSequence.push({
-                        soundCue: SOUNDS.OURS_DEAD,
-                        delay: 800,
-                        floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}],
-                    });
-                }
-            } else {
-                // attacker wins, kill defender and pay the martyr bonus
-                attackSequence.push({
-                    defenderCasualties: 1,
-                    soundCue: SOUNDS.OURS_DEAD,
-                    delay: 800,
-                    floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}],
-                    martyrBonus: CONSTS.MARTYR_BONUS,
-                });
-                toList.shift();
-            }
-        });
+        attackSequence = recordFight(state,
+            incomingSoldiers, defendingSoldiers, fromOwner, toOwner, fromList, toList, attackSequence);
 
         // are there defenders left?
         if (toList.length) {
@@ -166,17 +118,65 @@ function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toLi
     return attackSequence;
 }
 
+function recordFight(state, incomingSoldiers, defendingSoldiers, fromOwner, toOwner, fromList, toList, attackSequence) {
+    const incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
+    const defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
+
+    const repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
+    const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
+    let invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
+
+    function randomNumberForFight(index) {
+        var maximum = 120 + attackerWinChance;
+        if (state.simulatingPlayer) {
+            // Simulated fight - return some numbers that exaggerate any advantage/
+            // They're clustered about the center of the range to make the AI more "decisive"
+            return (index + 3) * maximum / (repeats + 5);
+        } else {
+            // Not a simulated fight - return a real random number.
+            // We're not using the full range 0 to maximum to make sure that randomness doesn't
+            // give a feel-bad experience when we attack with a giant advantage.
+            return utils.rint(maximum * 0.12, maximum * 0.88);
+        }
+    }
+
+    utils.range(0, repeats).map(function(index) {
+        if (randomNumberForFight(index) <= 120) {
+            // defender wins!
+            if (invincibility-- <= 0) {
+                fromList.shift();
+                incomingSoldiers--;
+                attackSequence.push({
+                    attackerCasualties: 1,
+                    soundCue: SOUNDS.OURS_DEAD,
+                    delay: 250,
+                });
+            } else {
+                attackSequence.push({
+                    soundCue: SOUNDS.OURS_DEAD,
+                    delay: 800,
+                    floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.bgColor, width: 11}],
+                });
+            }
+        } else {
+            // attacker wins, kill defender and pay the martyr bonus
+            attackSequence.push({
+                defenderCasualties: 1,
+                soundCue: SOUNDS.ENEMY_DEAD,
+                delay: 250,
+                martyrBonus: CONSTS.MARTYR_BONUS,
+            });
+            toList.shift();
+        }
+    });
+    return attackSequence;
+}
+
 // Show the fight using the attackSequence that was generated on the server.
 function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, attackSequence) {
 
-    var fromOwner = state.owner(fromRegion);
-    var toOwner = state.owner(toRegion);
-    var defendingSoldiers = toList.length;
-
-    // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
-    var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
-    var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
-
+    const fromOwner = state.owner(fromRegion);
+    const toOwner = state.owner(toRegion);
 
     state.undoDisabled = true; // fights cannot be undone
     showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion);
@@ -262,7 +262,6 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     keyframe.floatingText = floatingTexts;
     oneAtaTime(delay || 500, () => gameRenderer.updateDisplay(keyframe));
 }
-
 
 function buildUpgrade(state, regionIndex, upgrade) {
     var temple = state.temples[regionIndex];

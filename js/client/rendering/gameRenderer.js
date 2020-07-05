@@ -26,8 +26,9 @@ export default {
    showBanner,
 };
 
-// Creates the rendering of the game map as an SVG object.
-// Takes the map (regions) stored in gameState.region, and creates an SVG map out of it.
+var soldierDivsById = {};
+
+// Initial rendering of the game map (regions) as an SVG object.
 function showMap(container, gameState) {
 
     // define gradients and clipping paths for rendering
@@ -118,9 +119,6 @@ function showMap(container, gameState) {
 }
 
 // Updating the display to match the current game state.
-
-var soldierDivsById = {};
-
 function updateMapDisplay(gameState) {
     gameData.regions.map(updateRegionDisplay);
     forEachProperty(gameState.temples, updateTempleDisplay);
@@ -132,7 +130,7 @@ function updateMapDisplay(gameState) {
 
     forEachProperty(soldierDivsById, function(div, id) {
         if (soldiersStillAlive.indexOf(parseInt(id)) < 0) {
-            // this is an ex-div - in other words, the soldier it represented is dead
+            // this is an ex-div - in other words, the soldier it represented is dead.
             $('m').removeChild(div);
             // surprisingly, this should be safe to do during iteration - http://stackoverflow.com/a/19564686
             delete soldierDivsById[id];
@@ -262,9 +260,9 @@ function updateMapDisplay(gameState) {
         // find or create a <div> for showing the soldier
         var domElement = soldierDivsById[soldier.i];
         if (!domElement) {
-            var html = div({c: 's', s: 'display: none'});
-
-            domElement = soldierDivsById[soldier.i] = append('m', html);
+            var html = div({c: 'soldier', s: 'display: none'});
+            domElement = append('m', html);
+            soldierDivsById[soldier.i] = domElement;
             onClickOrTap(domElement, (event) => uiCallbacks.invokeCallback(soldier, 'soldierSelected', event));
         }
 
@@ -454,7 +452,7 @@ function updateDisplay(gameState) {
 
     if (displayedState.soundCue) {
         audio.playSound(displayedState.soundCue);
-        displayedState.soundCue = null;
+        displayedState.soundCue = null; // probably not needed
     }
 }
 
