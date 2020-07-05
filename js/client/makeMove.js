@@ -145,6 +145,7 @@ function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toLi
                     soundCue: SOUNDS.OURS_DEAD,
                     delay: 800,
                     floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.b, width: 11}],
+                    martyrBonus: CONSTS.MARTYR_BONUS,
                 });
                 toList.shift();
             }
@@ -176,6 +177,7 @@ function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldie
     var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
     var invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
 
+
     state.undoDisabled = true; // fights cannot be undone
     showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion);
 
@@ -190,8 +192,11 @@ function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldie
             utils.range(0, frame.defenderCasualties).map(function () {
                 toList.shift();
             });
+            if (toOwner && frame.martyrBonus) {
+                state.cash[toOwner.index] += frame.martyrBonus;
+            }
         }
-        battleAnimationKeyframe(state, frame.delay, frame.soundCur, frame.floatingText);
+        battleAnimationKeyframe(state, frame.delay, frame.soundCue, frame.floatingText);
     });
 
     // are there defenders left?
@@ -249,8 +254,6 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
     }
 }
 
-// Make this a class, and then a sequence of instances will constitute a re-playable battle.
-// Required state properties are simulatingPlayer, soldiers
 function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     if (state.simulatingPlayer) return;
 
