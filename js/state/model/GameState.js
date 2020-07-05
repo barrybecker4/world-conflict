@@ -13,14 +13,14 @@ var stateId = 0;
 export default class GameState {
 
     // The simulatingPlayer is used during min/max search so we do not show the computer thinking.
-    constructor(turnIndex, playerIndex, movesRemaining, owners, temples, soldiers, cash,
+    constructor(turnIndex, playerIndex, movesRemaining, owners, temples, soldiersByRegion, cash,
                 simulatingPlayer, floatingText, conqueredRegions) {
         this.turnIndex = turnIndex;
         this.playerIndex = playerIndex;
         this.movesRemaining = movesRemaining;
         this.owners = owners || [];
         this.temples = temples || [];
-        this.soldiers = soldiers || [];
+        this.soldiersByRegion = soldiersByRegion || [];
         this.cash = cash || {}; // Cash is equal to "faith" in the game
         this.simulatingPlayer = simulatingPlayer;
         this.floatingText = floatingText;
@@ -167,7 +167,7 @@ export default class GameState {
     }
 
     soldiersAtRegion(regionIndex) {
-        return this.soldiers[regionIndex] || (this.soldiers[regionIndex] = []);
+        return this.soldiersByRegion[regionIndex] || (this.soldiersByRegion[regionIndex] = []);
     }
 
     // Some properties are omitted - like 'moveDecision', 'undoDisabled', and 'soundCue'
@@ -178,7 +178,7 @@ export default class GameState {
             this.movesRemaining,
             utils.deepCopy(this.owners, 1),
             utils.deepCopy(this.temples, 2),
-            utils.deepCopy(this.soldiers, 3),
+            utils.deepCopy(this.soldiersByRegion, 3),
             utils.deepCopy(this.cash, 1),
             this.simulatingPlayer || simulatingPlayer,
             this.floatingText,
