@@ -5,24 +5,25 @@
 const gameCollection = {};
 
 export default {
-    getStatesForGame,
-    appendStatesForGame,
+    getTransitionsForGame,
+    appendTransitionsForGame,
 }
 
 /**
  * @return all game states for the specified gameId since the lastStateId
  */
-function getStatesForGame(gameId, lastStateId) {
-    let states = gameCollection[gameId];
-    return lastStateId ? states.filter(s => s.id > lastStateId) : states;
+function getTransitionsForGame(gameId, lastStateId) {
+    let transitions = gameCollection[gameId];
+    return lastStateId ? states.filter(trans => trans.state.id > lastStateId) : transitions;
 }
 
 /**
- * Add games states for a particular game
+ * Add games transitions for a particular game.
+ * A transition consists of a state and move that will transform it to the next state.
  */
-function appendStatesForGame(gameId, newGameStates) {
-    if (newGameStates && newGameStates.length > 0) {
-        let states = gameCollection[gameId] || [];
-        gameCollection[gameId] = states.concat(newGameStates);
+function appendTransitionsForGame(gameId, newGameTransitions) {
+    if (newGameTransitions && newGameTransitions.length > 0) {
+        let transitions = gameCollection[gameId] || [];
+        gameCollection[gameId] = transitions.concat(newGameTransitions);
     }
 }

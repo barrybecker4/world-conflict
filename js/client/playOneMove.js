@@ -15,18 +15,20 @@ import gameData from '../state/gameData.js';
 import firestore from '../state/firestore.js';
 const $ = domUtils.$;
 
-var humanMoveStates = [];
+var humanTransitions = [];
 var lastPlayer = undefined;
 
-// Deals with responding to user actions - whterh human or AI.
+// Deals with responding to user actions - whether human or AI.
 export default function playOneMove(state) {
 
     oneAtaTime(CONSTS.MOVE_DELAY, function() {
 
         const player = state.activePlayer();
-        if (!lastPlayer || player.personality != lastPlayer.personality) { // player changed from human to AI or vv
-            if (humanMoveStates.length) {
-                firestore.appendStatesForGame(gameData.gameId, humanMoveStates);
+        //  player changed from human to AI or vv
+        //  later this will look for the transition from the player on this client and everyone else.
+        if (!lastPlayer || player.personality != lastPlayer.personality) {
+            if (humanTransitions.length) {
+                firestore.appendTransitionsForGame(gameData.gameId, humanTransitions);
             }
             if (player.personality) {
                 // request that the computer make the AI moves (asynchronously, and also store them in firestore) but do not actually show them.
@@ -41,7 +43,7 @@ export default function playOneMove(state) {
                     else setTimeout(() => playOneMove(newState), 1); // recursive call
                 });
             }
-            humanMoveStates = [];
+            humanTransitions = [];
             lastPlayer == player;
         }
 
@@ -51,8 +53,9 @@ export default function playOneMove(state) {
 
         if (!player.personality) {
             uiPickMove(player, state, function(move) {
+
                 const newState = makeMove(state, move);
-                humanMoveStates.push(newState);
+                humanTransitions.push({state, move});
 
                 if (newState.endResult) { // did the game end?
                     showEndGame(newState);
@@ -64,7 +67,8 @@ export default function playOneMove(state) {
             });
         } else {
             // wait 1 second, then request from the server, whatever moves were made from the last state that we saw.
-            // in the resultHandler, play back those moves visually (by calling oneAtATime). This continues until the state indicatest that the player is human again.
+            // In the resultHandler, play back those moves visually (by calling oneAtATime).
+            // This continues until the state indicates that the player is human again.
         }
 
         gameRenderer.updateDisplay(state);

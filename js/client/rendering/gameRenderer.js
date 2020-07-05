@@ -124,7 +124,7 @@ function updateMapDisplay(gameState) {
     forEachProperty(gameState.temples, updateTempleDisplay);
 
     var soldiersStillAlive = [];
-    forEachProperty(gameState.soldiers, function(soldiers, regionIndex) {
+    forEachProperty(gameState.soldiersByRegion, function(soldiers, regionIndex) {
         soldiers.map((soldier, i) => updateSoldierDisplay(gameData.regions[regionIndex], soldier, i));
     });
 
