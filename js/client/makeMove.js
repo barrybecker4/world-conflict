@@ -15,6 +15,9 @@ const $ = domUtils.$;
  * Takes an existing state and a move, and returns a new game state with the move
  * already applied. The object returned is a copy, and the original is left untouched.
  *
+ * Furthermore, note that this will show the move being applied visually. That means
+ * that the move must deterministically define the transition.
+ *
  * @param state an existing game state
  * @param move the move to be applied by the active players
  * @returns {GameState} the game state after this move
@@ -45,8 +48,8 @@ function moveSoldiers(state, move) {
     const toList = state.soldiersAtRegion(toRegion);
     const numDefenders = toList.length;
 
-    move.attackSequence = createAttackSequenceIfFight(state.copy(),
-        fromRegion, toRegion, fromList.concat(), toList.concat(), incomingSoldiers);
+    // this must be move to where the move is select. It cannot be here because it is not deterministic.
+    move.attackSequence = createAttackSequenceIfFight(state.copy(), move);
 
     const remainingSoldiers = move.attackSequence ?
         showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, move.attackSequence) :
@@ -62,7 +65,12 @@ function moveSoldiers(state, move) {
 
 // This will run on server. Move to different file.
 // If there is fight, produce a sequence of troop reductions that can be sent back to the client and shown later.
-function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers) {
+function createAttackSequenceIfFight(state, move) {
+    const fromRegion = move.source;
+    const toRegion = move.destination;
+    let incomingSoldiers = move.count;
+    const fromList = state.soldiersAtRegion(fromRegion);
+    const toList = state.soldiersAtRegion(toRegion);
 
     const fromOwner = state.owner(fromRegion);
     const toOwner = state.owner(toRegion);
@@ -104,8 +112,6 @@ function createAttackSequenceIfFight(state, fromRegion, toRegion, fromList, toLi
 
         // are there defenders left?
         if (toList.length) {
-            // and prevent anybody from moving in
-            incomingSoldiers = 0;
             state.soundCue = SOUNDS.DEFEAT;
             const color = toOwner ? toOwner.highlightStart : '#fff';
             state.floatingText = [
