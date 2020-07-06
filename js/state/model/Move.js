@@ -3,7 +3,6 @@ import sequenceUtils from '../../utils/sequenceUtils.js';
 import CONSTS from '../consts/CONSTS.js';
 import UPGRADES from '../consts/UPGRADES.js';
 import SOUNDS from '../consts/SOUNDS.js';
-import gameData from '../gameData.js';  // must remove - just have floatingText using regionIdx
 
 export {
     Move,
@@ -88,7 +87,12 @@ class ArmyMove extends Move {
             attackSequence.push({
                 soundCue: SOUNDS.OURS_DEAD,
                 delay: 50,
-                floatingText: [{soldier: fromList[0], text: "Earth kills " + preemptiveDamage + "!", color: UPGRADES.EARTH.bgColor, width: 9}]
+                floatingText: [{
+                    soldier: fromList[0],
+                    text: "Earth kills " + preemptiveDamage + "!",
+                    color: UPGRADES.EARTH.bgColor,
+                    width: 9
+                }]
             });
             utils.range(0, preemptiveDamage).map(function () {
                 fromList.shift();
@@ -108,9 +112,7 @@ class ArmyMove extends Move {
             if (toList.length) {
                 state.soundCue = SOUNDS.DEFEAT;
                 const color = toOwner ? toOwner.highlightStart : '#fff';
-                state.floatingText = [
-                    {region: gameData.regions[toRegion], color, text: "Defended!", width: 7}
-                ];
+                state.floatingText = [{ regionIdx: toRegion, color, text: "Defended!", width: 7 }];
             }
         }
 
@@ -154,7 +156,12 @@ class ArmyMove extends Move {
                         attackSequence.push({
                             soundCue: SOUNDS.OURS_DEAD,
                             delay: 800,
-                            floatingText: [{soldier: fromList[0], text: "Protected by Fire!", color: UPGRADES.FIRE.bgColor, width: 11}],
+                            floatingText: [{
+                                soldier: fromList[0],
+                                text: "Protected by Fire!",
+                                color: UPGRADES.FIRE.bgColor,
+                                width: 11
+                            }],
                         });
                     }
                 } else {

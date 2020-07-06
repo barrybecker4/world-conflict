@@ -91,7 +91,7 @@ function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldie
         state.soundCue = SOUNDS.DEFEAT;
         const color = toOwner ? toOwner.highlightStart : '#fff';
         state.floatingText = [
-            {region: gameData.regions[toRegion], color, text: "Defended!", width: 7}
+            {regionIdx: toRegion, color, text: "Defended!", width: 7}
         ];
     }
 
@@ -135,7 +135,7 @@ function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, in
         // play sound, launch particles!
         state.particleTempleRegion = gameData.regions[toRegion];
         const color = fromOwner.highlightStart;
-        state.floatingText = [{region: gameData.regions[toRegion], color, text: "Conquered!", width: 7}];
+        state.floatingText = [{regionIdx: toRegion, color, text: "Conquered!", width: 7}];
         state.soundCue = numDefenders ? SOUNDS.VICTORY : SOUNDS.TAKE_OVER;
     }
 }
@@ -197,7 +197,7 @@ function nextTurn(state) {
 
     if (playerIncome) {
         state.floatingText = [{
-            region: gameData.regions[state.templesForPlayer(player)[0].regionIndex],
+            regionIdx: state.templesForPlayer(player)[0].regionIndex,
             text: "+" + playerIncome + "&#9775;",
             color: '#fff',
             width: 5

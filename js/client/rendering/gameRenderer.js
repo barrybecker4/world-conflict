@@ -318,9 +318,10 @@ function updateMapDisplay(gameState) {
         let floaters = gameState.floatingText || [];
         floaters.map(function(floater) {
             var x, y;
-            if (floater.region) {
-                x = floater.region.center[0];
-                y = floater.region.center[1];
+            if (typeof floater.regionIdx === 'number') {
+                const region = gameData.regions[floater.regionIdx]
+                x = region.center[0];
+                y = region.center[1];
             } else if (floater.soldier) {
                 var node = soldierDivsById[floater.soldier.i];
                 x = parseFloat(node.style.left) + 0.2;
@@ -336,7 +337,7 @@ function updateMapDisplay(gameState) {
             setTransform(floatingNode, "translate3d(0,0,0)");
             floatAway(floatingNode, 0, -3);
         });
-        gameState.floatingText = 0;
+        gameState.floatingText = undefined;
     }
 }
 
@@ -473,7 +474,7 @@ function spawnSmokeParticles(div) {
     range(0, numParticles).map(function() {
         const angle = Math.random() * 6.28;
         const dist = rint(0, 200) / 80;
-        spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#000');
+        spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#112');
     });
 }
 
