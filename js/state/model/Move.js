@@ -125,7 +125,7 @@ class ArmyMove extends Move {
 
             const repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
             const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
-            let invincibility = state.upgradeLevel(fromOwner, UPGRADES.FIRE);
+            let invincibility = state.upgradeLevel(toOwner, UPGRADES.FIRE);
 
             function randomNumberForFight(index) {
                 var maximum = 120 + attackerWinChance;
