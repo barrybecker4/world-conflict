@@ -14,6 +14,10 @@ export default {
 };
 
 function aiPickMove(player, state, reportMoveCallback) {
+
+    if (!state.regionCount(player)) // skip players that are not longer in the game
+        return reportMoveCallback(new EndMove());
+
     // check for upgrade options first start with soldiers
     if (shouldBuildSoldier(player, state)) {
         var move = buildSoldierAtBestTemple(player, state);

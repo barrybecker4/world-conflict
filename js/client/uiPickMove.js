@@ -19,6 +19,9 @@ var uiState = {};
 
 export default function uiPickMove(player, state, reportMoveCallback) {
 
+    if (!state.regionCount(player)) // skip players that are not longer in the game
+        return reportMoveCallback(new EndMove());
+
     uiCallbacks.setRegionSelectedCB(function(region) {
         if (!region || state.moveDecision.isBuildMove())
             setCleanState();
@@ -27,7 +30,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             // no move in progress - start a new move if this is legal
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
-                state.moveDecision = new ArmyMove(region.index, undefined, state.soldierCount(region));
+                state.moveDecision = new ArmyMove(state, region.index, undefined, state.soldierCount(region));
                 state.moveDecision.buttons[0].hidden = false;
                 state.moveDecision.highlitRegions = region.neighbors.concat(region.index);
             }
@@ -42,7 +45,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             else if (gameData.regions[moveDecision.source].neighbors.indexOf(region.index) > -1) {
                 // one of the neighbors - let's finalize the move
                 uiCallbacks.clearAll();
-                moveDecision.destination = region.index;
+                moveDecision.setDestination(region.index, state);
                 return reportMoveCallback(moveDecision);
             }
             else {

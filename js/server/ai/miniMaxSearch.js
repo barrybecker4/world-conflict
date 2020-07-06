@@ -96,7 +96,7 @@ function possibleMoves(state) {
             return;
 
         // not *obviously* dumb, so add it to the list!
-        moves.push(new ArmyMove(source.index, dest.index, soldierCount));
+        moves.push(new ArmyMove(state, source.index, dest.index, soldierCount));
     }
 
     // let's see what moves we have available

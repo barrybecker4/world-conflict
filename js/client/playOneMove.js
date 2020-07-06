@@ -47,10 +47,6 @@ export default function playOneMove(state) {
             lastPlayer == player;
         }
 
-        // automatically end the turn of dead players
-        if (!state.regionCount(player))
-            return reportMoveCallback(new EndMove());
-
         if (!player.personality) {
             uiPickMove(player, state, function(move) {
 
