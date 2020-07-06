@@ -135,13 +135,7 @@ function updateMapDisplay(gameState) {
             // surprisingly, this should be safe to do during iteration - http://stackoverflow.com/a/19564686
             delete soldierDivsById[id];
 
-            // spawn some particles
-            var x = parseFloat(div.style.left), y = parseFloat(div.style.top);
-            let numParticles = 20;
-            range(0, numParticles).map(function() {
-                var angle = Math.random() * 6.28, dist = rint(0,100) / 80;
-                spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#000');
-            });
+            spawnSmokeParticles(div)
         }
     });
 
@@ -170,16 +164,10 @@ function updateMapDisplay(gameState) {
         region.hl.style.cursor = highlighted ? 'pointer' : 'default';
 
         // particles
+
         if (gameState.particleTempleRegion == region) {
-            gameState.particleTempleRegion = 0; // only once
-            region.points.map(function(point) {
-                point = projectPoint(point);
-                var center = region.center;
-                var alpha = rint(30, 100) / 100;
-                var startPoint = [lerp(alpha, center[0], point[0]), lerp(alpha, center[1], point[1])];
-                var vx = (startPoint[0] - center[0]) / 2, vy = (startPoint[1] - center[1]) / 2 - 0.15;
-                spawnParticle(startPoint[0], startPoint[1], vx, vy, '#fff');
-            });
+            gameState.particleTempleRegion = undefined; // only once (was 0)
+            spawnCelebratoryParticles(region);
         }
 
         region.element.style.fill = 'url(#' + gradientName + ')';
@@ -478,8 +466,32 @@ function showBanner(background, text, delay, duration) {
     }
 }
 
+function spawnSmokeParticles(div) {
+    const x = parseFloat(div.style.left);
+    const y = parseFloat(div.style.top);
+    const numParticles = 20;
+    range(0, numParticles).map(function() {
+        const angle = Math.random() * 6.28;
+        const dist = rint(0, 200) / 80;
+        spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#000');
+    });
+}
+
+function spawnCelebratoryParticles(region) {
+    region.points.map(point => {
+        point = projectPoint(point);
+        const center = region.center;
+        const alpha = rint(30, 150) / 100;
+        const startPoint = [lerp(alpha, center[0], point[0]), lerp(alpha, center[1], point[1])];
+        const vx = (startPoint[0] - center[0]) / 2;
+        const vy = (startPoint[1] - center[1]) / 2 - 0.15;
+        spawnParticle(startPoint[0], startPoint[1], vx, vy, '#fff');
+    });
+}
+
 function spawnParticle(x, y, vx, vy, color) {
-    var styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 1px 1px " + color;
+    // box-shadow:  x-offset, y-offset, blur radius, spread radius, color
+    var styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 4px 4px " + color;
     var particle = append('m', div({c: 'particle', s: styleString}, ''));
     floatAway(particle, vx, vy);
 }

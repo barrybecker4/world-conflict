@@ -269,11 +269,11 @@ p {
 /* Particles! */
 .particle {
     position: absolute;
-    width: 0;
-    height: 0;
+    width: 5;
+    height: 5;
     transform: translate3d(0,0,0);
     -webkit-transform: translate3d(0,0,0);
-    transition: all 1s;
+    transition: all 4s;
 }
 
 /* Tutorial slider styles */
