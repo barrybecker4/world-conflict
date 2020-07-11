@@ -16,7 +16,7 @@ svg {
     perspective: 50em;
     -webkit-perspective: 50em;
 }
-#overview-panel, #map, #u {
+#overview-panel, #map, #footer-buttons {
     position: absolute;
 }
 #overview-panel {
@@ -96,7 +96,7 @@ svg {
 }
 
 /* Buttons */
-#u {
+#footer-buttons {
     bottom: 0.8em; left: 0.8em; right: 0.8em;
     perspective: 15em;
 }

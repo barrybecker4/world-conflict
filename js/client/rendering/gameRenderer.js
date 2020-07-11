@@ -412,7 +412,7 @@ function updateIngameUI(gameState) {
 }
 
 function updateButtons(buttons) {
-    $('u').innerHTML = '';
+    $('footer-buttons').innerHTML = '';
     (buttons || []).map(function(button, index) {
         if (button.hidden) return;
 
@@ -421,7 +421,7 @@ function updateButtons(buttons) {
             buttonContents += div({c: 'description'}, button.description);
 
         var buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : ''}, buttonContents);
-        var buttonNode = append('u', buttonHTML);
+        var buttonNode = append('footer-buttons', buttonHTML);
         if (!button.disabled) {
             onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
         }
