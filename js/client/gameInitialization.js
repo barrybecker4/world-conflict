@@ -87,7 +87,7 @@ function prepareInGameUI(gameState) {
     $('d').innerHTML = html;
 
     // show stat box and undo button
-    ['mv', 'undo-button', 'restart'].map(domUtils.show);
+    ['move-info', 'undo-button', 'restart'].map(domUtils.show);
 }
 
 function regenerateInitialState(gameState) {
@@ -138,7 +138,7 @@ function prepareSetupUI() {
     createPlayerBoxArea();
 
     // hide stat box and undo button
-    ['mv', 'undo-button', 'restart'].map(domUtils.hide);
+    ['move-info', 'undo-button', 'restart'].map(domUtils.hide);
 
     setupButtonHandlersForPlayers();
 }

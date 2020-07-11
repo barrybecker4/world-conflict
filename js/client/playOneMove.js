@@ -89,7 +89,7 @@ function showEndGame(state) {
         $('turn-count').innerHTML = "Game complete";
         $('info').innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
         $('info').style.background = '#555';
-        $('mv').style.display = 'none';
+        $('move-info').style.display = 'none';
         gameRenderer.updateButtons([ {text: "New game"} ]);
 
         uiCallbacks.setBuildCB(gameInitialization.runSetupScreen);
