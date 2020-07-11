@@ -17,8 +17,8 @@ function heuristicForPlayer(player, state) {
         // count the value of the region itself
         var value = regionFullValue(state, region.index);
         // but also take into account the threat other players pose to it, and the opportunities it offers
-        value += regionOpportunity(state, player, region) * threatOpportunityMultiplier -
-                 regionThreat(state, player, region) * threatOpportunityMultiplier * value;
+        value += regionOpportunity(state, player, region.index) * threatOpportunityMultiplier -
+                 regionThreat(state, player, region.index) * threatOpportunityMultiplier * value;
         // and the soldiers on it
         value += state.soldierCount(region) * soldierBonus;
 
@@ -78,9 +78,9 @@ function regionThreat(state, player, regionIndex) {
                 let unvisitedNeighbors =
                     entry.region.neighbors.filter(function(candidateIdx) {
                         return (!sequenceUtils.contains(visited, gameData.regions[candidateIdx])) &&
-                            (state.owner(candidate) == nOwner);
+                            (state.owner(candidateIdx) == nOwner);
                     });
-                unvisitedNeighbors.map(region => queue.push({region, depth: entry.depth - 1}));
+                unvisitedNeighbors.map(i => queue.push({region: gameData.regions[i], depth: entry.depth - 1}));
             }
         }
 

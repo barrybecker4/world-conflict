@@ -32,16 +32,16 @@ var soldierDivsById = {};
 function showMap(container, gameState) {
 
     // define gradients and clipping paths for rendering
-    var defs = elem('defs', {},
+    const defs = elem('defs', {},
             makeClipPaths() +
             makeGradient('b', '#69e', '#48b') +
-            makeGradient('l', '#dba', '#b98') +
-            makeGradient('lh', '#fb7', '#741') +
+            makeGradient('land', '#dba', '#b98') +
+            makeGradient('land-highlight', '#fb7', '#741') +
             makeGradient('d', '#210', '#000') +
             makeGradient('w', '#55f', '#003') +
             gameData.players.map(function(player, index) {
                 return makeGradient('p' + index, player.colorStart, player.colorEnd) +
-                    makeGradient('p' + index + 'h', player.highlightStart, player.highlightEnd);
+                    makeGradient('p' + index + '-highlight', player.highlightStart, player.highlightEnd);
             }).join(''));
 
     // create all the layers (5 per region)
@@ -49,10 +49,10 @@ function showMap(container, gameState) {
         [[0,0], [geomUtils.MAP_WIDTH, 0], [geomUtils.MAP_WIDTH, geomUtils.MAP_HEIGHT], [0, geomUtils.MAP_HEIGHT]],
         'b', 'b'
     );
-    var tops = makeRegionPolys('r', 'l', 1, 1, 0, 0);
+    var tops = makeRegionPolys('r', 'land', 1, 1, 0, 0);
     var bottoms = makeRegionPolys('d', 'd', 1, 1, .05, .05);
     var shadows = makeRegionPolys('w', 'w', 1.05, 1.05, .2, .2, ' ');
-    var highlighters = makeRegionPolys('hl', '', 1, 1, 0, 0, 'stroke:#fff;stroke-width:1.5;opacity:0.0;', 'clip');
+    var highlighters = makeRegionPolys('highlight', '', 1, 1, 0, 0, 'stroke:#fff;stroke-width:1.5;opacity:0.0;', 'clip');
 
     // replace the map container contents with the new map
     container.innerHTML = elem('svg', {
@@ -68,8 +68,8 @@ function showMap(container, gameState) {
         region.element = $('r' + index);
         region.center = projectPoint(centerOfWeight(region.points));
 
-        region.hl = $('hl' + index);
-        onClickOrTap(region.hl, event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
+        region.highlight = $('highlight' + index);
+        onClickOrTap(region.highlight, event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
     });
 
     // additional callbacks for better UI
@@ -81,7 +81,7 @@ function showMap(container, gameState) {
     // makes clipping paths for the "highlight" polygons
     function makeClipPaths() {
         return gameData.regions.map((region, index) => {
-            return elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'l', ''));
+            return elem('clipPath', {i: 'clip' + index}, makePolygon(region.points, 'cp' + index, 'land', ''));
         }).join('');
     }
 
@@ -145,7 +145,7 @@ function updateMapDisplay(gameState) {
 
     function updateRegionDisplay(region) {
         var regionOwner = gameState.owner(region);
-        var gradientName = (regionOwner ? 'p' + regionOwner.index : 'l');
+        var gradientName = (regionOwner ? 'p' + regionOwner.index : 'land');
 
         // a region is highlighted if it has an available move, or belongs to the winner
         // (end game display highlights the winner)
@@ -155,13 +155,13 @@ function updateMapDisplay(gameState) {
 
         // highlighting
         if (highlighted) {
-            gradientName += 'h';
+            gradientName += '-highlight';
         }
         var highlightedOpacity = 0.1 + region.center[0] * 0.003;
         if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region.index))
             highlightedOpacity *= 2;
-        region.hl.style.opacity = highlighted ? highlightedOpacity : 0.0;
-        region.hl.style.cursor = highlighted ? 'pointer' : 'default';
+        region.highlight.style.opacity = highlighted ? highlightedOpacity : 0.0;
+        region.highlight.style.cursor = highlighted ? 'pointer' : 'default';
 
         // particles
 
