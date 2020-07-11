@@ -237,7 +237,7 @@ function updateMapDisplay(gameState) {
 
         // highlight?
         var selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
-        toggleClass(temple.element, 'l', selected);
+        toggleClass(temple.element, 'selected', selected);
     }
 
     function updateSoldierDisplay(region, soldier, index) {
@@ -279,7 +279,7 @@ function updateMapDisplay(gameState) {
 
         // selected?
         var decisionState = gameState.moveDecision || {};
-        toggleClass(domElement, 'l', (decisionState.source == region.index && index < decisionState.count));
+        toggleClass(domElement, 'selected', (decisionState.source == region.index && index < decisionState.count));
     }
 
     function updateSoldierTooltips() {
