@@ -16,12 +16,12 @@ svg {
     perspective: 50em;
     -webkit-perspective: 50em;
 }
-#o, #m, #u {
+#overview-panel, #m, #u {
     position: absolute;
 }
-#o {
+#overview-panel {
     left: 1%; right: 78.2%;
-    top: 13.5%; bottom: 13.5%;
+    top: 5%; bottom: 5%;
     color: white;
     transform: rotateY(0deg);
     -webkit-transform: rotateY(0deg);

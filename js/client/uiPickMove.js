@@ -70,7 +70,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
                 soldierRegion = region;
         });
         if (soldierRegion)
-            uiCallbacks.regionsSelected(soldierRegion);
+            uiCallbacks.regionSelected(soldierRegion);
     });
 
     uiCallbacks.setBuildCB(function(which) {
