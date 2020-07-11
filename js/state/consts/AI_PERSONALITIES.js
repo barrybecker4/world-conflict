@@ -1,5 +1,6 @@
-import UPGRADES from './UPGRADES.js';
+import CONSTS from '../CONSTS.js';
 import AiPersonality from '../model/AiPersonality.js';
+const { UPGRADES } = CONSTS;
 
 const WATER = UPGRADES.WATER;
 const EARTH = UPGRADES.EARTH;

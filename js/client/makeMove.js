@@ -5,11 +5,11 @@ import oneAtaTime from './utils/oneAtaTime.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
-import CONSTS from '../state/consts/CONSTS.js';
-import UPGRADES from '../state/consts/UPGRADES.js';
+import CONSTS from '../state/CONSTS.js';
 import SOUNDS from '../state/consts/SOUNDS.js';
 import gameData from '../state/gameData.js';
 const $ = domUtils.$;
+const UPGRADES = CONSTS.UPGRADES;
 
 /**
  * Takes an existing state and a move, and returns a new game state with the move

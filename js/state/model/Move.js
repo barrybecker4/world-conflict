@@ -1,8 +1,8 @@
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
-import CONSTS from '../consts/CONSTS.js';
-import UPGRADES from '../consts/UPGRADES.js';
+import CONSTS from '../CONSTS.js';
 import SOUNDS from '../consts/SOUNDS.js';
+const { UPGRADES } = CONSTS;
 
 export {
     Move,

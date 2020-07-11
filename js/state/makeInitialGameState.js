@@ -1,6 +1,6 @@
 import utils from '../utils/utils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import CONSTS from './consts/CONSTS.js';
+import CONSTS from './CONSTS.js';
 import aiPlay from '../server/ai/aiPlay.js';
 import generateMap from '../server/map/generateMap.js';
 import uiPickMove from '../client/uiPickMove.js';

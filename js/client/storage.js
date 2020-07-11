@@ -1,4 +1,4 @@
-import CONSTS from '../state/consts/CONSTS.js';
+import CONSTS from '../state/CONSTS.js';
 import utils from '../utils/utils.js';
 import geomUtils from './rendering/geomUtils.js';
 

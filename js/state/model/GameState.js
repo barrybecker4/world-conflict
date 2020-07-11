@@ -1,10 +1,10 @@
 import gameInitialization from '../../client/gameInitialization.js';
-import CONSTS from '../consts/CONSTS.js';
+import CONSTS from '../CONSTS.js';
 import utils from '../../utils/utils.js';
 import sequenceUtils from '../../utils/sequenceUtils.js';
 import aiPlay from '../../server/ai/aiPlay.js';
-import UPGRADES from '../consts/UPGRADES.js';
 import gameData from '../gameData.js';
+const { UPGRADES } = CONSTS;
 
 // global counter for the number of soldiers
 var soldierId = 0;

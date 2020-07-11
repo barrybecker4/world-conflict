@@ -1,6 +1,6 @@
 import utils from '../../utils/utils.js';
 import domUtils from '../utils/domUtils.js';
-import CONSTS from '../../state/consts/CONSTS.js';
+import CONSTS from '../../state/CONSTS.js';
 
 const MAP_WIDTH = 30;
 const MAP_HEIGHT = 20;

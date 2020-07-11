@@ -1,13 +1,13 @@
 import utils from '../utils/utils.js';
 import domUtils from './utils/domUtils.js';
 import sequenceUtils from '../utils/sequenceUtils.js';
-import CONSTS from '../state/consts/CONSTS.js';
+import CONSTS from '../state/CONSTS.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
 import { Move, ArmyMove, BuildMove, EndMove } from '../state/model/Move.js';
-import UPGRADES from '../state/consts/UPGRADES.js';
 import gameData from '../state/gameData.js';
+const { UPGRADES } = CONSTS;
 
 
 /**

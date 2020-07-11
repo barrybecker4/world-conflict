@@ -3,7 +3,7 @@ import utils from '../utils/utils.js';
 import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
-import CONSTS from '../state/consts/CONSTS.js';
+import CONSTS from '../state/CONSTS.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
