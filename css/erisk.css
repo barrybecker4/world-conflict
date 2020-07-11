@@ -194,11 +194,12 @@ p {
     color: #777;
     font-weight: bold;
 }
-.bl, .br {
-    float: left; width: 40%;
+.block-left, .block-right {
+    float: left;
+    width: 40%;
     margin: 0 6.66%;
 }
-.bl {
+.block-left {
     margin-right: 0;
 }
 #mc, #ft {
