@@ -11,14 +11,7 @@ You can **[play the original version here](http://wasyl.eu/games/compact-conflic
 
 The main page is `index.html`. 
 
-If you want to build your own minified versions, `build.sh` can hook you up, but it needs the following installed:
-
-* uglifyjs
-* htmlminifier
-
-Both are modules on **npm**.
-
-The new version of this code is more concerned with maintainability than compactness though.
+When running in a browser, to avoid a cross-origin request errors, you need to run it in a server of some sort. Fortunately, this is easy to do. Just clone the project, open it in Intellij, and open 'index.html' in the browser of your choice (by right-clicking on it).
 
 #### Thanks
 
