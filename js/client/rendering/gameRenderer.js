@@ -302,7 +302,7 @@ function updateMapDisplay(gameState) {
                 if (!tooltip) {
                     var tooltipHTML = div({
                         i: tooltipId,
-                        c: 'tt stt',
+                        c: 'tt soldier-tt',
                         s: "left:" + (region.center[0] - 1.5) + '%;top:' + (region.center[1] + 1.2) + '%'
                     }, '');
                     tooltip = append('map', tooltipHTML);

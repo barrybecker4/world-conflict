@@ -265,7 +265,7 @@ p {
     margin: 1px 0;
 }
 
-.stt {
+.soldier-tt {
     width: 2%;
     font-weight: bold;
     background: #333;
@@ -295,7 +295,7 @@ p {
     transform: translate3d(0,0,0);
     transition: all 0.4s;
 }
-.crd {
+.card {
     width: 20%; height: 100%;
     margin: 0;
     float: left;
