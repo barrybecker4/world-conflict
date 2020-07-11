@@ -101,13 +101,14 @@ function showMap(container, gameState) {
     function makeTemples() {
         forEachProperty(gameState.temples, function(temple) {
 
-            var center = gameData.regions[temple.regionIndex].center,
+            const center = gameData.regions[temple.regionIndex].center,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
-            var templeHTML = div({
+            const obj = {c: 'temple-level'};
+            const templeHTML = div({
                 c: 'temple',
                 s: style
-            }, div({c: 'i'}, div({c: 'i'}, div({c: 'i'}, div({c: 'i'})))));
+            }, div(obj, div(obj, div(obj, div(obj)))));
             temple.element = append('map', templeHTML);
 
             onClickOrTap(temple.element, event =>
