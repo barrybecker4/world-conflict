@@ -75,8 +75,8 @@ function prepareInGameUI(gameState) {
         var pid = player.index;
         return div({ i: 'player-box' + pid, c: 'player-box inactive', style: 'background: ' + player.colorEnd },
             player.name +
-            div({ c: 'ad', i: 'region-count' + pid, tt: 'number of countries owned' }) +
-            div({ c: 'ad', i: 'player-cash' + pid, tt: 'amount of faith' })
+            div({ c: 'additional-info', i: 'region-count' + pid, tt: 'number of countries owned' }) +
+            div({ c: 'additional-info', i: 'player-cash' + pid, tt: 'amount of faith' })
         );
     }).join(''));
 
