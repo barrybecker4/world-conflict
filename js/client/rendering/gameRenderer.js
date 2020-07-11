@@ -144,26 +144,23 @@ function updateMapDisplay(gameState) {
     updateSoldierTooltips();
 
     function updateRegionDisplay(region) {
-        var regionOwner = gameState.owner(region);
-        var gradientName = (regionOwner ? 'p' + regionOwner.index : 'land');
+        const regionOwner = gameState.owner(region);
+        let gradientName = (regionOwner ? 'p' + regionOwner.index : 'land');
 
         // a region is highlighted if it has an available move, or belongs to the winner
         // (end game display highlights the winner)
         const hasAvailableMove =
             sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], region.index);
-        var highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
+        const highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
 
-        // highlighting
         if (highlighted) {
             gradientName += '-highlight';
         }
-        var highlightedOpacity = 0.1 + region.center[0] * 0.003;
+        let highlightedOpacity = 0.1 + region.center[0] * 0.003;
         if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region.index))
             highlightedOpacity *= 2;
         region.highlight.style.opacity = highlighted ? highlightedOpacity : 0.0;
         region.highlight.style.cursor = highlighted ? 'pointer' : 'default';
-
-        // particles
 
         if (gameState.particleTempleRegion == region) {
             gameState.particleTempleRegion = undefined; // only once (was 0)
@@ -180,24 +177,31 @@ function updateMapDisplay(gameState) {
         // "how to move" tooltips
         const hasSource = gameState.moveDecision && typeof gameState.moveDecision.source == 'number';
         if (hasSource)  {
-            const source = gameData.regions[gameState.moveDecision.source];
-            showTooltipOver(source, "Click this region again to change the number of soldiers.");
-            // pick the furthest neighbor
-            var furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(gameData.regions[nbr]));
-            showTooltipOver(furthest, "Click a bordering region to move.");
+            showHowToMoveTips();
         }
         else {
-            // "conquering armies cannot move" tooltips
-            var inactiveArmies = gameState.conqueredRegions;
-            if (inactiveArmies) {
-                showTooltipOver(inactiveArmies[inactiveArmies.length - 1], "Armies that conquer a new region cannot move again.")
-                showTooltipOver({center: [-2, 80]},
-                    "Once you're done, click 'End turn' here.");
-            }
+            showConqueringCannotMoveTip();
         }
         if (gameState.turnIndex == 2 && gameState.movesRemaining == 2) {
             showTooltipOver({ center:[90, 93] },
                 "If you want to undo a move or check the rules, use the buttons here.", 15);
+        }
+    }
+
+    function showHowToMoveTips() {
+        const source = gameData.regions[gameState.moveDecision.source];
+        showTooltipOver(source, "Click this region again to change the number of soldiers.");
+        // pick the furthest neighbor
+        const furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(gameData.regions[nbr]));
+        showTooltipOver(furthest, "Click a bordering region to move.");
+    }
+
+    function showConqueringCannotMoveTip() {
+        const inactiveArmies = gameState.conqueredRegions;
+        if (inactiveArmies) {
+            showTooltipOver(inactiveArmies[inactiveArmies.length - 1],
+                "Armies that conquer a new region cannot move again.");
+            showTooltipOver({ center: [-2, 80] }, "Once you're done, click 'End turn' here.");
         }
     }
 
@@ -235,7 +239,6 @@ function updateMapDisplay(gameState) {
         temple.element.style.cursor = appState.isInGame() ?
             (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
-        // highlight?
         var selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
         toggleClass(temple.element, 'selected', selected);
     }
@@ -245,7 +248,7 @@ function updateMapDisplay(gameState) {
         soldiersStillAlive.push(soldier.i);
 
         // find or create a <div> for showing the soldier
-        var domElement = soldierDivsById[soldier.i];
+        let domElement = soldierDivsById[soldier.i];
         if (!domElement) {
             var html = div({c: 'soldier', s: 'display: none'});
             domElement = append('map', html);
@@ -254,17 +257,17 @@ function updateMapDisplay(gameState) {
         }
 
         // (re)calculate where the <div> should be
-        var center = region.center;
-        var totalSoldiers = gameState.soldierCount(region);
+        const center = region.center;
+        const totalSoldiers = gameState.soldierCount(region);
 
-        var columnWidth = sequenceUtils.min([totalSoldiers, 4]);
-        var rowHeight = sequenceUtils.min([2 / Math.ceil(totalSoldiers / 4), 1]);
+        const columnWidth = sequenceUtils.min([totalSoldiers, 4]);
+        const rowHeight = sequenceUtils.min([2 / Math.ceil(totalSoldiers / 4), 1]);
 
-        var x = index % 4, y = Math.floor(index / 4);
-        var xOffset = (-0.6 * columnWidth + x * 1.2);
-        var yOffset = y * rowHeight + (gameState.temples[region.index] ? 1.5 : 0);
-        var xPosition = center[0] + xOffset - yOffset * 0.2;
-        var yPosition = center[1] + xOffset * 0.2 + yOffset;
+        const x = index % 4, y = Math.floor(index / 4);
+        const xOffset = (-0.6 * columnWidth + x * 1.2);
+        const yOffset = y * rowHeight + (gameState.temples[region.index] ? 1.5 : 0);
+        let xPosition = center[0] + xOffset - yOffset * 0.2;
+        let yPosition = center[1] + xOffset * 0.2 + yOffset;
 
         if (soldier.attackedRegion) {
             // we're attacking right now - move us closer to target region
@@ -277,7 +280,6 @@ function updateMapDisplay(gameState) {
         domElement.style.zIndex = 20 + y * 5 + x;
         domElement.style.display = 'block';
 
-        // selected?
         var decisionState = gameState.moveDecision || {};
         toggleClass(domElement, 'selected', (decisionState.source == region.index && index < decisionState.count));
     }
