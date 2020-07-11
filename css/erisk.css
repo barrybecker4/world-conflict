@@ -241,8 +241,7 @@ p {
     opacity: 0.0;
 }
 
-/* Corner buttons */
-.cb {
+.corner-button {
     display: none; right: 1%; bottom: 1%; opacity: 0.4;
 }
 
@@ -309,7 +308,7 @@ p {
     margin: auto;
     color:#fff; font-size:2em; text-align: center
 }
-.rb {
+.round-button {
     border-radius: 50%;
     width: 1.5em;
     height: 1.5em;
@@ -326,7 +325,7 @@ p {
     left: 30%; right: 30%;
     top: 90%;
 }
-#title-screen a:hover, a.rb:hover { transform: translate3d(0,0,0.2em); opacity: 1 !important; }
+#title-screen a:hover, a.round-button:hover { transform: translate3d(0,0,0.2em); opacity: 1 !important; }
 h1 {
     font-family: "Constantia", "Athelas", serif;
     font-size: 3.75em;
