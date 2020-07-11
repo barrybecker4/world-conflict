@@ -67,7 +67,7 @@ svg {
 }
 
 /* Information display styles */
-.sc {
+.side-control {
     margin: 0.12em 0.12em;
     padding: 0.6em 1em;
     background: #222;
@@ -75,9 +75,11 @@ svg {
     font-size: 90%;
     text-shadow: 0.12em 0.1em #000;
 }
-.un {
-    padding: 0.33em 0;
+
+.user-name {
+    padding: 0.5em 0;
 }
+
 .description {
     font-size: 80%; color: #aaa;
 }

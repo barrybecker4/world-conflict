@@ -68,10 +68,10 @@ function createSetupUI(gameState) {
 // Prepares the whole sidebar on the left for gameplay use.
 function prepareInGameUI(gameState) {
     // turn counter
-    var html = div({i: 'turn-count', c: 'sc'});
+    var html = div({i: 'turn-count', c: 'side-control'});
 
     // player box area
-    html += div({i: 'pd', c: 'sc un'}, gameData.players.map(player => {
+    html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
         var pid = player.index;
         return div({ i: 'pl' + pid, c: 'pl', style: 'background: ' + player.colorEnd },
             player.name +
@@ -81,7 +81,7 @@ function prepareInGameUI(gameState) {
     }).join(''));
 
     // info box
-    html += div({c: 'sc un description', i: 'in'});
+    html += div({c: 'side-control user-name description', i: 'in'});
 
     // set it all
     $('d').innerHTML = html;
@@ -144,7 +144,7 @@ function prepareSetupUI() {
 }
 
 function createPlayerBoxArea() {
-    var html = div({c: 'sc description'}, "Player setup");
+    var html = div({c: 'side-control description'}, "Player setup");
     var playerBoxes = PLAYERS.map(function(player) {
         var pid = player.index;
         return buttonPanel(player.name, "sb" + player.index, ["AI", "Human", "Off"], {
@@ -153,7 +153,7 @@ function createPlayerBoxArea() {
             s: 'background: ' + player.colorEnd
         });
     }).join("");
-    html += div({i: 'pd', c: 'sc un'}, playerBoxes);
+    html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
     html += buttonPanel("AI", "ai", ["Evil", "Mean", "Rude", "Nice"]);
     const labels = CONSTS.TURN_COUNTS.map(ct => (ct == CONSTS.UNLIMITED_TURNS) ? "Endless" : "" + ct).reverse();
     html += buttonPanel("Turns", "turn-count", labels);
@@ -166,7 +166,7 @@ function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) 
         var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
         return domUtils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
     }).join("");
-    var properties = {i: buttonIdPrefix, c: 'sc description', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
+    var properties = {i: buttonIdPrefix, c: 'side-control description', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
     utils.forEachProperty(additionalProperties, function(value, name) {
         properties[name] = value;
     });

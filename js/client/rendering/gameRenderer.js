@@ -284,7 +284,7 @@ function updateMapDisplay(gameState) {
 
     function updateSoldierTooltips() {
         gameData.regions.map(function(region, regionIndex) {
-            var tooltipId = 'sc' + regionIndex;
+            var tooltipId = 'side-control' + regionIndex;
             // delete previous tooltip, if present
             var tooltip = $(tooltipId);
 
