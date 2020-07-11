@@ -401,8 +401,8 @@ function updateIngameUI(gameState) {
 
     // activePlayer stats
     $('pd').style.display =  buildingMode ? 'none' : 'block';
-    $('mc').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
-    $('ft').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
+    $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
+    $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
     // buttons
     updateButtons(decisionState && decisionState.buttons);
