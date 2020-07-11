@@ -396,8 +396,8 @@ function updateIngameUI(gameState) {
     } else {
         moveInfo = elem('p', {}, activePlayer.name + ' is taking her turn.');
     }
-    $('in').innerHTML = moveInfo;
-    $('in').style.background = activePlayer.colorEnd;
+    $('info').innerHTML = moveInfo;
+    $('info').style.background = activePlayer.colorEnd;
 
     // activePlayer stats
     $('pd').style.display =  buildingMode ? 'none' : 'block';

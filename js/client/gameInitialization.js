@@ -81,7 +81,7 @@ function prepareInGameUI(gameState) {
     }).join(''));
 
     // info box
-    html += div({c: 'side-control user-name description', i: 'in'});
+    html += div({c: 'side-control user-name description', i: 'info'});
 
     // set it all
     $('d').innerHTML = html;

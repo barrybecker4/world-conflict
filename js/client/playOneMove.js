@@ -87,8 +87,8 @@ function showEndGame(state) {
         gameRenderer.updateDisplay(state);
 
         $('turn-count').innerHTML = "Game complete";
-        $('in').innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
-        $('in').style.background = '#555';
+        $('info').innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
+        $('info').style.background = '#555';
         $('mv').style.display = 'none';
         gameRenderer.updateButtons([ {text: "New game"} ]);
 
