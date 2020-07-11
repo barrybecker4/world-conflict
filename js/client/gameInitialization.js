@@ -94,7 +94,7 @@ function regenerateInitialState(gameState) {
     let newGameState = gameState;
     if (isSetupValid()) {
         newGameState = makeInitialGameState(gameSetup);
-        gameRenderer.showMap($('m'), newGameState);
+        gameRenderer.showMap($('map'), newGameState);
         gameRenderer.updateMapDisplay(newGameState);
     }
     return newGameState;

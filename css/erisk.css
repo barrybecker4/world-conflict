@@ -16,7 +16,7 @@ svg {
     perspective: 50em;
     -webkit-perspective: 50em;
 }
-#overview-panel, #m, #u {
+#overview-panel, #map, #u {
     position: absolute;
 }
 #overview-panel {
@@ -31,7 +31,7 @@ svg {
     background: #111;
     font-size: 110%;
 }
-#m {
+#map {
     right: 0; left: 20%; top: 0; bottom: 0;
 }
 

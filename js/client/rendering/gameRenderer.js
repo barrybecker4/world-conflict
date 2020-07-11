@@ -109,7 +109,7 @@ function showMap(container, gameState) {
                 c: 'o',
                 s: style
             }, div({c: 'i'}, div({c: 'i'}, div({c: 'i'}, div({c: 'i'})))));
-            temple.element = append('m', templeHTML);
+            temple.element = append('map', templeHTML);
 
             onClickOrTap(temple.element, event =>
                 uiCallbacks.invokeCallback(gameData.regions[temple.regionIndex], 'templeSelected', event)
@@ -131,7 +131,7 @@ function updateMapDisplay(gameState) {
     forEachProperty(soldierDivsById, function(div, id) {
         if (soldiersStillAlive.indexOf(parseInt(id)) < 0) {
             // this is an ex-div - in other words, the soldier it represented is dead.
-            $('m').removeChild(div);
+            $('map').removeChild(div);
             // surprisingly, this should be safe to do during iteration - http://stackoverflow.com/a/19564686
             delete soldierDivsById[id];
 
@@ -174,7 +174,7 @@ function updateMapDisplay(gameState) {
     }
 
     function updateTooltips() {
-        [].slice.call(document.querySelectorAll('.ttp')).map(element => $('m').removeChild(element));
+        [].slice.call(document.querySelectorAll('.ttp')).map(element => $('map').removeChild(element));
         if (gameState.activePlayer().personality) return;
 
         // "how to move" tooltips
@@ -213,7 +213,7 @@ function updateMapDisplay(gameState) {
         var left = region.center[0] - (width + 1) * 0.5, bottom = 102 - region.center[1];
         var styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
 
-        append('m', div({c: 'tt ttp', s: styles}, text));
+        append('map', div({c: 'tt ttp', s: styles}, text));
     }
 
     function updateTempleDisplay(temple) {
@@ -248,7 +248,7 @@ function updateMapDisplay(gameState) {
         var domElement = soldierDivsById[soldier.i];
         if (!domElement) {
             var html = div({c: 'soldier', s: 'display: none'});
-            domElement = append('m', html);
+            domElement = append('map', html);
             soldierDivsById[soldier.i] = domElement;
             onClickOrTap(domElement, (event) => uiCallbacks.invokeCallback(soldier, 'soldierSelected', event));
         }
@@ -305,7 +305,7 @@ function updateMapDisplay(gameState) {
                         c: 'tt stt',
                         s: "left:" + (region.center[0] - 1.5) + '%;top:' + (region.center[1] + 1.2) + '%'
                     }, '');
-                    tooltip = append('m', tooltipHTML);
+                    tooltip = append('map', tooltipHTML);
                 }
                 tooltip.innerHTML = count;
             } else if (tooltip) {
@@ -333,7 +333,7 @@ function updateMapDisplay(gameState) {
             x -= floater.width / 2 + 0.5; y -= 4;
 
             var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
-            var floatingNode = append('m', div({c: 'tt', s: styles}, floater.text));
+            var floatingNode = append('map', div({c: 'tt', s: styles}, floater.text));
             setTransform(floatingNode, "translate3d(0,0,0)");
             floatAway(floatingNode, 0, -3);
         });
@@ -493,7 +493,7 @@ function spawnCelebratoryParticles(region) {
 function spawnParticle(x, y, vx, vy, color) {
     // box-shadow:  x-offset, y-offset, blur radius, spread radius, color
     var styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 4px 4px " + color;
-    var particle = append('m', div({c: 'particle', s: styleString}, ''));
+    var particle = append('map', div({c: 'particle', s: styleString}, ''));
     floatAway(particle, vx, vy);
 }
 
@@ -503,8 +503,8 @@ function floatAway(elem, vx, vy) {
         elem.style.opacity = 0.0;
     }, 100);
     setTimeout(function() {
-        if ($('m').contains(elem))
-            $('m').removeChild(elem);
+        if ($('map').contains(elem))
+            $('map').removeChild(elem);
     }, 3050);
 }
 
