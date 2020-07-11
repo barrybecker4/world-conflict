@@ -1,4 +1,3 @@
-import SOUNDS from '../state/consts/SOUNDS.js';
 import utils from '../utils/utils.js';
 import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
@@ -14,6 +13,7 @@ import makeMove from './makeMove.js';
 import gameData from '../state/gameData.js';
 import firestore from '../state/firestore.js';
 const $ = domUtils.$;
+const { SOUNDS } = CONSTS;
 
 var humanStates = [];
 var lastPlayer = undefined;

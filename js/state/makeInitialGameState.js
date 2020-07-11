@@ -8,10 +8,9 @@ import Temple from './model/Temple.js';
 import GameState from './model/GameState.js';
 import Region from './model/Region.js';
 import { ArmyMove } from './model/Move.js';
-import AI_PERSONALITIES from './consts/AI_PERSONALITIES.js';
-import PLAYERS from './consts/PLAYERS.js';
 import gameData from './gameData.js';
 const { deepCopy, rint, range, sum } = utils;
+const { AI_PERSONALITIES, PLAYERS } = CONSTS;
 
 var gameId = 0;
 
