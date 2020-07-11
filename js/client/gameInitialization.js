@@ -73,7 +73,7 @@ function prepareInGameUI(gameState) {
     // player box area
     html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
         var pid = player.index;
-        return div({ i: 'pl' + pid, c: 'pl', style: 'background: ' + player.colorEnd },
+        return div({ i: 'player-box' + pid, c: 'player-box inactive', style: 'background: ' + player.colorEnd },
             player.name +
             div({ c: 'ad', i: 'region-count' + pid, tt: 'number of countries owned' }) +
             div({ c: 'ad', i: 'player-cash' + pid, tt: 'amount of faith' })
@@ -148,8 +148,8 @@ function createPlayerBoxArea() {
     var playerBoxes = PLAYERS.map(function(player) {
         var pid = player.index;
         return buttonPanel(player.name, "sb" + player.index, ["AI", "Human", "Off"], {
-            i: 'pl' + pid,
-            c: 'pl',
+            i: 'player-box' + pid,
+            c: 'player-box inactive',
             s: 'background: ' + player.colorEnd
         });
     }).join("");

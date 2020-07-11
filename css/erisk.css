@@ -85,13 +85,18 @@ svg {
 }
 
 /* Player boxes */
-/* the boxes themselves - .pl is active, .pi inactive */
-.pl {
-    border: 2px solid rgba(0,0,0,0.5);
+.player-box {
     margin: 0 0.33em;
     padding: 0.5em 0.25em 0.5em 0.5em;
     font-size: 80%;
 }
+.active {
+    border: 4px solid rgba(255,255,255,0.2);
+}
+.inactive {
+    border: 4px solid rgba(0,0,0,0.7);
+}
+
 /* additional information displayed inside the box */
 .ad {
     float: right; width: 21%; text-align: right; margin: -0.2em 0.2em 0 0; font-size: 120%;
@@ -175,8 +180,8 @@ a.rt.sl {
 
     transition: opacity 0.5s ease-in-out, transform 1.5s linear, -webkit-transform 1.5s linear;
 }
-a, .temple, .temple-level, .soldier, .pl, .pi, #in, polygon {
-    transition: all 0.2s ease-in-out;
+a, .temple, .temple-level, .soldier, .player-box, #in, polygon {
+    transition: all 0.3s ease-in-out;
 }
 p {
     margin: 0.4em 1em 0.4em 1em;

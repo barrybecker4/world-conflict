@@ -360,7 +360,7 @@ function updateIngameUI(gameState) {
 
     // player data
     gameData.players.map(function(player, index) {
-        //$('pl' + index).className = (index == gameState.player) ? 'pl' : 'pi'; // activePlayer or not?
+        $('player-box' + index).className = (index == gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
         var hasRegions = gameState.regionCount(player);
         var gameWinner = gameState.endResult;
 
