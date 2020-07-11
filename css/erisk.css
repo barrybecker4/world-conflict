@@ -36,16 +36,16 @@ svg {
 }
 
 /* Board elements */
-.o, .i, .soldier {
+.temple, .i, .soldier {
   border: 1px solid black;
   box-shadow: 2px 2px #000, inset -3px -3px 0 0 rgba(0,0,0,0.2);
   position: absolute;
 }
-.o {
+.temple {
   width: 3%;
   height: 4%;
-  transform: rotate(90deg);
-  -webkit-transform: rotate(90deg);
+  transform: rotate(9deg);
+  -webkit-transform: rotate(9deg);
 }
 .i {
   width: 90%;

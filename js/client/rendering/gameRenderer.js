@@ -104,9 +104,8 @@ function showMap(container, gameState) {
             var center = gameData.regions[temple.regionIndex].center,
                 style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
-            // create the temple <div>s
             var templeHTML = div({
-                c: 'o',
+                c: 'temple',
                 s: style
             }, div({c: 'i'}, div({c: 'i'}, div({c: 'i'}, div({c: 'i'})))));
             temple.element = append('map', templeHTML);
