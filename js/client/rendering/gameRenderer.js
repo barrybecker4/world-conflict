@@ -34,25 +34,25 @@ function showMap(container, gameState) {
     // define gradients and clipping paths for rendering
     const defs = elem('defs', {},
             makeClipPaths() +
-            makeGradient('b', '#69e', '#48b') +
-            makeGradient('land', '#dba', '#b98') +
+            makeGradient('ocean', '#69e', '#48b') +
+            makeGradient('land', '#dcb', '#a98') +
             makeGradient('land-highlight', '#fb7', '#741') +
-            makeGradient('d', '#210', '#000') +
-            makeGradient('w', '#55f', '#003') +
+            makeGradient('bottom', '#210', '#000') +
+            makeGradient('shadow', '#55d', '#134') +
             gameData.players.map(function(player, index) {
                 return makeGradient('p' + index, player.colorStart, player.colorEnd) +
                     makeGradient('p' + index + '-highlight', player.highlightStart, player.highlightEnd);
             }).join(''));
 
     // create all the layers (5 per region)
-    var ocean = makePolygon(
+    const ocean = makePolygon(
         [[0,0], [geomUtils.MAP_WIDTH, 0], [geomUtils.MAP_WIDTH, geomUtils.MAP_HEIGHT], [0, geomUtils.MAP_HEIGHT]],
-        'b', 'b'
+        'ocean', 'ocean'
     );
-    var tops = makeRegionPolys('r', 'land', 1, 1, 0, 0);
-    var bottoms = makeRegionPolys('d', 'd', 1, 1, .05, .05);
-    var shadows = makeRegionPolys('w', 'w', 1.05, 1.05, .2, .2, ' ');
-    var highlighters = makeRegionPolys('highlight', '', 1, 1, 0, 0, 'stroke:#fff;stroke-width:1.5;opacity:0.0;', 'clip');
+    const tops = makeRegionPolys('region', 'land', 1, 1, 0, 0);
+    const bottoms = makeRegionPolys('bottom', 'bottom', 1, 1, .05, .05);
+    const shadows = makeRegionPolys('shadow', 'shadow', 1.05, 1.05, .2, .2, ' ');
+    const highlighters = makeRegionPolys('highlight', '', 1, 1, 0, 0, 'stroke:#fff;stroke-width:1.5;opacity:0.0;', 'clip');
 
     // replace the map container contents with the new map
     container.innerHTML = elem('svg', {
@@ -65,7 +65,7 @@ function showMap(container, gameState) {
 
     // hook up region objects to their HTML elements
     gameData.regions.map(function(region, index) {
-        region.element = $('r' + index);
+        region.element = $('region' + index);
         region.center = projectPoint(centerOfWeight(region.points));
 
         region.highlight = $('highlight' + index);
