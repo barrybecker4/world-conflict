@@ -26,7 +26,7 @@ export default class GameState {
         this.moveDecision = null;
         this.soundCue = null;
         this.undoDisabled = false;
-        //this.numBoughtSoldiers = obj.numBoughtSoldiers;
+        this.numBoughtSoldiers = obj.numBoughtSoldiers;
         this.prevPlayerIndex = obj.prevPlayerIndex;
         this.conqueredRegions = obj.conqueredRegions;
         this.id = obj.stateId || stateId++;
@@ -43,6 +43,7 @@ export default class GameState {
         this.playerIndex = playerIndex;
         this.movesRemaining = numMoves;
         this.conqueredRegions = null;
+        this.numBoughtSoldiers = null;
         return upcomingPlayer;
     }
 
@@ -188,7 +189,7 @@ export default class GameState {
             cash: utils.deepCopy(this.cash, 1),
             simulatingPlayer: this.simulatingPlayer || simulatingPlayer,
             floatingText: this.floatingText,
-            //numBoughtSoldiers: this.numBoughtSoldiers,
+            numBoughtSoldiers: this.numBoughtSoldiers,
             conqueredRegions: this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
         });
     }
