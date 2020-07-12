@@ -33,7 +33,7 @@ export default function makeInitialGameState(setup) {
     });
 
     let regions = generateMap(players.length, setup.mapWidth, setup.mapHeight);
-    let gameState = new GameState(1, 0, CONSTS.BASE_MOVES_PER_TURN);
+    let gameState = new GameState({turnIndex: 1, playerIndex: 0, movesRemaining: CONSTS.BASE_MOVES_PER_TURN});
 
     setupTemples(3, regions);
 

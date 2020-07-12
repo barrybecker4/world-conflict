@@ -15,7 +15,7 @@ function heuristicForPlayer(player, state) {
 
     function adjustedRegionValue(region) {
         // count the value of the region itself
-        var value = regionFullValue(state, region.index);
+        let value = regionFullValue(state, region.index);
         // but also take into account the threat other players pose to it, and the opportunities it offers
         value += regionOpportunity(state, player, region.index) * threatOpportunityMultiplier -
                  regionThreat(state, player, region.index) * threatOpportunityMultiplier * value;
@@ -28,7 +28,8 @@ function heuristicForPlayer(player, state) {
     const regionTotal = sequenceUtils.sum(gameData.regions, function (region) {
         return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
-    var faithTotal = state.income(player) * soldierBonus / 12; // each point of faith counts as 1/12th of a soldier
+    // each point of faith counts as 1/12th of a soldier
+    var faithTotal = state.income(player) * soldierBonus / 12;
     return regionTotal + faithTotal;
 }
 

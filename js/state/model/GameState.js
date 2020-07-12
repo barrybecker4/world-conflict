@@ -13,22 +13,23 @@ var stateId = 0;
 export default class GameState {
 
     // The simulatingPlayer is used during min/max search so we do not show the computer thinking.
-    constructor(turnIndex, playerIndex, movesRemaining, owners, temples, soldiersByRegion, cash,
-                simulatingPlayer, floatingText, conqueredRegions) {
-        this.turnIndex = turnIndex;
-        this.playerIndex = playerIndex;
-        this.movesRemaining = movesRemaining;
-        this.owners = owners || [];
-        this.temples = temples || [];
-        this.soldiersByRegion = soldiersByRegion || [];
-        this.cash = cash || {}; // Cash is equal to "faith" in the game
-        this.simulatingPlayer = simulatingPlayer;
-        this.floatingText = floatingText;
+    constructor(obj) {
+        this.turnIndex = obj.turnIndex;
+        this.playerIndex = obj.playerIndex;
+        this.movesRemaining = obj.movesRemaining;
+        this.owners = obj.owners || [];
+        this.temples = obj.temples || [];
+        this.soldiersByRegion = obj.soldiersByRegion || [];
+        this.cash = obj.cash || {}; // Cash is equal to "faith" in the game
+        this.simulatingPlayer = obj.simulatingPlayer;
+        this.floatingText = obj.floatingText;
         this.moveDecision = null;
         this.soundCue = null;
         this.undoDisabled = false;
-        this.conqueredRegions = conqueredRegions;
-        this.id = stateId++;
+        //this.numBoughtSoldiers = obj.numBoughtSoldiers;
+        this.prevPlayerIndex = obj.prevPlayerIndex;
+        this.conqueredRegions = obj.conqueredRegions;
+        this.id = obj.stateId || stateId++;
     }
 
     advanceToNextPlayer() {
@@ -38,6 +39,7 @@ export default class GameState {
         const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
         const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
         this.turnIndex = turnNumber;
+        this.prevPlayerIndex = this.playerIndex;
         this.playerIndex = playerIndex;
         this.movesRemaining = numMoves;
         this.conqueredRegions = null;
@@ -97,6 +99,10 @@ export default class GameState {
 
     activePlayer() {
         return gameData.players[this.playerIndex];
+    }
+
+    prevPlayer() {
+       return this.prevPlayerIndex ? gameData.players[this.prevPlayerIndex] : null;
     }
 
     owner(region) {
@@ -172,17 +178,18 @@ export default class GameState {
 
     // Some properties are omitted - like 'moveDecision', 'undoDisabled', and 'soundCue'
     copy(simulatingPlayer) {
-        return new GameState(
-            this.turnIndex,
-            this.playerIndex,
-            this.movesRemaining,
-            utils.deepCopy(this.owners, 1),
-            utils.deepCopy(this.temples, 2),
-            utils.deepCopy(this.soldiersByRegion, 3),
-            utils.deepCopy(this.cash, 1),
-            this.simulatingPlayer || simulatingPlayer,
-            this.floatingText,
-            this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
-        );
+        return new GameState({
+            turnIndex: this.turnIndex,
+            playerIndex: this.playerIndex,
+            movesRemaining: this.movesRemaining,
+            owners: utils.deepCopy(this.owners, 1),
+            temples: utils.deepCopy(this.temples, 2),
+            soldiersByRegion: utils.deepCopy(this.soldiersByRegion, 3),
+            cash: utils.deepCopy(this.cash, 1),
+            simulatingPlayer: this.simulatingPlayer || simulatingPlayer,
+            floatingText: this.floatingText,
+            //numBoughtSoldiers: this.numBoughtSoldiers,
+            conqueredRegions: this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
+        });
     }
 }

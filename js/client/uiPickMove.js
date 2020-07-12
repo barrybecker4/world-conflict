@@ -36,7 +36,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             }
         } else if (region) {
             // we already have a move in progress
-            var moveDecision = state.moveDecision;
+            let moveDecision = state.moveDecision;
             // what region did we click?
             if (region.index == moveDecision.source) {
                 // the one we're moving an army from - tweak number of selected soldiers
@@ -106,7 +106,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         delete uiState[player.index];
     }
 
-    function setCleanState() {  // maybe move first two lines to method on state
+    function setCleanState() {
         state.moveDecision = new Move();
         state.moveDecision.highlitRegions =
             gameData.regions.filter(region => state.regionHasActiveArmy(player, region)).map((r) => r.index);
@@ -117,12 +117,14 @@ export default function uiPickMove(player, state, reportMoveCallback) {
         var templeOwner = state.owner(temple.regionIndex);
         var upgradeButtons = UPGRADES.map(function(upgrade) {
             // current upgrade level (either the level of the temple or number of soldiers bought already)
-            var level = (temple.upgrade == upgrade) ?
+            const level = (temple.upgrade == upgrade) ?
                 (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
 
-            var cost = upgrade.cost[level];
-            var text = utils.template(upgrade.name, CONSTS.LEVELS[level]) + domUtils.elem('b', {}, " (" + cost + "&#9775;)");
-            var description = utils.template(upgrade.desc, upgrade.level[level]);
+
+            const cost = upgrade.cost[level];
+            const text = utils.template(upgrade.name, CONSTS.LEVELS[level]) +
+                       domUtils.elem('b', {}, " (" + cost + "&#9775;)");
+            const description = utils.template(upgrade.desc, upgrade.level[level]);
 
             let curUpgrade = temple.upgrade;
             let inconsistentUpgrade = // the temple is already upgraded with a different upgrade

@@ -57,11 +57,11 @@ export default class Bounds {
     }
 }
 
-var perturbConst = utils.rint(10000, 100000);
+const perturbConst = utils.rint(10000, 100000);
 
 // Perturbs a point to give the region borders a natural feel.
 function perturbPoint(x, y) {
-    var angle = (Math.sin(x * x * y * y * 600 + perturbConst * 357)) * 6.28;
+    var angle = (Math.sin(x * x * y * y * 600 + perturbConst * 357)) * 2 * Math.PI;
     var dist = (Math.sin(x * y * 600 + perturbConst * 211)) / 2;
     return [x + Math.sin(angle) * dist, y + Math.cos(angle) * dist];
 }

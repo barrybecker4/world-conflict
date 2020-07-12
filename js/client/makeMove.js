@@ -24,6 +24,7 @@ const { SOUNDS, UPGRADES } = CONSTS;
  */
 export default function makeMove(state, move) {
     const newState = state.copy();
+    //newState.moveDecision = move; here?
 
     if (move.isArmyMove()) {
         moveSoldiers(newState, move);

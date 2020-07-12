@@ -16,7 +16,6 @@ const $ = domUtils.$;
 const { SOUNDS } = CONSTS;
 
 var humanStates = [];
-var lastPlayer = undefined;
 
 // Deals with responding to user actions - whether human or AI.
 export default function playOneMove(state) {
@@ -24,19 +23,19 @@ export default function playOneMove(state) {
     oneAtaTime(CONSTS.MOVE_DELAY, function() {
 
         const player = state.activePlayer();
+
         //  player changed from human to AI or vv
         //  later this will look for the transition from the player on this client and everyone else.
-        if (!lastPlayer || player.personality != lastPlayer.personality) {
+        if (!state.prevPlayer() || player.personality != state.prevPlayer().personality) {
             if (humanStates.length) {
                 firestore.appendStatesForGame(gameData.gameId, humanStates);
             }
             if (player.personality) {
                 // request that the computer make the AI moves (asynchronously, and also store them in firestore) but do not actually show them.
                 aiPlay.aiPickMove(player, state, function(move) {
-                    state.modeDecision = move; // need?
+                    state.modeDecision = move; // here?
                     audio.playSound(SOUNDS.CLICK); // this will happen on playback
                     const newState = makeMove(state, move); // plays a transition forward. A transition consists of a move and a state.
-
                     if (newState.endResult) { // did the game end?
                         showEndGame(newState); // this will happen on playback
                         return;
@@ -45,12 +44,11 @@ export default function playOneMove(state) {
                 });
             }
             humanStates = [];
-            lastPlayer == player;
         }
 
         if (!player.personality) {
             uiPickMove(player, state, function(move) {
-                state.moveDecision = move; // need?
+                state.moveDecision = move; // here?
                 const newState = makeMove(state, move);
                 humanStates.push(state);
 
