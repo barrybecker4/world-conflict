@@ -4,10 +4,10 @@ import geomUtils from './rendering/geomUtils.js';
 
 const STORAGE_KEY = 'world-conflict';
 
-// the game setup screen config
-// firstTimeInstructions are shown only the first time the player plays on a given computer
+// The default game setup screen configuration.
+// firstTimeInstructions are shown only the first time the player plays on a given computer (or until cache cleared).
 var defaultSetup = {
-    players: [CONSTS.PLAYER_HUMAN, CONSTS.PLAYER_AI, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF],
+    players: [CONSTS.PLAYER_HUMAN, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_AI],
     aiLevel: CONSTS.AI_NICE,
     sound: true,
     turnCount: 12,

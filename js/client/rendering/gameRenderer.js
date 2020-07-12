@@ -192,14 +192,14 @@ function updateMapDisplay(gameState) {
         const source = gameData.regions[gameState.moveDecision.source];
         showTooltipOver(source, "Click this region again to change the number of soldiers.");
         // pick the furthest neighbor
-        const furthest = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(gameData.regions[nbr]));
-        showTooltipOver(furthest, "Click a bordering region to move.");
+        const furthestIdx = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(gameData.regions[nbr]));
+        showTooltipOver(gameData.regions[furthestIdx], "Click a bordering region to move.");
     }
 
     function showConqueringCannotMoveTip() {
         const inactiveArmies = gameState.conqueredRegions;
         if (inactiveArmies) {
-            showTooltipOver(inactiveArmies[inactiveArmies.length - 1],
+            showTooltipOver(gameData.regions[inactiveArmies[inactiveArmies.length - 1]],
                 "Armies that conquer a new region cannot move again.");
             showTooltipOver({ center: [-2, 80] }, "Once you're done, click 'End turn' here.");
         }
