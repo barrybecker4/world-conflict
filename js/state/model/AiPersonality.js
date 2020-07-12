@@ -6,9 +6,9 @@ export default class AiPersonality {
      * @param soldierEagerness how eagerly it builds soldiers
      * @param preferredUpgrades an array of which upgrades it prefers (if any)
      */
-    constructor(soldierEagerness, preferredUpgrades) {
-        this.soldierEagerness = soldierEagerness;
-        this.preferredUpgrades = preferredUpgrades;
+    constructor(obj) {
+        this.soldierEagerness = obj.soldierEagerness;
+        this.preferredUpgrades = obj.preferredUpgrades;
     }
 
     // If we don't want more upgrades, our preference becomes 1.
@@ -17,9 +17,9 @@ export default class AiPersonality {
     }
 
     copy() {
-        return new AiPersonality(
-            this.soldierEagerness,
-            this.preferredUpgrades.slice(),
-        );
+        return new AiPersonality({
+            soldierEagerness: this.soldierEagerness,
+            preferredUpgrades: this.preferredUpgrades.slice(),
+        });
     }
 }

@@ -36,14 +36,14 @@ const FIRE = UPGRADES.FIRE;
 
 // AI personalities - how eagerly it builds soldiers, and what upgrades it prefers
 const AI_PERSONALITIES = [
-    new AiPersonality(1, []),
-    new AiPersonality(0.2, [WATER, EARTH]),
-    new AiPersonality(0.25, [WATER, FIRE, FIRE]),
-    new AiPersonality(0.15, [WATER, WATER, EARTH, EARTH]),
-    new AiPersonality(0.4, [WATER]),
-    new AiPersonality(0.3, [WATER, WATER]),
-    new AiPersonality(0.25, [FIRE, FIRE]),
-    new AiPersonality(0.2, [EARTH, EARTH]),
+    new AiPersonality({ soldierEagerness: 1, preferredUpgrades: [] }),
+    new AiPersonality({ soldierEagerness: 0.2, preferredUpgrades: [WATER, EARTH] }),
+    new AiPersonality({ soldierEagerness: 0.25, preferredUpgrades: [WATER, FIRE, FIRE] }),
+    new AiPersonality({ soldierEagerness: 0.15, preferredUpgrades: [WATER, WATER, EARTH, EARTH] }),
+    new AiPersonality({ soldierEagerness: 0.4, preferredUpgrades: [WATER] }),
+    new AiPersonality({ soldierEagerness: 0.3, preferredUpgrades: [WATER, WATER] }),
+    new AiPersonality({ soldierEagerness: 0.25, preferredUpgrades: [FIRE, FIRE] }),
+    new AiPersonality({ soldierEagerness: 0.2, preferredUpgrades: [EARTH, EARTH] }),
 ];
 
 const SOUNDS = {

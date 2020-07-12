@@ -25,7 +25,7 @@ export default function makeInitialGameState(setup) {
         var player = deepCopy(PLAYERS[playerIndex], 1);
 
         if (playerController == CONSTS.PLAYER_AI) {
-            player.personality = AI_PERSONALITIES[setup.aiLevel].copy();
+            player.personality = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
         }
 
         player.index = players.length;
