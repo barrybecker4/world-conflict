@@ -28,7 +28,7 @@ function runSetupScreen() {
     let gameState = regenerateInitialState();
     createSetupUI(gameSetup);
 
-    // callback for the buttons on the bottom
+    // callback for the buttons on the bottom: new map, or start game
     uiCallbacks.setBuildCB(function(whichButton) {
         if (!isSetupValid()) return;
         if (whichButton === 0) {
@@ -86,7 +86,7 @@ function prepareInGameUI(gameState) {
     // set it all
     $('d').innerHTML = html;
 
-    // show stat box and undo button
+    // show stat box, undo button, and restart game buttons
     ['move-info', 'undo-button', 'restart'].map(domUtils.show);
 }
 
@@ -107,14 +107,14 @@ function updateConfigButtons() {
     // update player buttons
     gameSetup.players.map(function(controller, playerIndex) {
        utils.range(0, 3).map(buttonIndex =>
-           domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'sl', (controller == buttonIndex))
+           domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'selected', (controller == buttonIndex))
        )
     });
 
     // update AI and turn count buttons
     utils.range(0, 4).map(function(index) {
-        domUtils.toggleClass('ai' + index, 'sl', index == gameSetup.aiLevel);
-        domUtils.toggleClass('turn-count' + index, 'sl', CONSTS.TURN_COUNTS[index] == gameSetup.turnCount);
+        domUtils.toggleClass('ai' + index, 'selected', index == gameSetup.aiLevel);
+        domUtils.toggleClass('turn-count' + index, 'selected', CONSTS.TURN_COUNTS[index] == gameSetup.turnCount);
     });
 }
 
@@ -164,7 +164,7 @@ function createPlayerBoxArea() {
 function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
     var buttons = buttonLabels.map(function(label, index) {
         var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
-        return domUtils.elem('a', {i: id, c: 'rt', href: '#', s: 'font-size: 90%'}, label);
+        return domUtils.elem('a', {i: id, c: 'right', href: '#', s: 'font-size: 90%'}, label);
     }).join("");
     var properties = {i: buttonIdPrefix, c: 'side-control description', s: 'padding-right: 0.5em'}; // not sure about i: buttonIdPrefix
     utils.forEachProperty(additionalProperties, function(value, name) {

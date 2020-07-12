@@ -144,7 +144,7 @@ a.off, a.off:hover {
     cursor: default !important;
 }
 
-a.rt {
+a.right {
     display: block;
     float: right;
     padding: 0.2em;
@@ -157,7 +157,7 @@ a.rt {
     min-width: 1.5em;
 }
 
-a.rt.sl {
+a.right.selected {
     background: #fff;
     color: #000;
 }
