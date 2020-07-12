@@ -5,7 +5,7 @@ import sequenceUtils from '../utils/sequenceUtils.js';
 import CONSTS from '../state/CONSTS.js';
 import storage from './storage.js';
 import appState from './appState.js';
-import makeInitialGameState from '../state/makeInitialGameState.js';
+import makeInitialGameState from '../state/makeInitialGameState.js'; // server function
 import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
