@@ -1,7 +1,6 @@
 import makeInitialGameState from '../state/makeInitialGameState.js'; // server function
 import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
-import uiCallbacks from './uiCallbacks.js';
 const { $, div } = domUtils;
 
 

@@ -1,5 +1,4 @@
 import undoManager from '../undoManager.js';
-import uiCallbacks from '../uiCallbacks.js';
 import makeGradient from './makeGradient.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;

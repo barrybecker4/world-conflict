@@ -1,4 +1,4 @@
-
+// singleton instance of the uiCallbacks
 class UiCallbacks {
 
     constructor() {
@@ -56,5 +56,3 @@ class UiCallbacks {
 }
 
 const uiCallbacks = new UiCallbacks();
-
-export default uiCallbacks;

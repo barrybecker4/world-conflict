@@ -2,7 +2,6 @@ import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import runSetupScreen from './runSetupScreen.js';
 import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - needs server API
-import uiCallbacks from './uiCallbacks.js';
 import uiPickMove from './uiPickMove.js';
 import makeMove from './makeMove.js';
 const $ = domUtils.$;

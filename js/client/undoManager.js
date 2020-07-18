@@ -1,6 +1,5 @@
 import playOneMove from './playOneMove.js';
 import uiPickMove from './uiPickMove.js';
-import uiCallbacks from './uiCallbacks.js';
 
 export default {
     undoEnabled,

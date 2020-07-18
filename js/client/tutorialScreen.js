@@ -1,6 +1,5 @@
 import runSetupScreen from './runSetupScreen.js';
 import gameRenderer from './rendering/gameRenderer.js';
-import uiCallbacks from './uiCallbacks.js';
 const { $, onClickOrTap } = domUtils;
 
 
