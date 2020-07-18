@@ -1,5 +1,4 @@
 import undoManager from '../undoManager.js';
-import makeGradient from './makeGradient.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
@@ -21,14 +20,14 @@ function showMap(container, gameState) {
     // define gradients and clipping paths for rendering
     const defs = elem('defs', {},
             makeClipPaths() +
-            makeGradient('ocean', '#69e', '#48b') +
-            makeGradient('land', '#dcb', '#a98') +
-            makeGradient('land-highlight', '#fb7', '#741') +
-            makeGradient('bottom', '#210', '#000') +
-            makeGradient('shadow', '#55d', '#134') +
+            erisk.makeGradient('ocean', '#69e', '#48b') +
+            erisk.makeGradient('land', '#dcb', '#a98') +
+            erisk.makeGradient('land-highlight', '#fb7', '#741') +
+            erisk.makeGradient('bottom', '#210', '#000') +
+            erisk.makeGradient('shadow', '#55d', '#134') +
             gameData.players.map(function(player, index) {
-                return makeGradient('p' + index, player.colorStart, player.colorEnd) +
-                    makeGradient('p' + index + '-highlight', player.highlightStart, player.highlightEnd);
+                return erisk.makeGradient('p' + index, player.colorStart, player.colorEnd) +
+                    erisk.makeGradient('p' + index + '-highlight', player.highlightStart, player.highlightEnd);
             }).join(''));
 
     // create all the layers (5 per region)
