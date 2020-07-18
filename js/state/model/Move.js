@@ -33,15 +33,20 @@ class Move {
 
 class ArmyMove extends Move {
 
-    constructor(state, source, destination, count) {
+    // params: state, source, destination, count
+    constructor(obj) {
         super();
-        if (source && typeof source !== 'number') throw new Error("source not an index: " + source);
-        if (destination && typeof destination !== 'number') throw new Error("destination not an index: " + destination);
-        this.source = source;
-        this.destination = destination;
-        this.count = count;
-        if (destination)
-            this.attackSequence = this.createAttackSequenceIfFight(state);
+        if (obj.source && typeof obj.source !== 'number')
+            throw new Error("source not an index: " + obj.source);
+        if (obj.destination && typeof obj.destination !== 'number')
+            throw new Error("destination not an index: " + obj.destination);
+
+        this.source = obj.source;
+        this.destination = obj.destination;
+        this.count = obj.count;
+        if (obj.destination) {
+            this.attackSequence = this.createAttackSequenceIfFight(obj.state);
+        }
     }
 
     isArmyMove() {
@@ -53,10 +58,12 @@ class ArmyMove extends Move {
         this.attackSequence = this.createAttackSequenceIfFight(state);
     }
 
-    // Private - do not call from outside (no way to enforce in ES6)
-    // adds the attackSequence property if there is a fight.
-    // This must be added here, and not done on client, because it has non-determinism.
-    // If there is fight, produce a sequence of troop reductions that can be sent back to the client and shown later.
+    /**
+     * Private - do not call from outside (no way to enforce in ES6)
+     * Adds the attackSequence property if there is a fight.
+     * This must be added on server, and not done on client, because it has non-determinism.
+     * If there is fight, produce a sequence of troop reductions that can be sent back to the client and shown later.
+     */
     createAttackSequenceIfFight(origState) {
         const state = origState.copy();
         const fromRegion = this.source;
@@ -124,6 +131,8 @@ class ArmyMove extends Move {
 
             const repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
             const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
+            // Jakub says that this should be fromOwner, but I believe that toOwner is correct.
+            // See https://github.com/krajzeg/compact-conflict/issues/3
             let invincibility = state.upgradeLevel(toOwner, UPGRADES.FIRE);
 
             function randomNumberForFight(index) {
@@ -180,12 +189,13 @@ class ArmyMove extends Move {
 
 class BuildMove extends Move {
 
-    constructor(desiredUpgrade, temple, buttons) {
+    // desiredUpgrade, temple, buttons
+    constructor(obj) {
         super();
-        this.upgrade = desiredUpgrade;
-        this.temple = temple;
-        this.regionIndex = temple.regionIndex;
-        this.buttons = buttons;
+        this.upgrade = obj.desiredUpgrade;
+        this.temple = obj.temple;
+        this.regionIndex = obj.temple.regionIndex;
+        this.buttons = obj.buttons;
     }
     isBuildMove() {
         return true;

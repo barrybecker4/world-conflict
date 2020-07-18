@@ -30,7 +30,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
             // no move in progress - start a new move if this is legal
             if (state.regionHasActiveArmy(player, region)) {
                 setCleanState();
-                state.moveDecision = new ArmyMove(state, region.index, undefined, state.soldierCount(region));
+                state.moveDecision = new ArmyMove({ state, source: region.index, count: state.soldierCount(region) });
                 state.moveDecision.buttons[0].hidden = false;
                 state.moveDecision.highlitRegions = region.neighbors.concat(region.index);
             }
@@ -58,7 +58,7 @@ export default function uiPickMove(player, state, reportMoveCallback) {
 
     uiCallbacks.setTempleSelectedCB(function(region) {
         var temple = state.temples[region.index];
-        state.moveDecision = new BuildMove(null, temple, makeUpgradeButtons(temple));
+        state.moveDecision = new BuildMove({ temple, buttons: makeUpgradeButtons(temple) });
         gameRenderer.updateDisplay(state);
     });
 

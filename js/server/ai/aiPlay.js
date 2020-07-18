@@ -70,16 +70,16 @@ function upgradeToBuild(player, state) {
     // do we still want something?
     if (!player.personality.preferredUpgrades.length)
         return;
-    var desire = player.personality.preferredUpgrades[0];
-    var currentLevel = state.rawUpgradeLevel(player, desire);
+    var desiredUpgrade = player.personality.preferredUpgrades[0];
+    var currentLevel = state.rawUpgradeLevel(player, desiredUpgrade);
 
     // can we afford it?
-    if (state.cash[player.index] < desire.cost[currentLevel])
+    if (state.cash[player.index] < desiredUpgrade.cost[currentLevel])
         return;
 
     // do we have a place to build it?
     var possibleTemplesToUpgrade = state.templesForPlayer(player).filter(function(temple) {
-        return ((!temple.upgrade) && (!currentLevel)) || (temple.upgrade == desire);
+        return ((!temple.upgrade) && (!currentLevel)) || (temple.upgrade == desiredUpgrade);
     });
     if (!possibleTemplesToUpgrade.length)
         return;
@@ -89,10 +89,10 @@ function upgradeToBuild(player, state) {
 
     // build the upgrade!
     player.personality.preferredUpgrades.shift();
-    return new BuildMove(desire, temple);
+    return new BuildMove({ desiredUpgrade, temple });
 }
 
 function buildSoldierAtBestTemple(player, state) {
     var temple = sequenceUtils.max(state.templesForPlayer(player), (t) => heuristics.templeDangerousness(state, t));
-    return new BuildMove(UPGRADES.SOLDIER, temple);
+    return new BuildMove({ desiredUpgrade: UPGRADES.SOLDIER, temple });
 }
