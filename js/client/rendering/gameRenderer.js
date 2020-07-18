@@ -1,5 +1,4 @@
 import audio from '../utils/audio.js';
-import storage from '../storage.js';
 import appState from '../appState.js';
 import gameInitialization from '../gameInitialization.js';
 import undoManager from '../undoManager.js';

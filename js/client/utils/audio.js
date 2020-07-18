@@ -1,5 +1,4 @@
 import audio from './audio.js';
-import storage from '../storage.js';
 import gameInitialization from '../gameInitialization.js';
 
 var audioCtx = window.AudioContext && new AudioContext();

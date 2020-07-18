@@ -1,7 +1,6 @@
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';
 import tutorialScreen from './tutorialScreen.js';
-import storage from './storage.js';
 
 
 // keep the aspect of the gameplay area correct
