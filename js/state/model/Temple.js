@@ -1,11 +1,12 @@
 
 export default class Temple {
 
-    constructor(regionIndex, upgrade, level, element) {
-        this.regionIndex = regionIndex;
-        this.upgrade = upgrade;
-        this.level = level;
-        this.element = element;
+    // params: regionIndex, upgrade, level, element
+    constructor(obj) {
+        this.regionIndex = obj.regionIndex;
+        this.upgrade = obj.upgrade;
+        this.level = obj.level;
+        this.element = obj.element;
     }
 }
 

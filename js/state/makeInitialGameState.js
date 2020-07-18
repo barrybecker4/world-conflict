@@ -118,7 +118,7 @@ export default function makeInitialGameState(setup) {
 
     function putTemple(region, soldierCount) {
         var regionIndex = region.index;
-        gameState.temples[regionIndex] = new Temple(regionIndex);
+        gameState.temples[regionIndex] = new Temple({ regionIndex });
         gameState.addSoldiers(regionIndex, soldierCount);
     }
 }

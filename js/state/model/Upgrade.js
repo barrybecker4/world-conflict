@@ -1,11 +1,12 @@
 
 export default class Upgrade {
 
-    constructor(name, desc, cost, level, backgroundColor) {
-        this.name = name;
-        this.desc = desc;
-        this.cost = cost;
-        this.level = level;
-        this.bgColor = backgroundColor;
+    // params: name, desc, cost, level, backgroundColor
+    constructor(obj) {
+        this.name = obj.name;
+        this.desc = obj.desc;
+        this.cost = obj.cost;
+        this.level = obj.level;
+        this.bgColor = obj.backgroundColor;
     }
 }
