@@ -1,5 +1,5 @@
 import gameRenderer from './rendering/gameRenderer.js';
-import gameInitialization from './gameInitialization.js';
+import runSetupScreen from './runSetupScreen.js';
 import tutorialScreen from './tutorialScreen.js';
 
 
@@ -9,7 +9,7 @@ import tutorialScreen from './tutorialScreen.js';
 // start the game
 window.onload = function() {
     setTimeout(function() {
-        gameInitialization.runSetupScreen();
+        runSetupScreen();
         tutorialScreen();
     }, 10);
 };

@@ -6,12 +6,7 @@ import uiCallbacks from './uiCallbacks.js';
 const { $, div } = domUtils;
 
 
-export default {
-    runSetupScreen,
-};
-
-
-function runSetupScreen() {
+export default function runSetupScreen() {
     audio.setupAudio();
     appState.setInGame(false); // in setup
 

@@ -1,4 +1,4 @@
-import gameInitialization from './gameInitialization.js';
+import runSetupScreen from './runSetupScreen.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
 const { $, onClickOrTap } = domUtils;
@@ -17,7 +17,7 @@ export default function tutorialScreen() {
     onClickOrTap($('restart'), function() {
         uiCallbacks.clearAll();
         gameRenderer.updateDisplay();
-        gameInitialization.runSetupScreen();
+        runSetupScreen();
     });
 
     switchTutorialCard(0);
