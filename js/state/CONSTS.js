@@ -22,12 +22,30 @@ UPGRADES.AIR = UPGRADES[3];
 UPGRADES.EARTH = UPGRADES[4];
 UPGRADES.REBUILD = UPGRADES[5];
 
-// There are up to 4 possible Players. Each can be human or AI.
+// These are the possible Players. Each can be human or AI.
+
+// index, name, colorStart, colorEnd, highlightStart, highlightEnd
 const PLAYERS = [
-    new Player(0, 'Amber', '#fe8', '#c81', '#fd8', '#a80'),
-    new Player(1, 'Crimson', '#f88', '#a44', '#faa', '#944'),
-    new Player(2, 'Lavender', '#d9d', '#838', '#faf', '#759'),
-    new Player(3, 'Emerald', '#9d9','#282', '#bfb', '#4a4'),
+    new Player({
+        index: 0, name: 'Amber',
+        colorStart: '#fe8', colorEnd: '#c81',
+        highlightStart: '#fd8', highlightEnd: '#a80'
+    }),
+    new Player({
+        index: 1, name: 'Crimson',
+        colorStart: '#f88', colorEnd: '#a44',
+        highlightStart: '#faa', highlightEnd: '#944'
+    }),
+    new Player({
+        index: 2, name: 'Lavender',
+        colorStart: '#d9d', colorEnd: '#838',
+        highlightStart: '#faf', highlightEnd: '#759'
+    }),
+    new Player({
+        index: 3, name: 'Emerald',
+        colorStart: '#9d9', colorEnd: '#282',
+        highlightStart: '#bfb', highlightEnd: '#4a4'
+    }),
 ];
 
 const WATER = UPGRADES.WATER;

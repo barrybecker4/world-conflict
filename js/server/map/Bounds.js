@@ -53,7 +53,7 @@ export default class Bounds {
             points[width + i] = perturbPoint(left + width, top + i);
             points[width + height + width + i] = perturbPoint(left, top + height - i);
         });
-        return new Region(index, points);
+        return new Region({ index, points });
     }
 }
 

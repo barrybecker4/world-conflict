@@ -7,14 +7,14 @@ export default class Region {
     /**
      * @param index region index
      * @param points array of points that define the region's border
-     * @param distanceTo array of distances to other regions
-     * @param neighbors an array of neighboring regions (by region index)
+     * @param distanceTo (optional) array of distances to other regions
+     * @param neighbors (optional) an array of neighboring regions (by region index)
      */
-    constructor (index, points, distanceTo, neighbors) {
-        this.index = index;
-        this.points = points;
-        this.distanceTo = distanceTo ? distanceTo : [];
-        this.neighbors = neighbors ? neighbors : [];
+    constructor(obj) {
+        this.index = obj.index;
+        this.points = obj.points;
+        this.distanceTo = obj.distanceTo ? obj.distanceTo : [];
+        this.neighbors = obj.neighbors ? obj.neighbors : [];
         this.center = null;
         this.element = null;
     }
