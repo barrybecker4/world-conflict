@@ -1,4 +1,3 @@
-
 var heuristics = (function(my) {
 
     my.heuristicForPlayer = function(player, state) {
