@@ -1,4 +1,3 @@
-import domUtils from '../utils/domUtils.js';
 
 const MAP_WIDTH = 30;
 const MAP_HEIGHT = 20;

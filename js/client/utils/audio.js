@@ -1,4 +1,3 @@
-import domUtils from './domUtils.js';
 import audio from './audio.js';
 import storage from '../storage.js';
 import gameInitialization from '../gameInitialization.js';

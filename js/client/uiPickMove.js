@@ -1,4 +1,3 @@
-import domUtils from './utils/domUtils.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';;

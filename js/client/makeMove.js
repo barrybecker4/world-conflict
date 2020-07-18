@@ -1,4 +1,3 @@
-import domUtils from './utils/domUtils.js';
 import oneAtaTime from './utils/oneAtaTime.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import gameInitialization from './gameInitialization.js';

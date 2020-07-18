@@ -1,4 +1,3 @@
-import domUtils from '../utils/domUtils.js';
 const { elem } = domUtils;
 
 // Generate a SVG gradient tag for the map.

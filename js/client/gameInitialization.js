@@ -1,5 +1,4 @@
 import audio from './utils/audio.js';
-import domUtils from './utils/domUtils.js';
 import storage from './storage.js';
 import appState from './appState.js';
 import makeInitialGameState from '../state/makeInitialGameState.js'; // server function

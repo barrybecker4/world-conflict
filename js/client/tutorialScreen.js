@@ -1,5 +1,4 @@
 import audio from './utils/audio.js';
-import domUtils from './utils/domUtils.js';
 import gameInitialization from './gameInitialization.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
