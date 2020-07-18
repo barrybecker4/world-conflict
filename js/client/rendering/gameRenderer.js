@@ -1,8 +1,5 @@
 import audio from '../utils/audio.js';
-import utils from '../../utils/utils.js';
 import domUtils from '../utils/domUtils.js';
-import sequenceUtils from '../../utils/sequenceUtils.js';
-import CONSTS from '../../state/CONSTS.js';
 import storage from '../storage.js';
 import appState from '../appState.js';
 import gameInitialization from '../gameInitialization.js';
@@ -12,7 +9,6 @@ import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
 import geomUtils from './geomUtils.js';
 import uiPickMove from '../uiPickMove.js';
-import gameData from '../../state/gameData.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils

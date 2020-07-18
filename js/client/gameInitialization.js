@@ -1,17 +1,12 @@
-import utils from '../utils/utils.js';
 import audio from './utils/audio.js';
 import domUtils from './utils/domUtils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
-import CONSTS from '../state/CONSTS.js';
 import storage from './storage.js';
 import appState from './appState.js';
 import makeInitialGameState from '../state/makeInitialGameState.js'; // server function
 import playOneMove from './playOneMove.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
-import gameData from '../state/gameData.js';
 const { $, div } = domUtils;
-const { PLAYERS } = CONSTS;
 
 var gameSetup = storage.retrieveSetup();
 

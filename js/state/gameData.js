@@ -1,8 +1,11 @@
 // The world map (regions) and players get initialized during game setup.
 // Once the game starts, they do not change.
+var gameData = (function (my) {
 
-export default {
-   gameId: undefined,
-   players: undefined,
-   regions: undefined,
-}
+    my.gameId = undefined;
+    my.players = undefined;
+    my.regions = undefined;
+
+    return my;
+} (gameData || {}));
+

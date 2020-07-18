@@ -1,10 +1,5 @@
-import sequenceUtils from '../../utils/sequenceUtils.js';
-import { BuildMove } from '../../state/model/Move.js';
-import CONSTS from '../../state/CONSTS.js';
 import miniMaxSearch from './miniMaxSearch.js'
 import heuristics from './heuristics.js';
-import gameData from '../../state/gameData.js';
-const { UPGRADES } = CONSTS;
 
 const MIN_THINK_TIME = 1000;
 const MAX_THINK_TIME = 5000;

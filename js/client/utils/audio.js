@@ -1,4 +1,3 @@
-import utils from '../../utils/utils.js';
 import domUtils from './domUtils.js';
 import audio from './audio.js';
 import storage from '../storage.js';

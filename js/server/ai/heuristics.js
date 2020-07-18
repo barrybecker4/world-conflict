@@ -1,8 +1,4 @@
-import utils from '../../utils/utils.js';
-import sequenceUtils from '../../utils/sequenceUtils.js';
-import CONSTS from '../../state/CONSTS.js';
 import gameInitialization from '../../client/gameInitialization.js';
-import gameData from '../../state/gameData.js';
 
 export default {
     heuristicForPlayer,
@@ -29,7 +25,7 @@ function heuristicForPlayer(player, state) {
         return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
     // each point of faith counts as 1/12th of a soldier
-    var faithTotal = state.income(player) * soldierBonus / 12;
+    var faithTotal = state.income(player, gameInitialization.gameSetup.aiLevel) * soldierBonus / 12;
     return regionTotal + faithTotal;
 }
 

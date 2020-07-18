@@ -1,10 +1,6 @@
-import utils from '../../utils/utils.js';
-import sequenceUtils from '../../utils/sequenceUtils.js';
-import { ArmyMove, EndMove } from '../../state/model/Move.js';
 import heuristics from './heuristics.js';
 import makeMove from '../../client/makeMove.js';
 import Node from './Node.js';
-import gameData from '../../state/gameData.js';
 
 export default function miniMaxSearch(forPlayer, fromState, depth, moveCallback, minTime, maxTime) {
     let simulation = fromState.copy(forPlayer);

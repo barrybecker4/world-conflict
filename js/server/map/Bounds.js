@@ -1,6 +1,3 @@
-import utils from '../../utils/utils.js';
-import Region from '../../state/model/Region.js';
-
 const MIN_REGION_SIZE = 3;
 
 export default class Bounds {

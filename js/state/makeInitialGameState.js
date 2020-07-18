@@ -1,16 +1,7 @@
-import utils from '../utils/utils.js';
-import sequenceUtils from '../utils/sequenceUtils.js';
-import CONSTS from './CONSTS.js';
 import aiPlay from '../server/ai/aiPlay.js';
 import generateMap from '../server/map/generateMap.js';
 import uiPickMove from '../client/uiPickMove.js';
-import Temple from './model/Temple.js';
-import GameState from './model/GameState.js';
-import Region from './model/Region.js';
-import { ArmyMove } from './model/Move.js';
-import gameData from './gameData.js';
 const { deepCopy, rint, range, sum } = utils;
-const { AI_PERSONALITIES, PLAYERS } = CONSTS;
 
 var gameId = 0;
 

@@ -1,5 +1,3 @@
-import CONSTS from '../state/CONSTS.js';
-import utils from '../utils/utils.js';
 import geomUtils from './rendering/geomUtils.js';
 
 const STORAGE_KEY = 'world-conflict';

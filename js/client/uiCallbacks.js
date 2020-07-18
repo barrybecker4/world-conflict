@@ -1,6 +1,4 @@
 import audio from './utils/audio.js';
-import CONSTS from '../state/CONSTS.js';
-const { SOUNDS } = CONSTS;
 
 class UiCallbacks {
 

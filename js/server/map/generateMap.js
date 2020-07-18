@@ -1,4 +1,3 @@
-import utils from '../../utils/utils.js';
 import Bounds from './Bounds.js';
 
 const MAX_REGION_SIZE = 11;
