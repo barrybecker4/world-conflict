@@ -1,4 +1,3 @@
-import oneAtaTime from './utils/oneAtaTime.js';
 import gameRenderer from './rendering/gameRenderer.js';
 const $ = domUtils.$;
 
@@ -139,7 +138,7 @@ function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
     const keyframe = state.copy();
     keyframe.soundCue = soundCue;
     keyframe.floatingText = floatingTexts;
-    oneAtaTime(delay || 500, () => gameRenderer.updateDisplay(keyframe));
+    erisk.oneAtaTime(delay || 500, () => gameRenderer.updateDisplay(keyframe));
 }
 
 function buildUpgrade(state, regionIndex, upgrade) {
@@ -273,7 +272,7 @@ function updatePlayerRegions(state) {
                 state.movesRemaining = 0;
             // show the world the good (or bad) news
             if (!state.simulatingPlayer) {
-                oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
+                erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
                 gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
             }
         }

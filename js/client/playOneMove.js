@@ -1,4 +1,3 @@
-import oneAtaTime from './utils/oneAtaTime.js';
 import undoManager from './undoManager.js';
 import gameRenderer from './rendering/gameRenderer.js';
 import runSetupScreen from './runSetupScreen.js';
@@ -13,7 +12,7 @@ var humanStates = [];
 // Deals with responding to user actions - whether human or AI.
 export default function playOneMove(state) {
 
-    oneAtaTime(CONSTS.MOVE_DELAY, function() {
+    erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
 
         const player = state.activePlayer();
 
@@ -64,8 +63,8 @@ export default function playOneMove(state) {
 }
 
 function showEndGame(state) {
-    oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
-    oneAtaTime(CONSTS.MOVE_DELAY, function() {
+    erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => gameRenderer.updateDisplay(state));
+    erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
         const winner = state.endResult;
         const delay = 200;
         const duration = 4000;

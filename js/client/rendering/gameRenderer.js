@@ -1,9 +1,7 @@
 import appState from '../appState.js';
 import undoManager from '../undoManager.js';
 import uiCallbacks from '../uiCallbacks.js';
-import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
-import uiPickMove from '../uiPickMove.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
 const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils
@@ -440,7 +438,7 @@ function updateDisplay(gameState) {
 function showBanner(background, text, delay, duration) {
     delay = delay || 1;
     duration = duration || 1600;
-    oneAtaTime(delay, function() {
+    erisk.oneAtaTime(delay, function() {
         // create a new banner div
         let banner = append('container', div({c: 'button'}, text));
         let styles = banner.style;
