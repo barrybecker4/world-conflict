@@ -1,4 +1,3 @@
-import geomUtils from './rendering/geomUtils.js';
 
 const STORAGE_KEY = 'world-conflict';
 

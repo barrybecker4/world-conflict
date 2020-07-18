@@ -6,7 +6,6 @@ import undoManager from '../undoManager.js';
 import uiCallbacks from '../uiCallbacks.js';
 import oneAtaTime from '../utils/oneAtaTime.js';
 import makeGradient from './makeGradient.js';
-import geomUtils from './geomUtils.js';
 import uiPickMove from '../uiPickMove.js';
 const { range, rint, sum, lerp, forEachProperty } = utils;
 const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
