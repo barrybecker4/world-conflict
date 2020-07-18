@@ -1,5 +1,4 @@
 import aiPlay from '../server/ai/aiPlay.js';
-import generateMap from '../server/map/generateMap.js';
 import uiPickMove from '../client/uiPickMove.js';
 const { deepCopy, rint, range, sum } = utils;
 
@@ -23,7 +22,7 @@ export default function makeInitialGameState(setup) {
         players.push(player);
     });
 
-    let regions = generateMap(players.length, setup.mapWidth, setup.mapHeight);
+    let regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight);
     let gameState = new GameState({turnIndex: 1, playerIndex: 0, movesRemaining: CONSTS.BASE_MOVES_PER_TURN});
 
     setupTemples(3, regions);
