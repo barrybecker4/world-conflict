@@ -1,4 +1,3 @@
-import heuristics from './heuristics.js';
 import makeMove from '../../client/makeMove.js';
 import Node from './Node.js';
 

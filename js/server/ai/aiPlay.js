@@ -1,5 +1,4 @@
 import miniMaxSearch from './miniMaxSearch.js'
-import heuristics from './heuristics.js';
 
 const MIN_THINK_TIME = 1000;
 const MAX_THINK_TIME = 5000;
