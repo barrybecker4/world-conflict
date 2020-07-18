@@ -1,5 +1,3 @@
-import audio from './audio.js';
-import gameInitialization from '../gameInitialization.js';
 
 var audioCtx = window.AudioContext && new AudioContext();
 var soundMap = {};
@@ -114,7 +112,7 @@ function setupAudio() {
 
 function playSound(soundKey) {
     const sound = soundMap[soundKey];
-    let soundEnabled = sound && gameInitialization.gameSetup.sound;
+    let soundEnabled = sound && storage.gameSetup.sound;
     if (!soundEnabled)
         return;
 
@@ -125,11 +123,11 @@ function playSound(soundKey) {
 }
 
 function updateSoundControls() {
-    domUtils.$('sound').innerHTML = gameInitialization.gameSetup.sound ? '♪' : ' ';
-    storage.storeSetup(gameInitialization.gameSetup);
+    domUtils.$('sound').innerHTML = storage.gameSetup.sound ? '♪' : ' ';
+    storage.storeSetup();
 }
 
 function toggleSound() {
-    gameInitialization.gameSetup.sound = !gameInitialization.gameSetup.sound;
+    storage.gameSetup.sound = !storage.gameSetup.sound;
     updateSoundControls();
 }

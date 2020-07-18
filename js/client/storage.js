@@ -32,10 +32,12 @@ var storage = (function(my) {
         return defaultSetup;
     }
 
+    my.gameSetup = my.retrieveSetup();
+
     // Tries to store user preferences in local storage.
-    my.storeSetup = function(gameSetup) {
+    my.storeSetup = function() {
         if (localStorage) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameSetup));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(my.gameSetup));
         }
     }
 

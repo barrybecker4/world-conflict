@@ -1,6 +1,5 @@
 import audio from '../utils/audio.js';
 import appState from '../appState.js';
-import gameInitialization from '../gameInitialization.js';
 import undoManager from '../undoManager.js';
 import uiCallbacks from '../uiCallbacks.js';
 import oneAtaTime from '../utils/oneAtaTime.js';
@@ -199,11 +198,11 @@ function updateMapDisplay(gameState) {
     }
 
     function showTooltipOver(region, text, width) {
-        if (gameInitialization.gameSetup.firstTimeInstructions[text]) return;
+        if (storage.gameSetup.firstTimeInstructions[text]) return;
         setTimeout(function() {
             // don't display it again (timeout to handle multiple updateDisplays() in a row)
-            gameInitialization.gameSetup.firstTimeInstructions[text] = 1;
-            storage.storeSetup(gameInitialization.gameSetup);
+            storage.gameSetup.firstTimeInstructions[text] = 1;
+            storage.storeSetup();
         }, 500);
 
         width = width || 7;
@@ -350,7 +349,7 @@ function updateIngameUI(gameState) {
     } else {
         $('turn-count').innerHTML =
             'Turn <b>' + gameState.turnIndex + '</b>' +
-            ((gameInitialization.gameSetup.turnCount != CONSTS.UNLIMITED_TURNS) ? ' / ' + gameInitialization.gameSetup.turnCount : '');
+            ((storage.gameSetup.turnCount != CONSTS.UNLIMITED_TURNS) ? ' / ' + storage.gameSetup.turnCount : '');
     }
 
     // player data

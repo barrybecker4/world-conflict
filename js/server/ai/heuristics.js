@@ -1,4 +1,3 @@
-import gameInitialization from '../../client/gameInitialization.js';
 
 export default {
     heuristicForPlayer,
@@ -25,7 +24,7 @@ function heuristicForPlayer(player, state) {
         return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
     });
     // each point of faith counts as 1/12th of a soldier
-    var faithTotal = state.income(player, gameInitialization.gameSetup.aiLevel) * soldierBonus / 12;
+    var faithTotal = state.income(player, storage.gameSetup.aiLevel) * soldierBonus / 12;
     return regionTotal + faithTotal;
 }
 
@@ -48,8 +47,8 @@ function templeDangerousness(state, temple) {
 }
 
 function regionThreat(state, player, regionIndex) {
-    const aiLevel = gameInitialization.gameSetup.aiLevel;
-    if (gameInitialization.gameSetup.aiLevel === CONSTS.AI_NICE)
+    const aiLevel = storage.gameSetup.aiLevel;
+    if (storage.gameSetup.aiLevel === CONSTS.AI_NICE)
         return 0; // 'nice' AI doesn't consider threat
 
     let ourPresence = state.soldierCount(regionIndex);
@@ -90,7 +89,7 @@ function regionThreat(state, player, regionIndex) {
 
 function regionOpportunity(state, player, regionIndex) {
     // the 'nice' AI doesn't see opportunities
-    if (gameInitialization.gameSetup.aiLevel === CONSTS.AI_NICE) return 0;
+    if (storage.gameSetup.aiLevel === CONSTS.AI_NICE) return 0;
 
     // how much conquest does this region enable?
     var attackingSoldiers = state.soldierCount(regionIndex);
@@ -110,8 +109,8 @@ function regionOpportunity(state, player, regionIndex) {
 }
 
 function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
-    var dropOffTurn = dropOffPoint * gameInitialization.gameSetup.turnCount;
-    var alpha = (state.turnIndex - dropOffTurn) / (gameInitialization.gameSetup.turnCount - dropOffTurn);
+    var dropOffTurn = dropOffPoint * storage.gameSetup.turnCount;
+    var alpha = (state.turnIndex - dropOffTurn) / (storage.gameSetup.turnCount - dropOffTurn);
     if (alpha < 0.0)
         alpha = 0.0;
     return startOfGameValue + (endOfGameValue - startOfGameValue) * alpha;

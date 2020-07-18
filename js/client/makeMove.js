@@ -1,6 +1,5 @@
 import oneAtaTime from './utils/oneAtaTime.js';
 import gameRenderer from './rendering/gameRenderer.js';
-import gameInitialization from './gameInitialization.js';
 const $ = domUtils.$;
 
 
@@ -186,7 +185,7 @@ function upgradeTemple(state, temple, templeOwner, upgrade) {
 function nextTurn(state) {
     var player = state.activePlayer();
 
-    var playerIncome = state.income(player, gameInitialization.gameSetup.aiLevel);
+    var playerIncome = state.income(player, storage.gameSetup.aiLevel);
     state.cash[player.index] += playerIncome;
 
     if (playerIncome) {
@@ -202,7 +201,7 @@ function nextTurn(state) {
     const upcomingPlayer = findNextPlayer(state);
 
     // did the game end by any chance?
-    if (state.turnIndex > gameInitialization.gameSetup.turnCount) {
+    if (state.turnIndex > storage.gameSetup.turnCount) {
         endTheGame(state);
     }
     else if (!state.simulatingPlayer) {
@@ -231,7 +230,7 @@ function findNextPlayer(state) {
 }
 
 function endTheGame(state) {
-   state.turnIndex = gameInitialization.gameSetup.turnCount;
+   state.turnIndex = storage.gameSetup.turnCount;
    state.endResult = determineGameWinner(state);
 }
 

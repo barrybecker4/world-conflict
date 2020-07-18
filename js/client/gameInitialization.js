@@ -6,10 +6,8 @@ import gameRenderer from './rendering/gameRenderer.js';
 import uiCallbacks from './uiCallbacks.js';
 const { $, div } = domUtils;
 
-var gameSetup = storage.retrieveSetup();
 
 export default {
-    gameSetup,
     runSetupScreen,
 };
 
@@ -19,7 +17,7 @@ function runSetupScreen() {
     appState.setInGame(false); // in setup
 
     let gameState = regenerateInitialState();
-    createSetupUI(gameSetup);
+    createSetupUI(storage.gameSetup);
 
     // callback for the buttons on the bottom: new map, or start game
     uiCallbacks.setBuildCB(function(whichButton) {
@@ -36,18 +34,18 @@ function runSetupScreen() {
     // callback for player setup buttons
     uiCallbacks.setSetupButtonsCB(function(event) {
         // set the controller type for the player
-        gameSetup.players[event.playerIndex] = event.buttonIndex;
+        storage.gameSetup.players[event.playerIndex] = event.buttonIndex;
         updateConfigButtons();
         updateBottomButtons();
         gameState = regenerateInitialState(gameState);
     });
     // callback for AI config buttons
     uiCallbacks.setAiCB(function(aiLevel) {
-        gameSetup.aiLevel = aiLevel;
+        storage.gameSetup.aiLevel = aiLevel;
         updateConfigButtons();
     });
     uiCallbacks.setTurnCountCB(function(turnCount) {
-        gameSetup.turnCount = turnCount;
+        storage.gameSetup.turnCount = turnCount;
         updateConfigButtons();
     });
 }
@@ -86,7 +84,7 @@ function prepareInGameUI(gameState) {
 function regenerateInitialState(gameState) {
     let newGameState = gameState;
     if (isSetupValid()) {
-        newGameState = makeInitialGameState(gameSetup);
+        newGameState = makeInitialGameState(storage.gameSetup);
         gameRenderer.showMap($('map'), newGameState);
         gameRenderer.updateMapDisplay(newGameState);
     }
@@ -95,10 +93,10 @@ function regenerateInitialState(gameState) {
 
 function updateConfigButtons() {
     // somebody changed something, so store the new setup
-    storage.storeSetup(gameSetup);
+    storage.storeSetup();
 
     // update player buttons
-    gameSetup.players.map(function(controller, playerIndex) {
+    storage.gameSetup.players.map(function(controller, playerIndex) {
        utils.range(0, 3).map(buttonIndex =>
            domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'selected', (controller == buttonIndex))
        )
@@ -106,13 +104,13 @@ function updateConfigButtons() {
 
     // update AI and turn count buttons
     utils.range(0, 4).map(function(index) {
-        domUtils.toggleClass('ai' + index, 'selected', index == gameSetup.aiLevel);
-        domUtils.toggleClass('turn-count' + index, 'selected', CONSTS.TURN_COUNTS[index] == gameSetup.turnCount);
+        domUtils.toggleClass('ai' + index, 'selected', index == storage.gameSetup.aiLevel);
+        domUtils.toggleClass('turn-count' + index, 'selected', CONSTS.TURN_COUNTS[index] == storage.gameSetup.turnCount);
     });
 }
 
 function isSetupValid() {
-    var enabledPlayers = sequenceUtils.sum(gameSetup.players, function(playerState) {
+    var enabledPlayers = sequenceUtils.sum(storage.gameSetup.players, function(playerState) {
         return (playerState != CONSTS.PLAYER_OFF) ? 1 : 0;
     });
     return enabledPlayers > 1;
