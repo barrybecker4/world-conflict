@@ -6,7 +6,6 @@ import aiPlay from '../server/ai/aiPlay.js';    // cannot access from client - n
 import uiCallbacks from './uiCallbacks.js';
 import uiPickMove from './uiPickMove.js';
 import makeMove from './makeMove.js';
-import firestore from '../state/firestore.js';
 const $ = domUtils.$;
 
 var humanStates = [];
