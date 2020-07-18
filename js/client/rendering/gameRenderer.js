@@ -1,4 +1,3 @@
-import appState from '../appState.js';
 import undoManager from '../undoManager.js';
 import uiCallbacks from '../uiCallbacks.js';
 import makeGradient from './makeGradient.js';

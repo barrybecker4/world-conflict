@@ -1,17 +1,19 @@
-export default {
-    setInGame,
-    isInGame,
-};
 
-const APP_SETUP_SCREEN = 0;
-const APP_IN_GAME = 1;
+var appState = (function(my) {
 
-var currentState = APP_SETUP_SCREEN;
+    const APP_SETUP_SCREEN = 0;
+    const APP_IN_GAME = 1;
 
-function setInGame(inGame) {
-    currentState = inGame ? APP_IN_GAME : APP_SETUP_SCREEN;
-}
+    let currentState = APP_SETUP_SCREEN;
 
-function isInGame() {
-    return currentState === APP_IN_GAME;
-}
+    my.setInGame = function(inGame) {
+        currentState = inGame ? APP_IN_GAME : APP_SETUP_SCREEN;
+    }
+
+    my.isInGame = function() {
+        return currentState === APP_IN_GAME;
+    }
+
+    return my;
+}(appState || {}));
+
