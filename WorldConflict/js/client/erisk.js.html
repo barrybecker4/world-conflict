@@ -9,4 +9,8 @@ window.onload = function() {
         erisk.tutorialScreen();
     }, 10);
 };
+
+window.onbeforeunload = function () {
+    return "Are you sure you want to leave?";
+};
 </script>
