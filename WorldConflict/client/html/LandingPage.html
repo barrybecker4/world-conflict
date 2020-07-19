@@ -28,8 +28,9 @@
 
     <div id='title-screen' class='h'>
         <h1>World Conflict
-            <div style="font-size: 25%; margin-top: 1em; text-shadow: none">
-                <span style="color: #666; margin-right: 0.5em">1.3.0</span>
+            <div class="title-subheader">
+                <span id="userid">User: <?= getUserId() ?> </span>
+                <span class="version"> Version: 1.3.0</span>
                 <a href="https://github.com/barrybecker4/world-conflict/wiki/World-Conflict">Credits</a>
             </div>
         </h1>
@@ -127,8 +128,8 @@
 
 <!-- put the javascript includes last so that the page loads first and faster -->
 <?!= include('server/state/BASE_CONSTS.js'); ?>
-<?!= include('server/utils/utils.js'); ?>
-<?!= include('server/utils/sequenceUtils.js'); ?>
+<?!= include('client/js/utils/utils.js'); ?>
+<?!= include('client/js/utils/sequenceUtils.js'); ?>
 
 <?!= include('server/state/gameData.js'); ?>
 <?!= include('server/state/classes.js'); ?>

@@ -223,10 +223,10 @@ p {
 #title-screen {
     position: absolute;
     z-index: 50;
-    left: 8%;
-    top: 8%;
-    right: 8%;
-    bottom: 8%;
+    left: 10%;
+    top: 10%;
+    right: 10%;
+    bottom: 10%;
     background: rgba(0,0,0,0.9);
     color: #aaa;
     line-height: 150%;
@@ -239,12 +239,22 @@ p {
     -webkit-perspective-origin: 50% 0;
     -webkit-transform: translate3d(0.2em,0,4em);
     transition: all 0.4s;
-    opacity: 1.0;
+    opacity: 0.95;
 }
 #title-screen.h {
     transform: translate3d(0.2em,0,4em) rotateX(90deg);
     -webkit-transform: translate3d(0.2em,0,4em) rotateX(90deg);
     opacity: 0.0;
+}
+.title-subheader {
+    font-size: 25%;
+    margin-top: 1em;
+    text-shadow: none;
+}
+.title-subheader .version {
+    color: #666;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
 }
 
 .corner-button {

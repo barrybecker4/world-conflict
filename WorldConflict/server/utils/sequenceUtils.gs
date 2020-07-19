@@ -1,4 +1,3 @@
-<script>
 var sequenceUtils = (function (my) {
 
     // Takes a sequence, and returns the smallest element according to a given key function.
@@ -59,4 +58,3 @@ var sequenceUtils = (function (my) {
 
     return my;
 } (sequenceUtils || {}));
-</script>

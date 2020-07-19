@@ -1,4 +1,3 @@
-<script>
 var utils = (function (my) {
 
     // Returns a random number between low (inclusive) and high (exclusive).
@@ -60,5 +59,4 @@ var utils = (function (my) {
 
     return my;
 } (utils || {}));
-</script>
 
