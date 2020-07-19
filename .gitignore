@@ -1,6 +1,15 @@
 dist
 .DS_Store
-.idea
 
 *.iml
 
+*.class
+appscript.json
+.clasp.json
+
+# Package Files #
+*.jar
+*.war
+*.ear
+/.idea/
+/WorldConflict/.settings/
