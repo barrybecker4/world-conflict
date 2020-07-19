@@ -6,7 +6,7 @@
  * @returns {String/html} Html to be served
  */
 function doGet(e) {
-  const pageName = e.parameter.page ? e.parameter['page'] : 'landing/LandingPage';
+  const pageName = e.parameter.page ? e.parameter['page'] : 'client/html/LandingPage';
 
   // Build and return HTML in IFRAME sandbox mode.
   return HtmlService.createTemplateFromFile(pageName).evaluate()

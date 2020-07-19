@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <?!= include('css/erisk.css'); ?>
+    <?!= include('client/css/erisk.css'); ?>
     <meta charset="UTF-8">
     <title>World Conflict</title>
 </head>
@@ -126,39 +126,39 @@
 </html>
 
 <!-- put the javascript includes last so that the page loads first and faster -->
-<?!= include('js/state/BASE_CONSTS.js'); ?>
-<?!= include('js/utils/utils.js'); ?>
-<?!= include('js/utils/sequenceUtils.js'); ?>
+<?!= include('server/state/BASE_CONSTS.js'); ?>
+<?!= include('server/utils/utils.js'); ?>
+<?!= include('server/utils/sequenceUtils.js'); ?>
 
-<?!= include('js/state/gameData.js'); ?>
-<?!= include('js/state/classes.js'); ?>
-<?!= include('js/state/CONSTS.js'); ?>
+<?!= include('server/state/gameData.js'); ?>
+<?!= include('server/state/classes.js'); ?>
+<?!= include('server/state/CONSTS.js'); ?>
 
-<?!= include('js/client/utils/domUtils.js'); ?>
-<?!= include('js/client/rendering/geomUtils.js'); ?>
-<?!= include('js/client/storage.js'); ?>
-<?!= include('js/client/utils/audio.js'); ?>
-<?!= include('js/state/firestore.js'); ?>
-<?!= include('js/server/map/mapGenerator.js'); ?>
-<?!= include('js/client/utils/oneAtaTime.js'); ?>
-<?!= include('js/server/ai/heuristics.js'); ?>
-<?!= include('js/client/appState.js'); ?>
-<?!= include('js/client/uiCallbacks.js'); ?>
+<?!= include('client/js/utils/domUtils.js'); ?>
+<?!= include('client/js/rendering/geomUtils.js'); ?>
+<?!= include('client/js/storage.js'); ?>
+<?!= include('client/js/utils/audio.js'); ?>
+<?!= include('server/state/firestore.js'); ?>
+<?!= include('server/map/mapGenerator.js'); ?>
+<?!= include('client/js/utils/oneAtaTime.js'); ?>
+<?!= include('server/ai/heuristics.js'); ?>
+<?!= include('client/js/appState.js'); ?>
+<?!= include('client/js/uiCallbacks.js'); ?>
 
 <!-- these are all part of erisk module -->
-<?!= include('js/client/rendering/makeGradient.js'); ?>
-<?!= include('js/client/uiPickMove.js'); ?>
-<?!= include('js/client/undoManager.js'); ?>
-<?!= include('js/client/rendering/gameRenderer.js'); ?>
-<?!= include('js/client/runSetupScreen.js'); ?>
-<?!= include('js/client/playOneMove.js'); ?>
-<?!= include('js/client/makeMove.js'); ?>
-<?!= include('js/server/ai/miniMaxSearch.js'); ?>
-<?!= include('js/server/ai/aiPickMove.js'); ?>
-<?!= include('js/client/tutorialScreen.js'); ?>
-<?!= include('js/state/makeInitialGameState.js'); ?>
+<?!= include('client/js/rendering/makeGradient.js'); ?>
+<?!= include('client/js/uiPickMove.js'); ?>
+<?!= include('client/js/undoManager.js'); ?>
+<?!= include('client/js/rendering/gameRenderer.js'); ?>
+<?!= include('client/js/runSetupScreen.js'); ?>
+<?!= include('client/js/playOneMove.js'); ?>
+<?!= include('client/js/makeMove.js'); ?>
+<?!= include('server/ai/miniMaxSearch.js'); ?>
+<?!= include('server/ai/aiPickMove.js'); ?>
+<?!= include('client/js/tutorialScreen.js'); ?>
+<?!= include('server/state/makeInitialGameState.js'); ?>
 
-<?!= include('js/client/erisk.js'); ?>
+<?!= include('client/js/erisk.js'); ?>
 
 
 
