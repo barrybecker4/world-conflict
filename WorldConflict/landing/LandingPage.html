@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>World Conflict</title>
-
     <?!= include('css/erisk.css'); ?>
+    <meta charset="UTF-8">
+    <base target="_top">
+    <title>World Conflict</title>
     <!--link rel="stylesheet" type="text/css" href="css/erisk.css"-->
 </head>
 <body>
@@ -124,13 +125,16 @@
     <a id="undo-button" href="#" style="right: 15.1%" class="corner-button round-button" title="Undo"></a>
 </div>
 </body>
+</html>
 
 <!-- put the javascript includes last so that the page loads first and faster -->
+<?!= include('js/common.js'); ?>
 <?!= include('landing/LandingPage.js'); ?>
 
 <?!= include('js/state/BASE_CONSTS.js'); ?>
 <?!= include('js/utils/utils.js'); ?>
 <?!= include('js/utils/sequenceUtils.js'); ?>
+
 <?!= include('js/state/gameData.js'); ?>
 <?!= include('js/state/classes.js'); ?>
 <?!= include('js/state/CONSTS.js'); ?>
@@ -147,6 +151,7 @@
 <?!= include('js/client/uiCallbacks.js'); ?>
 
 <!-- these are all part of erisk module -->
+
 <?!= include('js/client/rendering/makeGradient.js'); ?>
 <?!= include('js/client/uiPickMove.js'); ?>
 <?!= include('js/client/undoManager.js'); ?>
@@ -161,9 +166,6 @@
 
 <?!= include('js/client/erisk.js'); ?>
 
-<!-- put files that are shared from server here. See push.sh -->
-<!--?!= include('utils.js.html'); ?-->
-<!--?!= include('sequenceUtils.js.html'); ?-->
 
 
 
