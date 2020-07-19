@@ -3,7 +3,9 @@ World Conflict
 
 A risk-based strategy game originally created for [JS13k 2014](http://js13kgames.com/) by Jakub Wasilewski. This project modifies that code in order to support multiplayer online games using Google App Script. 
 
-You can **[play the original version here](http://wasyl.eu/games/compact-conflict/play.html)**. The new version will be available shortly.
+**[Play the Google Apps Script version here](https://script.google.com/macros/s/AKfycbxM8hi7pTwGz5TwrYummeqWnpnKAa6SWEDCfIBAPK8TBjImVS8/exec)**
+
+**[Play the original version here](http://wasyl.eu/games/compact-conflict/play.html)**.
 
 ![Example Game](images/game_middle.PNG)
 
