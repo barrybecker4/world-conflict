@@ -15,15 +15,15 @@ svg {
 #container {
     position: relative;
     margin: auto;
-    perspective: 50em;
     -webkit-perspective: 50em;
+    perspective: 50em;
 }
 #overview-panel, #map, #footer-buttons {
     position: absolute;
 }
 #overview-panel {
     left: 1%; right: 78.2%;
-    top: 5%; bottom: 5%;
+    top: 10%; bottom: 10%;
     color: white;
     transform: rotateY(0deg);
     -webkit-transform: rotateY(0deg);
@@ -231,9 +231,11 @@ p {
     color: #aaa;
     line-height: 150%;
     text-align: center;
-    border: 1px solid #333;
+    border: 2px solid #999;
+    border-radius: 20px;
     perspective: 40em;
     perspective-origin: 50% 0;
+    padding: 20px;
     transform: translate3d(0,0,3em);
     -webkit-perspective: 40em;
     -webkit-perspective-origin: 50% 0;
@@ -292,8 +294,8 @@ p {
 /* Particles! */
 .particle {
     position: absolute;
-    width: 5;
-    height: 5;
+    width: 15;
+    height: 15;
     transform: translate3d(0,0,0);
     -webkit-transform: translate3d(0,0,0);
     transition: all 4s;
@@ -339,9 +341,13 @@ p {
 .bottom-box {
     position: absolute;
     left: 30%; right: 30%;
-    top: 90%;
+    top: 85%;
 }
-#title-screen a:hover, a.round-button:hover { transform: translate3d(0,0,0.2em); opacity: 1 !important; }
+#title-screen a:hover, a.round-button:hover {
+    transform: translate3d(0,0,0.2em);
+    -webkit-transform: translate3d(0,0,0.2em);
+    opacity: 1 !important;
+}
 h1 {
     font-family: "Constantia", "Athelas", serif;
     font-size: 3.75em;
