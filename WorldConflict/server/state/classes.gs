@@ -1,4 +1,3 @@
-<script>
 // global counter for the number of soldiers
 var soldierId = 0;
 var stateId = 0;
@@ -522,4 +521,3 @@ class Region {
         return answer;
     }
 }
-</script>

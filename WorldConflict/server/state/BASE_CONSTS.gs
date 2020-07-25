@@ -1,4 +1,3 @@
-<script>
 var CONSTS = (function(my) {
 
     const UNLIMITED_TURNS = 1000000;
@@ -34,4 +33,4 @@ var CONSTS = (function(my) {
 
     return my;
 } (CONSTS || {}));
-</script>
+

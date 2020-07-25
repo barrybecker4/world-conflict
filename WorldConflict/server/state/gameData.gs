@@ -1,4 +1,4 @@
-<script>
+
 // The world map (regions) and players get initialized during game setup.
 // Once the game starts, they do not change.
 var gameData = (function (my) {
@@ -9,4 +9,4 @@ var gameData = (function (my) {
 
     return my;
 } (gameData || {}));
-</script>
+

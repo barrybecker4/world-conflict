@@ -127,12 +127,12 @@
 </html>
 
 <!-- put the javascript includes last so that the page loads first and faster -->
-<?!= include('server/state/BASE_CONSTS.js'); ?>
+<?!= include('client/js/state/BASE_CONSTS.js'); ?>
 <?!= include('client/js/utils/utils.js'); ?>
 <?!= include('client/js/utils/sequenceUtils.js'); ?>
 
-<?!= include('server/state/gameData.js'); ?>
-<?!= include('server/state/classes.js'); ?>
+<?!= include('client/js/state/gameData.js'); ?>
+<?!= include('client/js/state/classes.js'); ?>
 <?!= include('server/state/CONSTS.js'); ?>
 
 <?!= include('client/js/utils/domUtils.js'); ?>
@@ -140,7 +140,6 @@
 <?!= include('client/js/storage.js'); ?>
 <?!= include('client/js/utils/audio.js'); ?>
 <?!= include('server/state/firestore.js'); ?>
-<?!= include('server/map/mapGenerator.js'); ?>
 <?!= include('client/js/utils/oneAtaTime.js'); ?>
 <?!= include('server/ai/heuristics.js'); ?>
 <?!= include('client/js/appState.js'); ?>

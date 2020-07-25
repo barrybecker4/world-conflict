@@ -37,3 +37,7 @@ function getUserId() {
   const email = getUserEmail();
   return email.substring(0, email.indexOf("@"));
 }
+
+function generateMap(numPlayers, mapWidth, mapHeight) {
+    return mapGenerator.generateMap(numPlayers, mapWidth, mapHeight);
+}

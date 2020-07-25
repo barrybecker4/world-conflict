@@ -1,22 +1,22 @@
 <script>
 var erisk = (function(my) {
-
     const { $, div } = domUtils;
+    let gameState = null;
 
     my.runSetupScreen = function() {
         audio.setupAudio();
         appState.setInGame(false); // in setup
 
-        let gameState = regenerateInitialState();
-        createSetupUI(storage.gameSetup);
+        regenerateInitialState();
+        createSetupUI();
 
         // callback for the buttons on the bottom: new map, or start game
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
             if (whichButton === 0) {
-                gameState = regenerateInitialState(gameState);
+                regenerateInitialState();
             } else {
-                prepareInGameUI(gameState);
+                prepareInGameUI();
                 erisk.gameRenderer.updateDisplay(gameState);
                 appState.setInGame(true); // playing the game now
                 erisk.playOneMove(gameState);
@@ -28,7 +28,7 @@ var erisk = (function(my) {
             storage.gameSetup.players[event.playerIndex] = event.buttonIndex;
             updateConfigButtons();
             updateBottomButtons();
-            gameState = regenerateInitialState(gameState);
+            regenerateInitialState();
         });
         // callback for AI config buttons
         uiCallbacks.setAiCB(function(aiLevel) {
@@ -41,14 +41,14 @@ var erisk = (function(my) {
         });
     }
 
-    function createSetupUI(gameState) {
+    function createSetupUI() {
         prepareSetupUI();
         updateBottomButtons();
         updateConfigButtons();
     }
 
     // Prepares the whole sidebar on the left for gameplay use.
-    function prepareInGameUI(gameState) {
+    function prepareInGameUI() {
         // turn counter
         var html = div({i: 'turn-count', c: 'side-control'});
 
@@ -72,14 +72,14 @@ var erisk = (function(my) {
         ['move-info', 'undo-button', 'restart'].map(domUtils.show);
     }
 
-    function regenerateInitialState(gameState) {
-        let newGameState = gameState;
+    function regenerateInitialState() {
         if (isSetupValid()) {
-            newGameState = erisk.makeInitialGameState(storage.gameSetup);
-            erisk.gameRenderer.showMap($('map'), newGameState);
-            erisk.gameRenderer.updateMapDisplay(newGameState);
+            erisk.makeInitialGameState(storage.gameSetup).then(newGameState => {
+                erisk.gameRenderer.showMap($('map'), newGameState);
+                erisk.gameRenderer.updateMapDisplay(newGameState);
+                gameState = newGameState;
+            });
         }
-        return newGameState;
     }
 
     function updateConfigButtons() {

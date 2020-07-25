@@ -1,4 +1,3 @@
-<script>
 var mapGenerator = (function(my) {
     const MAX_REGION_SIZE = 11;
     const BASE_NUM_REGIONS = 13;
@@ -60,12 +59,19 @@ var mapGenerator = (function(my) {
         }
     }
 
-    const perturbConst = utils.rint(10000, 100000);
+    let perturbConst = null; // don't access directly
+    function getPerturbConst() {
+      if (perturbConst == null) {
+          perturbConst = utils.rint(10000, 100000);
+      }
+      return perturbConst;
+    }
 
     // Perturbs a point to give the region borders a natural feel.
     function perturbPoint(x, y) {
-        var angle = (Math.sin(x * x * y * y * 600 + perturbConst * 357)) * 2 * Math.PI;
-        var dist = (Math.sin(x * y * 600 + perturbConst * 211)) / 2;
+        const pc = getPerturbConst();
+        var angle = (Math.sin(x * x * y * y * 600 + pc * 357)) * 2 * Math.PI;
+        var dist = (Math.sin(x * y * 600 + pc * 211)) / 2;
         return [x + Math.sin(angle) * dist, y + Math.cos(angle) * dist];
     }
 
@@ -128,4 +134,3 @@ var mapGenerator = (function(my) {
 
     return my;
 }(mapGenerator || {}));
-</script>
