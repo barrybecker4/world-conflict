@@ -6,7 +6,7 @@ var erisk = (function(my) {
 
     // Create game state, regions, and players based on setup configuration
     // Update regions and players in the global gameData
-    my.makeInitialGameState = async function(setup) {
+    my.makeGameData = async function(setup) {
 
         let players = [];
 
@@ -27,14 +27,19 @@ var erisk = (function(my) {
         // need to reconstitute the regions because they are only simple objects without methods
         regions = regions.map(r => new Region(r));
 
-        let gameState = new GameState({turnIndex: 1, playerIndex: 0, movesRemaining: CONSTS.BASE_MOVES_PER_TURN});
+        let gameState = new GameState({
+            turnIndex: 1,
+            playerIndex: 0,
+            movesRemaining: CONSTS.BASE_MOVES_PER_TURN
+        });
 
         setupTemples(3, regions);
 
         gameData.regions = regions;
         gameData.players = players;
         gameData.gameId = gameId++;
-        return gameState;
+        gameData.initialGameState = gameState;
+        return gameData;
 
         function distanceScore(regions, allRegions) {
             return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));

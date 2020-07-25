@@ -1,25 +1,24 @@
 <script>
 var erisk = (function(my) {
     const { $, div } = domUtils;
-    let gameState = null;
 
     my.runSetupScreen = function() {
         audio.setupAudio();
         appState.setInGame(false); // in setup
 
-        regenerateInitialState();
+        regenerateGameData();
         createSetupUI();
 
         // callback for the buttons on the bottom: new map, or start game
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
             if (whichButton === 0) {
-                regenerateInitialState();
+                regenerateGameData();
             } else {
                 prepareInGameUI();
-                erisk.gameRenderer.updateDisplay(gameState);
+                erisk.gameRenderer.updateDisplay(gameData.initialGameState);
                 appState.setInGame(true); // playing the game now
-                erisk.playOneMove(gameState);
+                erisk.playOneMove(gameData.initialGameState);
             }
         });
         // callback for player setup buttons
@@ -28,7 +27,7 @@ var erisk = (function(my) {
             storage.gameSetup.players[event.playerIndex] = event.buttonIndex;
             updateConfigButtons();
             updateBottomButtons();
-            regenerateInitialState();
+            regenerateGameData();
         });
         // callback for AI config buttons
         uiCallbacks.setAiCB(function(aiLevel) {
@@ -72,12 +71,12 @@ var erisk = (function(my) {
         ['move-info', 'undo-button', 'restart'].map(domUtils.show);
     }
 
-    function regenerateInitialState() {
+    function regenerateGameData() {
         if (isSetupValid()) {
-            erisk.makeInitialGameState(storage.gameSetup).then(newGameState => {
-                erisk.gameRenderer.showMap($('map'), newGameState);
-                erisk.gameRenderer.updateMapDisplay(newGameState);
-                gameState = newGameState;
+            erisk.makeGameData(storage.gameSetup).then(newGameData => {
+                gameData = newGameData;
+                erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
+                erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
             });
         }
     }
