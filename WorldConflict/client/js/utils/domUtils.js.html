@@ -35,8 +35,9 @@ var domUtils = (function(my) {
 
     // Sets the 'transform' CSS property to a given value (also setting prefixed versions).
     my.setTransform = function(elem, value) {
-        elem.style.transform = value;
+        elem.style['-moz-transform'] = value;
         elem.style['-webkit-transform'] = value;
+        elem.style.transform = value;
     }
 
     // Adds a handler that will be called when a DOM element is clicked or tapped (touch events).

@@ -438,14 +438,27 @@ erisk.gameRenderer = (function() {
             styles.opacity = 0.0;
             setTransform(banner, transform(-1));
 
-            setTimeout(function() { styles.opacity = 1.0; setTransform(banner, transform(1)); }, 0.1 * duration);
-            setTimeout(function() { styles.opacity = 1.0; }, 0.5 * duration);
-            setTimeout(function() { styles.opacity = 0.0; }, 0.7 * duration);
-            setTimeout(function() { banner.parentNode.removeChild(banner); }, duration);
+            setTimeout(function() {
+                styles.opacity = 1.0;
+                setTransform(banner, transform(1));
+            }, 0.1 * duration);
+
+            setTimeout(function() {
+                styles.opacity = 1.0;
+            }, 0.5 * duration);
+
+            setTimeout(function() {
+                styles.opacity = 0.0;
+            }, 0.7 * duration);
+
+            setTimeout(function() {
+                banner.parentNode.removeChild(banner);
+            }, duration);
         });
 
         function transform(offset) {
-            return "translate3d(0.2em, " + offset + "em, 0) rotateY(" + (8 + offset * 2) + "deg)";
+            return "translate3d(10px, " + 20 * offset + "px, 0)";
+             // rotateY(" + (8 + offset * 2) + "deg)"; // this doesn't work on Safarr
         }
     }
 
