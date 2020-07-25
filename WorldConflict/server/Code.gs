@@ -38,6 +38,6 @@ function getUserId() {
   return email.substring(0, email.indexOf("@"));
 }
 
-function generateMap(numPlayers, mapWidth, mapHeight) {
-    return mapGenerator.generateMap(numPlayers, mapWidth, mapHeight);
+function makeGameData() {
+    return erisk.makeGameData();
 }

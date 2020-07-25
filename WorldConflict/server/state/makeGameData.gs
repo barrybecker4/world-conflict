@@ -1,12 +1,11 @@
-<script>
 var erisk = (function(my) {
 
     const { deepCopy, rint, range, sum } = utils;
-    var gameId = 0;
+    var gameId = 0; // this should be a guid or come from last entry in db
 
     // Create game state, regions, and players based on setup configuration
     // Update regions and players in the global gameData
-    my.makeGameData = async function(setup) {
+    my.makeGameData = function(setup) {
 
         let players = [];
 
@@ -23,9 +22,7 @@ var erisk = (function(my) {
         });
 
 
-        let regions = await promiseRun('generateMap', players.length, setup.mapWidth, setup.mapHeight);
-        // need to reconstitute the regions because they are only simple objects without methods
-        regions = regions.map(r => new Region(r));
+        let regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight);
 
         let gameState = new GameState({
             turnIndex: 1,
@@ -124,4 +121,3 @@ var erisk = (function(my) {
 
     return my;
 }(erisk || {}));
-</script>

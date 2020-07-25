@@ -72,13 +72,16 @@ var erisk = (function(my) {
     }
 
     function regenerateGameData() {
-        if (isSetupValid()) {
-            erisk.makeGameData(storage.gameSetup).then(newGameData => {    // use typical server call to get the gameData. Reconstitute it once received.
-                gameData = newGameData;
+        if (!isSetupValid()) return;
+
+        google.script.run
+            .withSuccessHandler(function(newGameData) {
+                gameData.initializeFrom(newGameData);
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
-            });
-        }
+             })
+            .withFailureHandler(gasClientUtils.showError)
+            .getGameData();
     }
 
     function updateConfigButtons() {
