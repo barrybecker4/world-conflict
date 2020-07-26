@@ -77,11 +77,12 @@ var erisk = (function(my) {
         google.script.run
             .withSuccessHandler(function(newGameData) {
                 gameData.initializeFrom(newGameData);
+                // alert(JSON.stringify(gameData.players));
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
              })
             .withFailureHandler(gasClientUtils.showError)
-            .getGameData();
+            .makeGameData(storage.gameSetup);
     }
 
     function updateConfigButtons() {
@@ -129,7 +130,7 @@ var erisk = (function(my) {
 
     function createPlayerBoxArea() {
         var html = div({c: 'side-control description'}, "Player setup");
-        var playerBoxes = PLAYERS.map(function(player) {
+        var playerBoxes = CONSTS.PLAYERS.map(function(player) {
             var pid = player.index;
             return buttonPanel(player.name, "sb" + player.index, ["AI", "Human", "Off"], {
                 i: 'player-box' + pid,
@@ -159,7 +160,7 @@ var erisk = (function(my) {
 
     // setup callbacks for buttons in the player setup panel
     function setupButtonHandlersForPlayers() {
-        utils.for2d(0, 0, PLAYERS.length, 3, function(playerIndex, buttonIndex) {
+        utils.for2d(0, 0, CONSTS.PLAYERS.length, 3, function(playerIndex, buttonIndex) {
             domUtils.onClickOrTap(
                 $('sb' + playerIndex + buttonIndex),
                 (event) => uiCallbacks.invokeCallback({ playerIndex, buttonIndex }, 'setupButtons', event)

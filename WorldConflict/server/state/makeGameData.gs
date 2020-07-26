@@ -1,6 +1,5 @@
 var erisk = (function(my) {
 
-    const { deepCopy, rint, range, sum } = utils;
     var gameId = 0; // this should be a guid or come from last entry in db
 
     // Create game state, regions, and players based on setup configuration
@@ -11,16 +10,15 @@ var erisk = (function(my) {
 
         setup.players.map(function(playerController, playerIndex) {
             if (playerController === CONSTS.PLAYER_OFF) return;
-            var player = deepCopy(PLAYERS[playerIndex], 1);
+            var player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
 
             if (playerController == CONSTS.PLAYER_AI) {
-                player.personality = AI_PERSONALITIES[rint(0, AI_PERSONALITIES.length)].copy();
+                player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();
             }
 
             player.index = players.length;
             players.push(player);
         });
-
 
         let regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight);
 
@@ -34,7 +32,8 @@ var erisk = (function(my) {
 
         gameData.regions = regions;
         gameData.players = players;
-        gameData.gameId = gameId++;
+        gameData.gameId = gameId++;  // this should be guid from firestore
+        gameState.gameId = gameId;
         gameData.initialGameState = gameState;
         return gameData;
 
@@ -70,7 +69,7 @@ var erisk = (function(my) {
                 var templeRegions = [];
                 var neutralTempleCount = [3, 3, 4][players.length - 2];
 
-                range(0, neutralTempleCount).map(function() {
+                utils.range(0, neutralTempleCount).map(function() {
                     var bestRegion = sequenceUtils.max(regions, function(region) {
                         return templeScore(region);
                     });
@@ -105,8 +104,8 @@ var erisk = (function(my) {
 
         // pick regions that are as far away as possible from each other for the players' initial temples
         function findHomeRegions(regions) {
-            const possibleSetups = range(0, 1000).map(function() {
-                return players.map(() => regions[rint(0, regions.length)]);
+            const possibleSetups = utils.range(0, 1000).map(function() {
+                return players.map(() => regions[utils.rint(0, regions.length)]);
             });
             const homes = sequenceUtils.max(possibleSetups, setup => distanceScore(setup, regions));
             return homes;

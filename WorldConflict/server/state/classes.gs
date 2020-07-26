@@ -1,6 +1,4 @@
-// global counter for the number of soldiers
-var soldierId = 0;
-var stateId = 0;
+var stateId = 0; // need guid?
 
 
 class Player {
@@ -75,9 +73,9 @@ class GameState {
         this.turnIndex = obj.turnIndex;
         this.playerIndex = obj.playerIndex;
         this.movesRemaining = obj.movesRemaining;
-        this.owners = obj.owners || [];
-        this.temples = obj.temples || [];
-        this.soldiersByRegion = obj.soldiersByRegion || [];
+        this.owners = obj.owners || {};
+        this.temples = obj.temples || {};
+        this.soldiersByRegion = obj.soldiersByRegion || {};
         this.cash = obj.cash || {}; // Cash is equal to "faith" in the game
         this.simulatingPlayer = obj.simulatingPlayer;
         this.floatingText = obj.floatingText;
@@ -88,6 +86,7 @@ class GameState {
         this.prevPlayerIndex = obj.prevPlayerIndex;
         this.conqueredRegions = obj.conqueredRegions;
         this.id = obj.stateId || stateId++;
+        this.gameId = obj.gameId;
     }
 
     advanceToNextPlayer() {
@@ -95,7 +94,7 @@ class GameState {
         const playerIndex = (this.playerIndex + 1) % playerCount;
         const upcomingPlayer = gameData.players[playerIndex];
         const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
-        const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, UPGRADES.AIR);
+        const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, CONSTS.UPGRADES.AIR);
         this.turnIndex = turnNumber;
         this.prevPlayerIndex = this.playerIndex;
         this.playerIndex = playerIndex;
@@ -123,7 +122,7 @@ class GameState {
         var fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
             return self.soldierCount(temple.regionIndex);
         });
-        var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, UPGRADES.WATER);
+        var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, CONSTS.UPGRADES.WATER);
         if (player.personality && (aiLevel == CONSTS.AI_EVIL))
             multiplier += 0.4; // cheating - cause its evil...
         return Math.ceil(multiplier * (fromRegions + fromTemples));
@@ -149,8 +148,8 @@ class GameState {
     templesForPlayer(player) {
         var playerTemples = [];
         let self = this;
-        utils.forEachProperty(this.temples, function(temple, regionIndex) {
-            if (self.owner(regionIndex) == player)
+        utils.forEachProperty(this.temples, function(temple) {
+            if (self.owner(temple.regionIndex) == player)
                 playerTemples.push(temple);
         });
         return playerTemples;
@@ -208,7 +207,7 @@ class GameState {
     }
 
     soldierCost() {
-        return UPGRADES.SOLDIER.cost[this.numBoughtSoldiers || 0];
+        return CONSTS.UPGRADES.SOLDIER.cost[this.numBoughtSoldiers || 0];
     }
 
     templeInfo(temple) {
@@ -225,9 +224,10 @@ class GameState {
 
     addSoldiers(regionIndex, count) {
         const self = this;
+        const soldierList = self.soldiersAtRegion(regionIndex);
         utils.range(0, count).map(function() {
-            var soldierList = self.soldiersAtRegion(regionIndex);
-            soldierList.push({ i: soldierId++ });
+            const soldierId = utils.rint(1, 1000000000);    // slight chance of duplicates?
+            soldierList.push({ i: soldierId});   // soldierId++ }); can't use counder if generated in multiple places
         });
     }
 
@@ -249,6 +249,8 @@ class GameState {
             floatingText: this.floatingText,
             numBoughtSoldiers: this.numBoughtSoldiers,
             conqueredRegions: this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
+            id: this.id,
+            gameId: this.gameId,
         });
     }
 }
@@ -327,7 +329,7 @@ class ArmyMove extends Move {
         let attackSequence = null;
 
         // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
-        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, UPGRADES.EARTH)]);
+        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, CONSTS.UPGRADES.EARTH)]);
 
         if (preemptiveDamage || defendingSoldiers) {
             attackSequence = [];
@@ -335,12 +337,12 @@ class ArmyMove extends Move {
 
         if (preemptiveDamage) {
             attackSequence.push({
-                soundCue: SOUNDS.OURS_DEAD,
+                soundCue: CONSTS.SOUNDS.OURS_DEAD,
                 delay: 50,
                 floatingText: [{
                     soldier: fromList[0],
                     text: "Earth kills " + preemptiveDamage + "!",
-                    color: UPGRADES.EARTH.bgColor,
+                    color: CONSTS.UPGRADES.EARTH.bgColor,
                     width: 9
                 }]
             });
@@ -360,7 +362,7 @@ class ArmyMove extends Move {
 
             // are there defenders left?
             if (toList.length) {
-                state.soundCue = SOUNDS.DEFEAT;
+                state.soundCue = CONSTS.SOUNDS.DEFEAT;
                 const color = toOwner ? toOwner.highlightStart : '#fff';
                 state.floatingText = [{ regionIdx: toRegion, color, text: "Defended!", width: 7 }];
             }
@@ -370,14 +372,14 @@ class ArmyMove extends Move {
 
 
         function recordFight() {
-            const incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, UPGRADES.FIRE) * 0.01);
-            const defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, UPGRADES.EARTH) * 0.01);
+            const incomingStrength = incomingSoldiers * (1 + state.upgradeLevel(fromOwner, CONSTS.UPGRADES.FIRE) * 0.01);
+            const defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, CONSTS.UPGRADES.EARTH) * 0.01);
 
             const repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
             const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
             // Jakub says that this should be fromOwner, but I believe that toOwner is correct.
             // See https://github.com/krajzeg/compact-conflict/issues/3
-            let invincibility = state.upgradeLevel(toOwner, UPGRADES.FIRE);
+            let invincibility = state.upgradeLevel(toOwner, CONSTS.UPGRADES.FIRE);
 
             function randomNumberForFight(index) {
                 var maximum = 120 + attackerWinChance;
@@ -401,17 +403,17 @@ class ArmyMove extends Move {
                         incomingSoldiers--;
                         attackSequence.push({
                             attackerCasualties: 1,
-                            soundCue: SOUNDS.OURS_DEAD,
+                            soundCue: CONSTS.SOUNDS.OURS_DEAD,
                             delay: 250,
                         });
                     } else {
                         attackSequence.push({
-                            soundCue: SOUNDS.OURS_DEAD,
+                            soundCue: CONSTS.SOUNDS.OURS_DEAD,
                             delay: 800,
                             floatingText: [{
                                 soldier: fromList[0],
                                 text: "Protected by Fire!",
-                                color: UPGRADES.FIRE.bgColor,
+                                color: CONSTS.UPGRADES.FIRE.bgColor,
                                 width: 11
                             }],
                         });
@@ -420,7 +422,7 @@ class ArmyMove extends Move {
                     // attacker wins, kill defender and pay the martyr bonus
                     attackSequence.push({
                         defenderCasualties: 1,
-                        soundCue: SOUNDS.ENEMY_DEAD,
+                        soundCue: CONSTS.SOUNDS.ENEMY_DEAD,
                         delay: 250,
                         martyrBonus: CONSTS.MARTYR_BONUS,
                     });

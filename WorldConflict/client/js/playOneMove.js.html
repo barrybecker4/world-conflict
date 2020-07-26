@@ -14,13 +14,13 @@ var erisk = (function(my) {
             //  later this will look for the transition from the player on this client and everyone else.
             if (!state.prevPlayer() || player.personality != state.prevPlayer().personality) {
                 if (humanStates.length) {
-                    firestore.appendStatesForGame(gameData.gameId, humanStates);
+                    // firestore.appendStatesForGame(gameData.gameId, humanStates); TODO
                 }
                 if (player.personality) {
                     // request that the computer make the AI moves (asynchronously, and also store them in firestore) but do not actually show them.
                     erisk.aiPickMove(player, state, function(move) {
                         state.modeDecision = move; // here?
-                        audio.playSound(SOUNDS.CLICK); // this will happen on playback
+                        audio.playSound(CONSTS.SOUNDS.CLICK); // this will happen on playback
                         const newState = erisk.makeMove(state, move); // plays a transition forward. A transition consists of a move and a state.
                         if (newState.endResult) { // did the game end?
                             showEndGame(newState); // this will happen on playback

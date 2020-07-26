@@ -5,6 +5,7 @@
 { echo "<script>"; cat server/state/gameData.gs; echo "</script>"; } > client/js/state/gameData.js.html
 { echo "<script>"; cat server/state/BASE_CONSTS.gs; echo "</script>"; } > client/js/state/BASE_CONSTS.js.html
 { echo "<script>"; cat server/state/classes.gs; echo "</script>"; } > client/js/state/classes.js.html
+{ echo "<script>"; cat server/state/CONSTS.gs; echo "</script>"; } > client/js/state/CONSTS.js.html
 
 # append to
 clasp push

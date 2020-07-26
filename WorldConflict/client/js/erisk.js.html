@@ -5,13 +5,14 @@
 // start the game
 window.onload = function() {
     setTimeout(function() {
+        CONSTS = CONSTS.initialize();
         erisk.runSetupScreen();
         erisk.tutorialScreen();
     }, 10);
 };
 
-//window.onbeforeunload = function () {
-//    return "Are you sure you want to leave?";
-//};
+window.onbeforeunload = function () {
+    return "Are you sure you want to leave?";
+};
 
 </script>

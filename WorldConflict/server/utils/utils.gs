@@ -19,9 +19,10 @@ var utils = (function (my) {
     // Creates a deep copy of an object, handling nested objects and arrays. Depth controls how deep
     // the copy goes - the number of nesting levels that should be replicated.
     my.deepCopy = function(obj, depth) {
-        if ((!depth) || (typeof obj != 'object')) return obj;
+        if (!depth || typeof obj != 'object') return obj;
 
-        var copy = (obj.length !== undefined) ? [] : {};
+        const isArray = obj.length !== undefined;
+        const copy = isArray ? [] : {};
         my.forEachProperty(obj, function(value, key) {
             copy[key] = my.deepCopy(value, depth - 1);
         });

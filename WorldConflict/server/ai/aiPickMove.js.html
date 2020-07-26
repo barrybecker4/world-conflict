@@ -84,7 +84,7 @@ var erisk = (function(my) {
 
     function buildSoldierAtBestTemple(player, state) {
         var temple = sequenceUtils.max(state.templesForPlayer(player), (t) => heuristics.templeDangerousness(state, t));
-        return new BuildMove({ desiredUpgrade: UPGRADES.SOLDIER, temple });
+        return new BuildMove({ desiredUpgrade: CONSTS.UPGRADES.SOLDIER, temple });
     }
 
 

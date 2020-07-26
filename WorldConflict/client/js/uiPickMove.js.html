@@ -67,13 +67,13 @@ var erisk = (function(my) {
         uiCallbacks.setBuildCB(function(which) {
             if (state.moveDecision && state.moveDecision.isBuildMove()) {
                 // build buttons handled here
-                if (which >= UPGRADES.length) {
+                if (which >= CONSTS.UPGRADES.length) {
                     setCleanState();
                 } else {
                     // build an upgrade!
-                    state.moveDecision.upgrade = UPGRADES[which];
+                    state.moveDecision.upgrade = CONSTS.UPGRADES[which];
                     // if its a soldier, store UI state so it can be kept after the move is made
-                    if (state.moveDecision.upgrade === UPGRADES.SOLDIER)
+                    if (state.moveDecision.upgrade === CONSTS.UPGRADES.SOLDIER)
                         uiState[player.index] = gameData.regions[state.moveDecision.regionIndex];
                     // report the move
                     reportMoveCallback(state.moveDecision);
@@ -106,10 +106,10 @@ var erisk = (function(my) {
 
         function makeUpgradeButtons(temple) {
             var templeOwner = state.owner(temple.regionIndex);
-            var upgradeButtons = UPGRADES.map(function(upgrade) {
+            var upgradeButtons = CONSTS.UPGRADES.map(function(upgrade) {
                 // current upgrade level (either the level of the temple or number of soldiers bought already)
                 const level = (temple.upgrade == upgrade) ?
-                    (temple.level + 1) : ((upgrade === UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
+                    (temple.level + 1) : ((upgrade === CONSTS.UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
 
 
                 const cost = upgrade.cost[level];
@@ -119,9 +119,9 @@ var erisk = (function(my) {
 
                 let curUpgrade = temple.upgrade;
                 let inconsistentUpgrade = // the temple is already upgraded with a different upgrade
-                    curUpgrade && curUpgrade != upgrade && upgrade != UPGRADES.SOLDIER && upgrade != UPGRADES.REBUILD;
+                    curUpgrade && curUpgrade != upgrade && upgrade != CONSTS.UPGRADES.SOLDIER && upgrade != CONSTS.UPGRADES.REBUILD;
                 var hidden =
-                    (upgrade === UPGRADES.REBUILD && !curUpgrade) // rebuild only available if temple is upgraded
+                    (upgrade === CONSTS.UPGRADES.REBUILD && !curUpgrade) // rebuild only available if temple is upgraded
                     || inconsistentUpgrade
                     || level >= upgrade.cost.length // highest level reached
                     || level < state.rawUpgradeLevel(templeOwner, upgrade) // another temple has this upgrade already

@@ -80,7 +80,7 @@ var erisk = (function(my) {
         // are there defenders left?
         if (toList.length) {
             incomingSoldiers = 0; // prevent anybody from moving in
-            state.soundCue = SOUNDS.DEFEAT;
+            state.soundCue = CONSTS.SOUNDS.DEFEAT;
             const color = toOwner ? toOwner.highlightStart : '#fff';
             state.floatingText = [
                 {regionIdx: toRegion, color, text: "Defended!", width: 7}
@@ -128,7 +128,7 @@ var erisk = (function(my) {
             state.particleTempleRegion = gameData.regions[toRegion];
             const color = fromOwner.highlightStart;
             state.floatingText = [{regionIdx: toRegion, color, text: "Conquered!", width: 7}];
-            state.soundCue = numDefenders ? SOUNDS.VICTORY : SOUNDS.TAKE_OVER;
+            state.soundCue = numDefenders ? CONSTS.SOUNDS.VICTORY : CONSTS.SOUNDS.TAKE_OVER;
         }
     }
 
@@ -145,10 +145,10 @@ var erisk = (function(my) {
         var temple = state.temples[regionIndex];
         var templeOwner = state.owner(regionIndex);
 
-        if (upgrade === UPGRADES.SOLDIER) {
+        if (upgrade === CONSTS.UPGRADES.SOLDIER) {
             buySoldier(state, templeOwner, upgrade, regionIndex);
         }
-        else if (upgrade === UPGRADES.REBUILD) {
+        else if (upgrade === CONSTS.UPGRADES.REBUILD) {
             delete temple.upgrade; // remove current upgrade
         }
         else upgradeTemple(state, temple, templeOwner, upgrade);
@@ -176,7 +176,7 @@ var erisk = (function(my) {
         state.particleTempleRegion = gameData.regions[temple.regionIndex];
 
         // the AIR upgrade takes effect immediately
-        if (upgrade == UPGRADES.AIR)
+        if (upgrade == CONSTS.UPGRADES.AIR)
             state.movesRemaining++;
     }
 
@@ -211,10 +211,10 @@ var erisk = (function(my) {
 
     // temples produce one soldier per turn automatically
     function generateSoldersAtTemples(state, player) {
-        utils.forEachProperty(state.temples, function(temple, regionIndex) {
-            if (state.owner(regionIndex) == player) {
+        utils.forEachProperty(state.temples, function(temple) {
+            if (state.owner(temple.regionIndex) == player) {
                 // this is our temple, add a soldier to the temple's element
-                state.addSoldiers(regionIndex, 1);
+                state.addSoldiers(temple.regionIndex, 1);
             }
         });
     }

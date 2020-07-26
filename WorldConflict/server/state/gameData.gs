@@ -5,9 +5,14 @@ var gameData = (function (my) {
 
     // @param obj plain object containing props.
     // Need to reconstitute the regions because they are only simple objects without methods
-    my.initializeFrom(obj) {
+    my.initializeFrom = function(obj) {
         my.regions = obj.regions.map(r => new Region(r));
         my.players = obj.players;
+        my.players.forEach(player => {
+            if (player.personality) {
+                player.personality = new AiPersonality(player.personality);
+            }
+        });
         my.gameId = obj.gameId;
         my.initialGameState = new GameState(obj.initialGameState);
     }

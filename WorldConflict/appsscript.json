@@ -1,6 +1,11 @@
 {
   "timeZone": "America/Los_Angeles",
   "dependencies": {
+    "libraries": [{
+      "userSymbol": "FirestoreApp",
+      "libraryId": "1VUSl4b1r1eoNcRWotZM3e87ygkxvXltOgyDZhixqncz9lQ3MjfT1iKFw",
+      "version": "33"
+    }]
   },
   "webapp": {
     "access": "ANYONE",

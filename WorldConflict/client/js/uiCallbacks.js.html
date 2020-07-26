@@ -36,7 +36,7 @@ class UiCallbacks {
     invokeCallback(object, type, event) {
         var callback = this[type];
         if (callback) {
-            audio.playSound(SOUNDS.CLICK);
+            audio.playSound(CONSTS.SOUNDS.CLICK);
             callback(object);
         }
         if (event.target.href && event.target.href != "#")

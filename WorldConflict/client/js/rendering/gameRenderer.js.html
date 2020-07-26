@@ -79,7 +79,6 @@ erisk.gameRenderer = (function() {
         // makes temple, which are just <div>s with nested <div>s (the towers)
         function makeTemples() {
             forEachProperty(gameState.temples, function(temple) {
-
                 const center = gameData.regions[temple.regionIndex].center,
                     style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
 
