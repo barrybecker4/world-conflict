@@ -1,6 +1,13 @@
 <script>
 var domUtils = (function(my) {
 
+    const shorthanded = {
+        c: 'class',
+        s: 'style',
+        i: 'id',
+        tt: 'title',
+    };
+
     // Returns the element bearing the given ID.
     my.$ = function(id) {
         return document.querySelector('#' + id);
@@ -9,14 +16,8 @@ var domUtils = (function(my) {
     // Return HTML (string) for a new element with the given tag name, attributes, and inner HTML.
     // Some attributes can be shorthanded (see map).
     my.elem = function(tag, attrs, contents) {
-        var shorthanded = {
-            c: 'class',
-            s: 'style',
-            i: 'id',
-            tt: 'title',
-        };
-        var html = '<' + tag + ' ';
-        for (var attributeName in attrs) {
+        let html = '<' + tag + ' ';
+        for (const attributeName of Object.keys(attrs)) {
             html += (shorthanded[attributeName] || attributeName) + "='" + attrs[attributeName] + "' ";
         }
         html += '>' + (contents || '') + '</' + tag + '>';
@@ -28,14 +29,13 @@ var domUtils = (function(my) {
 
     // Appends new HTML to a container with the designated ID, and returns the resulting DOM node.
     my.append = function(containerId, newHTML) {
-        var container = my.$(containerId);
+        const container = my.$(containerId);
         container.insertAdjacentHTML('beforeend', newHTML);
         return container.lastChild;
     }
 
     // Sets the 'transform' CSS property to a given value (also setting prefixed versions).
     my.setTransform = function(elem, value) {
-        elem.style['-moz-transform'] = value;
         elem.style['-webkit-transform'] = value;
         elem.style.transform = value;
     }

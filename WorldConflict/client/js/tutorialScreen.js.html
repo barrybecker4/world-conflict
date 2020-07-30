@@ -3,7 +3,7 @@ var erisk = (function(my) {
     const { $, onClickOrTap } = domUtils;
 
     my.tutorialScreen = function() {
-        ['overview-panel','tutorial-button','sound'].map(id => domUtils.showOrHide(id, 1));
+        ['overview-panel', 'tutorial-button', 'sound'].map(id => domUtils.showOrHide(id, 1));
 
         onClickOrTap($('cancel-button'), () => setTutorialScreenVisibility(false));
         onClickOrTap($('next'), () => switchTutorialCard(1));
