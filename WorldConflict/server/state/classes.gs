@@ -479,7 +479,7 @@ class Region {
     }
 
     centerDistanceFrom(regionB) {
-        return Math.abs(this.center[0] - regionB.center[0]) + Math.abs(this.center[1] - regionB.center[1]);
+        return Math.abs(this.center.x - regionB.center.x) + Math.abs(this.center.y - regionB.center.y);
     }
 
     // Use breadth-first search and memoization to find distance from this (regionA) to some other regionB.

@@ -15,9 +15,9 @@ function getGameConfigurationTableAccessor() {
             doc = firestore.getDocument(GAME_CONFIGURATION_TABLE + '/' + gameId);
         }
         catch (err) {
-            Logger.log('No states found for gameId ' + gameId);
+            Logger.log('No gameConfiguration found for gameId ' + gameId);
         }
-        return states;
+        return doc;
     }
 
     /**
@@ -42,6 +42,22 @@ function getGameConfigurationTableAccessor() {
         firestore.deleteDocument(GAME_CONFIGURATION_TABLE + '/' + gameId);
     }
 
+    function upsert(gameData, gameId) {
+        if (gameId) {
+            Logger.log("we have gameId="+ gameId + " so updating");
+            const doc = getGameConfiguration(gameId);
+            Logger.log("doc.name = " + doc.name);
+            gameData.gameId = gameId;
+            doc.fields = gameData;
+            updateGameConfiguration(doc);
+        } else {
+            const doc = createGameConfiguration(gameData);
+            Logger.log("persisted gameData = " + JSON.stringify(doc));
+            gameData.gameId = getGameIdFromDoc(doc);
+        }
+        return gameData;
+    }
+
     function getPathFromDoc(doc) {
         return doc.name.substr(doc.name.indexOf(GAME_CONFIGURATION_TABLE + '/'));
     }
@@ -52,6 +68,9 @@ function getGameConfigurationTableAccessor() {
 
     return {
         getGameConfiguration,
-
+        createGameConfiguration,
+        updateGameConfiguration,
+        deleteGameConfiguration,
+        upsert,
     };
 }

@@ -9,11 +9,13 @@ var geomUtils = (function(my) {
      * The transformation leaves space on the left for the side-panel.
      */
     my.projectPoint = function(pt) {
-        var x = pt[0] / my.MAP_WIDTH;
-        var y = pt[1] / my.MAP_HEIGHT;
-        // var alpha = x * .2 + .6;
-        // y = y * alpha + 0.5 * (1 - alpha);
-        return [x * 97 + 3, y * 100];
+        const xWidth = pt.x / my.MAP_WIDTH;
+        const yHeight = pt.y / my.MAP_HEIGHT;
+        // var alpha = xWidth * .2 + .6;
+        // yHeight = yHeight * alpha + 0.5 * (1 - alpha);
+        const x = xWidth * 97 + 3;
+        const y = yHeight * 100;
+        return { x, y };
     }
 
     // Creates a new polygon with the given fill, stroke, and clipping path.
@@ -21,9 +23,12 @@ var geomUtils = (function(my) {
         stroke = stroke || "stroke:#000;stroke-width:0.25;";
         fill = fill ? "url(#" + fill + ")" : 'transparent';
 
-        var properties = {
+        const properties = {
             i: id,
-            points: points.map(my.projectPoint).join(' '),
+            points: points.map(p => {
+                const pt = my.projectPoint(p);
+                return `${pt.x},${pt.y}`;
+            }).join(' '),
             s: 'fill:' + fill + ";" + stroke + ';'
         };
 
@@ -39,18 +44,24 @@ var geomUtils = (function(my) {
     my.centerOfWeight = function(points) {
         let xc = 0.0;
         let yc = 0.0;
-        let len = points.length;
-        points.map(function(p) {
-            xc += p[0];
-            yc += p[1];
+        const len = points.length;
+        points.map(p => {
+            xc += p.x;
+            yc += p.y;
         });
-        return [xc / len, yc / len];
+        const x = xc / len;
+        const y = yc / len;
+        return { x, y };
     }
 
-    // Affine transform of a sequence of points: [x*xm+xd,y*ym+yd]
+    // Affine transform of a sequence of points: { x: x * xm + xd, y: y * ym + yd }
     my.transformPoints = function(points, xm, ym, xd, yd) {
-        var c = my.centerOfWeight(points);
-        return points.map(p => [c[0] + (p[0] - c[0]) * xm + xd, c[1] + (p[1] - c[1]) * ym + yd] );
+        const c = my.centerOfWeight(points);
+        return points.map(p => {
+            const x = c.x + (p.x - c.x) * xm + xd;
+            const y = c.y + (p.y - c.y) * ym + yd;
+            return { x, y };
+        });
     }
 
     return my;

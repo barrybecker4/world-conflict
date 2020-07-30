@@ -59,7 +59,7 @@ function testMakeGameData() {
     makeGameData(setup);
 }
 
-function makeGameData(setup) {
+function makeGameData(setup, gameId) {
     CONSTS = CONSTS.initialize();
-    return erisk.makeGameData(setup);
+    return erisk.makeGameData(setup, gameId);
 }

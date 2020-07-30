@@ -70,9 +70,11 @@ var mapGenerator = (function(my) {
     // Perturbs a point to give the region borders a natural feel.
     function perturbPoint(x, y) {
         const pc = getPerturbConst();
-        var angle = (Math.sin(x * x * y * y * 600 + pc * 357)) * 2 * Math.PI;
-        var dist = (Math.sin(x * y * 600 + pc * 211)) / 2;
-        return [x + Math.sin(angle) * dist, y + Math.cos(angle) * dist];
+        const angle = (Math.sin(x * x * y * y * 600 + pc * 357)) * 2 * Math.PI;
+        const dist = (Math.sin(x * y * 600 + pc * 211)) / 2;
+        xPos = x + Math.sin(angle) * dist;
+        yPos = y + Math.cos(angle) * dist;
+        return { x: xPos, y: yPos };
     }
 
     /**

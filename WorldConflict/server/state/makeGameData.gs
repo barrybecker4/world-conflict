@@ -1,10 +1,13 @@
 var erisk = (function(my) {
 
-    var gameId = 0; // this should be a guid or come from last entry in db
-
-    // Create game state, regions, and players based on setup configuration
-    // Update regions and players in the global gameData
-    my.makeGameData = function(setup) {
+    /**
+     * Create game state, regions, and players based on setup configuration
+     * Update regions and players in the global gameData
+     * @param setup the new setup configuration from the user
+     * @param gameId (optional) if present then the setup for this gameId will be updated, else created
+     * @return fully fleshed out gameData that is persisted in firestore
+     */
+    my.makeGameData = function(setup, gameId) {
 
         let players = [];
 
@@ -32,9 +35,11 @@ var erisk = (function(my) {
 
         gameData.regions = regions;
         gameData.players = players;
-        gameData.gameId = gameId++;  // this should be guid from firestore
-        gameState.gameId = gameId;
         gameData.initialGameState = gameState;
+        //Logger.log("Now persisting\n" + JSON.stringify(gameData));
+
+        gameData = gameConfigurationTable.upsert(gameData, gameId);
+
         return gameData;
 
         function distanceScore(regions, allRegions) {

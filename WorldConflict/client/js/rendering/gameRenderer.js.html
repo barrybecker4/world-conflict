@@ -25,7 +25,12 @@ erisk.gameRenderer = (function() {
 
         // create all the layers (5 per region)
         const ocean = makePolygon(
-            [[0,0], [geomUtils.MAP_WIDTH, 0], [geomUtils.MAP_WIDTH, geomUtils.MAP_HEIGHT], [0, geomUtils.MAP_HEIGHT]],
+            [
+                { x: 0, y: 0 },
+                { x: geomUtils.MAP_WIDTH, y: 0 },
+                { x: geomUtils.MAP_WIDTH, y: geomUtils.MAP_HEIGHT },
+                { x: 0, y: geomUtils.MAP_HEIGHT }
+            ],
             'ocean', 'ocean'
         );
         const tops = makeRegionPolys('region', 'land', 1, 1, 0, 0);
@@ -80,7 +85,7 @@ erisk.gameRenderer = (function() {
         function makeTemples() {
             forEachProperty(gameState.temples, function(temple) {
                 const center = gameData.regions[temple.regionIndex].center,
-                    style = 'left:' + (center[0] - 1.5) + '%; top:' + (center[1] - 4) + '%';
+                    style = 'left:' + (center.x - 1.5) + '%; top:' + (center.y - 4) + '%';
 
                 const obj = {c: 'temple-level'};
                 const templeHTML = div({
@@ -134,7 +139,7 @@ erisk.gameRenderer = (function() {
             if (highlighted) {
                 gradientName += '-highlight';
             }
-            let highlightedOpacity = 0.1 + region.center[0] * 0.003;
+            let highlightedOpacity = 0.1 + region.center.x * 0.003;
             if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region.index))
                 highlightedOpacity *= 2;
             region.highlight.style.opacity = highlighted ? highlightedOpacity : 0.0;
@@ -192,7 +197,7 @@ erisk.gameRenderer = (function() {
             }, 500);
 
             width = width || 7;
-            var left = region.center[0] - (width + 1) * 0.5, bottom = 102 - region.center[1];
+            var left = region.center.x - (width + 1) * 0.5, bottom = 102 - region.center.y;
             var styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
 
             append('map', div({c: 'tt ttp', s: styles}, text));
@@ -244,14 +249,14 @@ erisk.gameRenderer = (function() {
             const x = index % 4, y = Math.floor(index / 4);
             const xOffset = (-0.6 * columnWidth + x * 1.2);
             const yOffset = y * rowHeight + (gameState.temples[region.index] ? 1.5 : 0);
-            let xPosition = center[0] + xOffset - yOffset * 0.2;
-            let yPosition = center[1] + xOffset * 0.2 + yOffset;
+            let xPosition = center.x + xOffset - yOffset * 0.2;
+            let yPosition = center.y + xOffset * 0.2 + yOffset;
 
             if (soldier.attackedRegion) {
                 // we're attacking right now - move us closer to target region
                 var targetCenter = soldier.attackedRegion.center;
-                xPosition = (xPosition + targetCenter[0]) / 2;
-                yPosition = (yPosition + targetCenter[1]) / 2;
+                xPosition = (xPosition + targetCenter.x) / 2;
+                yPosition = (yPosition + targetCenter.y) / 2;
             }
             domElement.style.left = xPosition + '%';
             domElement.style.top  = yPosition + '%';
@@ -283,7 +288,7 @@ erisk.gameRenderer = (function() {
                         var tooltipHTML = div({
                             i: tooltipId,
                             c: 'tt soldier-tt',
-                            s: "left:" + (region.center[0] - 1.5) + '%;top:' + (region.center[1] + 1.2) + '%'
+                            s: "left:" + (region.center.x - 1.5) + '%;top:' + (region.center.y + 1.2) + '%'
                         }, '');
                         tooltip = append('map', tooltipHTML);
                     }
@@ -300,8 +305,8 @@ erisk.gameRenderer = (function() {
                 var x, y;
                 if (typeof floater.regionIdx === 'number') {
                     const region = gameData.regions[floater.regionIdx]
-                    x = region.center[0];
-                    y = region.center[1];
+                    x = region.center.x;
+                    y = region.center.y;
                 } else if (floater.soldier) {
                     var node = soldierDivsById[floater.soldier.i];
                     x = parseFloat(node.style.left) + 0.2;
@@ -477,10 +482,10 @@ erisk.gameRenderer = (function() {
             point = projectPoint(point);
             const center = region.center;
             const alpha = rint(30, 150) / 100;
-            const startPoint = [lerp(alpha, center[0], point[0]), lerp(alpha, center[1], point[1])];
-            const vx = (startPoint[0] - center[0]) / 2;
-            const vy = (startPoint[1] - center[1]) / 2 - 0.15;
-            spawnParticle(startPoint[0], startPoint[1], vx, vy, '#fff');
+            const startPoint = { x: lerp(alpha, center.x, point.x), y: lerp(alpha, center.y, point.y) };
+            const vx = (startPoint.x - center.x) / 2;
+            const vy = (startPoint.y - center.y) / 2 - 0.15;
+            spawnParticle(startPoint.x, startPoint.y, vx, vy, '#fff');
         });
     }
 

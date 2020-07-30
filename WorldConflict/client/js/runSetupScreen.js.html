@@ -12,9 +12,9 @@ var erisk = (function(my) {
         // callback for the buttons on the bottom: new map, or start game
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
-            if (whichButton === 0) {
+            if (whichButton === 0) { // change map
                 regenerateGameData();
-            } else {
+            } else {                 // start game
                 prepareInGameUI();
                 erisk.gameRenderer.updateDisplay(gameData.initialGameState);
                 appState.setInGame(true); // playing the game now
@@ -82,7 +82,7 @@ var erisk = (function(my) {
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
              })
             .withFailureHandler(gasClientUtils.showError)
-            .makeGameData(storage.gameSetup);
+            .makeGameData(storage.gameSetup, gameData.gameId);
     }
 
     function updateConfigButtons() {
@@ -137,7 +137,7 @@ var erisk = (function(my) {
                 c: 'player-box inactive',
                 s: 'background: ' + player.colorEnd
             });
-        }).join("");
+        }).join('');
         html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
         html += buttonPanel("AI", "ai", ["Evil", "Mean", "Rude", "Nice"]);
         const labels = CONSTS.TURN_COUNTS.map(ct => (ct == CONSTS.UNLIMITED_TURNS) ? "Endless" : "" + ct).reverse();
@@ -150,7 +150,7 @@ var erisk = (function(my) {
         var buttons = buttonLabels.map(function(label, index) {
             var id = buttonIdPrefix + (buttonLabels.length - 1 - index);
             return domUtils.elem('a', {i: id, c: 'right', href: '#', s: 'font-size: 90%'}, label);
-        }).join("");
+        }).join('');
         var properties = {i: buttonIdPrefix, c: 'side-control description', s: 'padding-right: 0.5em'};
         utils.forEachProperty(additionalProperties, function(value, name) {
             properties[name] = value;
