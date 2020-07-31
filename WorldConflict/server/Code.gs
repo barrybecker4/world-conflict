@@ -43,3 +43,7 @@ function makeGameData(setup, gameId) {
     CONSTS = CONSTS.initialize();
     return erisk.makeGameData(setup, gameId);
 }
+
+function appendGameStates(states) {
+    gameStateTable.appendGameStates(states);
+}

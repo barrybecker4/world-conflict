@@ -44,16 +44,16 @@ function getGameConfigurationTableAccessor() {
 
     function upsert(gameData, gameId) {
         if (gameId) {
-            Logger.log("we have gameId="+ gameId + " so updating");
             const doc = getGameConfiguration(gameId);
-            Logger.log("doc.name = " + doc.name);
+            // Logger.log("doc.name = " + doc.name);
             gameData.gameId = gameId;
             doc.fields = gameData;
             updateGameConfiguration(doc);
         } else {
             const doc = createGameConfiguration(gameData);
-            Logger.log("persisted gameData = " + JSON.stringify(doc));
+            // Logger.log("persisted gameData = " + JSON.stringify(doc));
             gameData.gameId = getGameIdFromDoc(doc);
+            gameData.initialGameState.gameId = gameData.gameId;
         }
         return gameData;
     }

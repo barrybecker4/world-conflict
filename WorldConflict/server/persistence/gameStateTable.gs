@@ -24,19 +24,23 @@ function getGameStateTableAccessor() {
     }
 
     /**
-     * Add games States for a particular gameId.
+     * Add games States - typically for a particular game, but doesn't have to be.
      * A State contains a moveDecision that describes how to transform it to the next state.
      */
-    function appendStatesForGame(gameId, newGameStates) {
+    function appendGameStates(gameStates) {
+        // const gameId = (gameStates && gameStates.length) ? gameStates[0].gameId : -1;
+        Logger.log("about to append. = \n" + gameStates.length);
+
         const appendedStates = [];
-        newGameState.forEach(gameState => {
-            appendedStates.push (firestore.createDocument('/' + GAME_STATE_TABLE, gameState));
+        gameStates.forEach(gameState => {
+            //Logger.log("now appending " + JSON.stringify(gameState));
+            appendedStates.push(firestore.createDocument('/' + GAME_STATE_TABLE, gameState));
         });
         return appendedStates;
     }
 
     return {
         getStatesForGame,
-        appendStatesForGame,
+        appendGameStates,
     };
 }

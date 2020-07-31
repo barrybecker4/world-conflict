@@ -49,11 +49,11 @@ erisk.gameRenderer = (function() {
 
         // hook up region objects to their HTML elements
         gameData.regions.map(function(region, index) {
-            region.element = $('region' + index);
+            region.elementId = 'region' + index;
             region.center = projectPoint(centerOfWeight(region.points));
 
-            region.highlight = $('highlight' + index);
-            onClickOrTap(region.highlight, event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
+            region.highlightId = 'highlight' + index;
+            onClickOrTap($(region.highlightId), event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
         });
 
         // additional callbacks for better UI
@@ -83,18 +83,20 @@ erisk.gameRenderer = (function() {
 
         // makes temple, which are just <div>s with nested <div>s (the towers)
         function makeTemples() {
-            forEachProperty(gameState.temples, function(temple) {
+            forEachProperty(gameState.temples, function(temple, i) {
                 const center = gameData.regions[temple.regionIndex].center,
                     style = 'left:' + (center.x - 1.5) + '%; top:' + (center.y - 4) + '%';
 
                 const obj = {c: 'temple-level'};
+                temple.elementId = 'temple' + i;
                 const templeHTML = div({
+                    i: temple.elementId,
                     c: 'temple',
                     s: style
                 }, div(obj, div(obj, div(obj, div(obj)))));
-                temple.element = append('map', templeHTML);
+                const templeElement = append('map', templeHTML);
 
-                onClickOrTap(temple.element, event =>
+                onClickOrTap(templeElement, event =>
                     uiCallbacks.invokeCallback(gameData.regions[temple.regionIndex], 'templeSelected', event)
                 );
             });
@@ -142,19 +144,21 @@ erisk.gameRenderer = (function() {
             let highlightedOpacity = 0.1 + region.center.x * 0.003;
             if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region.index))
                 highlightedOpacity *= 2;
-            region.highlight.style.opacity = highlighted ? highlightedOpacity : 0.0;
-            region.highlight.style.cursor = highlighted ? 'pointer' : 'default';
+            const highlightEl = $(region.highlightId);
+            highlightEl.style.opacity = highlighted ? highlightedOpacity : 0.0;
+            highlightEl.style.cursor = highlighted ? 'pointer' : 'default';
 
             if (gameState.particleTempleRegion == region) {
                 gameState.particleTempleRegion = undefined; // only once (was 0)
                 spawnCelebratoryParticles(region);
             }
 
-            region.element.style.fill = 'url(#' + gradientName + ')';
+            const regionEl = $(region.elementId);
+            regionEl.style.fill = 'url(#' + gradientName + ')';
         }
 
         function updateTooltips() {
-            [].slice.call(document.querySelectorAll('.ttp')).map(element => $('map').removeChild(element));
+            [].slice.call(document.querySelectorAll('.ttp')).map(el => $('map').removeChild(el));
             if (gameState.activePlayer().personality) return;
 
             // "how to move" tooltips
@@ -204,7 +208,7 @@ erisk.gameRenderer = (function() {
         }
 
         function updateTempleDisplay(temple) {
-            let element = temple.element;
+            let element = $(temple.elementId);
 
             // right color and right number of levels (corresponding to upgrade level)
             let templeLevels = temple.upgrade ? (temple.level + 3) : 2;
@@ -219,11 +223,12 @@ erisk.gameRenderer = (function() {
             // which cursor should we use?
             let templeOwner = gameState.owner(temple.regionIndex);
             let activePlayerIsTempleOwner = templeOwner == gameState.activePlayer();
-            temple.element.style.cursor = appState.isInGame() ?
+            const templeEl = $(temple.elementId);
+            templeEl.style.cursor = appState.isInGame() ?
                 (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
             const selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
-            toggleClass(temple.element, 'selected', selected);
+            toggleClass(templeEl, 'selected', selected);
         }
 
         function updateSoldierDisplay(region, soldier, index) {

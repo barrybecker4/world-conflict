@@ -34,7 +34,7 @@ class UiCallbacks {
      * Delegation through UI callbacks allows us to react differently depending on game-state.
      */
     invokeCallback(object, type, event) {
-        var callback = this[type];
+        const callback = this[type];
         if (callback) {
             audio.playSound(CONSTS.SOUNDS.CLICK);
             callback(object);

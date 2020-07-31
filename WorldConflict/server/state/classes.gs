@@ -1,5 +1,3 @@
-var stateId = 0; // need guid?
-
 
 class Player {
 
@@ -11,7 +9,6 @@ class Player {
         this.colorEnd = obj.colorEnd;
         this.highlightStart = obj.highlightStart;
         this.highlightEnd = obj.highlightEnd;
-        this.personality = null;
     }
 }
 
@@ -30,12 +27,12 @@ class Upgrade {
 
 class Temple {
 
-    // params: regionIndex, upgrade, level, element
+    // params: regionIndex, upgrade, level, elementId
     constructor(obj) {
         this.regionIndex = obj.regionIndex;
         this.upgrade = obj.upgrade;
         this.level = obj.level;
-        this.element = obj.element;
+        this.elementId = obj.elementId;
     }
 }
 
@@ -69,6 +66,7 @@ class AiPersonality {
 class GameState {
 
     // The simulatingPlayer is used during min/max search so we do not show the computer thinking.
+    // Also stored, but not part of consturctor: moveDecision, soundCue
     constructor(obj) {
         this.turnIndex = obj.turnIndex;
         this.playerIndex = obj.playerIndex;
@@ -79,13 +77,11 @@ class GameState {
         this.cash = obj.cash || {}; // Cash is equal to "faith" in the game
         this.simulatingPlayer = obj.simulatingPlayer;
         this.floatingText = obj.floatingText;
-        this.moveDecision = null;
-        this.soundCue = null;
         this.undoDisabled = false;
         this.numBoughtSoldiers = obj.numBoughtSoldiers;
         this.prevPlayerIndex = obj.prevPlayerIndex;
         this.conqueredRegions = obj.conqueredRegions;
-        this.id = obj.stateId || stateId++;
+        this.id = obj.id || 1;
         this.gameId = obj.gameId;
     }
 
@@ -249,7 +245,8 @@ class GameState {
             floatingText: this.floatingText,
             numBoughtSoldiers: this.numBoughtSoldiers,
             conqueredRegions: this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
-            id: this.id,
+            // the id will be monotonically increasing, but not necesarily sequential
+            id: this.id++,
             gameId: this.gameId,
         });
     }
@@ -459,18 +456,18 @@ class EndMove extends Move {
 class Region {
 
     /**
-     * @param index region index
-     * @param points array of points that define the region's border
-     * @param distanceTo (optional) array of distances to other regions
-     * @param neighbors (optional) an array of neighboring regions (by region index)
+     * Also stored, but not part of constructor - center and elementId
+     * @param obj containing
+     *   index - region index
+     *   points - array of points that define the region's border
+     *   distanceTo - (optional) array of distances to other regions
+     *   neighbors (optional) an array of neighboring regions (by region index)
      */
     constructor(obj) {
         this.index = obj.index;
         this.points = obj.points;
         this.distanceTo = obj.distanceTo ? obj.distanceTo : [];
         this.neighbors = obj.neighbors ? obj.neighbors : [];
-        this.center = null;
-        this.element = null;
     }
 
     // regionArray is optional. Needed only if we don't have the map yet.

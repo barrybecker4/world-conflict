@@ -55,7 +55,7 @@ var erisk = (function(my) {
 
         uiCallbacks.setSoldierSelectedCB(function(soldier) {
             // delegate to the region click handler, after finding out which region it is
-            const soldierRegion = null;
+            let soldierRegion = null;
             gameData.regions.map(function(region) {
                 if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier))
                     soldierRegion = region;
