@@ -37,7 +37,7 @@ var audio = (function(my) {
         if (!soundEnabled)
             return;
 
-        var source = audioCtx.createBufferSource();
+        const source = audioCtx.createBufferSource();
         source.buffer = sound;
         source.connect(audioCtx.destination);
         source.start();
@@ -54,43 +54,43 @@ var audio = (function(my) {
     }
 
     function adsr(a, d, s, r, sl, fn) {
-        var t = 0.0;
+        let time = 0.0;
         return function(dt) {
-            var f = fn(dt);
-            t += dt;
+            let f = fn(dt);
+            time += dt;
 
-            if (t < a)
-                return utils.lerp(t / a, 0, 1) * f;
-            if (t < a + d)
-                return utils.lerp((t - a) / d, 1, sl) * f;
-            if (t < a + d + s)
+            if (time < a)
+                return utils.lerp(time / a, 0, 1) * f;
+            if (time < a + d)
+                return utils.lerp((time - a) / d, 1, sl) * f;
+            if (time < a + d + s)
                 return sl * f;
-            return utils.lerp((t - a - s - d) / r, sl, 0) * f;
+            return utils.lerp((time - a - s - d) / r, sl, 0) * f;
         }
     }
 
     function wSin(pitch) {
-        var t = 0.0;
+        let time = 0.0;
         return function(dt) {
-            t += dt;
-            return Math.sin(t * pitch * 6.283);
+            time += dt;
+            return Math.sin(time * pitch * 6.283);
         }
     }
 
     function wSlide(from, to, time, fn) {
-        var t = 0.0;
+        let t = 0.0;
         return function(dt) {
             t += dt;
-            var passedDT = dt * utils.lerp(t / time, from, to);
+            const passedDT = dt * utils.lerp(t / time, from, to);
             return fn(passedDT);
         }
     }
 
     function wRamp(from, to, after, fn) {
-        var t = 0.0;
+        let time = 0.0;
         return function(dt) {
-            t += dt;
-            return fn(t > after ? dt * to : dt * from);
+            time += dt;
+            return fn(time > after ? dt * to : dt * from);
         }
     }
 
@@ -98,12 +98,12 @@ var audio = (function(my) {
         notes.map(function(note) {
             note.f = adsr(0.01, 0.03, 0.03 * note.d, 0.03 * note.d, 0.7, wSin(note.p));
         });
-        var t = 0.0;
+        let time = 0.0;
         return function(dt) {
-            t += dt;
-            var v = 0.0;
+            time += dt;
+            let v = 0.0;
             notes.map(function(note) {
-                if (t >= note.t)
+                if (time >= note.t)
                     v += note.f(dt);
             });
             return v;
@@ -111,16 +111,16 @@ var audio = (function(my) {
     }
 
     function makeBuffer(fn, len, vol) {
-        var vol = vol || 1;
+        const volume = vol || 1;
 
-        var sampleRate = audioCtx.sampleRate;
-        var samples = sampleRate * len;
-        var buffer = audioCtx.createBuffer(1, samples, sampleRate);
+        const sampleRate = audioCtx.sampleRate;
+        const samples = sampleRate * len;
+        const buffer = audioCtx.createBuffer(1, samples, sampleRate);
 
-        var dt = 1 / sampleRate;
-        var bufferData = buffer.getChannelData(0);
-        for (var i = 0; i < samples; i++) {
-            bufferData[i] = fn(dt) * vol;
+        let dt = 1 / sampleRate;
+        const bufferData = buffer.getChannelData(0);
+        for (let i = 0; i < samples; i++) {
+            bufferData[i] = fn(dt) * volume;
         }
 
         return buffer;

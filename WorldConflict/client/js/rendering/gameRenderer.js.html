@@ -2,7 +2,7 @@
 erisk.gameRenderer = (function() {
 
     var my  = {};
-    var soldierDivsById = {};
+    let soldierDivsById = {};
     const { range, rint, sum, lerp, forEachProperty } = utils;
     const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
     const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils;
@@ -106,7 +106,7 @@ erisk.gameRenderer = (function() {
         gameData.regions.map(updateRegionDisplay);
         forEachProperty(gameState.temples, updateTempleDisplay);
 
-        var soldiersStillAlive = [];
+        const soldiersStillAlive = [];
         forEachProperty(gameState.soldiersByRegion, function(soldiers, regionIndex) {
             soldiers.map((soldier, i) => updateSoldierDisplay(gameData.regions[regionIndex], soldier, i));
         });
@@ -197,17 +197,17 @@ erisk.gameRenderer = (function() {
             }, 500);
 
             width = width || 7;
-            var left = region.center.x - (width + 1) * 0.5, bottom = 102 - region.center.y;
-            var styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
+            const left = region.center.x - (width + 1) * 0.5, bottom = 102 - region.center.y;
+            const styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
 
             append('map', div({c: 'tt ttp', s: styles}, text));
         }
 
         function updateTempleDisplay(temple) {
-            var element = temple.element;
+            let element = temple.element;
 
             // right color and right number of levels (corresponding to upgrade level)
-            var templeLevels = temple.upgrade ? (temple.level + 3) : 2;
+            let templeLevels = temple.upgrade ? (temple.level + 3) : 2;
             while (element) {
                 element.style.display = (templeLevels > 0) ? 'block' : 'none';
                 element.style.background = temple.upgrade ? temple.upgrade.bgColor : '#999';
@@ -222,7 +222,7 @@ erisk.gameRenderer = (function() {
             temple.element.style.cursor = appState.isInGame() ?
                 (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
-            var selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
+            const selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
             toggleClass(temple.element, 'selected', selected);
         }
 
@@ -233,7 +233,7 @@ erisk.gameRenderer = (function() {
             // find or create a <div> for showing the soldier
             let domElement = soldierDivsById[soldier.i];
             if (!domElement) {
-                var html = div({c: 'soldier', s: 'display: none'});
+                let html = div({c: 'soldier', s: 'display: none'});
                 domElement = append('map', html);
                 soldierDivsById[soldier.i] = domElement;
                 onClickOrTap(domElement, (event) => uiCallbacks.invokeCallback(soldier, 'soldierSelected', event));
@@ -254,7 +254,7 @@ erisk.gameRenderer = (function() {
 
             if (soldier.attackedRegion) {
                 // we're attacking right now - move us closer to target region
-                var targetCenter = soldier.attackedRegion.center;
+                const targetCenter = soldier.attackedRegion.center;
                 xPosition = (xPosition + targetCenter.x) / 2;
                 yPosition = (yPosition + targetCenter.y) / 2;
             }
@@ -263,21 +263,21 @@ erisk.gameRenderer = (function() {
             domElement.style.zIndex = 20 + y * 5 + x;
             domElement.style.display = 'block';
 
-            var decisionState = gameState.moveDecision || {};
+            const decisionState = gameState.moveDecision || {};
             toggleClass(domElement, 'selected', (decisionState.source == region.index && index < decisionState.count));
         }
 
         function updateSoldierTooltips() {
             gameData.regions.map(function(region, regionIndex) {
-                var tooltipId = 'side-control' + regionIndex;
+                const tooltipId = 'side-control' + regionIndex;
                 // delete previous tooltip, if present
-                var tooltip = $(tooltipId);
+                let tooltip = $(tooltipId);
 
                 // should we have a tooltip?
-                var count = gameState.soldierCount(region);
+                let count = gameState.soldierCount(region);
                 if (count > 8) {
                     const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region.index));
-                    var selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
+                    const selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
                     selected += sequenceUtils.sum(gameState.soldiersAtRegion(regionIndex), function(soldier) {
                         return soldier.attackedRegion ? 1 : 0;
                     });
@@ -285,7 +285,7 @@ erisk.gameRenderer = (function() {
                         count = selected + "<hr>" + count;
 
                     if (!tooltip) {
-                        var tooltipHTML = div({
+                        const tooltipHTML = div({
                             i: tooltipId,
                             c: 'tt soldier-tt',
                             s: "left:" + (region.center.x - 1.5) + '%;top:' + (region.center.y + 1.2) + '%'
@@ -302,13 +302,13 @@ erisk.gameRenderer = (function() {
         function updateFloatingText() {
             let floaters = gameState.floatingText || [];
             floaters.map(function(floater) {
-                var x, y;
+                let x, y;
                 if (typeof floater.regionIdx === 'number') {
                     const region = gameData.regions[floater.regionIdx]
                     x = region.center.x;
                     y = region.center.y;
                 } else if (floater.soldier) {
-                    var node = soldierDivsById[floater.soldier.i];
+                    const node = soldierDivsById[floater.soldier.i];
                     x = parseFloat(node.style.left) + 0.2;
                     y = parseFloat(node.style.top) + 0.2;
                 } else {
@@ -317,8 +317,8 @@ erisk.gameRenderer = (function() {
 
                 x -= floater.width / 2 + 0.5; y -= 4;
 
-                var styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
-                var floatingNode = append('map', div({c: 'tt', s: styles}, floater.text));
+                const styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
+                const floatingNode = append('map', div({c: 'tt', s: styles}, floater.text));
                 setTransform(floatingNode, "translate3d(0,0,0)");
                 floatAway(floatingNode, 0, -3);
             });
@@ -331,19 +331,19 @@ erisk.gameRenderer = (function() {
         (buttons || []).map(function(button, index) {
             if (button.hidden) return;
 
-            var buttonContents = div({}, button.text);
+            let buttonContents = div({}, button.text);
             if (button.description)
                 buttonContents += div({c: 'description'}, button.description);
 
-            var buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : ''}, buttonContents);
-            var buttonNode = append('footer-buttons', buttonHTML);
+            let buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : ''}, buttonContents);
+            const buttonNode = append('footer-buttons', buttonHTML);
             if (!button.disabled) {
                 onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
             }
         });
     }
 
-    var displayedState;
+    let displayedState;
     my.updateDisplay = function(gameState) {
         // just for debugging
         if (gameState) {
@@ -359,17 +359,16 @@ erisk.gameRenderer = (function() {
         }
     }
 
-
     function updateIngameUI(gameState) {
-        var decisionState = gameState.moveDecision;
-        var buildingMode = decisionState && decisionState.isBuildMove();
-        var movingArmy = decisionState && decisionState.isArmyMove();
+        const decisionState = gameState.moveDecision;
+        const buildingMode = decisionState && decisionState.isBuildMove();
+        const movingArmy = decisionState && decisionState.isArmyMove();
 
-        var activePlayer = gameState.activePlayer();
+        const activePlayer = gameState.activePlayer();
 
         // turn counter/building name
         if (buildingMode) {
-            var info = gameState.templeInfo(decisionState.temple);
+            const info = gameState.templeInfo(decisionState.temple);
             $('turn-count').innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
         } else {
             $('turn-count').innerHTML =
@@ -380,8 +379,8 @@ erisk.gameRenderer = (function() {
         // player data
         gameData.players.map(function(player, index) {
             $('player-box' + index).className = (index == gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
-            var hasRegions = gameState.regionCount(player);
-            var gameWinner = gameState.endResult;
+            const hasRegions = gameState.regionCount(player);
+            const gameWinner = gameState.endResult;
 
             if (hasRegions) {
                 $('region-count' + index).innerHTML = gameState.regionCount(player) + '&#9733;';
@@ -491,8 +490,8 @@ erisk.gameRenderer = (function() {
 
     function spawnParticle(x, y, vx, vy, color) {
         // box-shadow:  x-offset, y-offset, blur radius, spread radius, color
-        var styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 4px 4px " + color;
-        var particle = append('map', div({c: 'particle', s: styleString}, ''));
+        const styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 4px 4px " + color;
+        const particle = append('map', div({c: 'particle', s: styleString}, ''));
         floatAway(particle, vx, vy);
     }
 
@@ -519,7 +518,7 @@ erisk.gameRenderer = (function() {
                 h = w / aspect;
             }
 
-            var styles = $('container').style;
+            const styles = $('container').style;
             styles.width = w + px;
             styles.height = h + px;
             styles.fontSize = 0.025 * h + px;

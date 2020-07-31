@@ -2,7 +2,7 @@
 var erisk = (function(my) {
 
     // Helps organize game flow so things are displayed in order taking animation into account.
-    var oaatQueue = [];
+    const oaatQueue = [];
 
     // Used to ensure that all animations from previous moves complete before a new one is played
     my.oneAtaTime = function(duration, fn) {
@@ -12,7 +12,7 @@ var erisk = (function(my) {
 
         function runOneTask() {
             // start the first scheduled task
-            var task = oaatQueue[0];
+            const task = oaatQueue[0];
             task.fn();
             // and wait for it to expire
             setTimeout(function() {
