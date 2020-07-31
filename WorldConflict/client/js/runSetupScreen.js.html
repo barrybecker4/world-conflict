@@ -81,7 +81,7 @@ var erisk = (function(my) {
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
              })
-            .withFailureHandler(gasClientUtils.showError)
+            .withFailureHandler(showError)
             .makeGameData(storage.gameSetup, gameData.gameId);
     }
 

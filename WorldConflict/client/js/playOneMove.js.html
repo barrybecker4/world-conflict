@@ -17,11 +17,13 @@ var erisk = (function(my) {
                     // firestore.appendStatesForGame(gameData.gameId, humanStates); TODO
                 }
                 if (player.personality) {
-                    // request that the computer make the AI moves (asynchronously, and also store them in firestore) but do not actually show them.
+                    // request that the computer make the AI moves (asynchronously, and also store them in firestore),
+                    // but do not actually show them.
                     erisk.aiPickMove(player, state, function(move) {
                         state.modeDecision = move; // here?
                         audio.playSound(CONSTS.SOUNDS.CLICK); // this will happen on playback
-                        const newState = erisk.makeMove(state, move); // plays a transition forward. A transition consists of a move and a state.
+                        // plays a transition forward. A transition consists of a move and a state.
+                        const newState = erisk.makeMove(state, move);
                         if (newState.endResult) { // did the game end?
                             showEndGame(newState); // this will happen on playback
                             return;
@@ -47,7 +49,7 @@ var erisk = (function(my) {
                     }
                 });
             } else {
-                // wait 1 second, then request from the server, whatever moves were made from the last state that we saw.
+                // wait 1 second, then request from server whatever moves were made from the last state that we saw.
                 // In the resultHandler, play back those moves visually (by calling oneAtATime).
                 // This continues until the state indicates that the player is human again.
             }

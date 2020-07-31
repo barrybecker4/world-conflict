@@ -39,26 +39,6 @@ function getUserId() {
   return email.substring(0, email.indexOf("@"));
 }
 
-// for testing only. Can be removed.
-function testMakeGameData() {
-    const setup = {
-      players: [0,2,0,2],
-      aiLevel: 1,
-      sound: true,
-      turnCount: 9,
-      firstTimeInstructions: {
-        "Click this region again to change the number of soldiers.": 1,
-        "Click a bordering region to move.": 1,
-        "Armies that conquer a new region cannot move again.": 1,
-        "Once you're done, click 'End turn' here.": 1,
-        "If you want to undo a move or check the rules, use the buttons here.": 1
-      },
-      mapWidth: 30,
-      mapHeight: 20.
-    };
-    makeGameData(setup);
-}
-
 function makeGameData(setup, gameId) {
     CONSTS = CONSTS.initialize();
     return erisk.makeGameData(setup, gameId);
