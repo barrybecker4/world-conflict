@@ -5,6 +5,8 @@ var erisk = (function(my) {
 
     // Deals with responding to user actions - whether human or AI.
     my.playOneMove = function(state) {
+        if (!appState.isInGame())
+            return; // game terminated
 
         erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
 

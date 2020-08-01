@@ -16,8 +16,8 @@ var heuristics = (function(my) {
             return value;
         }
 
-        const regionTotal = sequenceUtils.sum(gameData.regions, function (region) {
-            return (state.isOwnedBy(region, player) ? adjustedRegionValue(region) : 0;
+        const regionTotal = sequenceUtils.sum(gameData.regions, region => {
+            return state.isOwnedBy(region, player) ? adjustedRegionValue(region) : 0;
         });
         // each point of faith counts as 1/12th of a soldier
         var faithTotal = state.income(player, gameData.aiLevel) * soldierBonus / 12;

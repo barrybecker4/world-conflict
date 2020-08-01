@@ -209,7 +209,7 @@ var erisk = (function(my) {
     // temples produce one soldier per turn automatically
     function generateSoldersAtTemples(state, player) {
         utils.forEachProperty(state.temples, function(temple) {
-            if (state.isOwnedBy(temple.regionIndex, player) {
+            if (state.isOwnedBy(temple.regionIndex, player)) {
                 // this is our temple, add a soldier to the temple's element
                 state.addSoldiers(temple.regionIndex, 1);
             }

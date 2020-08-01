@@ -356,7 +356,7 @@ erisk.gameRenderer = (function() {
         }
 
         my.updateMapDisplay(displayedState);
-        updateIngameUI(displayedState);
+        updateInGameUI(displayedState);
 
         if (displayedState.soundCue) {
             audio.playSound(displayedState.soundCue);
@@ -364,7 +364,7 @@ erisk.gameRenderer = (function() {
         }
     }
 
-    function updateIngameUI(gameState) {
+    function updateInGameUI(gameState) {
         const decisionState = gameState.moveDecision;
         const buildingMode = decisionState && decisionState.isBuildMove();
         const movingArmy = decisionState && decisionState.isArmyMove();
@@ -372,11 +372,12 @@ erisk.gameRenderer = (function() {
         const activePlayer = gameState.activePlayer();
 
         // turn counter/building name
+        const turnCountEl = $('turn-count');
         if (buildingMode) {
             const info = gameState.templeInfo(decisionState.temple);
-            $('turn-count').innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
+            turnCountEl.innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
         } else {
-            $('turn-count').innerHTML =
+            turnCountEl.innerHTML =
                 'Turn <b>' + gameState.turnIndex + '</b>' +
                 ((storage.gameSetup.turnCount != CONSTS.UNLIMITED_TURNS) ? ' / ' + storage.gameSetup.turnCount : '');
         }
@@ -386,17 +387,20 @@ erisk.gameRenderer = (function() {
             $('player-box' + index).className = (index == gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
             const hasRegions = gameState.regionCount(player);
             const gameWinner = gameState.endResult;
+            const regionCountEl = $('region-count' + index);
+            const playerCashEl = $('player-cash' + index);
 
             if (hasRegions) {
-                $('region-count' + index).innerHTML = gameState.regionCount(player) + '&#9733;';
+                regionCountEl.innerHTML = gameState.regionCount(player) + '&#9733;';
                 if (gameWinner) {
-                    $('player-cash' + index).innerHTML = (gameWinner == player) ? '&#9819;' : '';
+                    playerCashEl.innerHTML = (gameWinner == player) ? '&#9819;' : '';
                 } else {
-                    $('player-cash' + index).innerHTML = gameState.cash[player.index] + '&#9775;'; // faith
+                    playerCashEl.innerHTML = gameState.cash[player.index] + '&#9775;'; // faith
                 }
-            } else {
-                $('region-count' + index).innerHTML = '&#9760;'; // skull and crossbones, you're dead
-                $('player-cash' + index).innerHTML = '';
+            }
+            else {
+                regionCountEl.innerHTML = '&#9760;'; // skull and crossbones, you're dead
+                playerCashEl.innerHTML = '';
             }
         });
 
@@ -419,8 +423,9 @@ erisk.gameRenderer = (function() {
         } else {
             moveInfo = elem('p', {}, activePlayer.name + ' is taking her turn.');
         }
-        $('info').innerHTML = moveInfo;
-        $('info').style.background = activePlayer.colorEnd;
+        const infoEl = $('info');
+        infoEl.innerHTML = moveInfo;
+        infoEl.style.background = activePlayer.colorEnd;
 
         // activePlayer stats
         $('pd').style.display =  buildingMode ? 'none' : 'block';

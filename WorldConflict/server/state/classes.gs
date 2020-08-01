@@ -122,7 +122,7 @@ class GameState {
     regionHasActiveArmy(player, region) {
         let regionIdx = (typeof region == 'number') ? region : region.index;
         return (this.movesRemaining > 0) &&
-            (this.isOwnedBy(regionIdx, player) && this.soldierCount(regionIdx) &&
+            this.isOwnedBy(regionIdx, player) && this.soldierCount(regionIdx) &&
             !sequenceUtils.contains(this.conqueredRegions, regionIdx);
     }
 
@@ -198,7 +198,7 @@ class GameState {
 
     totalSoldiers(player) {
         return sequenceUtils.sum(gameData.regions, region => {
-            return (this.isOwnedBy(region, player) ? this.soldierCount(region.index) : 0;
+            return this.isOwnedBy(region, player) ? this.soldierCount(region.index) : 0;
         });
     }
 
@@ -498,6 +498,7 @@ class Region {
         this.points = obj.points;
         this.distanceTo = obj.distanceTo ? obj.distanceTo : [];
         this.neighbors = obj.neighbors ? obj.neighbors : [];
+        this.center = obj.center;
     }
 
     // regionArray is optional. Needed only if we don't have the map yet.
