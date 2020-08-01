@@ -17,7 +17,7 @@ var heuristics = (function(my) {
         }
 
         const regionTotal = sequenceUtils.sum(gameData.regions, function (region) {
-            return (state.owner(region) && state.owner(region).index == player.index) ? adjustedRegionValue(region) : 0;
+            return (state.isOwnedBy(region, player) ? adjustedRegionValue(region) : 0;
         });
         // each point of faith counts as 1/12th of a soldier
         var faithTotal = state.income(player, gameData.aiLevel) * soldierBonus / 12;
@@ -52,7 +52,7 @@ var heuristics = (function(my) {
         let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighborIdx) {
             // is this an enemy region?
             var nbrOwner = state.owner(neighborIdx);
-            if ((nbrOwner && nbrOwner.index == player.index) || !nbrOwner) return 0;
+            if (!nbrOwner || state.isOwnedBy(neighborIdx, player)) return 0;
 
             // count soldiers that can reach us in 3 moves from this direction using a breadth-first search.
             // 'rude' AI only looks at direct neighbors, harder AIs look at all soldiers that can reach us.
@@ -69,8 +69,8 @@ var heuristics = (function(my) {
                     // go deeper with the search
                     let unvisitedNeighbors =
                         entry.region.neighbors.filter(function(candidateIdx) {
-                            return (!sequenceUtils.contains(visited, gameData.regions[candidateIdx])) &&
-                                (state.owner(candidateIdx) && state.owner(candidateIdx).index == nbrOwner.index);
+                            return !sequenceUtils.contains(visited, gameData.regions[candidateIdx]) &&
+                                state.isOwnedBy(candidateIdx, nbrOwner);
                         });
                     unvisitedNeighbors.map(i => queue.push({region: gameData.regions[i], depth: entry.depth - 1}));
                 }
@@ -94,7 +94,7 @@ var heuristics = (function(my) {
 
         let region = gameData.regions[regionIndex];
         return sequenceUtils.sum(region.neighbors, function(neighborIdx) {
-            if (state.owner(neighborIdx) && state.owner(neighborIdx).index != player.index) {
+            if (state.isOwnedBy(neighborIdx, player)) {
                 var defendingSoldiers = state.soldierCount(neighborIdx);
                 const opp = (attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5;
                 return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighborIdx);

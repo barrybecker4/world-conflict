@@ -100,7 +100,7 @@ var erisk = (function(my) {
         function addArmyMove(source, dest, soldierCount) {
 
             // suicide moves, for example, are dumb.
-            if ((state.owner(dest) && state.owner(dest).index != player.index) && (state.soldierCount(dest) > soldierCount))
+            if (!state.isOwnedBy(dest, player) && state.soldierCount(dest) > soldierCount)
                 return;
 
             // not *obviously* dumb, so add it to the list!

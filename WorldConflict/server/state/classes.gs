@@ -122,15 +122,14 @@ class GameState {
     regionHasActiveArmy(player, region) {
         let regionIdx = (typeof region == 'number') ? region : region.index;
         return (this.movesRemaining > 0) &&
-            (this.owner(regionIdx) && this.owner(regionIdx).index == player.index) && this.soldierCount(regionIdx) &&
+            (this.isOwnedBy(regionIdx, player) && this.soldierCount(regionIdx) &&
             !sequenceUtils.contains(this.conqueredRegions, regionIdx);
     }
 
     regionCount(player) {
         var total = 0;
         gameData.regions.map(region => {
-            const regionOwner = this.owner(region.index);
-            if (regionOwner && regionOwner.index == player.index)
+            if (this.isOwnedBy(region, player))
                 total++;
         });
         return total;
@@ -138,9 +137,9 @@ class GameState {
 
     templesForPlayer(player) {
         var playerTemples = [];
+        if (!player) alert("no player specified "  + player);
         utils.forEachProperty(this.temples, temple => {
-            const templeOwner = this.owner(temple.regionIndex);
-            if (templeOwner && templeOwner.index == player.index)
+            if (this.isOwnedBy(temple.regionIndex, player))
                 playerTemples.push(temple);
         });
         return playerTemples;
@@ -155,8 +154,13 @@ class GameState {
     }
 
     owner(region) {
-        let idx = (typeof region == 'number') ? region : region.index;
+        const idx = (typeof region == 'number') ? region : region.index;
         return gameData.players[this.owners[idx]];
+    }
+
+    isOwnedBy(region, player) {
+        const owner = this.owner(region);
+        return owner && owner.index == player.index;
     }
 
     cashForPlayer(player) {
@@ -185,7 +189,7 @@ class GameState {
             if (!temple)
                 return 0;
             // does it belong to us?
-            if (self.owner(region) && self.owner(region).index != player.index)
+            if (self.isOwnedBy(region, player))
                 return 0;
             // does it have the right type of upgrade?
             return (temple.upgrade && temple.upgrade.name == upgradeType.name) ? upgradeType.level[temple.level] : 0;
@@ -194,8 +198,7 @@ class GameState {
 
     totalSoldiers(player) {
         return sequenceUtils.sum(gameData.regions, region => {
-            const owner = this.owner(region.index);
-            return (owner && owner.index == player.index) ? this.soldierCount(region.index) : 0;
+            return (this.isOwnedBy(region, player) ? this.soldierCount(region.index) : 0;
         });
     }
 

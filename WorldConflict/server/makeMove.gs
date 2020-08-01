@@ -209,7 +209,7 @@ var erisk = (function(my) {
     // temples produce one soldier per turn automatically
     function generateSoldersAtTemples(state, player) {
         utils.forEachProperty(state.temples, function(temple) {
-            if (state.owner(temple.regionIndex) && state.owner(temple.regionIndex).index == player.index) {
+            if (state.isOwnedBy(temple.regionIndex, player) {
                 // this is our temple, add a soldier to the temple's element
                 state.addSoldiers(temple.regionIndex, 1);
             }
@@ -256,7 +256,7 @@ var erisk = (function(my) {
     function updatePlayerRegions(state) {
         gameData.players.map(function(player) {
             var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
-                return state.owner(region) && state.owner(region).index == player.index ? state.soldierCount(region) : 0;
+                return state.isOwnedBy(region, player) ? state.soldierCount(region) : 0;
             });
             if (!totalSoldiers && state.regionCount(player)) {
                 // lost!
