@@ -77,12 +77,12 @@ var erisk = (function(my) {
 
         // build the upgrade!
         player.personality.preferredUpgrades.shift();
-        return new BuildMove({ upgrade: desiredUpgrade, temple });
+        return new BuildMove({ upgrade: desiredUpgrade, regionIndex: temple.regionIndex });
     }
 
     function buildSoldierAtBestTemple(player, state) {
         var temple = sequenceUtils.max(state.templesForPlayer(player), t => heuristics.templeDangerousness(state, t));
-        return new BuildMove({ upgrade: CONSTS.UPGRADES.SOLDIER, temple });
+        return new BuildMove({ upgrade: CONSTS.UPGRADES.SOLDIER, regionIndex: temple.regionIndex });
     }
 
     return my;

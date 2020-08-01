@@ -227,7 +227,7 @@ erisk.gameRenderer = (function() {
             templeEl.style.cursor = appState.isInGame() ?
                 (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
-            const selected = gameState.moveDecision && gameState.moveDecision.temple == temple;
+            const selected = gameState.moveDecision && gameState.moveDecision.regionIndex == temple.regionIndex;
             toggleClass(templeEl, 'selected', selected);
         }
 
@@ -374,7 +374,7 @@ erisk.gameRenderer = (function() {
         // turn counter/building name
         const turnCountEl = $('turn-count');
         if (buildingMode) {
-            const info = gameState.templeInfo(decisionState.temple);
+            const info = gameState.templeInfo(gameState.templeForRegion(decisionState.regionIndex));
             turnCountEl.innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
         } else {
             turnCountEl.innerHTML =

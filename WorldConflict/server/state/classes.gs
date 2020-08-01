@@ -145,6 +145,11 @@ class GameState {
         return playerTemples;
     }
 
+    templeForRegion(region) {
+        const regionIdx = (typeof region == 'number') ? region : region.index;
+        return this.temples[regionIdx];
+    }
+
     activePlayer() {
         return gameData.players[this.playerIndex];
     }
@@ -275,9 +280,6 @@ class Move {
             case 'build-move':
                 if (obj.upgrade) {
                     obj.upgrade = new Upgrade(obj.upgrade);
-                }
-                if (obj.temple) {
-                    obj.temple = new Temple(obj.temple);
                 }
                 return new BuildMove(obj);
             case 'end-move': return new EndMove(obj);
@@ -461,8 +463,7 @@ class BuildMove extends Move {
     constructor(obj) {
         super();
         this.upgrade = obj.upgrade;
-        this.temple = obj.temple;
-        this.regionIndex = obj.temple.regionIndex;
+        this.regionIndex = obj.regionIndex;
         this.buttons = obj.buttons;
         this.type = 'build-move';
     }

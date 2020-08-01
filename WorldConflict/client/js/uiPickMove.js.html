@@ -49,7 +49,10 @@ var erisk = (function(my) {
 
         uiCallbacks.setTempleSelectedCB(function(region) {
             const temple = state.temples[region.index];
-            state.moveDecision = new BuildMove({ temple, buttons: makeUpgradeButtons(temple) });
+            state.moveDecision = new BuildMove({
+                buttons: makeUpgradeButtons(temple),
+                regionIndex: temple.regionIndex
+            });
             erisk.gameRenderer.updateDisplay(state);
         });
 
