@@ -36,6 +36,8 @@ var erisk = (function(my) {
         gameData.regions = regions;
         gameData.players = players;
         gameData.initialGameState = gameState;
+        gameData.aiLevel = setup.aiLevel;
+        gameData.turnCount = setup.turnCount;
         //Logger.log("Now persisting\n" + JSON.stringify(gameData));
 
         gameData = gameConfigurationTable.upsert(gameData, gameId);

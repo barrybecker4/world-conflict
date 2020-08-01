@@ -14,34 +14,34 @@ var erisk = (function(my) {
             //  later this will look for the transition from the player on this client and everyone else.
             if (!state.prevPlayer() || player.personality != state.prevPlayer().personality) {
                 if (humanStates.length) {
-                    //console.log("append:\n" + JSON.stringify(humanStates));
                     google.script.run
                         .withFailureHandler(showError)
                         .appendGameStates(humanStates);
                 }
                 if (player.personality) {
-
-                    // request that the computer make the AI moves
-                    // (asynchronously, and also store them in firestore),
-                    // but do not actually show them.
-                    erisk.aiPickMove(player, state, function(move) {
-                        audio.playSound(CONSTS.SOUNDS.CLICK); // this will happen on playback
-                        // plays a transition forward. A transition consists of a move and a state.
-                        const newState = erisk.makeMove(state, move);
-                        if (newState.endResult) { // did the game end?
-                            showEndGame(newState); // this will happen on playback
-                            return;
-                        }
-                        else setTimeout(() => my.playOneMove(newState), 1); // recursive call
-                    });
-
+                    // request that the computer make the AI move (and store it in firestore),
+                    // then show it when it returns
+                    google.script.run
+                        .withSuccessHandler(theMove => {
+                            const move = Move.reconstitute(theMove);
+                            console.log("aiMove found on server: " + JSON.stringify(move));
+                            audio.playSound(CONSTS.SOUNDS.CLICK); // this will happen on playback
+                            const newState = erisk.makeMove(state, move);
+                            if (newState.endResult) { // did the game end?
+                                showEndGame(newState); // this will happen on playback
+                                return;
+                            }
+                            else setTimeout(() => my.playOneMove(newState), 1); // recursive call
+                        })
+                        .withFailureHandler(showError)
+                        .makeAiMove(player, state, gameData.getSimpleObject());
                 }
                 humanStates = [];
             }
 
             if (!player.personality) {
                 erisk.uiPickMove(player, state, function(move) {
-                    state.moveDecision = move; // here?
+                    // state.moveDecision = move; // here?
                     const newState = erisk.makeMove(state, move);
                     humanStates.push(state);
 
@@ -53,10 +53,6 @@ var erisk = (function(my) {
                         setTimeout(() => my.playOneMove(newState), 1); // recursive call
                     }
                 });
-            } else {
-                // wait 1 second, then request from server whatever moves were made from the last state that we saw.
-                // In the resultHandler, play back those moves visually (by calling oneAtATime).
-                // This continues until the state indicates that the player is human again.
             }
 
             erisk.gameRenderer.updateDisplay(state);

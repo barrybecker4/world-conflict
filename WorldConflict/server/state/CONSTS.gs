@@ -24,27 +24,27 @@ var CONSTS = (function(my) {
                 desc: 'Income: X% more each turn.',
                 cost: [15, 25],
                 level: [20, 40],
-                backgroundColor: '#66f'
+                bgColor: '#66f'
             }),
             new Upgrade({
                 name: 'X of Fire',
                 desc: 'Attack: X invincible soldier(s).',
                 cost: [20, 30],
-                level: [1, 2], backgroundColor: '#f88'
+                level: [1, 2], bgColor: '#f88'
             }),
             new Upgrade({
                 name: 'X of Air',
                 desc: 'Move: X extra move(s) per turn.',
                 cost: [25, 35],
                 level: [1, 2],
-                backgroundColor: '#ffa'
+                bgColor: '#ffa'
             }),
             new Upgrade({
                 name: 'X of Earth',
                 desc: 'Defense: Always kill X invader(s).',
                 cost: [30, 45],
                 level: [1, 2],
-                backgroundColor: '#696'
+                bgColor: '#696'
             }),
             new Upgrade({
                 name: 'Rebuild temple',
@@ -125,7 +125,7 @@ var CONSTS = (function(my) {
             UNLIMITED_TURNS,
             TURN_COUNTS: [9, 12, 15, UNLIMITED_TURNS],
 
-            // == Special "player" for signifying a draw game
+            // === Special "player" for signifying a draw game
             DRAWN_GAME: {},
 
             // pause before move in milliseconds

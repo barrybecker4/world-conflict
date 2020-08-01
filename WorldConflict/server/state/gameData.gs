@@ -8,19 +8,23 @@ var gameData = (function (my) {
     my.initializeFrom = function(obj) {
         my.regions = obj.regions.map(r => new Region(r));
         my.players = obj.players;
-        my.players.forEach(player => {
-            if (player.personality) {
-                player.personality = new AiPersonality(player.personality);
-            }
-        });
+        my.players = my.players.map(p => new Player(p));
         my.gameId = obj.gameId;
         my.initialGameState = new GameState(obj.initialGameState);
+        my.aiLevel = obj.aiLevel;
+        my.turnCount = obj.turnCount;
     }
 
-    my.gameId = undefined;
-    my.players = undefined;
-    my.regions = undefined;
-    my.initialGameState = undefined;
+    // GAS does not allow transferring properties that have function type
+    my.getSimpleObject = function() {
+        return {
+            players: my.players,
+            regions: my.regions,
+            initialGameState: my.initialGameState,
+            aiLevel: my.aiLevel,
+            turnCount: my.turnCount,
+        }
+    }
 
     return my;
 } (gameData || {}));

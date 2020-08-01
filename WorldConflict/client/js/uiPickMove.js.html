@@ -125,7 +125,7 @@ var erisk = (function(my) {
                     || inconsistentUpgrade
                     || level >= upgrade.cost.length // highest level reached
                     || level < state.rawUpgradeLevel(templeOwner, upgrade) // another temple has this upgrade already
-                    || templeOwner != player; // we're looking at an opponent's temple
+                    || templeOwner.index != player.index; // we're looking at an opponent's temple
 
                 return {text, description, disabled: cost > state.cashForPlayer(player), hidden};
             });

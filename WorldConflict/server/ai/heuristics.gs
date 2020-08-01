@@ -1,4 +1,3 @@
-<script>
 var heuristics = (function(my) {
 
     my.heuristicForPlayer = function(player, state) {
@@ -18,10 +17,10 @@ var heuristics = (function(my) {
         }
 
         const regionTotal = sequenceUtils.sum(gameData.regions, function (region) {
-            return (state.owner(region) == player) ? adjustedRegionValue(region) : 0;
+            return (state.owner(region) && state.owner(region).index == player.index) ? adjustedRegionValue(region) : 0;
         });
         // each point of faith counts as 1/12th of a soldier
-        var faithTotal = state.income(player, storage.gameSetup.aiLevel) * soldierBonus / 12;
+        var faithTotal = state.income(player, gameData.aiLevel) * soldierBonus / 12;
         return regionTotal + faithTotal;
     }
 
@@ -44,16 +43,16 @@ var heuristics = (function(my) {
     }
 
     function regionThreat(state, player, regionIndex) {
-        const aiLevel = storage.gameSetup.aiLevel;
-        if (storage.gameSetup.aiLevel === CONSTS.AI_NICE)
+        const aiLevel = gameData.aiLevel;
+        if (gameData.aiLevel === CONSTS.AI_NICE)
             return 0; // 'nice' AI doesn't consider threat
 
         let ourPresence = state.soldierCount(regionIndex);
         let region = gameData.regions[regionIndex];
         let enemyPresence = sequenceUtils.max(region.neighbors.map(function(neighborIdx) {
             // is this an enemy region?
-            var nOwner = state.owner(neighborIdx);
-            if ((nOwner == player) || !nOwner) return 0;
+            var nbrOwner = state.owner(neighborIdx);
+            if ((nbrOwner && nbrOwner.index == player.index) || !nbrOwner) return 0;
 
             // count soldiers that can reach us in 3 moves from this direction using a breadth-first search.
             // 'rude' AI only looks at direct neighbors, harder AIs look at all soldiers that can reach us.
@@ -71,7 +70,7 @@ var heuristics = (function(my) {
                     let unvisitedNeighbors =
                         entry.region.neighbors.filter(function(candidateIdx) {
                             return (!sequenceUtils.contains(visited, gameData.regions[candidateIdx])) &&
-                                (state.owner(candidateIdx) == nOwner);
+                                (state.owner(candidateIdx) && state.owner(candidateIdx).index == nbrOwner.index);
                         });
                     unvisitedNeighbors.map(i => queue.push({region: gameData.regions[i], depth: entry.depth - 1}));
                 }
@@ -86,7 +85,7 @@ var heuristics = (function(my) {
 
     function regionOpportunity(state, player, regionIndex) {
         // the 'nice' AI doesn't see opportunities
-        if (storage.gameSetup.aiLevel === CONSTS.AI_NICE) return 0;
+        if (gameData.aiLevel === CONSTS.AI_NICE) return 0;
 
         // how much conquest does this region enable?
         var attackingSoldiers = state.soldierCount(regionIndex);
@@ -95,7 +94,7 @@ var heuristics = (function(my) {
 
         let region = gameData.regions[regionIndex];
         return sequenceUtils.sum(region.neighbors, function(neighborIdx) {
-            if (state.owner(neighborIdx) != player) {
+            if (state.owner(neighborIdx) && state.owner(neighborIdx).index != player.index) {
                 var defendingSoldiers = state.soldierCount(neighborIdx);
                 const opp = (attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5;
                 return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighborIdx);
@@ -106,8 +105,8 @@ var heuristics = (function(my) {
     }
 
     function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
-        var dropOffTurn = dropOffPoint * storage.gameSetup.turnCount;
-        var alpha = (state.turnIndex - dropOffTurn) / (storage.gameSetup.turnCount - dropOffTurn);
+        var dropOffTurn = dropOffPoint * gameData.turnCount;
+        var alpha = (state.turnIndex - dropOffTurn) / (gameData.turnCount - dropOffTurn);
         if (alpha < 0.0)
             alpha = 0.0;
         return startOfGameValue + (endOfGameValue - startOfGameValue) * alpha;
@@ -115,4 +114,3 @@ var heuristics = (function(my) {
 
     return my;
 }(heuristics || {}));
-</script>

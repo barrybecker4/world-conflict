@@ -222,7 +222,7 @@ erisk.gameRenderer = (function() {
 
             // which cursor should we use?
             let templeOwner = gameState.owner(temple.regionIndex);
-            let activePlayerIsTempleOwner = templeOwner == gameState.activePlayer();
+            let activePlayerIsTempleOwner = templeOwner && templeOwner.index == gameState.activePlayer().index;
             const templeEl = $(temple.elementId);
             templeEl.style.cursor = appState.isInGame() ?
                 (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
@@ -282,7 +282,7 @@ erisk.gameRenderer = (function() {
                 let count = gameState.soldierCount(region);
                 if (count > 8) {
                     const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region.index));
-                    const selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
+                    let selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
                     selected += sequenceUtils.sum(gameState.soldiersAtRegion(regionIndex), function(soldier) {
                         return soldier.attackedRegion ? 1 : 0;
                     });
@@ -403,7 +403,7 @@ erisk.gameRenderer = (function() {
         let moveInfo;
         if (!activePlayer.personality) {
             if (buildingMode) {
-                if (gameState.owner(decisionState.regionIndex) == activePlayer)
+                if (gameState.owner(decisionState.regionIndex).index == activePlayer.index)
                     moveInfo = elem('p', {}, 'Choose an upgrade to build.');
                 else
                     moveInfo = '';

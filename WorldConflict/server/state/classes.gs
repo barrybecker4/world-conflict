@@ -1,7 +1,5 @@
 
 class Player {
-
-    // params: index, name, colorStart, colorEnd, highlightStart, highlightEnd
     constructor(obj) {
         this.index = obj.index;
         this.name = obj.name;
@@ -9,25 +7,22 @@ class Player {
         this.colorEnd = obj.colorEnd;
         this.highlightStart = obj.highlightStart;
         this.highlightEnd = obj.highlightEnd;
+        this.personality = obj.personality ? new AiPersonality(obj.personality) : null;
     }
 }
 
 class Upgrade {
-
-    // params: name, desc, cost, level, backgroundColor
     constructor(obj) {
         this.name = obj.name;
         this.desc = obj.desc;
         this.cost = obj.cost;
         this.level = obj.level;
-        this.bgColor = obj.backgroundColor;
+        this.bgColor = obj.bgColor;
     }
 }
 
 
 class Temple {
-
-    // params: regionIndex, upgrade, level, elementId
     constructor(obj) {
         this.regionIndex = obj.regionIndex;
         this.upgrade = obj.upgrade;
@@ -119,7 +114,7 @@ class GameState {
             return self.soldierCount(temple.regionIndex);
         });
         var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, CONSTS.UPGRADES.WATER);
-        if (player.personality && (aiLevel == CONSTS.AI_EVIL))
+        if (player.personality && (aiLevel === CONSTS.AI_EVIL))
             multiplier += 0.4; // cheating - cause its evil...
         return Math.ceil(multiplier * (fromRegions + fromTemples));
     }
@@ -127,15 +122,15 @@ class GameState {
     regionHasActiveArmy(player, region) {
         let regionIdx = (typeof region == 'number') ? region : region.index;
         return (this.movesRemaining > 0) &&
-            (this.owner(regionIdx) == player) && this.soldierCount(regionIdx) &&
+            (this.owner(regionIdx) && this.owner(regionIdx).index == player.index) && this.soldierCount(regionIdx) &&
             !sequenceUtils.contains(this.conqueredRegions, regionIdx);
     }
 
     regionCount(player) {
         var total = 0;
-        const self = this;
         gameData.regions.map(region => {
-            if (self.owner(region) == player)
+            const regionOwner = this.owner(region.index);
+            if (regionOwner && regionOwner.index == player.index)
                 total++;
         });
         return total;
@@ -143,9 +138,9 @@ class GameState {
 
     templesForPlayer(player) {
         var playerTemples = [];
-        let self = this;
-        utils.forEachProperty(this.temples, function(temple) {
-            if (self.owner(temple.regionIndex) == player)
+        utils.forEachProperty(this.temples, temple => {
+            const templeOwner = this.owner(temple.regionIndex);
+            if (templeOwner && templeOwner.index == player.index)
                 playerTemples.push(temple);
         });
         return playerTemples;
@@ -187,18 +182,20 @@ class GameState {
         return sequenceUtils.max(gameData.regions.map(function(region) {
             // does it have a temple?
             var temple = self.temples[region.index];
-            if (!temple) return 0;
+            if (!temple)
+                return 0;
             // does it belong to us?
-            if (self.owner(region) != player) return 0;
+            if (self.owner(region) && self.owner(region).index != player.index)
+                return 0;
             // does it have the right type of upgrade?
-            return (temple.upgrade == upgradeType) ? upgradeType.level[temple.level] : 0;
+            return (temple.upgrade && temple.upgrade.name == upgradeType.name) ? upgradeType.level[temple.level] : 0;
         }));
     }
 
     totalSoldiers(player) {
-        let self = this;
-        return sequenceUtils.sum(gameData.regions, function(region) {
-            return (self.owner(region.index) == player) ? self.soldierCount(region.index) : 0;
+        return sequenceUtils.sum(gameData.regions, region => {
+            const owner = this.owner(region.index);
+            return (owner && owner.index == player.index) ? this.soldierCount(region.index) : 0;
         });
     }
 
@@ -256,11 +253,33 @@ class GameState {
 // Represents a player move in a game.
 // A player is allowed some number of moves per turn.
 class Move {
+
     constructor() {
         this.buttons = [
             { text: 'Cancel move', hidden: true },
             { text: 'End turn' },
         ];
+    }
+
+    // When the move is passed over GAS, the methods are lost, so reconstitute the object with this factory
+    static reconstitute(obj) {
+        switch (obj.type) {
+            case 'army-move':
+                if (obj.state) {
+                    obj.state = new GameState(obj.state);
+                }
+                return new ArmyMove(obj);
+            case 'build-move':
+                if (obj.upgrade) {
+                    obj.upgrade = new Upgrade(obj.upgrade);
+                }
+                if (obj.temple) {
+                    obj.temple = new Temple(obj.temple);
+                }
+                return new BuildMove(obj);
+            case 'end-move': return new EndMove(obj);
+            default: alert("Unexpected move type: " + obj.type);
+        }
     }
 
     isBuildMove() {
@@ -276,7 +295,6 @@ class Move {
 
 class ArmyMove extends Move {
 
-    // params: state, source, destination, count
     constructor(obj) {
         super();
         if (obj.source && typeof obj.source !== 'number')
@@ -287,9 +305,14 @@ class ArmyMove extends Move {
         this.source = obj.source;
         this.destination = obj.destination;
         this.count = obj.count;
-        if (obj.destination) {
+
+        if (obj.attackSequence) { // it may already be there if reconstituting
+            this.attackSequence = obj.attackSequence;
+        }
+        else if (obj.destination && obj.state) {
             this.attackSequence = this.createAttackSequenceIfFight(obj.state);
         }
+        this.type = 'army-move';
     }
 
     isArmyMove() {
@@ -432,13 +455,13 @@ class ArmyMove extends Move {
 
 class BuildMove extends Move {
 
-    // desiredUpgrade, temple, buttons
     constructor(obj) {
         super();
-        this.upgrade = obj.desiredUpgrade;
+        this.upgrade = obj.upgrade;
         this.temple = obj.temple;
         this.regionIndex = obj.temple.regionIndex;
         this.buttons = obj.buttons;
+        this.type = 'build-move';
     }
     isBuildMove() {
         return true;
@@ -447,6 +470,10 @@ class BuildMove extends Move {
 
 class EndMove extends Move {
 
+    constructor(obj) {
+        super();
+        this.type = 'end-move';
+    }
     isEndMove() {
         return true;
     }

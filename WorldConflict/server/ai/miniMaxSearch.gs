@@ -1,4 +1,3 @@
-<script>
 var erisk = (function(my) {
 
     class Node {
@@ -22,7 +21,7 @@ var erisk = (function(my) {
         let unitOfWork = 100;
         let timeStart = Date.now();
 
-        setTimeout(doSomeWork, 0);
+        doSomeWork();
 
         function doSomeWork() {
             let stepsRemaining = unitOfWork;
@@ -42,13 +41,13 @@ var erisk = (function(my) {
 
                     // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
                     // so that whatever the AI does is easy to understand
-                    const thinkTime = Math.max(minTime - elapsedTime, 1);
-                    setTimeout(() => moveCallback(bestMove), thinkTime);
+                    //const thinkTime = Math.max(minTime - elapsedTime, 1);
+                    moveCallback(bestMove);
                     return;
                 }
             }
-            // Schedule some more work. We're not done yet but we want to let some events happen
-            setTimeout(doSomeWork, 0); // was 1
+            // Used to have setTimeout here. We're not done yet but we want to let some events happen.
+            doSomeWork();
         }
     }
 
@@ -74,7 +73,7 @@ var erisk = (function(my) {
         if (node) {
             // what sort of a node are we?
             let activePlayer = gameData.players[node.state.playerIndex];
-            let maximizingNode = activePlayer == node.activePlayer;
+            let maximizingNode = activePlayer.index == node.activePlayer.index;
             // is the value from child better than what we have?
             let better =
                 !node.bestMove || (maximizingNode && child.value > node.value) || (!maximizingNode && child.value < node.value);
@@ -101,7 +100,7 @@ var erisk = (function(my) {
         function addArmyMove(source, dest, soldierCount) {
 
             // suicide moves, for example, are dumb.
-            if ((state.owner(dest) != player) && (state.soldierCount(dest) > soldierCount))
+            if ((state.owner(dest) && state.owner(dest).index != player.index) && (state.soldierCount(dest) > soldierCount))
                 return;
 
             // not *obviously* dumb, so add it to the list!
@@ -131,4 +130,3 @@ var erisk = (function(my) {
 
     return my;
 }(erisk || {}));
-</script>

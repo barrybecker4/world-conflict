@@ -1,4 +1,3 @@
-<script>
 var erisk = (function(my) {
     const MIN_THINK_TIME = 1000;
     const MAX_THINK_TIME = 5000;
@@ -6,19 +5,19 @@ var erisk = (function(my) {
 
     my.aiPickMove = function(player, state, reportMoveCallback) {
 
-        if (!state.regionCount(player)) // skip players that are not longer in the game
+        if (!state.regionCount(player)) // skip players that are no longer in the game
             return reportMoveCallback(new EndMove());
 
         // check for upgrade options first start with soldiers
         if (shouldBuildSoldier(player, state)) {
             var move = buildSoldierAtBestTemple(player, state);
-            return setTimeout(() => reportMoveCallback(move), MIN_THINK_TIME);
+            return reportMoveCallback(move);
         }
 
         // we don't need soldiers, maybe we can upgrade a temple?
         var upgrade = upgradeToBuild(player, state);
         if (upgrade) {
-            return setTimeout(() => reportMoveCallback(upgrade), MIN_THINK_TIME);
+            return reportMoveCallback(upgrade);
         }
 
         // the AI only analyzes its own moves (threats are handled in heuristic)
@@ -69,24 +68,23 @@ var erisk = (function(my) {
 
         // do we have a place to build it?
         var possibleTemplesToUpgrade = state.templesForPlayer(player).filter(function(temple) {
-            return ((!temple.upgrade) && (!currentLevel)) || (temple.upgrade == desiredUpgrade);
+            return (!temple.upgrade && !currentLevel) || (temple.upgrade == desiredUpgrade);
         });
         if (!possibleTemplesToUpgrade.length)
             return;
 
         // pick the safest temple
-        var temple = sequenceUtils.min(possibleTemplesToUpgrade, (t) => heuristics.templeDangerousness(state, t));
+        var temple = sequenceUtils.min(possibleTemplesToUpgrade, t => heuristics.templeDangerousness(state, t));
 
         // build the upgrade!
         player.personality.preferredUpgrades.shift();
-        return new BuildMove({ desiredUpgrade, temple });
+        return new BuildMove({ upgrade: desiredUpgrade, temple });
     }
 
     function buildSoldierAtBestTemple(player, state) {
-        var temple = sequenceUtils.max(state.templesForPlayer(player), (t) => heuristics.templeDangerousness(state, t));
-        return new BuildMove({ desiredUpgrade: CONSTS.UPGRADES.SOLDIER, temple });
+        var temple = sequenceUtils.max(state.templesForPlayer(player), t => heuristics.templeDangerousness(state, t));
+        return new BuildMove({ upgrade: CONSTS.UPGRADES.SOLDIER, temple });
     }
 
     return my;
 }(erisk || {}));
-</script>

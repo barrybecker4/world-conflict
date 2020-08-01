@@ -40,10 +40,30 @@ function getUserId() {
 }
 
 function makeGameData(setup, gameId) {
-    CONSTS = CONSTS.initialize();
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     return erisk.makeGameData(setup, gameId);
 }
 
 function appendGameStates(states) {
     gameStateTable.appendGameStates(states);
 }
+
+async function makeAiMove(player, state, clientGameData) {
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+
+    Logger.log("gameData = " + JSON.stringify(clientGameData));
+    const aiPlayer = new Player(player);
+    gameData.initializeFrom(clientGameData);
+
+    const currentState = new GameState(state);
+
+    let promise = new Promise(function(resolve, reject) {
+        erisk.aiPickMove(aiPlayer, currentState, function(move) {
+            Logger.log("picked AI move = \n" + JSON.stringify(move));
+            resolve(move);
+        });
+    });
+
+    return await promise;
+}
+

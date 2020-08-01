@@ -1,6 +1,4 @@
-<script>
 var erisk = (function(my) {
-    const $ = domUtils.$;
 
     /**
      * Takes an existing state and a move, and returns a new game state with the move
@@ -144,10 +142,10 @@ var erisk = (function(my) {
         var temple = state.temples[regionIndex];
         var templeOwner = state.owner(regionIndex);
 
-        if (upgrade === CONSTS.UPGRADES.SOLDIER) {
+        if (upgrade.name === CONSTS.UPGRADES.SOLDIER.name) {
             buySoldier(state, templeOwner, upgrade, regionIndex);
         }
-        else if (upgrade === CONSTS.UPGRADES.REBUILD) {
+        else if (upgrade.name === CONSTS.UPGRADES.REBUILD.name) {
             delete temple.upgrade; // remove current upgrade
         }
         else upgradeTemple(state, temple, templeOwner, upgrade);
@@ -162,7 +160,7 @@ var erisk = (function(my) {
     }
 
     function upgradeTemple(state, temple, templeOwner, upgrade) {
-        if (temple.upgrade != upgrade) { // virgin upgrade
+        if (!temple.upgrade || temple.upgrade.name != upgrade.name) { // virgin upgrade
             temple.upgrade = upgrade;
             temple.level = 0;
         }
@@ -175,7 +173,7 @@ var erisk = (function(my) {
         state.particleTempleRegion = gameData.regions[temple.regionIndex];
 
         // the AIR upgrade takes effect immediately
-        if (upgrade == CONSTS.UPGRADES.AIR)
+        if (upgrade.name === CONSTS.UPGRADES.AIR.name)
             state.movesRemaining++;
     }
 
@@ -183,7 +181,7 @@ var erisk = (function(my) {
     function nextTurn(state) {
         var player = state.activePlayer();
 
-        var playerIncome = state.income(player, storage.gameSetup.aiLevel);
+        var playerIncome = state.income(player, gameData.aiLevel);
         state.cash[player.index] += playerIncome;
 
         if (playerIncome) {
@@ -199,7 +197,7 @@ var erisk = (function(my) {
         const upcomingPlayer = findNextPlayer(state);
 
         // did the game end by any chance?
-        if (state.turnIndex > storage.gameSetup.turnCount) {
+        if (state.turnIndex > gameData.turnCount) {
             endTheGame(state);
         }
         else if (!state.simulatingPlayer) {
@@ -211,7 +209,7 @@ var erisk = (function(my) {
     // temples produce one soldier per turn automatically
     function generateSoldersAtTemples(state, player) {
         utils.forEachProperty(state.temples, function(temple) {
-            if (state.owner(temple.regionIndex) == player) {
+            if (state.owner(temple.regionIndex) && state.owner(temple.regionIndex).index == player.index) {
                 // this is our temple, add a soldier to the temple's element
                 state.addSoldiers(temple.regionIndex, 1);
             }
@@ -228,7 +226,7 @@ var erisk = (function(my) {
     }
 
     function endTheGame(state) {
-       state.turnIndex = storage.gameSetup.turnCount;
+       state.turnIndex = gameData.turnCount;
        state.endResult = determineGameWinner(state);
     }
 
@@ -258,12 +256,12 @@ var erisk = (function(my) {
     function updatePlayerRegions(state) {
         gameData.players.map(function(player) {
             var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
-                return state.owner(region) == player ? state.soldierCount(region) : 0;
+                return state.owner(region) && state.owner(region).index == player.index ? state.soldierCount(region) : 0;
             });
             if (!totalSoldiers && state.regionCount(player)) {
                 // lost!
                 utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
-                    if (player == gameData.players[ownerIdx])
+                    if (player.index == gameData.players[ownerIdx].index)
                         delete state.owners[regionIdx];
                 });
                 // dead people get no more moves
@@ -279,5 +277,3 @@ var erisk = (function(my) {
     }
     return my;
 }(erisk || {}));
-
-</script>
