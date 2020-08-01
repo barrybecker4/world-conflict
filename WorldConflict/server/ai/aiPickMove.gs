@@ -1,5 +1,4 @@
 var erisk = (function(my) {
-    const MIN_THINK_TIME = 1000;
     const MAX_THINK_TIME = 5000;
 
 
@@ -24,7 +23,7 @@ var erisk = (function(my) {
         var depth = state.movesRemaining || 1;
 
         // use a min-max search to find the best move looking a few steps forward
-        erisk.miniMaxSearch(player, state, depth, reportMoveCallback, MIN_THINK_TIME, MAX_THINK_TIME);
+        erisk.miniMaxSearch(player, state, depth, reportMoveCallback, MAX_THINK_TIME);
     }
 
     function shouldBuildSoldier(player, state) {

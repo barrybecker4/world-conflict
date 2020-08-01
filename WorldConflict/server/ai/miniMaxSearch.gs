@@ -14,7 +14,7 @@ var erisk = (function(my) {
         }
     }
 
-    my.miniMaxSearch = function(forPlayer, fromState, depth, moveCallback, minTime, maxTime) {
+    my.miniMaxSearch = function(forPlayer, fromState, depth, moveCallback, maxTime) {
         let simulation = fromState.copy(forPlayer);
         let initialNode = new Node(null, forPlayer, depth, null, simulation, possibleMoves(fromState));
         let currentNode = initialNode;
@@ -41,7 +41,6 @@ var erisk = (function(my) {
 
                     // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
                     // so that whatever the AI does is easy to understand
-                    //const thinkTime = Math.max(minTime - elapsedTime, 1);
                     moveCallback(bestMove);
                     return;
                 }

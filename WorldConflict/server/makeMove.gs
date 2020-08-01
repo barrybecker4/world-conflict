@@ -88,8 +88,8 @@ var erisk = (function(my) {
         return incomingSoldiers;
     }
 
+    // move the soldiers halfway for animation
     function showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion) {
-        // move the soldiers halfway for animation
         if (!state.simulatingPlayer) {
             fromList.slice(0, incomingSoldiers)
                 .map(soldier => { soldier.attackedRegion = gameData.regions[toRegion] });
