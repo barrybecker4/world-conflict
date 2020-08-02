@@ -47,10 +47,8 @@ class UiCallbacks {
     }
 
     clearAll() {
-         for (const prop in this) {
-             if (this.hasOwnProperty(prop)){
-                 delete this[prop];
-             }
+         for (const prop in Object.keys(this)) {
+             delete this[prop];
          }
     }
 }

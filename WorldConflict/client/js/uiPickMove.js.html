@@ -111,7 +111,6 @@ var erisk = (function(my) {
                 const level = (temple.upgrade == upgrade) ?
                     (temple.level + 1) : ((upgrade === CONSTS.UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
 
-
                 const cost = upgrade.cost[level];
                 const text = utils.template(upgrade.name, CONSTS.LEVELS[level]) +
                            domUtils.elem('b', {}, " (" + cost + "&#9775;)");

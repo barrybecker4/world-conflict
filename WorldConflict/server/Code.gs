@@ -51,10 +51,9 @@ function appendGameStates(states) {
 async function makeAiMove(player, state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
 
-    Logger.log("gameData = " + JSON.stringify(clientGameData));
+    //Logger.log("gameData = " + JSON.stringify(clientGameData));
     const aiPlayer = new Player(player);
     gameData.initializeFrom(clientGameData);
-
     const currentState = new GameState(state);
 
     let promise = new Promise(function(resolve, reject) {

@@ -136,7 +136,7 @@ erisk.gameRenderer = (function() {
             // (end game display highlights the winner)
             const hasAvailableMove =
                 sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], region.index);
-            const highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
+            const highlighted = hasAvailableMove || (gameState.endResult && regionOwner.index == gameState.endResult.index);
 
             if (highlighted) {
                 gradientName += '-highlight';
@@ -221,8 +221,7 @@ erisk.gameRenderer = (function() {
             }
 
             // which cursor should we use?
-            let templeOwner = gameState.owner(temple.regionIndex);
-            let activePlayerIsTempleOwner = templeOwner && templeOwner.index == gameState.activePlayer().index;
+            let activePlayerIsTempleOwner = gameState.isOwnedBy(temple.regionIndex, gameState.activePlayer());
             const templeEl = $(temple.elementId);
             templeEl.style.cursor = appState.isInGame() ?
                 (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';

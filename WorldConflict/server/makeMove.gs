@@ -119,8 +119,9 @@ var erisk = (function(my) {
             state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
             // if there was a temple, reset its upgrades
             var temple = state.temples[toRegion];
-            if (temple)
+            if (temple) {
                 delete temple.upgrade;
+            }
             // play sound, launch particles!
             state.particleTempleRegion = gameData.regions[toRegion];
             const color = fromOwner.highlightStart;
@@ -176,7 +177,6 @@ var erisk = (function(my) {
         if (upgrade.name === CONSTS.UPGRADES.AIR.name)
             state.movesRemaining++;
     }
-
 
     function nextTurn(state) {
         var player = state.activePlayer();

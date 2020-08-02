@@ -169,7 +169,7 @@ class GameState {
 
     rawUpgradeLevel(player, upgradeType) {
         return sequenceUtils.max(this.templesForPlayer(player).map(function(temple) {
-            if (temple.upgrade && temple.upgrade == upgradeType)
+            if (temple.upgrade && temple.upgrade.name == upgradeType.name)
                 return temple.level + 1;
             else
                 return 0;
@@ -182,14 +182,13 @@ class GameState {
             return 0;
         }
 
-        let self = this;
-        return sequenceUtils.max(gameData.regions.map(function(region) {
+        return sequenceUtils.max(gameData.regions.map(region => {
             // does it have a temple?
-            var temple = self.temples[region.index];
+            var temple = this.temples[region.index];
             if (!temple)
                 return 0;
             // does it belong to us?
-            if (self.isOwnedBy(region, player))
+            if (this.isOwnedBy(region, player))
                 return 0;
             // does it have the right type of upgrade?
             return (temple.upgrade && temple.upgrade.name == upgradeType.name) ? upgradeType.level[temple.level] : 0;
@@ -223,7 +222,7 @@ class GameState {
         const soldierList = self.soldiersAtRegion(regionIndex);
         utils.range(0, count).map(function() {
             const soldierId = utils.rint(1, 1000000000);    // slight chance of duplicates?
-            soldierList.push({ i: soldierId});   // soldierId++ }); can't use counder if generated in multiple places
+            soldierList.push({ i: soldierId});   // can't use counter if generated in multiple places
         });
     }
 
@@ -312,7 +311,7 @@ class ArmyMove extends Move {
         if (obj.attackSequence) { // it may already be there if reconstituting
             this.attackSequence = obj.attackSequence;
         }
-        else if (obj.destination && obj.state) {
+        else if (obj.destination >= 0 && obj.state) {
             this.attackSequence = this.createAttackSequenceIfFight(obj.state);
         }
         this.type = 'army-move';
@@ -400,6 +399,7 @@ class ArmyMove extends Move {
 
             const repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
             const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
+
             // Jakub says that this should be fromOwner, but I believe that toOwner is correct.
             // See https://github.com/krajzeg/compact-conflict/issues/3
             let invincibility = state.upgradeLevel(toOwner, CONSTS.UPGRADES.FIRE);
