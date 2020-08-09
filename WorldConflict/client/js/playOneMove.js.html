@@ -2,7 +2,7 @@
 var erisk = (function(my) {
     const $ = domUtils.$;
     const SERVER_REQUEST_DELAY = 1000;
-    var humanStates = [];
+    var humanMoves = [];
 
     // Deals with responding to user actions - whether human or AI.
     my.playOneMove = function(state) {
@@ -16,10 +16,10 @@ var erisk = (function(my) {
             //  player changed from human to AI or vv
             //  later this will look for the transition from the player on this client and everyone else.
             if (!state.prevPlayer() || player.personality != state.prevPlayer().personality) {
-                if (humanStates.length) {
+                if (humanMoves.length) {
                     google.script.run
                         .withFailureHandler(showError)
-                        .appendGameStates(humanStates);
+                        .appendGameMoves(humanMoves);
                 }
                 if (player.personality) {
                     // request that the computer make the AI move (and store it in firestore),
@@ -29,14 +29,15 @@ var erisk = (function(my) {
                         // must wrap state in array to make GAS happy (don't know why)
                         .makeComputerMoves([state], gameData.getSimpleObject());
                 }
-                humanStates = [];
+                humanMoves = [];
             }
 
             if (!player.personality) {
                 erisk.uiPickMove(player, state, function(move) {
                     const newState = erisk.makeMove(state, move);
-                    // newState.moveDecision = move; // here?
-                    humanStates.push(newState);
+                    move.stateId = newState.id;
+                    move.gameId = newState.gameId;
+                    humanMoves.push(move);
 
                     if (newState.endResult) { // did the game end?
                         showEndGame(newState);
@@ -67,7 +68,6 @@ var erisk = (function(my) {
         return async function(moves) {
 
             const finalState = await replayMove(0, state);
-            // erisk.gameRenderer.updateDisplay(finalState);
 
             async function replayMove(i, newState) {
                 if (i >= moves.length) {
