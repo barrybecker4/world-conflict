@@ -82,8 +82,8 @@ var erisk = (function(my) {
                     showEndGame(finalState);
                 }
                 else {
-                    if (finalState.playerIndex === state.playerIndex) {
-                       // If we have not yet advanced to the next player, request more moves until we do
+                    if (finalState.activePlayer().personality) {
+                       // If we have not yet advanced to the next (human) player, request more moves until we do
                        setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                     }
                     else setTimeout(() => my.playOneMove(finalState), 1);
