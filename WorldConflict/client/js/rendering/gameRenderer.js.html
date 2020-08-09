@@ -129,17 +129,16 @@ erisk.gameRenderer = (function() {
         updateSoldierTooltips();
 
         function updateRegionDisplay(region) {
-            if (!region)
-                alert("Trying to updateRegionDisplay for: " + region + " all regions:\n" + JSON.stringify(gameData.regions));
             const regionIndex = region.index;
             const regionOwner = gameState.owner(region);
-            let gradientName = (regionOwner ? 'p' + regionOwner.index : 'land');
+            let gradientName = regionOwner ? 'p' + regionOwner.index : 'land';
 
             // a region is highlighted if it has an available move, or belongs to the winner
             // (end game display highlights the winner)
             const hasAvailableMove =
                 sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], regionIndex);
-            const highlighted = hasAvailableMove || (gameState.endResult && regionOwner.index == gameState.endResult.index);
+            const highlighted = hasAvailableMove ||
+                (gameState.endResult && regionOwner && regionOwner.index == gameState.endResult.index);
 
             if (highlighted) {
                 gradientName += '-highlight';

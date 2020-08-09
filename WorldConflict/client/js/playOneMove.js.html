@@ -35,7 +35,7 @@ var erisk = (function(my) {
             if (!player.personality) {
                 erisk.uiPickMove(player, state, function(move) {
                     const newState = erisk.makeMove(state, move);
-                    newState.moveDecision = move; // here?
+                    // newState.moveDecision = move; // here?
                     humanStates.push(newState);
 
                     if (newState.endResult) { // did the game end?
@@ -58,39 +58,42 @@ var erisk = (function(my) {
     function replayMovesFromServer(state) {
         console.log("Requesting replay moves from server starting at state.id = " + state.id);
         google.script.run
-            .withSuccessHandler(async function(moves) {
-
-                const finalState = await replayMove(0, state);
-                // erisk.gameRenderer.updateDisplay(finalState);
-
-                async function replayMove(i, newState) {
-                    if (i >= moves.length) {
-                        return newState;
-                    }
-                    const theMove = moves[i];
-                    const move = Move.reconstitute(theMove);
-                    console.log(i + ") aiMove found on server: " + JSON.stringify(move));
-                    audio.playSound(CONSTS.SOUNDS.CLICK);
-                    const nextState = erisk.makeMove(newState, move);
-                    // nextState.moveDecision = move; // here?
-                    erisk.gameRenderer.updateDisplay(nextState);
-                    await utils.sleep(CONSTS.MOVE_DELAY);
-                    return await replayMove(i + 1, nextState);
-                }
-
-                if (finalState.endResult) {
-                    showEndGame(finalState);
-                }
-                else {
-                    if (finalState.activePlayer().personality) {
-                       // If we have not yet advanced to the next (human) player, request more moves until we do
-                       setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
-                    }
-                    else setTimeout(() => my.playOneMove(finalState), 1);
-                }
-            })
+            .withSuccessHandler(getPlaybackHandler(state))
             .withFailureHandler(showError)
             .getGameMoves(state.gameId, state.id);
+    }
+
+    function getPlaybackHandler(state) {
+        return async function(moves) {
+
+            const finalState = await replayMove(0, state);
+            // erisk.gameRenderer.updateDisplay(finalState);
+
+            async function replayMove(i, newState) {
+                if (i >= moves.length) {
+                    return newState;
+                }
+                const theMove = moves[i];
+                const move = Move.reconstitute(theMove);
+                console.log(i + ") aiMove found on server: " + JSON.stringify(move));
+                audio.playSound(CONSTS.SOUNDS.CLICK);
+                const nextState = erisk.makeMove(newState, move);
+                erisk.gameRenderer.updateDisplay(nextState);
+                await utils.sleep(CONSTS.MOVE_DELAY);
+                return await replayMove(i + 1, nextState);
+            }
+
+            if (finalState.endResult) {
+                showEndGame(finalState);
+            }
+            else {
+                if (finalState.activePlayer().personality) {
+                   // If we have not yet advanced to the next (human) player, request more moves until we do
+                   setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
+                }
+                else setTimeout(() => my.playOneMove(finalState), 1);
+            }
+        }
     }
 
     function showEndGame(state) {
