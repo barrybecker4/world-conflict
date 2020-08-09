@@ -58,6 +58,10 @@ var utils = (function (my) {
         });
     }
 
+    my.sleep = function(millis) {
+      return new Promise(resolve => setTimeout(resolve, millis));
+    }
+
     return my;
 } (utils || {}));
 

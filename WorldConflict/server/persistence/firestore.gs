@@ -1,8 +1,6 @@
-var firestore = getFirestore();
+var firestore;
 
 function getFirestore() {
-
-    var firestore = null;
 
     /** @return singleton firestore database instance */
     function getInstance() {
@@ -19,6 +17,6 @@ function getFirestore() {
     }
 
     return {
-        getInstance: getInstance,
+        getInstance,
     };
 }

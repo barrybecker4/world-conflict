@@ -61,7 +61,7 @@ class AiPersonality {
 class GameState {
 
     // The simulatingPlayer is used during min/max search so we do not show the computer thinking.
-    // Also stored, but not part of consturctor: moveDecision, soundCue
+    // Also stored, but not part of constructor: moveDecision, soundCue
     constructor(obj) {
         this.turnIndex = obj.turnIndex;
         this.playerIndex = obj.playerIndex;
@@ -90,8 +90,8 @@ class GameState {
         this.prevPlayerIndex = this.playerIndex;
         this.playerIndex = playerIndex;
         this.movesRemaining = numMoves;
-        this.conqueredRegions = null;
-        this.numBoughtSoldiers = null;
+        this.conqueredRegions = undefined;
+        this.numBoughtSoldiers = undefined;
         return upcomingPlayer;
     }
 
@@ -137,7 +137,6 @@ class GameState {
 
     templesForPlayer(player) {
         var playerTemples = [];
-        if (!player) alert("no player specified "  + player);
         utils.forEachProperty(this.temples, temple => {
             if (this.isOwnedBy(temple.regionIndex, player))
                 playerTemples.push(temple);
@@ -150,11 +149,11 @@ class GameState {
     }
 
     prevPlayer() {
-       return this.prevPlayerIndex ? gameData.players[this.prevPlayerIndex] : null;
+       return (typeof this.prevPlayerIndex === 'number') ? gameData.players[this.prevPlayerIndex] : null;
     }
 
     owner(region) {
-        const idx = (typeof region == 'number') ? region : region.index;
+        const idx = (typeof region === 'number') ? region : region.index;
         return gameData.players[this.owners[idx]];
     }
 
@@ -244,8 +243,8 @@ class GameState {
             floatingText: this.floatingText,
             numBoughtSoldiers: this.numBoughtSoldiers,
             conqueredRegions: this.conqueredRegions ? utils.deepCopy(this.conqueredRegions, 1) : undefined,
-            // the id will be monotonically increasing, but not necesarily sequential
-            id: this.id++,
+            // the id will be monotonically increasing, but not necessarily sequential
+            id: this.id + 1,
             gameId: this.gameId,
         });
     }
@@ -279,7 +278,8 @@ class Move {
                     obj.temple = new Temple(obj.temple);
                 }
                 return new BuildMove(obj);
-            case 'end-move': return new EndMove(obj);
+            case 'end-move':
+                return new EndMove(obj);
             default: alert("Unexpected move type: " + obj.type);
         }
     }
@@ -322,6 +322,7 @@ class ArmyMove extends Move {
     }
 
     setDestination(dest, state) {
+        if (typeof dest !== 'number') throw new Error(`dest=${dest} not a number`);
         this.destination = dest;
         this.attackSequence = this.createAttackSequenceIfFight(state);
     }

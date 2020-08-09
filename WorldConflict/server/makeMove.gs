@@ -97,7 +97,8 @@ var erisk = (function(my) {
         battleAnimationKeyframe(state);
     }
 
-    // Reset "attacking status" on the soldiers. They have either moved back to the source region or occupy the destination.
+    // Reset "attacking status" on the soldiers.
+    // They have either moved back to the source region or occupy the destination.
     function resetAttackStatus(fromList) {
         fromList.map(function(soldier) {
             soldier.attackedRegion = null;
@@ -110,7 +111,11 @@ var erisk = (function(my) {
         var fromOwner = state.owner(fromRegion);
         var toOwner = state.owner(toRegion);
 
-        utils.range(0, incomingSoldiers).map(() => toList.push(fromList.shift()) );
+        if (fromList.length < incomingSoldiers) {
+            throw new Error("We are trying to move " + incomingSoldiers + " from " + fromRegion + " to " +
+                toRegion + " but there are only:" + JSON.stringify(fromList));
+        }
+        utils.range(0, incomingSoldiers).map(() => toList.push(fromList.shift()));
 
         // if this didn't belong to us, it now does
         if (fromOwner != toOwner) {
@@ -131,7 +136,7 @@ var erisk = (function(my) {
     }
 
     function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
-        if (state.simulatingPlayer) return;
+        if (state.simulatingPlayer || !erisk.gameRenderer) return;
 
         const keyframe = state.copy();
         keyframe.soundCue = soundCue;
@@ -200,7 +205,7 @@ var erisk = (function(my) {
         if (state.turnIndex > gameData.turnCount) {
             endTheGame(state);
         }
-        else if (!state.simulatingPlayer) {
+        else if (!state.simulatingPlayer && erisk.gameRenderer) {
             // if this is not simulated (as during search), we'd like a "next turn" banner
             erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
         }

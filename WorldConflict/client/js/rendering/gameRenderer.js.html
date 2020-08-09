@@ -129,6 +129,8 @@ erisk.gameRenderer = (function() {
         updateSoldierTooltips();
 
         function updateRegionDisplay(region) {
+            if (!region)
+                console.log("Trying to updateRegionDisplay for: " + region + " all regions:\n" + JSON.stringify(gameData.regions));
             const regionOwner = gameState.owner(region);
             let gradientName = (regionOwner ? 'p' + regionOwner.index : 'land');
 
