@@ -129,7 +129,7 @@ var CONSTS = (function(my) {
             DRAWN_GAME: {},
 
             // pause before move in milliseconds
-            MOVE_DELAY: 400,
+            MOVE_DELAY: 600,
 
             // amount of faith added when soldiers are killed defending a region
             MARTYR_BONUS: 4,

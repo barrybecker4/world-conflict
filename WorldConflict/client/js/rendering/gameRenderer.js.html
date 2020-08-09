@@ -150,8 +150,8 @@ erisk.gameRenderer = (function() {
             highlightEl.style.opacity = highlighted ? highlightedOpacity : 0.0;
             highlightEl.style.cursor = highlighted ? 'pointer' : 'default';
 
-            if (gameState.particleTempleRegion == region) {
-                gameState.particleTempleRegion = undefined; // only once (was 0)
+            if (gameState.particleTempleRegion && gameState.particleTempleRegion.index == region.index) {
+                gameState.particleTempleRegion = undefined;
                 spawnCelebratoryParticles(region);
             }
 

@@ -128,7 +128,7 @@ var erisk = (function(my) {
                 delete temple.upgrade;
             }
             // play sound, launch particles!
-            state.particleTempleRegion = gameData.regions[toRegion];
+            state.particleTempleRegion = gameData.regions[toRegion].index;
             const color = fromOwner.highlightStart;
             state.floatingText = [{regionIdx: toRegion, color, text: "Conquered!", width: 7}];
             state.soundCue = numDefenders ? CONSTS.SOUNDS.VICTORY : CONSTS.SOUNDS.TAKE_OVER;
@@ -176,7 +176,7 @@ var erisk = (function(my) {
         state.cash[templeOwner.index] -= upgrade.cost[temple.level];
 
         // particles to celebrate upgrading!
-        state.particleTempleRegion = gameData.regions[temple.regionIndex];
+        state.particleTempleRegion = gameData.regions[temple.regionIndex].index;
 
         // the AIR upgrade takes effect immediately
         if (upgrade.name === CONSTS.UPGRADES.AIR.name)
