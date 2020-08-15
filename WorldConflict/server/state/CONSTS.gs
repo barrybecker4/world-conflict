@@ -1,6 +1,18 @@
 
 var CONSTS = (function(my) {
 
+    const SOLDIER_COSTS = calcCosts(8, 16);
+
+    function calcCosts(initial, n) {
+        const costs = [];
+        let current = initial;
+        for (let i = 1; i < n; i++) {
+            costs.push(current);
+            current += i;
+        }
+        return costs;
+    }
+
     my.initialize = function() {
         const SOUNDS = {
             CLICK: 'CLICK',
@@ -11,12 +23,14 @@ var CONSTS = (function(my) {
             DEFEAT: 'DEFEAT',
         };
 
+
+
         // Possible temple upgrades
         const UPGRADES = [
             new Upgrade({
                 name: 'Extra soldier',
                 desc: '',
-                cost: utils.range(0, 100).map(n => 8 + n * 4 ),
+                cost: SOLDIER_COSTS,
                 level: []
             }),
             new Upgrade({
@@ -129,7 +143,9 @@ var CONSTS = (function(my) {
             DRAWN_GAME: {},
 
             // pause before move in milliseconds
-            MOVE_DELAY: 100,
+            MOVE_DELAY: 500,
+            // pause between moves when doing play-back of server moves
+            PLAYBACK_DELAY: 1200,
 
             // amount of faith added when soldiers are killed defending a region
             MARTYR_BONUS: 4,

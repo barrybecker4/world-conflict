@@ -1,0 +1,58 @@
+// encapsulate access to the persistent "game state" table that contains
+// all the states of all games - whether played or in progress.
+var gameMoveTable = getGameMoveTableAccessor();
+
+function getGameMoveTableAccessor() {
+    const firestore = getFirestore().getInstance();
+    const GAME_MOVE_TABLE = 'gameMoves';
+
+    /**
+     * @return all game moves for the specified gameId since the lastStateId
+     */
+    function getMovesForGame(gameId, lastStateId) {
+        let moves = [];
+        // Logger.log("retrieving gameMoves for gameId = " + gameId + " and lastStateId = " +
+        //    lastStateId + " lastId type = " + (typeof lastStateId));
+        try {
+            moves = firestore.query(GAME_MOVE_TABLE)
+               .Where('gameId', '==', gameId)
+               .Where('stateId', '>', lastStateId)
+               .OrderBy("stateId")
+               .Execute();
+        }
+        catch (err) {
+            Logger.log("err: " + err);
+            Logger.log('No moves found for gameId ' + gameId);
+        }
+        // Logger.log("retrieved " + moves.length + " moves");
+        moves = moves.map(move => move.obj);
+        return moves;
+    }
+
+    /**
+     * Add games moves - typically for a particular game, but doesn't have to be.
+     */
+    function appendGameMoves(gameMoves) {
+        // const gameId = (gameMoves && gameMoves.length) ? gameMoves[0].gameId : -1;
+        // Logger.log("about to append " + gameMoves.length);
+
+        const appendedMoves = [];
+        gameMoves.forEach(move => {
+            appendedMoves.push(appendGameMove(move));
+        });
+        return appendedMoves;
+    }
+
+    function appendGameMove(move) {
+        if (!move.stateId) {
+            throw new Error("No stateId for move!");
+        }
+        return firestore.createDocument('/' + GAME_MOVE_TABLE, move);
+    }
+
+    return {
+        getMovesForGame,
+        appendGameMoves,
+        appendGameMove,
+    };
+}

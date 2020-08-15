@@ -129,27 +129,29 @@ erisk.gameRenderer = (function() {
         updateSoldierTooltips();
 
         function updateRegionDisplay(region) {
+            const regionIndex = region.index;
             const regionOwner = gameState.owner(region);
-            let gradientName = (regionOwner ? 'p' + regionOwner.index : 'land');
+            let gradientName = regionOwner ? 'p' + regionOwner.index : 'land';
 
             // a region is highlighted if it has an available move, or belongs to the winner
             // (end game display highlights the winner)
             const hasAvailableMove =
-                sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], region.index);
-            const highlighted = hasAvailableMove || (gameState.endResult && regionOwner == gameState.endResult);
+                sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], regionIndex);
+            const highlighted = hasAvailableMove ||
+                (gameState.endResult && regionOwner && regionOwner.index == gameState.endResult.index);
 
             if (highlighted) {
                 gradientName += '-highlight';
             }
             let highlightedOpacity = 0.1 + region.center.x * 0.003;
-            if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == region.index))
+            if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == regionIndex))
                 highlightedOpacity *= 2;
             const highlightEl = $(region.highlightId);
             highlightEl.style.opacity = highlighted ? highlightedOpacity : 0.0;
             highlightEl.style.cursor = highlighted ? 'pointer' : 'default';
 
-            if (gameState.particleTempleRegion == region) {
-                gameState.particleTempleRegion = undefined; // only once (was 0)
+            if (gameState.particleTempleRegion && gameState.particleTempleRegion.index == regionIndex) {
+                gameState.particleTempleRegion = undefined;
                 spawnCelebratoryParticles(region);
             }
 
@@ -221,8 +223,7 @@ erisk.gameRenderer = (function() {
             }
 
             // which cursor should we use?
-            let templeOwner = gameState.owner(temple.regionIndex);
-            let activePlayerIsTempleOwner = templeOwner && templeOwner.index == gameState.activePlayer().index;
+            let activePlayerIsTempleOwner = gameState.isOwnedBy(temple.regionIndex, gameState.activePlayer());
             const templeEl = $(temple.elementId);
             templeEl.style.cursor = appState.isInGame() ?
                 (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
@@ -257,9 +258,9 @@ erisk.gameRenderer = (function() {
             let xPosition = center.x + xOffset - yOffset * 0.2;
             let yPosition = center.y + xOffset * 0.2 + yOffset;
 
-            if (soldier.attackedRegion) {
+            if (typeof soldier.attackedRegion !== 'undefined') {
                 // we're attacking right now - move us closer to target region
-                const targetCenter = soldier.attackedRegion.center;
+                const targetCenter = gameData.regions[soldier.attackedRegion].center;
                 xPosition = (xPosition + targetCenter.x) / 2;
                 yPosition = (yPosition + targetCenter.y) / 2;
             }
@@ -281,13 +282,15 @@ erisk.gameRenderer = (function() {
                 // should we have a tooltip?
                 let count = gameState.soldierCount(region);
                 if (count > 8) {
-                    const moveSourceIsRegion = (gameState.moveDecision && (gameState.moveDecision.source == region.index));
+                    const moveSourceIsRegion =
+                        (gameState.moveDecision && (gameState.moveDecision.source == region.index));
                     let selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
                     selected += sequenceUtils.sum(gameState.soldiersAtRegion(regionIndex), function(soldier) {
-                        return soldier.attackedRegion ? 1 : 0;
+                        return (typeof soldier.attackedRegion !== 'undefined') ? 1 : 0;
                     });
-                    if (selected)
+                    if (selected) {
                         count = selected + "<hr>" + count;
+                    }
 
                     if (!tooltip) {
                         const tooltipHTML = div({
@@ -314,6 +317,10 @@ erisk.gameRenderer = (function() {
                     y = region.center.y;
                 } else if (floater.soldier) {
                     const node = soldierDivsById[floater.soldier.i];
+                    if (!node) {
+                        throw new Error("No node found for " + JSON.stringify(floater.soldier) +
+                            " in " + JSON.stringify(soldierDivsById[floater.soldier.i]));
+                    }
                     x = parseFloat(node.style.left) + 0.2;
                     y = parseFloat(node.style.top) + 0.2;
                 } else {

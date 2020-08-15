@@ -1,7 +1,6 @@
 var erisk = (function(my) {
 
     class Node {
-
         constructor(parent, activePlayer, depth, move, state, possibleMoves) {
             this.parent = parent;
             this.activePlayer = activePlayer;
@@ -39,8 +38,7 @@ var erisk = (function(my) {
                         bestMove = new EndMove();
                     }
 
-                    // perform the move (after a timeout if the minimal 'thinking time' wasn't reached
-                    // so that whatever the AI does is easy to understand
+                    // perform the move
                     moveCallback(bestMove);
                     return;
                 }
@@ -75,7 +73,9 @@ var erisk = (function(my) {
             let maximizingNode = activePlayer.index == node.activePlayer.index;
             // is the value from child better than what we have?
             let better =
-                !node.bestMove || (maximizingNode && child.value > node.value) || (!maximizingNode && child.value < node.value);
+                !node.bestMove ||
+                (maximizingNode && child.value > node.value) ||
+                (!maximizingNode && child.value < node.value);
             if (better) {
                 node.bestMove = child.move;
                 node.value = child.value;

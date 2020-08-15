@@ -92,15 +92,18 @@ var erisk = (function(my) {
     function showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion) {
         if (!state.simulatingPlayer) {
             fromList.slice(0, incomingSoldiers)
-                .map(soldier => { soldier.attackedRegion = gameData.regions[toRegion] });
+                .map(soldier => {
+                    soldier.attackedRegion = gameData.regions[toRegion].index;
+                });
         }
         battleAnimationKeyframe(state);
     }
 
-    // Reset "attacking status" on the soldiers. They have either moved back to the source region or occupy the destination.
+    // Reset "attacking status" on the soldiers.
+    // They have either moved back to the source region or occupy the destination.
     function resetAttackStatus(fromList) {
         fromList.map(function(soldier) {
-            soldier.attackedRegion = null;
+            soldier.attackedRegion = undefined;
         });
     }
 
@@ -110,7 +113,11 @@ var erisk = (function(my) {
         var fromOwner = state.owner(fromRegion);
         var toOwner = state.owner(toRegion);
 
-        utils.range(0, incomingSoldiers).map(() => toList.push(fromList.shift()) );
+        if (fromList.length < incomingSoldiers) {
+            throw new Error("We are trying to move " + incomingSoldiers + " from " + fromRegion + " to " +
+                toRegion + " but there are only:" + JSON.stringify(fromList));
+        }
+        utils.range(0, incomingSoldiers).map(() => toList.push(fromList.shift()));
 
         // if this didn't belong to us, it now does
         if (fromOwner != toOwner) {
@@ -119,10 +126,11 @@ var erisk = (function(my) {
             state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
             // if there was a temple, reset its upgrades
             var temple = state.temples[toRegion];
-            if (temple)
+            if (temple) {
                 delete temple.upgrade;
+            }
             // play sound, launch particles!
-            state.particleTempleRegion = gameData.regions[toRegion];
+            state.particleTempleRegion = gameData.regions[toRegion].index;
             const color = fromOwner.highlightStart;
             state.floatingText = [{regionIdx: toRegion, color, text: "Conquered!", width: 7}];
             state.soundCue = numDefenders ? CONSTS.SOUNDS.VICTORY : CONSTS.SOUNDS.TAKE_OVER;
@@ -130,7 +138,7 @@ var erisk = (function(my) {
     }
 
     function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
-        if (state.simulatingPlayer) return;
+        if (state.simulatingPlayer || !erisk.gameRenderer) return;
 
         const keyframe = state.copy();
         keyframe.soundCue = soundCue;
@@ -170,13 +178,12 @@ var erisk = (function(my) {
         state.cash[templeOwner.index] -= upgrade.cost[temple.level];
 
         // particles to celebrate upgrading!
-        state.particleTempleRegion = gameData.regions[temple.regionIndex];
+        state.particleTempleRegion = gameData.regions[temple.regionIndex].index;
 
         // the AIR upgrade takes effect immediately
         if (upgrade.name === CONSTS.UPGRADES.AIR.name)
             state.movesRemaining++;
     }
-
 
     function nextTurn(state) {
         var player = state.activePlayer();
@@ -200,7 +207,7 @@ var erisk = (function(my) {
         if (state.turnIndex > gameData.turnCount) {
             endTheGame(state);
         }
-        else if (!state.simulatingPlayer) {
+        else if (!state.simulatingPlayer && erisk.gameRenderer) {
             // if this is not simulated (as during search), we'd like a "next turn" banner
             erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
         }
@@ -268,12 +275,17 @@ var erisk = (function(my) {
                 if (state.activePlayer() == player)
                     state.movesRemaining = 0;
                 // show the world the good (or bad) news
-                if (!state.simulatingPlayer) {
+                if (!isOnServer(state)) {
                     erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
                     erisk.gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
                 }
             }
         });
     }
+
+    function isOnServer(state) {
+        return state.simulatingPlayer || !erisk.gameRenderer;
+    }
+
     return my;
 }(erisk || {}));

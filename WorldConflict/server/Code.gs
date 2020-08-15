@@ -44,26 +44,55 @@ function makeGameData(setup, gameId) {
     return erisk.makeGameData(setup, gameId);
 }
 
-function appendGameStates(states) {
-    gameStateTable.appendGameStates(states);
+function appendGameMoves(moves) {
+    gameMoveTable.appendGameMoves(moves);
 }
 
-async function makeAiMove(player, state, clientGameData) {
+// Get the recent states (since lastGameState) that were stored on the server
+function getGameMoves(gameId, lastGameStateId) {
+    const moves = gameMoveTable.getMovesForGame(gameId, lastGameStateId);
+    Logger.log("found " + moves.length + " moves that were computed on the server");
+    return moves;
+}
+
+
+/**
+ * Make AiMoves until it is no longer an Ai that is moving
+ * store those states (with moveDecisions) in firestore as they are determined.
+ * At some point later, they will be requested by the client.
+ * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
+ */
+async function makeComputerMoves(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
 
-    Logger.log("gameData = " + JSON.stringify(clientGameData));
-    const aiPlayer = new Player(player);
     gameData.initializeFrom(clientGameData);
+    let newState = new GameState(state[0]);
+    let player = gameData.players[newState.playerIndex];
+    Logger.log("Making AI moves for " + JSON.stringify(player));
 
-    const currentState = new GameState(state);
+    while (player.personality && !newState.endResult) {
+        newState = await makeAndSaveMove(player, newState);
+        console.log(`new newState playerIndex=${newState.playerIndex}  = ` + JSON.stringify(newState));
+        player = gameData.players[newState.playerIndex];
+    }
+}
 
+async function makeAndSaveMove(player, state) {
     let promise = new Promise(function(resolve, reject) {
-        erisk.aiPickMove(aiPlayer, currentState, function(move) {
-            Logger.log("picked AI move = \n" + JSON.stringify(move));
+        erisk.aiPickMove(player, state, function(move) {
             resolve(move);
         });
     });
 
-    return await promise;
+    const move = await promise;
+
+    const newState = erisk.makeMove(state, move);
+
+    move.gameId = newState.gameId;
+    move.stateId = newState.id;
+    Logger.log("picked AI move = \n" + JSON.stringify(move));
+    gameMoveTable.appendGameMove(move);
+    return newState;
 }
+
 

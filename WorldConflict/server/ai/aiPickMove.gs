@@ -1,7 +1,6 @@
 var erisk = (function(my) {
     const MAX_THINK_TIME = 5000;
 
-
     my.aiPickMove = function(player, state, reportMoveCallback) {
 
         if (!state.regionCount(player)) // skip players that are no longer in the game
