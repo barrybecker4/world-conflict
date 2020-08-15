@@ -1,0 +1,26 @@
+var firestore;
+
+function getFirestore() {
+
+    /** @return singleton firestore database instance */
+    function getInstance() {
+        if (!firestore) {
+            const projectId = "onlinettt";
+            const email = "barrybecker4-328@onlinettt.iam.gserviceaccount.com";
+            firestore =  FirestoreApp.getFirestore(email, getKey(), projectId, "v1");
+        }
+        return firestore;
+    }
+
+    /**
+     * The private key variable will be replaced with the contents of firestorePrivateKey.txt
+     * Put the private key for your firestore instance in that file locally, and do not check it into git.
+     */
+    function getKey() {
+        return "%PRIVATE_KEY%";
+    }
+
+    return {
+        getInstance,
+    };
+}

@@ -15,10 +15,13 @@ A risk-based strategy game originally created for [JS13k 2014](http://js13kgames
 This is a Google App Script (GAS) application. 
 If you would like to contribute, first install [CLASP](https://github.com/google/clasp).
 Next git clone this repository somewhere on your local machine. 
-Then, from the WorldConflict directory within the cloned project directory, run the following commands:
+
+This project uses [Firestore](https://firebase.google.com/docs/firestore) to persist data. You will need your own instance to run. Firestore is free for low usage limits. Create an instance and put the private key in server/persistence/firestorePrivateKey.txt. This file should not be checked into git. 
+
+Now, from the WorldConflict directory within the cloned project directory, run the following commands:
 * `clasp login`    using gmail account
 * `clasp create --type webapp` this creates a script with this name in your Google Drive
-* `./push.sh`  push all the files in the project directory into that script in the cloud. Normally you would use `clasp push`, but this script will duplicate some files for use on client and server before dong the normal `clasp push`. Note: do not commit these files that get copied.
+* `./push.sh`  push all the files in the project directory into that script in the cloud. Normally you would use `clasp push`, but this script will duplicate some files for use on client and server before dong the normal `clasp push`. Note: do not commit these files that get copied or generate.
   
 Now you are good to go! Deploy the web-app from your script on Google Drive.
 Make changes locally (in IntelliJ for example), do "clasp push", and refresh the deployed app script page to see the change. 

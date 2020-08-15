@@ -275,7 +275,7 @@ var erisk = (function(my) {
                 if (state.activePlayer() == player)
                     state.movesRemaining = 0;
                 // show the world the good (or bad) news
-                if (!isOnServer()) {
+                if (!isOnServer(state)) {
                     erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
                     erisk.gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
                 }
@@ -283,7 +283,7 @@ var erisk = (function(my) {
         });
     }
 
-    function isOnServer() {
+    function isOnServer(state) {
         return state.simulatingPlayer || !erisk.gameRenderer;
     }
 

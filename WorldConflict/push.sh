@@ -8,5 +8,9 @@
 { echo "<script>"; cat server/state/CONSTS.gs; echo "</script>"; } > client/js/state/CONSTS.js.html
 { echo "<script>"; cat server/makeMove.gs; echo "</script>"; } > client/js/makeMove.js.html
 
+firestore=$(<server/persistence/firestore.txt)
+firestorePrivateKey=$(<server/persistence/firestorePrivateKey.txt)
+echo "${firestore//%PRIVATE_KEY%/$firestorePrivateKey}" > server/persistence/firestore.gs
+
 # append to
 clasp push
