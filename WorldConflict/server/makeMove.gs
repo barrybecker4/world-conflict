@@ -92,7 +92,9 @@ var erisk = (function(my) {
     function showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion) {
         if (!state.simulatingPlayer) {
             fromList.slice(0, incomingSoldiers)
-                .map(soldier => { soldier.attackedRegion = gameData.regions[toRegion] });
+                .map(soldier => {
+                    soldier.attackedRegion = gameData.regions[toRegion].index;
+                });
         }
         battleAnimationKeyframe(state);
     }
@@ -101,7 +103,7 @@ var erisk = (function(my) {
     // They have either moved back to the source region or occupy the destination.
     function resetAttackStatus(fromList) {
         fromList.map(function(soldier) {
-            soldier.attackedRegion = null;
+            soldier.attackedRegion = undefined;
         });
     }
 
@@ -273,12 +275,17 @@ var erisk = (function(my) {
                 if (state.activePlayer() == player)
                     state.movesRemaining = 0;
                 // show the world the good (or bad) news
-                if (!state.simulatingPlayer) {
+                if (!isOnServer()) {
                     erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
                     erisk.gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
                 }
             }
         });
     }
+
+    function isOnServer() {
+        return state.simulatingPlayer || !erisk.gameRenderer;
+    }
+
     return my;
 }(erisk || {}));

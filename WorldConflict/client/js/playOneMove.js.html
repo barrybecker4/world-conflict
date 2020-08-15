@@ -23,7 +23,6 @@ var erisk = (function(my) {
                 }
                 if (player.personality) {
                     // request that the computer make the AI move (and store it in firestore),
-                    console.log("Now requesting AI moves from server for state.id = " + state.id + " and player " + player.name);
                     google.script.run
                         .withFailureHandler(showError)
                         // must wrap state in array to make GAS happy (don't know why)
@@ -79,7 +78,7 @@ var erisk = (function(my) {
                 audio.playSound(CONSTS.SOUNDS.CLICK);
                 const nextState = erisk.makeMove(newState, move);
                 erisk.gameRenderer.updateDisplay(nextState);
-                await utils.sleep(CONSTS.MOVE_DELAY);
+                await utils.sleep(CONSTS.PLAYBACK_DELAY);
                 return await replayMove(i + 1, nextState);
             }
 

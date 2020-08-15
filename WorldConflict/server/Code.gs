@@ -67,10 +67,8 @@ async function makeComputerMoves(state, clientGameData) {
 
     gameData.initializeFrom(clientGameData);
     let newState = new GameState(state[0]);
-    // Logger.log("newState.playerIndex " + newState.playerIndex);
-    let player = gameData.players[newState.playerIndex]; // newState.activePlayer();
+    let player = gameData.players[newState.playerIndex];
     Logger.log("Making AI moves for " + JSON.stringify(player));
-    //Logger.log("personality = " + player.personality);
 
     while (player.personality && !newState.endResult) {
         newState = await makeAndSaveMove(player, newState);
@@ -82,17 +80,17 @@ async function makeComputerMoves(state, clientGameData) {
 async function makeAndSaveMove(player, state) {
     let promise = new Promise(function(resolve, reject) {
         erisk.aiPickMove(player, state, function(move) {
-            Logger.log("picked AI move = \n" + JSON.stringify(move));
             resolve(move);
         });
     });
 
     const move = await promise;
 
-    //Logger.log("making move on server: " + JSON.stringify(move));
     const newState = erisk.makeMove(state, move);
+
     move.gameId = newState.gameId;
     move.stateId = newState.id;
+    Logger.log("picked AI move = \n" + JSON.stringify(move));
     gameMoveTable.appendGameMove(move);
     return newState;
 }

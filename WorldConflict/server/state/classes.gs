@@ -221,7 +221,7 @@ class GameState {
         const soldierList = self.soldiersAtRegion(regionIndex);
         utils.range(0, count).map(function() {
             const soldierId = utils.rint(1, 1000000000);    // slight chance of duplicates?
-            soldierList.push({ i: soldierId});   // can't use counter if generated in multiple places
+            soldierList.push({ i: soldierId });   // can't use counter if generated in multiple places
         });
     }
 
@@ -345,11 +345,11 @@ class ArmyMove extends Move {
         const toOwner = state.owner(toRegion);
 
         if (fromOwner == toOwner) {
-            return null; // no fight needed
+            return undefined; // no fight needed
         }
 
         let defendingSoldiers = toList.length;
-        let attackSequence = null;
+        let attackSequence = undefined;
 
         // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
         var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, CONSTS.UPGRADES.EARTH)]);

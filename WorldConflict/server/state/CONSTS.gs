@@ -143,7 +143,9 @@ var CONSTS = (function(my) {
             DRAWN_GAME: {},
 
             // pause before move in milliseconds
-            MOVE_DELAY: 600,
+            MOVE_DELAY: 500,
+            // pause between moves when doing play-back of server moves
+            PLAYBACK_DELAY: 1200,
 
             // amount of faith added when soldiers are killed defending a region
             MARTYR_BONUS: 4,

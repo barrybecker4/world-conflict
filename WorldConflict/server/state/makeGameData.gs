@@ -28,7 +28,8 @@ var erisk = (function(my) {
         let gameState = new GameState({
             turnIndex: 1,
             playerIndex: 0,
-            movesRemaining: CONSTS.BASE_MOVES_PER_TURN
+            movesRemaining: CONSTS.BASE_MOVES_PER_TURN,
+            gameId
         });
 
         setupTemples(3, regions);
