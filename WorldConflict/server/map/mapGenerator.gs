@@ -15,7 +15,7 @@ var mapGenerator = (function(my) {
         }
 
         markInMap(region, regionMap) {
-            utils.for2d(this.left, this.top, this.left + this.width, this.top + this.height, function(x, y) {
+            utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
                 regionMap[x][y] = region;
             });
         }
@@ -33,7 +33,7 @@ var mapGenerator = (function(my) {
         // Checks if the region given by 'bounds' overlaps any existing region.
         overlaps(regionMap) {
             var rv = false;
-            utils.for2d(this.left, this.top, this.left + this.width, this.top + this.height, function(x, y) {
+            utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
                 rv = rv || regionMap[x][y];
             });
             return rv;
@@ -121,7 +121,7 @@ var mapGenerator = (function(my) {
 
         // Figures out who borders with who, using the 2d grid in 'regionMap'.
         function fillNeighborLists() {
-            utils.for2d(1, 1, mapWidth - 1, mapHeight - 1, function(x, y) {
+            utils.for2d(1, mapWidth - 1, 1, mapHeight - 1, function(x, y) {
                 var region = regionMap[x][y];
                 if (region) {
                     [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {

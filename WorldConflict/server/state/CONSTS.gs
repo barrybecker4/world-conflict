@@ -23,8 +23,6 @@ var CONSTS = (function(my) {
             DEFEAT: 'DEFEAT',
         };
 
-
-
         // Possible temple upgrades
         const UPGRADES = [
             new Upgrade({
@@ -78,7 +76,8 @@ var CONSTS = (function(my) {
         // These are the possible Players. Each can be human or AI.
         const PLAYERS = [
             new Player({
-                index: 0, name: 'Amber',
+                index: 0,
+                name: 'Amber',
                 colorStart: '#fe8', colorEnd: '#c81',
                 highlightStart: '#fd8', highlightEnd: '#a80'
             }),
@@ -88,12 +87,14 @@ var CONSTS = (function(my) {
                 highlightStart: '#faa', highlightEnd: '#944'
             }),
             new Player({
-                index: 2, name: 'Lavender',
+                index: 2,
+                name: 'Lavender',
                 colorStart: '#d9d', colorEnd: '#838',
                 highlightStart: '#faf', highlightEnd: '#759'
             }),
             new Player({
-                index: 3, name: 'Emerald',
+                index: 3,
+                name: 'Emerald',
                 colorStart: '#9d9', colorEnd: '#282',
                 highlightStart: '#bfb', highlightEnd: '#4a4'
             }),
@@ -128,8 +129,9 @@ var CONSTS = (function(my) {
 
             // === Constants for setup screen
             PLAYER_OFF: 0,
-            PLAYER_HUMAN: 1,
-            PLAYER_AI: 2,
+            PLAYER_YOU: 1,
+            PLAYER_HUMAN: 2,
+            PLAYER_AI: 3,
 
             AI_NICE: 0,
             AI_RUDE: 1,

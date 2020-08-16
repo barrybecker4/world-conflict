@@ -52,7 +52,7 @@ var utils = (function (my) {
     }
 
     // Iterates over a rectangle (x1, y1) - (x2, y2), and calls fn with (x, y) of each integer point.
-    my.for2d = function(x1, y1, x2, y2, fn) {
+    my.for2d = function(x1, x2, y1, y2, fn) {
         my.range(x1, x2).map(function(x) {
             my.range(y1, y2).map(y => fn(x, y));
         });
