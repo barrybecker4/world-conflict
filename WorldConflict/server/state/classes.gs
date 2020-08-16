@@ -2,7 +2,8 @@
 class Player {
     constructor(obj) {
         this.index = obj.index;
-        this.name = obj.name;
+        this.defaultName = obj.defaultName;
+        this.name = obj.name || this.defaultName;
         this.colorStart = obj.colorStart;
         this.colorEnd = obj.colorEnd;
         this.highlightStart = obj.highlightStart;

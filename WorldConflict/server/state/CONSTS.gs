@@ -77,24 +77,25 @@ var CONSTS = (function(my) {
         const PLAYERS = [
             new Player({
                 index: 0,
-                name: 'Amber',
+                defaultName: 'Amber',
                 colorStart: '#fe8', colorEnd: '#c81',
                 highlightStart: '#fd8', highlightEnd: '#a80'
             }),
             new Player({
-                index: 1, name: 'Crimson',
+                index: 1,
+                defaultName: 'Crimson',
                 colorStart: '#f88', colorEnd: '#a44',
                 highlightStart: '#faa', highlightEnd: '#944'
             }),
             new Player({
                 index: 2,
-                name: 'Lavender',
+                defaultName: 'Lavender',
                 colorStart: '#d9d', colorEnd: '#838',
                 highlightStart: '#faf', highlightEnd: '#759'
             }),
             new Player({
                 index: 3,
-                name: 'Emerald',
+                defaultName: 'Emerald',
                 colorStart: '#9d9', colorEnd: '#282',
                 highlightStart: '#bfb', highlightEnd: '#4a4'
             }),

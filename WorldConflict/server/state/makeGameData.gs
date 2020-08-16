@@ -11,11 +11,13 @@ var erisk = (function(my) {
 
         let players = [];
 
-        setup.players.map(function(playerController, playerIndex) {
-            if (playerController === CONSTS.PLAYER_OFF) return;
+        setup.playerTypes.map(function(playerType, playerIndex) {
+            if (playerType === CONSTS.PLAYER_OFF) {
+                return;
+            }
             var player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
 
-            if (playerController == CONSTS.PLAYER_AI) {
+            if (playerType == CONSTS.PLAYER_AI) {
                 player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();
             }
 

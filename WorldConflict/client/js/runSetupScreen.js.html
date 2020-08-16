@@ -25,7 +25,7 @@ var erisk = (function(my) {
         // Callback for player setup buttons. Assigns one of the player types.
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
             // set the controller type for the player
-            storage.gameSetup.players[event.playerIndex] = event.buttonIndex;
+            storage.gameSetup.playerTypes[event.playerIndex] = event.buttonIndex;
             updateConfigButtons();
             updateBottomButtons();
             regenerateGameData();
@@ -93,9 +93,9 @@ var erisk = (function(my) {
         storage.storeSetup();
 
         // update player buttons
-        storage.gameSetup.players.map(function(controller, playerIndex) {
+        storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
            utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex =>
-               domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'selected', (controller == buttonIndex))
+               domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'selected', (playerType == buttonIndex))
            )
         });
 
@@ -108,7 +108,7 @@ var erisk = (function(my) {
 
     function isSetupValid() {
         let numYouPlayers = 0;
-        const enabledPlayers = sequenceUtils.sum(storage.gameSetup.players, function(playerType) {
+        const enabledPlayers = sequenceUtils.sum(storage.gameSetup.playerTypes, function(playerType) {
             if (playerType == CONSTS.PLAYER_YOU) {
                 numYouPlayers++;
             }
