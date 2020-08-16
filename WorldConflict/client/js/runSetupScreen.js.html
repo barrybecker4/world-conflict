@@ -25,7 +25,8 @@ var erisk = (function(my) {
         // Callback for player setup buttons. Assigns one of the player types.
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
             // set the controller type for the player
-            storage.gameSetup.playerTypes[event.playerIndex] = event.buttonIndex;
+            storage.gameSetup.playerTypes[event.playerIndex] = event.playerTypeIndex;
+
             updateConfigButtons();
             updateBottomButtons();
             regenerateGameData();
@@ -80,7 +81,6 @@ var erisk = (function(my) {
         google.script.run
             .withSuccessHandler(function(newGameData) {
                 gameData.initializeFrom(newGameData);
-                // alert(JSON.stringify(gameData.players));
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
              })
@@ -94,9 +94,13 @@ var erisk = (function(my) {
 
         // update player buttons
         storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
-           utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex =>
-               domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'selected', (playerType == buttonIndex))
-           )
+           utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
+               const id = 'sb' + playerIndex + buttonIndex;
+               domUtils.toggleClass(id, 'selected', (playerType == buttonIndex));
+           });
+
+           const name = getPlayerName(playerType, playerIndex);
+           $('player-box' + playerIndex).querySelector('.player-name').innerHTML = name;
         });
 
         // update AI and turn count buttons
@@ -104,6 +108,20 @@ var erisk = (function(my) {
             domUtils.toggleClass('ai' + index, 'selected', index == storage.gameSetup.aiLevel);
             domUtils.toggleClass('turn-count' + index, 'selected', CONSTS.TURN_COUNTS[index] == storage.gameSetup.turnCount);
         });
+    }
+
+    function getPlayerName(playerType, playerIndex) {
+        switch(playerType) {
+           case CONSTS.PLAYER_OFF: return '&nbsp;';
+            case CONSTS.PLAYER_YOU: return getTrimmedUserName();
+            case CONSTS.PLAYER_HUMAN: return '&lt;open&gt;';
+            default: return CONSTS.PLAYERS[playerIndex].defaultName;
+        }
+    }
+
+    function getTrimmedUserName() {
+        const name = $('userid').textContent;
+        return (name.length > 16) ? name.substring(0, 15) + '&#8230;' : name;
     }
 
     function isSetupValid() {
@@ -163,7 +181,8 @@ var erisk = (function(my) {
         utils.forEachProperty(additionalProperties, function(value, name) {
             properties[name] = value;
         });
-        return div(properties, title + buttons);
+        const titleSpan = domUtils.elem('span', {c: 'player-name'}, title);
+        return div(properties, titleSpan + buttons);
     }
 
     function setupButtonHandlersForPlayerSetupPanel() {
@@ -173,10 +192,10 @@ var erisk = (function(my) {
     }
 
     function setupButtonHandlersForPlayers() {
-        utils.for2d(0, CONSTS.PLAYERS.length, 0, CONSTS.PLAYER_TYPES.length, function(playerIndex, buttonIndex) {
+        utils.for2d(0, CONSTS.PLAYERS.length, 0, CONSTS.PLAYER_TYPES.length, function(playerIndex, playerTypeIndex) {
             domUtils.onClickOrTap(
-                $('sb' + playerIndex + buttonIndex),
-                event => uiCallbacks.invokeCallback({ playerIndex, buttonIndex }, 'setupPlayerButtons', event)
+                $('sb' + playerIndex + playerTypeIndex),
+                event => uiCallbacks.invokeCallback({ playerIndex, playerTypeIndex }, 'setupPlayerButtons', event)
             );
         });
     }
