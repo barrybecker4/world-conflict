@@ -22,8 +22,8 @@ var erisk = (function(my) {
             }
         });
 
-        // callback for player setup buttons
-        uiCallbacks.setSetupButtonsCB(function(event) {
+        // Callback for player setup buttons. Assigns one of the player types.
+        uiCallbacks.setSetupPlayerButtonsCB(function(event) {
             // set the controller type for the player
             storage.gameSetup.players[event.playerIndex] = event.buttonIndex;
             updateConfigButtons();
@@ -32,12 +32,12 @@ var erisk = (function(my) {
         });
 
         // callback for AI config buttons
-        uiCallbacks.setAiCB(function(aiLevel) {
+        uiCallbacks.setSetupAiLevelCB(function(aiLevel) {
             storage.gameSetup.aiLevel = aiLevel;
             updateConfigButtons();
         });
 
-        uiCallbacks.setTurnCountCB(function(turnCount) {
+        uiCallbacks.setSetupTurnCountCB(function(turnCount) {
             storage.gameSetup.turnCount = turnCount;
             updateConfigButtons();
         });
@@ -93,9 +93,8 @@ var erisk = (function(my) {
         storage.storeSetup();
 
         // update player buttons
-        const numPlayerTypes = 4;
         storage.gameSetup.players.map(function(controller, playerIndex) {
-           utils.range(0, numPlayerTypes).map(buttonIndex =>
+           utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex =>
                domUtils.toggleClass('sb' + playerIndex + buttonIndex, 'selected', (controller == buttonIndex))
            )
         });
@@ -170,30 +169,28 @@ var erisk = (function(my) {
     }
 
     function setupButtonHandlersForPlayers() {
-        const numPlayerTypes = 4; // Off/You/Human/AI
-
-        utils.for2d(0, CONSTS.PLAYERS.length, 0, numPlayerTypes, function(playerIndex, buttonIndex) {
+        utils.for2d(0, CONSTS.PLAYERS.length, 0, CONSTS.PLAYER_TYPES.length, function(playerIndex, buttonIndex) {
             domUtils.onClickOrTap(
                 $('sb' + playerIndex + buttonIndex),
-                event => uiCallbacks.invokeCallback({ playerIndex, buttonIndex }, 'setupButtons', event)
+                event => uiCallbacks.invokeCallback({ playerIndex, buttonIndex }, 'setupPlayerButtons', event)
             );
         });
     }
 
     function setupButtonHandlersForAiType() {
-        utils.range(0, 4).map(function(index) {
+        utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
             domUtils.onClickOrTap(
                 $('ai' + index),
-                (event) => uiCallbacks.invokeCallback(index, 'ai', event)
+                event => uiCallbacks.invokeCallback(index, 'setupAiLevel', event)
             );
         });
     }
 
     function setupButtonHandlersForTurnCount() {
-        utils.range(0, 4).map(function(index) {
+        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
             domUtils.onClickOrTap(
                 $('turn-count' + index),
-                event => uiCallbacks.invokeCallback(CONSTS.TURN_COUNTS[index], 'turnCount', event)
+                event => uiCallbacks.invokeCallback(CONSTS.TURN_COUNTS[index], 'setupTurnCount', event)
             );
         });
     }

@@ -118,6 +118,16 @@ var CONSTS = (function(my) {
 
         const UNLIMITED_TURNS = 1000000;
 
+        const PLAYER_OFF = 0;
+        const PLAYER_YOU = 1;
+        const PLAYER_HUMAN = 2;
+        const PLAYER_AI = 3;
+
+        const AI_NICE = 0;
+        const AI_RUDE = 1;
+        const AI_MEAN = 2;
+        const AI_EVIL = 3;
+
         my = {
             ...my,
             UPGRADES,
@@ -127,16 +137,12 @@ var CONSTS = (function(my) {
 
             BASE_MOVES_PER_TURN: 3,
 
-            // === Constants for setup screen
-            PLAYER_OFF: 0,
-            PLAYER_YOU: 1,
-            PLAYER_HUMAN: 2,
-            PLAYER_AI: 3,
+            // Constants for setup screen
+            PLAYER_OFF, PLAYER_YOU, PLAYER_HUMAN, PLAYER_AI,
+            PLAYER_TYPES: [PLAYER_OFF, PLAYER_YOU, PLAYER_HUMAN, PLAYER_AI],
 
-            AI_NICE: 0,
-            AI_RUDE: 1,
-            AI_MEAN: 2,
-            AI_EVIL: 3,
+            AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL,
+            AI_LEVELS: [AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL],
 
             UNLIMITED_TURNS,
             TURN_COUNTS: [9, 12, 15, UNLIMITED_TURNS],

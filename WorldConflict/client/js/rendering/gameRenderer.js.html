@@ -56,7 +56,7 @@ erisk.gameRenderer = (function() {
             onClickOrTap($(region.highlightId), event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
         });
 
-        // additional callbacks for better UI
+        // clears the currently selected region
         onClickOrTap(document.body, event => uiCallbacks.invokeCallback(null, 'regionSelected', event));
 
         // make the temple <div>s
