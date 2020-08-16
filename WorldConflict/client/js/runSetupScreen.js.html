@@ -107,10 +107,14 @@ var erisk = (function(my) {
     }
 
     function isSetupValid() {
-        const enabledPlayers = sequenceUtils.sum(storage.gameSetup.players, function(playerState) {
-            return (playerState != CONSTS.PLAYER_OFF) ? 1 : 0;
+        let numYouPlayers = 0;
+        const enabledPlayers = sequenceUtils.sum(storage.gameSetup.players, function(playerType) {
+            if (playerType == CONSTS.PLAYER_YOU) {
+                numYouPlayers++;
+            }
+            return (playerType != CONSTS.PLAYER_OFF) ? 1 : 0;
         });
-        return enabledPlayers > 1;
+        return enabledPlayers > 1 && numYouPlayers > 0;
     }
 
     function updateBottomButtons() {
