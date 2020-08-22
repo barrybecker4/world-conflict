@@ -21,6 +21,8 @@ This project uses [Firestore](https://firebase.google.com/docs/firestore) to per
 Now, from the WorldConflict directory within the cloned project directory, run the following commands:
 * `clasp login`    using gmail account
 * `clasp create --type webapp` this creates a script with this name in your Google Drive
+   after you do this, you will have a .clasp.json file locally with contents that look something like this <br>
+   ```{"scriptId":"13Py0mZIfz-mg5F7KA0HcUH9vL2g4Q8ep416zi6qJmMfD5CA9AUiZ969K"}```
 * `./push.sh`  push all the files in the project directory into that script in the cloud. Note: you may need to do `chmod +x` first on this file if on *nix. Normally you would use `clasp push`, but this script will duplicate some files for use on client and server before dong the normal `clasp push`. Note: do not commit these files that get copied or generate.
   
 Now you are good to go! Deploy the web-app from your script on Google Drive.
