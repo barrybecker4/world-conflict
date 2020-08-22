@@ -12,7 +12,7 @@ function doGet(e) {
 
   // Build and return HTML in IFRAME sandbox mode.
   const temp = HtmlService.createTemplateFromFile(pageName).evaluate()
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   Logger.log("temp = " + temp);
   return temp;
