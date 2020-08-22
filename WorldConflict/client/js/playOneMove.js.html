@@ -15,7 +15,7 @@ var erisk = (function(my) {
 
             //  player changed from human to AI or vv
             //  later this will look for the transition from the player on this client and everyone else.
-            if (!state.prevPlayer() || player.personality != state.prevPlayer().personality) {
+            if (!state.prevPlayer() || player.personality !== state.prevPlayer().personality) {
                 if (humanMoves.length) {
                     google.script.run
                         .withFailureHandler(showError)
@@ -101,7 +101,7 @@ var erisk = (function(my) {
             const winner = state.endResult;
             const delay = 200;
             const duration = 4000;
-            if (winner != CONSTS.DRAWN_GAME) {
+            if (winner !== CONSTS.DRAWN_GAME) {
                 erisk.gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!", delay, duration);
             } else {
                 erisk.gameRenderer.showBanner('#333', "The game ends in a draw!", delay, duration);

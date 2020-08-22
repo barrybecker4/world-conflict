@@ -39,7 +39,7 @@ class UiCallbacks {
             audio.playSound(CONSTS.SOUNDS.CLICK);
             callback(object);
         }
-        if (event.target.href && event.target.href != "#")
+        if (event.target.href && event.target.href !== "#")
             return 1;
 
         event.stopPropagation();

@@ -11,8 +11,11 @@ function doGet(e) {
   const pageName = e.parameter.page ? e.parameter['page'] : 'client/html/LandingPage';
 
   // Build and return HTML in IFRAME sandbox mode.
-  return HtmlService.createTemplateFromFile(pageName).evaluate()
+  const temp = HtmlService.createTemplateFromFile(pageName).evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  Logger.log("temp = " + temp);
+  return temp;
 }
 
 /**
@@ -40,6 +43,8 @@ function getUserId() {
 }
 
 function makeGameData(setup, gameId) {
+    Logger.log("in makeGameData with gameId = " + gameId);
+    Logger.log("setup = " + setup);
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     return erisk.makeGameData(setup, gameId);
 }

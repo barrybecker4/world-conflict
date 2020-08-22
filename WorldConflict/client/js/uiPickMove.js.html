@@ -29,7 +29,7 @@ var erisk = (function(my) {
                 // we already have a move in progress
                 let moveDecision = state.moveDecision;
                 // what region did we click?
-                if (region.index == moveDecision.source) {
+                if (region.index === moveDecision.source) {
                     // the one we're moving an army from - tweak number of selected soldiers
                     moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
                 }

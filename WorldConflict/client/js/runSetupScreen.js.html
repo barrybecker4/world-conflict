@@ -12,6 +12,7 @@ var erisk = (function(my) {
         // callback for the buttons on the bottom: new map, or start game
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
+            console.log("gameData =" + JSON.stringify(gameData));
             if (whichButton === 0) { // change map
                 regenerateGameData();
             } else {                 // start game
@@ -55,6 +56,7 @@ var erisk = (function(my) {
         // turn counter
         let html = div({i: 'turn-count', c: 'side-control'});
 
+        console.log("gameData.players = " + gameData.players)
         // player box area
         html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
             const pid = player.index;
@@ -78,8 +80,12 @@ var erisk = (function(my) {
     function regenerateGameData() {
         if (!isSetupValid()) return;
 
+        console.log("regen setup = " + JSON.stringify(storage.gameSetup));
+        console.log("regen gameId = " + gameData.gameId);
+
         google.script.run
             .withSuccessHandler(function(newGameData) {
+                console.log("makeGamerData SUCCESS "+ JSON.stringify(newGameData));
                 gameData.initializeFrom(newGameData);
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
@@ -96,7 +102,7 @@ var erisk = (function(my) {
         storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
            utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
                const id = 'sb' + playerIndex + buttonIndex;
-               domUtils.toggleClass(id, 'selected', (playerType == buttonIndex));
+               domUtils.toggleClass(id, 'selected', (playerType === buttonIndex));
            });
 
            const name = getPlayerName(playerType, playerIndex);
@@ -105,8 +111,9 @@ var erisk = (function(my) {
 
         // update AI and turn count buttons
         utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            domUtils.toggleClass('ai' + index, 'selected', index == storage.gameSetup.aiLevel);
-            domUtils.toggleClass('turn-count' + index, 'selected', CONSTS.TURN_COUNTS[index] == storage.gameSetup.turnCount);
+            domUtils.toggleClass('ai' + index, 'selected', index === storage.gameSetup.aiLevel);
+            domUtils.toggleClass('turn-count' + index, 'selected',
+                CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount);
         });
     }
 
@@ -127,10 +134,10 @@ var erisk = (function(my) {
     function isSetupValid() {
         let numYouPlayers = 0;
         const enabledPlayers = sequenceUtils.sum(storage.gameSetup.playerTypes, function(playerType) {
-            if (playerType == CONSTS.PLAYER_YOU) {
+            if (playerType === CONSTS.PLAYER_YOU) {
                 numYouPlayers++;
             }
-            return (playerType != CONSTS.PLAYER_OFF) ? 1 : 0;
+            return (playerType !== CONSTS.PLAYER_OFF) ? 1 : 0;
         });
         return enabledPlayers > 1 && numYouPlayers > 0;
     }
