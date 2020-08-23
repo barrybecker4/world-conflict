@@ -15,7 +15,7 @@ var erisk = (function(my) {
             if (playerType === CONSTS.PLAYER_OFF) {
                 return;
             }
-            var player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
+            const player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
 
             if (playerType == CONSTS.PLAYER_AI) {
                 player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();

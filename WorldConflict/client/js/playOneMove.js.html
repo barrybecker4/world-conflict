@@ -22,7 +22,7 @@ var erisk = (function(my) {
                         .appendGameMoves(humanMoves);
                 }
                 if (player.personality) {
-                    // request that the computer make the AI move (and store it in firestore),
+                    // request that the computer make the AI moves (and store it in firestore),
                     google.script.run
                         .withFailureHandler(showError)
                         // must wrap state in array to make GAS happy (don't know why)

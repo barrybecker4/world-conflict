@@ -42,6 +42,10 @@ function getGameConfigurationTableAccessor() {
         firestore.deleteDocument(GAME_CONFIGURATION_TABLE + '/' + gameId);
     }
 
+    /**
+     * @param gameData the new game data to persist
+     * @param gameId (optional) if specified then the existing gameData for that id is updated
+     */
     function upsert(gameData, gameId) {
         if (gameId) {
             const doc = getGameConfiguration(gameId);

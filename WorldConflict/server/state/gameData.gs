@@ -1,6 +1,8 @@
 
-// The world map (regions) and players get initialized during game setup.
-// Once the game starts, this information does not change.
+/**
+ * The world map (regions) and players get initialized during game setup.
+ * Once the game starts, this global information does not change.
+ */
 var gameData = (function (my) {
 
     // @param obj plain object containing props.
@@ -17,8 +19,9 @@ var gameData = (function (my) {
     // GAS does not allow transferring properties that have function type
     my.getSimpleObject = function() {
         return {
-            players: my.players,
             regions: my.regions,
+            players: my.players,
+            gameId: my.gameId,
             initialGameState: my.initialGameState,
             aiLevel: my.aiLevel,
             turnCount: my.turnCount,

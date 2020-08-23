@@ -65,8 +65,12 @@ function getGameMoves(gameId, lastGameStateId) {
 async function makeComputerMoves(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
 
+    console.log("clientGameData.initialState =" + clientGameData.initialState); // unexpected; undefined
     gameData.initializeFrom(clientGameData);
+
     let newState = new GameState(state[0]);
+    console.log("state.soldiersByRegion = " + JSON.stringify(state[0].soldiersByRegion));
+
     let player = gameData.players[newState.playerIndex];
     Logger.log("Making AI moves for " + JSON.stringify(player));
 

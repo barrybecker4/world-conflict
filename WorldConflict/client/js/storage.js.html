@@ -1,9 +1,12 @@
 <script>
+/**
+ * Global default configuration that is persistent across page loads
+ */
 var storage = (function(my) {
 
     const STORAGE_KEY = 'world-conflict';
 
-    // Gets user preferences from local storage, or returns false if there aren't any.
+    /** Gets user preferences from local storage, or returns false if there aren't any. */
     my.retrieveSetup = function() {
         if (localStorage) {
             let stored = localStorage.getItem(STORAGE_KEY);
@@ -32,8 +35,10 @@ var storage = (function(my) {
         }
     }
 
-    // The default game setup screen configuration.
-    // firstTimeInstructions are shown only the first time player plays on a given computer (or until cache cleared).
+    /**
+     *The default game setup screen configuration.
+     * firstTimeInstructions are shown only the first time player plays on a given computer (or until cache cleared).
+     */
     function getDefaultSetup() {
         return {
             playerTypes: [CONSTS.PLAYER_YOU, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_AI],
