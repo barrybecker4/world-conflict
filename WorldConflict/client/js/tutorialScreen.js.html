@@ -11,8 +11,8 @@ var erisk = (function(my) {
 
         onClickOrTap($('tutorial-button'), () => setTutorialScreenVisibility(true));
         onClickOrTap($('sound'), audio.toggleSound);
-        onClickOrTap($('undo-button'), (event) => uiCallbacks.invokeCallback(0, 'undo', event));
-        onClickOrTap($('restart'), function() {
+        onClickOrTap($('undo-button'), event => uiCallbacks.invokeCallback(0, 'undo', event));
+        onClickOrTap($('restart'), () => {
             uiCallbacks.clearAll();
             erisk.gameRenderer.updateDisplay();
             erisk.runSetupScreen();

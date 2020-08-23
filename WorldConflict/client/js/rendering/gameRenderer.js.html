@@ -215,8 +215,9 @@ erisk.gameRenderer = (function() {
             // right color and right number of levels (corresponding to upgrade level)
             let templeLevels = temple.upgrade ? (temple.level + 3) : 2;
             while (element) {
-                element.style.display = (templeLevels > 0) ? 'block' : 'none';
-                element.style.background = temple.upgrade ? temple.upgrade.bgColor : '#999';
+                const style = element.style;
+                style.display = (templeLevels > 0) ? 'block' : 'none';
+                style.background = temple.upgrade ? temple.upgrade.bgColor : '#999';
 
                 templeLevels--;
                 element = element.firstChild;
@@ -225,11 +226,13 @@ erisk.gameRenderer = (function() {
             // which cursor should we use?
             let activePlayerIsTempleOwner = gameState.isOwnedBy(temple.regionIndex, gameState.activePlayer());
             const templeEl = $(temple.elementId);
-            templeEl.style.cursor = appState.isInGame() ?
-                (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
+            if (templeEl) {
+                templeEl.style.cursor = appState.isInGame() ?
+                    (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
-            const selected = gameState.moveDecision && gameState.moveDecision.regionIndex == temple.regionIndex;
-            toggleClass(templeEl, 'selected', selected);
+                const selected = gameState.moveDecision && gameState.moveDecision.regionIndex == temple.regionIndex;
+                toggleClass(templeEl, 'selected', selected);
+            }
         }
 
         function updateSoldierDisplay(region, soldier, index) {
@@ -363,7 +366,8 @@ erisk.gameRenderer = (function() {
         }
 
         my.updateMapDisplay(displayedState);
-        updateInGameUI(displayedState);
+        if (appState.isInGame())
+            updateInGameUI(displayedState);
 
         if (displayedState.soundCue) {
             audio.playSound(displayedState.soundCue);
@@ -396,6 +400,8 @@ erisk.gameRenderer = (function() {
             const gameWinner = gameState.endResult;
             const regionCountEl = $('region-count' + index);
             const playerCashEl = $('player-cash' + index);
+
+            if (!regionCountEl) return;
 
             if (hasRegions) {
                 regionCountEl.innerHTML = gameState.regionCount(player) + '&#9733;';

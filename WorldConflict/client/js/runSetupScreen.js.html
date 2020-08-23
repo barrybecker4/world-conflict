@@ -69,7 +69,7 @@ var erisk = (function(my) {
         html += div({c: 'side-control user-name description', i: 'info'});
 
         // set it all
-        $('d').innerHTML = html;
+        $('game-info').innerHTML = html;
 
         // show stat box, undo button, and restart game buttons
         ['move-info', 'undo-button', 'restart'].map(domUtils.show);
@@ -168,8 +168,9 @@ var erisk = (function(my) {
         html += buttonPanel('AI', 'ai', ['Nice', 'Rude', 'Mean', 'Evil']);
         const labels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
         html += buttonPanel('Turns', 'turn-count', labels);
+        console.log("game-info html =\n" + html);
 
-        $('d').innerHTML = html;
+        $('game-info').innerHTML = html;
     }
 
     function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
