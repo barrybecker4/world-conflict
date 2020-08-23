@@ -172,7 +172,7 @@ erisk.gameRenderer = (function() {
                 showConqueringCannotMoveTip();
             }
             if (gameState.turnIndex == 2 && gameState.movesRemaining == 2) {
-                showTooltipOver({ center:[90, 93] },
+                showTooltipOver({ center: { x: 90, y: 93 } },
                     "If you want to undo a move or check the rules, use the buttons here.", 15);
             }
         }
@@ -190,7 +190,7 @@ erisk.gameRenderer = (function() {
             if (inactiveArmies) {
                 showTooltipOver(gameData.regions[inactiveArmies[inactiveArmies.length - 1]],
                     "Armies that conquer a new region cannot move again.");
-                showTooltipOver({ center: [-2, 80] }, "Once you're done, click 'End turn' here.");
+                showTooltipOver({ center: {x: -2, y: 80} }, "Once you're done, click 'End turn' here.");
             }
         }
 
