@@ -3,6 +3,18 @@ var CONSTS = (function(my) {
 
     const SOLDIER_COSTS = calcCosts(8, 16);
 
+    const UNLIMITED_TURNS = 1000000;
+
+    const PLAYER_OFF = 0;
+    const PLAYER_YOU = 1;
+    const PLAYER_HUMAN = 2;
+    const PLAYER_AI = 3;
+
+    const AI_NICE = 0;
+    const AI_RUDE = 1;
+    const AI_MEAN = 2;
+    const AI_EVIL = 3;
+
     function calcCosts(initial, n) {
         const costs = [];
         let current = initial;
@@ -116,18 +128,6 @@ var CONSTS = (function(my) {
             new AiPersonality({ soldierEagerness: 0.25, preferredUpgrades: [FIRE, FIRE] }),
             new AiPersonality({ soldierEagerness: 0.2, preferredUpgrades: [EARTH, EARTH] }),
         ];
-
-        const UNLIMITED_TURNS = 1000000;
-
-        const PLAYER_OFF = 0;
-        const PLAYER_YOU = 1;
-        const PLAYER_HUMAN = 2;
-        const PLAYER_AI = 3;
-
-        const AI_NICE = 0;
-        const AI_RUDE = 1;
-        const AI_MEAN = 2;
-        const AI_EVIL = 3;
 
         my = {
             ...my,

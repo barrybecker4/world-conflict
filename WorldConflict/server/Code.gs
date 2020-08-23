@@ -11,11 +11,8 @@ function doGet(e) {
   const pageName = e.parameter.page ? e.parameter['page'] : 'client/html/LandingPage';
 
   // Build and return HTML in IFRAME sandbox mode.
-  const temp = HtmlService.createTemplateFromFile(pageName).evaluate()
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-  Logger.log("temp = " + temp);
-  return temp;
+  return HtmlService.createTemplateFromFile(pageName).evaluate()
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME);
 }
 
 /**

@@ -4,8 +4,9 @@
 
 // start the game
 window.onload = function() {
+    CONSTS = CONSTS.initialize();
+
     setTimeout(function() {
-        CONSTS = CONSTS.initialize();
         erisk.runSetupScreen();
         erisk.tutorialScreen();
     }, 10);
