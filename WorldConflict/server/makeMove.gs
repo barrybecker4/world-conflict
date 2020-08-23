@@ -209,7 +209,7 @@ var erisk = (function(my) {
         }
         else if (!state.simulatingPlayer && erisk.gameRenderer) {
             // if this is not simulated (as during search), we'd like a "next turn" banner
-            erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().name + "'s turn");
+            erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().getPlayerName() + "'s turn");
         }
     }
 
@@ -277,7 +277,7 @@ var erisk = (function(my) {
                 // show the world the good (or bad) news
                 if (!isOnServer(state)) {
                     erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
-                    erisk.gameRenderer.showBanner('#222', player.name + " has been eliminated!", 1000);
+                    erisk.gameRenderer.showBanner('#222', player.getPlayerName() + " has been eliminated!", 1000);
                 }
             }
         });

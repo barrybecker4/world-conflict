@@ -22,6 +22,7 @@ var erisk = (function(my) {
             }
 
             player.index = players.length;
+            player.originalIndex = playerIndex;
             players.push(player);
         });
 

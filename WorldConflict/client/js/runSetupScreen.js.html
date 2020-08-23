@@ -59,7 +59,7 @@ var erisk = (function(my) {
         html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
             const pid = player.index;
             return div({ i: 'player-box' + pid, c: 'player-box inactive', style: 'background: ' + player.colorEnd },
-                player.name +
+                player.getPlayerName() +
                 div({ c: 'additional-info', i: 'region-count' + pid, tt: 'number of countries owned' }) +
                 div({ c: 'additional-info', i: 'player-cash' + pid, tt: 'amount of faith' })
             );
@@ -100,7 +100,7 @@ var erisk = (function(my) {
            });
 
            $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
-               getPlayerName(playerType, playerIndex);
+               CONSTS.PLAYERS[playerIndex].getPlayerName();
         });
 
         // update AI and turn count buttons
@@ -109,20 +109,6 @@ var erisk = (function(my) {
             domUtils.toggleClass('turn-count' + index, 'selected',
                 CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount);
         });
-    }
-
-    function getPlayerName(playerType, playerIndex) {
-        switch(playerType) {
-           case CONSTS.PLAYER_OFF: return '&nbsp;';
-            case CONSTS.PLAYER_YOU: return getTrimmedUserName();
-            case CONSTS.PLAYER_HUMAN: return '&lt;open&gt;';
-            default: return CONSTS.PLAYERS[playerIndex].defaultName;
-        }
-    }
-
-    function getTrimmedUserName() {
-        const name = $('userid').textContent;
-        return (name.length > 16) ? name.substring(0, 15) + '&#8230;' : name;
     }
 
     function isSetupValid() {
@@ -158,7 +144,7 @@ var erisk = (function(my) {
         let html = div({c: 'side-control description'}, 'Player setup');
         const playerBoxes = CONSTS.PLAYERS.map(function(player) {
             const pid = player.index;
-            return buttonPanel(player.name, 'sb' + player.index, ['Off', 'You', 'Human', 'AI'], {
+            return buttonPanel(player.getPlayerName(), 'sb' + player.index, ['Off', 'You', 'Human', 'AI'], {
                 i: 'player-box' + pid,
                 c: 'player-box inactive',
                 s: 'background: ' + player.colorEnd
@@ -168,7 +154,6 @@ var erisk = (function(my) {
         html += buttonPanel('AI', 'ai', ['Nice', 'Rude', 'Mean', 'Evil']);
         const labels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
         html += buttonPanel('Turns', 'turn-count', labels);
-        console.log("game-info html =\n" + html);
 
         $('game-info').innerHTML = html;
     }

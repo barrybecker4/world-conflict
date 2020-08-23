@@ -2,13 +2,26 @@
 class Player {
     constructor(obj) {
         this.index = obj.index;
+        this.originalIndex = obj.originalIndex || obj.index; // index into setup.playerTypes
         this.defaultName = obj.defaultName;
-        this.name = obj.name || this.defaultName;
         this.colorStart = obj.colorStart;
         this.colorEnd = obj.colorEnd;
         this.highlightStart = obj.highlightStart;
         this.highlightEnd = obj.highlightEnd;
         this.personality = obj.personality ? new AiPersonality(obj.personality) : null;
+    }
+
+    getPlayerName() {
+        switch(storage.gameSetup.playerTypes[this.originalIndex]) {
+            case CONSTS.PLAYER_OFF: return '&nbsp;';
+            case CONSTS.PLAYER_YOU: return getTrimmedUserName();
+            case CONSTS.PLAYER_HUMAN: return '<span style="color: #ccc;"><i>&lt; open &gt;</i></span>';
+            default: return this.defaultName;
+        }
+        function getTrimmedUserName() {
+            const name = domUtils.$('userid').textContent;
+            return (name.length > 16) ? name.substring(0, 15) + '&#8230;' : name;
+        }
     }
 }
 

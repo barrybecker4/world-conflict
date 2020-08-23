@@ -7,8 +7,7 @@ var gameData = (function (my) {
     // Need to reconstitute the regions because they are only simple objects without methods
     my.initializeFrom = function(obj) {
         my.regions = obj.regions.map(r => new Region(r));
-        my.players = obj.players;
-        my.players = my.players.map(p => new Player(p));
+        my.players = obj.players.map(p => new Player(p));
         my.gameId = obj.gameId;
         my.initialGameState = new GameState(obj.initialGameState);
         my.aiLevel = obj.aiLevel;
