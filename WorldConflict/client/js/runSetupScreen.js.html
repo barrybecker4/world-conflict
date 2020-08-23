@@ -12,7 +12,6 @@ var erisk = (function(my) {
         // callback for the buttons on the bottom: new map, or start game
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
-            console.log("gameData =" + JSON.stringify(gameData));
             if (whichButton === 0) { // change map
                 regenerateGameData();
             } else {                 // start game
@@ -56,7 +55,6 @@ var erisk = (function(my) {
         // turn counter
         let html = div({i: 'turn-count', c: 'side-control'});
 
-        console.log("gameData.players = " + gameData.players)
         // player box area
         html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
             const pid = player.index;
@@ -80,12 +78,8 @@ var erisk = (function(my) {
     function regenerateGameData() {
         if (!isSetupValid()) return;
 
-        console.log("regen setup = " + JSON.stringify(storage.gameSetup));
-        console.log("regen gameId = " + gameData.gameId);
-
         google.script.run
             .withSuccessHandler(function(newGameData) {
-                console.log("makeGamerData SUCCESS "+ JSON.stringify(newGameData));
                 gameData.initializeFrom(newGameData);
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
@@ -105,8 +99,8 @@ var erisk = (function(my) {
                domUtils.toggleClass(id, 'selected', (playerType === buttonIndex));
            });
 
-           const name = getPlayerName(playerType, playerIndex);
-           $('player-box' + playerIndex).querySelector('.player-name').innerHTML = name;
+           $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
+               getPlayerName(playerType, playerIndex);
         });
 
         // update AI and turn count buttons
@@ -172,7 +166,7 @@ var erisk = (function(my) {
         }).join('');
         html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
         html += buttonPanel('AI', 'ai', ['Nice', 'Rude', 'Mean', 'Evil']);
-        const labels = CONSTS.TURN_COUNTS.map(ct => (ct == CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
+        const labels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
         html += buttonPanel('Turns', 'turn-count', labels);
 
         $('d').innerHTML = html;

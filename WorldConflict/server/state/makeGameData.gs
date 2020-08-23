@@ -10,8 +10,6 @@ var erisk = (function(my) {
     my.makeGameData = function(setup, gameId) {
 
         let players = [];
-        Logger.log("makeGameData = " + gameId);
-        Logger.log("setup.playerType = " + setup.playerTypes);
 
         setup.playerTypes.map(function(playerType, playerIndex) {
             if (playerType === CONSTS.PLAYER_OFF) {
@@ -43,7 +41,6 @@ var erisk = (function(my) {
         gameData.initialGameState = gameState;
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
-        //Logger.log("Now persisting\n" + JSON.stringify(gameData));
 
         gameData = gameConfigurationTable.upsert(gameData, gameId);
 

@@ -40,7 +40,6 @@ var erisk = (function(my) {
 
                     if (newState.endResult) { // did the game end?
                         showEndGame(newState);
-                        return;
                     } else {
                         erisk.setPreviousState(state.copy()); // only humans can undo
                         setTimeout(() => my.playOneMove(newState), 1); // recursive call
@@ -56,7 +55,7 @@ var erisk = (function(my) {
     }
 
     function replayMovesFromServer(state) {
-        console.log("Requesting replay moves from server starting at state.id = " + state.id);
+        // console.log("Requesting replay moves from server starting at state.id = " + state.id);
         google.script.run
             .withSuccessHandler(getPlaybackHandler(state))
             .withFailureHandler(showError)

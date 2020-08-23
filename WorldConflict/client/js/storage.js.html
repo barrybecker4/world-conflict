@@ -9,12 +9,10 @@ var storage = (function(my) {
             let stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
                 stored = JSON.parse(stored);
-                console.log("stored: " + JSON.stringify(stored));
                 utils.forEachProperty(getDefaultSetup(), function (value, name) {
                     if (typeof(stored[name]) === 'undefined')
                         stored[name] = value;
                 });
-                console.log("retrieved store: " + JSON.stringify(stored));
                 return stored;
             }
         }

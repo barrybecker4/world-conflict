@@ -40,8 +40,6 @@ function getUserId() {
 }
 
 function makeGameData(setup, gameId) {
-    Logger.log("in makeGameData with gameId = " + gameId);
-    Logger.log("setup = " + setup);
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     return erisk.makeGameData(setup, gameId);
 }
