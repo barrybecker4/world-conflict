@@ -17,7 +17,7 @@ var erisk = (function(my) {
             }
             const player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
 
-            if (playerType == CONSTS.PLAYER_AI) {
+            if (playerType === CONSTS.PLAYER_AI) {
                 player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();
             }
 
@@ -56,7 +56,7 @@ var erisk = (function(my) {
          */
         function setupTemples(initialSoldierCount, regions) {
 
-            var homes = findHomeRegions(regions);
+            const homes = findHomeRegions(regions);
 
             setupPlayersWithTheirTemples(players, homes);
             setupNeutralTemples(players, homes, regions);
@@ -66,7 +66,7 @@ var erisk = (function(my) {
                 players.map(function(player, playerIndex) {
                     // give the players some cash (or not)
                     gameState.cash[playerIndex] = 0;
-                    var region = homes[playerIndex];
+                    const region = homes[playerIndex];
                     // make one of the regions your own
                     gameState.owners[region.index] = playerIndex;
                     // put a temple and 3 soldiers in it
@@ -75,12 +75,12 @@ var erisk = (function(my) {
             }
 
             function setupNeutralTemples(players, homes, regions) {
-                var distancesToTemples = homes.map(function() { return 0; });
-                var templeRegions = [];
-                var neutralTempleCount = [3, 3, 4][players.length - 2];
+                let distancesToTemples = homes.map(function() { return 0; });
+                const templeRegions = [];
+                const neutralTempleCount = [3, 3, 4][players.length - 2];
 
                 utils.range(0, neutralTempleCount).map(function() {
-                    var bestRegion = sequenceUtils.max(regions, function(region) {
+                    const bestRegion = sequenceUtils.max(regions, function(region) {
                         return templeScore(region);
                     });
 
@@ -94,9 +94,9 @@ var erisk = (function(my) {
                     if (sequenceUtils.contains(templeRegions, newTemple))
                         return -100;
 
-                    var updated = updatedDistances(newTemple);
-                    var inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
-                    var templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple), regions);
+                    const updated = updatedDistances(newTemple);
+                    const inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
+                    let templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple), regions);
                     if (!templeDistances)
                         templeDistances = -5;
 
@@ -117,12 +117,11 @@ var erisk = (function(my) {
             const possibleSetups = utils.range(0, 1000).map(function() {
                 return players.map(() => regions[utils.rint(0, regions.length)]);
             });
-            const homes = sequenceUtils.max(possibleSetups, setup => distanceScore(setup, regions));
-            return homes;
+            return sequenceUtils.max(possibleSetups, setup => distanceScore(setup, regions));
         }
 
         function putTemple(region, soldierCount) {
-            var regionIndex = region.index;
+            const regionIndex = region.index;
             gameState.temples[regionIndex] = new Temple({ regionIndex });
             gameState.addSoldiers(regionIndex, soldierCount);
         }

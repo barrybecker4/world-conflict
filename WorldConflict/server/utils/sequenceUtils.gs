@@ -48,8 +48,8 @@ var sequenceUtils = (function (my) {
     // Shuffles a sequence (in place) and returns it.
     my.shuffle = function(seq) {
         seq.map(function(_, index) {
-            var otherIndex = utils.rint(index, seq.length);
-            var t = seq[otherIndex];
+            const otherIndex = utils.rint(index, seq.length);
+            const t = seq[otherIndex];
             seq[otherIndex] = seq[index];
             seq[index] = t;
         });

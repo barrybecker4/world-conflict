@@ -72,8 +72,8 @@ var mapGenerator = (function(my) {
         const pc = getPerturbConst();
         const angle = (Math.sin(x * x * y * y * 600 + pc * 357)) * 2 * Math.PI;
         const dist = (Math.sin(x * y * 600 + pc * 211)) / 2;
-        xPos = x + Math.sin(angle) * dist;
-        yPos = y + Math.cos(angle) * dist;
+        const xPos = x + Math.sin(angle) * dist;
+        const yPos = y + Math.cos(angle) * dist;
         return { x: xPos, y: yPos };
     }
 
@@ -122,11 +122,12 @@ var mapGenerator = (function(my) {
         // Figures out who borders with who, using the 2d grid in 'regionMap'.
         function fillNeighborLists() {
             utils.for2d(1, mapWidth - 1, 1, mapHeight - 1, function(x, y) {
-                var region = regionMap[x][y];
+                const region = regionMap[x][y];
                 if (region) {
                     [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {
-                        var potentialNeighbor = regionMap[x + d[0]][y + d[1]];
-                        if (potentialNeighbor && (potentialNeighbor != region) && (region.neighbors.indexOf(potentialNeighbor.index) == -1))
+                        const potentialNeighbor = regionMap[x + d[0]][y + d[1]];
+                        if (potentialNeighbor && (potentialNeighbor !== region)
+                            && (region.neighbors.indexOf(potentialNeighbor.index) === -1))
                             region.neighbors.push(potentialNeighbor.index);
                     });
                 }

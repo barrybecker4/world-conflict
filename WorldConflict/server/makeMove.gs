@@ -49,8 +49,6 @@ var erisk = (function(my) {
 
     // Show the fight using the attackSequence that was generated on the server.
     function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, attackSequence) {
-
-        const fromOwner = state.owner(fromRegion);
         const toOwner = state.owner(toRegion);
 
         state.undoDisabled = true; // fights cannot be undone
@@ -110,8 +108,8 @@ var erisk = (function(my) {
     // move the (remaining) soldiers into the toRegion
     function moveRemainingSoldiers(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, numDefenders) {
 
-        var fromOwner = state.owner(fromRegion);
-        var toOwner = state.owner(toRegion);
+        const fromOwner = state.owner(fromRegion);
+        const toOwner = state.owner(toRegion);
 
         if (fromList.length < incomingSoldiers) {
             throw new Error("We are trying to move " + incomingSoldiers + " from " + fromRegion + " to " +
@@ -120,12 +118,12 @@ var erisk = (function(my) {
         utils.range(0, incomingSoldiers).map(() => toList.push(fromList.shift()));
 
         // if this didn't belong to us, it now does
-        if (fromOwner != toOwner) {
+        if (fromOwner !== toOwner) {
             state.owners[toRegion] = fromOwner.index;
             // mark as conquered to prevent moves from this region in the same turn
             state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
             // if there was a temple, reset its upgrades
-            var temple = state.temples[toRegion];
+            const temple = state.temples[toRegion];
             if (temple) {
                 delete temple.upgrade;
             }
@@ -147,8 +145,8 @@ var erisk = (function(my) {
     }
 
     function buildUpgrade(state, regionIndex, upgrade) {
-        var temple = state.temples[regionIndex];
-        var templeOwner = state.owner(regionIndex);
+        const temple = state.temples[regionIndex];
+        const templeOwner = state.owner(regionIndex);
 
         if (upgrade.name === CONSTS.UPGRADES.SOLDIER.name) {
             buySoldier(state, templeOwner, upgrade, regionIndex);
@@ -186,9 +184,9 @@ var erisk = (function(my) {
     }
 
     function nextTurn(state) {
-        var player = state.activePlayer();
+        const player = state.activePlayer();
 
-        var playerIncome = state.income(player, gameData.aiLevel);
+        const playerIncome = state.income(player, gameData.aiLevel);
         state.cash[player.index] += playerIncome;
 
         if (playerIncome) {
@@ -238,12 +236,12 @@ var erisk = (function(my) {
     }
 
     function determineGameWinner(state) {
-        var pointsFn = player => state.regionCount(player);
-        var winner = sequenceUtils.max(gameData.players, pointsFn);
-        var otherPlayers = gameData.players.filter(function(player) { return player != winner; });
-        var runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
+        const pointsFn = player => state.regionCount(player);
+        const winner = sequenceUtils.max(gameData.players, pointsFn);
+        const otherPlayers = gameData.players.filter(function(player) { return player !== winner; });
+        const runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
 
-        return (pointsFn(winner) != pointsFn(runnerUp)) ? winner : CONSTS.DRAWN_GAME;
+        return (pointsFn(winner) !== pointsFn(runnerUp)) ? winner : CONSTS.DRAWN_GAME;
     }
 
     // Updates that happen after each move (checking for players losing, etc.)
@@ -262,17 +260,17 @@ var erisk = (function(my) {
     // update region ownership and notify if any players are eliminated
     function updatePlayerRegions(state) {
         gameData.players.map(function(player) {
-            var totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
+            const totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
                 return state.isOwnedBy(region, player) ? state.soldierCount(region) : 0;
             });
             if (!totalSoldiers && state.regionCount(player)) {
                 // lost!
                 utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
-                    if (player.index == gameData.players[ownerIdx].index)
+                    if (player.index === gameData.players[ownerIdx].index)
                         delete state.owners[regionIdx];
                 });
                 // dead people get no more moves
-                if (state.activePlayer() == player)
+                if (state.activePlayer() === player)
                     state.movesRemaining = 0;
                 // show the world the good (or bad) news
                 if (!isOnServer(state)) {

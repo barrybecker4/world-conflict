@@ -20,7 +20,7 @@ var heuristics = (function(my) {
             return state.isOwnedBy(region, player) ? adjustedRegionValue(region) : 0;
         });
         // each point of faith counts as 1/12th of a soldier
-        var faithTotal = state.income(player, gameData.aiLevel) * soldierBonus / 12;
+        const faithTotal = state.income(player, gameData.aiLevel) * soldierBonus / 12;
         return regionTotal + faithTotal;
     }
 
@@ -88,14 +88,14 @@ var heuristics = (function(my) {
         if (gameData.aiLevel === CONSTS.AI_NICE) return 0;
 
         // how much conquest does this region enable?
-        var attackingSoldiers = state.soldierCount(regionIndex);
+        const attackingSoldiers = state.soldierCount(regionIndex);
         if (!attackingSoldiers)
             return 0;
 
         let region = gameData.regions[regionIndex];
         return sequenceUtils.sum(region.neighbors, function(neighborIdx) {
             if (state.isOwnedBy(neighborIdx, player)) {
-                var defendingSoldiers = state.soldierCount(neighborIdx);
+                const defendingSoldiers = state.soldierCount(neighborIdx);
                 const opp = (attackingSoldiers / (defendingSoldiers + 0.01) - 0.9) * 0.5;
                 return utils.clamp(opp, 0, 0.5) * regionFullValue(state, neighborIdx);
             } else {
@@ -105,8 +105,8 @@ var heuristics = (function(my) {
     }
 
     function slidingBonus(state, startOfGameValue, endOfGameValue, dropOffPoint) {
-        var dropOffTurn = dropOffPoint * gameData.turnCount;
-        var alpha = (state.turnIndex - dropOffTurn) / (gameData.turnCount - dropOffTurn);
+        const dropOffTurn = dropOffPoint * gameData.turnCount;
+        let alpha = (state.turnIndex - dropOffTurn) / (gameData.turnCount - dropOffTurn);
         if (alpha < 0.0)
             alpha = 0.0;
         return startOfGameValue + (endOfGameValue - startOfGameValue) * alpha;

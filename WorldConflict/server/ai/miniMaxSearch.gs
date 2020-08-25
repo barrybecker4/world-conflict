@@ -70,7 +70,7 @@ var erisk = (function(my) {
         if (node) {
             // what sort of a node are we?
             let activePlayer = gameData.players[node.state.playerIndex];
-            let maximizingNode = activePlayer.index == node.activePlayer.index;
+            let maximizingNode = activePlayer.index === node.activePlayer.index;
             // is the value from child better than what we have?
             let better =
                 !node.bestMove ||

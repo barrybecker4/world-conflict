@@ -50,8 +50,8 @@ class Temple {
 class AiPersonality {
 
     /**
-     * @param soldierEagerness how eagerly it builds soldiers
-     * @param preferredUpgrades an array of which upgrades it prefers (if any)
+     * soldierEagerness - how eagerly it builds soldiers
+     * preferredUpgrades - an array of which upgrades it prefers (if any)
      */
     constructor(obj) {
         this.soldierEagerness = obj.soldierEagerness;
@@ -124,10 +124,10 @@ class GameState {
 
         // 1 faith per each soldier at a temple
         const self = this;
-        var fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
+        const fromTemples = sequenceUtils.sum(playerTemples, function(temple) {
             return self.soldierCount(temple.regionIndex);
         });
-        var multiplier = 1.0 + 0.01 * this.upgradeLevel(player, CONSTS.UPGRADES.WATER);
+        let multiplier = 1.0 + 0.01 * this.upgradeLevel(player, CONSTS.UPGRADES.WATER);
         if (player.personality && (aiLevel === CONSTS.AI_EVIL))
             multiplier += 0.4; // cheating - cause its evil...
         return Math.ceil(multiplier * (fromRegions + fromTemples));
@@ -141,7 +141,7 @@ class GameState {
     }
 
     regionCount(player) {
-        var total = 0;
+        let total = 0;
         gameData.regions.map(region => {
             if (this.isOwnedBy(region, player))
                 total++;
@@ -150,7 +150,7 @@ class GameState {
     }
 
     templesForPlayer(player) {
-        var playerTemples = [];
+        const playerTemples = [];
         utils.forEachProperty(this.temples, temple => {
             if (this.isOwnedBy(temple.regionIndex, player))
                 playerTemples.push(temple);
@@ -178,7 +178,7 @@ class GameState {
 
     isOwnedBy(region, player) {
         const owner = this.owner(region);
-        return owner && owner.index == player.index;
+        return owner && owner.index === player.index;
     }
 
     cashForPlayer(player) {
@@ -187,7 +187,7 @@ class GameState {
 
     rawUpgradeLevel(player, upgradeType) {
         return sequenceUtils.max(this.templesForPlayer(player).map(function(temple) {
-            if (temple.upgrade && temple.upgrade.name == upgradeType.name)
+            if (temple.upgrade && temple.upgrade.name === upgradeType.name)
                 return temple.level + 1;
             else
                 return 0;
@@ -202,7 +202,7 @@ class GameState {
 
         return sequenceUtils.max(gameData.regions.map(region => {
             // does it have a temple?
-            var temple = this.temples[region.index];
+            const temple = this.temples[region.index];
             if (!temple)
                 return 0;
             // does it belong to us?
@@ -225,7 +225,7 @@ class GameState {
 
     templeInfo(temple) {
         if (!temple.upgrade) {
-            var name = this.owner(temple.regionIndex) ? "Basic Temple" : "Neutral Temple";
+            const name = this.owner(temple.regionIndex) ? "Basic Temple" : "Neutral Temple";
             return { name, description: "No upgrades" };
         } else {
             let upgrade = temple.upgrade;
@@ -360,7 +360,7 @@ class ArmyMove extends Move {
         const fromOwner = state.owner(fromRegion);
         const toOwner = state.owner(toRegion);
 
-        if (fromOwner == toOwner) {
+        if (fromOwner === toOwner) {
             return undefined; // no fight needed
         }
 
@@ -368,7 +368,7 @@ class ArmyMove extends Move {
         let attackSequence = undefined;
 
         // earth upgrade - preemptive damage on defense. Auto kills the first "level" incoming solders.
-        var preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, CONSTS.UPGRADES.EARTH)]);
+        const preemptiveDamage = sequenceUtils.min([incomingSoldiers, state.upgradeLevel(toOwner, CONSTS.UPGRADES.EARTH)]);
 
         if (preemptiveDamage || defendingSoldiers) {
             attackSequence = [];
@@ -537,7 +537,7 @@ class Region {
             let item = queue.shift();
             let region = item.region;
             let distanceFromA = item.distance;
-            if (region == regionB) {
+            if (region === regionB) {
                 // we've found the region!
                 answer = distanceFromA;
             }

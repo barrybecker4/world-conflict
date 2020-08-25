@@ -7,7 +7,7 @@ var utils = (function (my) {
 
     // Returns an array of integers from low (inclusive) to high (exclusive).
     my.range = function(low, high) {
-        var r = [];
+        const r = [];
         for (var i = low; i < high; i++)
             r.push(i);
         return r;
