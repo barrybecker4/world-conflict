@@ -1,13 +1,13 @@
 <script>
 var erisk = (function(my) {
 
-    // Helps organize game flow so things are displayed in order taking animation into account.
+    // Helps organize game flow so things are displayed in order, taking animation into account.
     const oaatQueue = [];
 
     // Used to ensure that all animations from previous moves complete before a new one is played
     my.oneAtaTime = function(duration, fn) {
         oaatQueue.push({duration, fn});
-        if (oaatQueue.length == 1)
+        if (oaatQueue.length === 1)
             runOneTask();
 
         function runOneTask() {

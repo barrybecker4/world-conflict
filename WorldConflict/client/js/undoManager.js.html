@@ -1,7 +1,7 @@
 <script>
 var erisk = (function(my) {
 
-    var previousState = null;
+    let previousState = null;
 
     my.setPreviousState = function(state) {
         previousState = state;
@@ -22,9 +22,9 @@ var erisk = (function(my) {
         uiCallbacks.clearAll();
 
         // roll-back the state to "previous"
-        var restoredState = previousState;
+        let restoredState = previousState;
         previousState = null;
-        erisk.playOneMove(restoredState);
+        erisk.playOneMove(restoredState, true);
     }
 
     return my;

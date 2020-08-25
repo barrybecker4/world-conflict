@@ -1,10 +1,11 @@
 <script>
 var audio = (function(my) {
+    // WebAudio is support in all browsers except IE11 and earlier
     const audioCtx = window.AudioContext && new AudioContext();
     const soundMap = {};
 
     my.setupAudio = function() {
-        if (!audioCtx) // do we have WebAudio?
+        if (!audioCtx)
             return;
 
         soundMap['CLICK'] = makeBuffer(adsr(0.01, 0.03, 0.01, 0.01, 0.2,
