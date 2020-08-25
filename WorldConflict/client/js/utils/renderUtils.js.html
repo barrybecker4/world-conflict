@@ -1,0 +1,72 @@
+<script>
+    renderUtils = (function() {
+
+        const my  = {};
+        const { range, rint, lerp } = utils;
+        const { div, $,  append, setTransform } = domUtils;
+        const { projectPoint } = geomUtils;
+
+
+        my.spawnSmokeParticles = function(div) {
+            const x = parseFloat(div.style.left);
+            const y = parseFloat(div.style.top);
+            const numParticles = 20;
+            range(0, numParticles).map(function() {
+                const angle = Math.random() * 6.28;
+                const dist = rint(0, 200) / 80;
+                spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#112');
+            });
+        }
+
+        my.spawnCelebratoryParticles = function(region) {
+            region.points.map(point => {
+                point = projectPoint(point);
+                const center = region.center;
+                const alpha = rint(30, 150) / 100;
+                const startPoint = { x: lerp(alpha, center.x, point.x), y: lerp(alpha, center.y, point.y) };
+                const vx = (startPoint.x - center.x) / 2;
+                const vy = (startPoint.y - center.y) / 2 - 0.15;
+                spawnParticle(startPoint.x, startPoint.y, vx, vy, '#fff');
+            });
+        }
+
+        function spawnParticle(x, y, vx, vy, color) {
+            // box-shadow:  x-offset, y-offset, blur radius, spread radius, color
+            const styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 4px 4px " + color;
+            const particle = append('map', div({c: 'particle', s: styleString}, ''));
+            my.floatAway(particle, vx, vy);
+        }
+
+        my.floatAway = function(elem, vx, vy) {
+            setTimeout(function() {
+                setTransform(elem, "translate3d(" + vx + "em," + vy + "em,0)");
+                elem.style.opacity = '0.0';
+            }, 100);
+            setTimeout(function() {
+                if ($('map').contains(elem))
+                    $('map').removeChild(elem);
+            }, 3050);
+        }
+
+        my.preserveAspect = function() {
+            setTimeout(function() {
+                let w = window.innerWidth;
+                let h = window.innerHeight;
+                let aspect = 1.65, px = 'px';
+
+                if (w / h > aspect) {
+                    w = h * aspect;
+                } else {
+                    h = w / aspect;
+                }
+
+                const styles = $('container').style;
+                styles.width = w + px;
+                styles.height = h + px;
+                styles.fontSize = 0.0154 * Math.pow(h, 1.07) + px;
+            }, 0);
+        }
+
+        return my;
+    }());
+</script>
