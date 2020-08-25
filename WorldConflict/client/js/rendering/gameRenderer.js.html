@@ -1,13 +1,18 @@
 <script>
 erisk.gameRenderer = (function() {
 
-    var my  = {};
+    const my  = {};
     let soldierDivsById = {};
-    const { range, rint, sum, lerp, forEachProperty } = utils;
-    const { elem, div, $,  append, onClickOrTap,  toggleClass, setTransform } = domUtils;
+    const { range, rint, lerp, forEachProperty } = utils;
+    const { elem, div, $,  append, onClickOrTap, toggleClass, setTransform } = domUtils;
     const { projectPoint, makePolygon, centerOfWeight, transformPoints } = geomUtils;
 
-    // Initial rendering of the game map (regions) as an SVG object.
+    const DEAD_SYMBOL = '&#9760;'; // skull and crossbones - shows when you're dead
+    const FAITH_SYMBOL = '&#9775;'; // faith is like money
+    const VICTORY_SYMBOL = '&#9819;';
+    const REGION_SYMBOL = '&#9733;'; // a star represents a region
+
+    // Initial rendering of the game map (regions) as an SVG object. TODO: split out mapRenderer
     my.showMap = function(container, gameState) {
 
         // define gradients and clipping paths for rendering
@@ -44,7 +49,7 @@ erisk.gameRenderer = (function() {
             preserveAspectRatio: 'none'
         }, defs + ocean + shadows + bottoms + tops + highlighters);
 
-        // clean some internal structures used to track HTML nodes
+        // clean internal structure used to track HTML nodes
         soldierDivsById = {};
 
         // hook up region objects to their HTML elements
@@ -59,7 +64,6 @@ erisk.gameRenderer = (function() {
         // clears the currently selected region
         onClickOrTap(document.body, event => uiCallbacks.invokeCallback(null, 'regionSelected', event));
 
-        // make the temple <div>s
         makeTemples();
 
         // makes clipping paths for the "highlight" polygons
@@ -81,7 +85,7 @@ erisk.gameRenderer = (function() {
             }).join(''));
         }
 
-        // makes temple, which are just <div>s with nested <div>s (the towers)
+        // makes temples, which are just <div>s with nested <div>s (the towers)
         function makeTemples() {
             forEachProperty(gameState.temples, function(temple, i) {
                 const center = gameData.regions[temple.regionIndex].center,
@@ -133,30 +137,35 @@ erisk.gameRenderer = (function() {
             const regionOwner = gameState.owner(region);
             let gradientName = regionOwner ? 'p' + regionOwner.index : 'land';
 
-            // a region is highlighted if it has an available move, or belongs to the winner
-            // (end game display highlights the winner)
-            const hasAvailableMove =
-                sequenceUtils.contains(gameState.moveDecision && gameState.moveDecision.highlitRegions || [], regionIndex);
-            const highlighted = hasAvailableMove ||
-                (gameState.endResult && regionOwner && regionOwner.index == gameState.endResult.index);
+            // a region is highlighted if it is an available move, or belongs to the winner
+            const highlighted = hasAvailableMove(regionIndex, gameState) || isWinnerRegion(regionOwner, gameState);
 
             if (highlighted) {
                 gradientName += '-highlight';
             }
             let highlightedOpacity = 0.1 + region.center.x * 0.003;
-            if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source == regionIndex))
+            if (gameState.endResult || (gameState.moveDecision && gameState.moveDecision.source === regionIndex))
                 highlightedOpacity *= 2;
             const highlightEl = $(region.highlightId);
-            highlightEl.style.opacity = highlighted ? highlightedOpacity : 0.0;
+            highlightEl.style.opacity = highlighted ? highlightedOpacity : '0.0';
             highlightEl.style.cursor = highlighted ? 'pointer' : 'default';
 
-            if (gameState.particleTempleRegion && gameState.particleTempleRegion.index == regionIndex) {
+            if (gameState.particleTempleRegion && gameState.particleTempleRegion.index === regionIndex) {
                 gameState.particleTempleRegion = undefined;
                 spawnCelebratoryParticles(region);
             }
 
             const regionEl = $(region.elementId);
             regionEl.style.fill = 'url(#' + gradientName + ')';
+        }
+
+        function hasAvailableMove(regionIndex, gameState) {
+            const highlitRegions = gameState.moveDecision && gameState.moveDecision.highlitRegions || [];
+            return sequenceUtils.contains(highlitRegions, regionIndex);
+        }
+
+        function isWinnerRegion(regionOwner, gameState) {
+            return gameState.endResult && regionOwner && regionOwner.index === gameState.endResult.index;
         }
 
         function updateTooltips() {
@@ -171,7 +180,7 @@ erisk.gameRenderer = (function() {
             else {
                 showConqueringCannotMoveTip();
             }
-            if (gameState.turnIndex == 2 && gameState.movesRemaining == 2) {
+            if (gameState.turnIndex === 2 && gameState.movesRemaining === 2) {
                 showTooltipOver({ center: { x: 90, y: 93 } },
                     "If you want to undo a move or check the rules, use the buttons here.", 15);
             }
@@ -197,7 +206,7 @@ erisk.gameRenderer = (function() {
         function showTooltipOver(region, text, width) {
             if (storage.gameSetup.firstTimeInstructions[text]) return;
             setTimeout(function() {
-                // don't display it again (timeout to handle multiple updateDisplays() in a row)
+                // don't display it again. Timeout used to handle multiple updateDisplays() in a row.
                 storage.gameSetup.firstTimeInstructions[text] = 1;
                 storage.storeSetup();
             }, 500);
@@ -223,14 +232,17 @@ erisk.gameRenderer = (function() {
                 element = element.firstChild;
             }
 
-            // which cursor should we use?
-            let activePlayerIsTempleOwner = gameState.isOwnedBy(temple.regionIndex, gameState.activePlayer());
+            setTempleCursor(temple, gameState);
+        }
+
+        function setTempleCursor(temple, gameState) {
             const templeEl = $(temple.elementId);
             if (templeEl) {
+                let activePlayerIsTempleOwner = gameState.isOwnedBy(temple.regionIndex, gameState.activePlayer());
                 templeEl.style.cursor = appState.isInGame() ?
                     (activePlayerIsTempleOwner ? 'zoom-in' : 'help') : 'default';
 
-                const selected = gameState.moveDecision && gameState.moveDecision.regionIndex == temple.regionIndex;
+                const selected = gameState.moveDecision && gameState.moveDecision.regionIndex === temple.regionIndex;
                 toggleClass(templeEl, 'selected', selected);
             }
         }
@@ -238,15 +250,7 @@ erisk.gameRenderer = (function() {
         function updateSoldierDisplay(region, soldier, index) {
             // we're still alive, so no removing our <div>
             soldiersStillAlive.push(soldier.i);
-
-            // find or create a <div> for showing the soldier
-            let domElement = soldierDivsById[soldier.i];
-            if (!domElement) {
-                let html = div({c: 'soldier', s: 'display: none'});
-                domElement = append('map', html);
-                soldierDivsById[soldier.i] = domElement;
-                onClickOrTap(domElement, (event) => uiCallbacks.invokeCallback(soldier, 'soldierSelected', event));
-            }
+            const domElement = findOrCreateSoldierElement(soldier);
 
             // (re)calculate where the <div> should be
             const center = region.center;
@@ -273,7 +277,23 @@ erisk.gameRenderer = (function() {
             domElement.style.display = 'block';
 
             const decisionState = gameState.moveDecision || {};
-            toggleClass(domElement, 'selected', (decisionState.source == region.index && index < decisionState.count));
+            toggleClass(domElement, 'selected', (decisionState.source === region.index && index < decisionState.count));
+        }
+
+        function findOrCreateSoldierElement(soldier) {
+            let domElement = soldierDivsById[soldier.i];
+            if (!domElement) {
+                domElement = createSoldierElement(soldier);
+            }
+            return domElement;
+        }
+
+        function createSoldierElement(soldier) {
+            let html = div({c: 'soldier', s: 'display: none'});
+            const domElement = append('map', html);
+            soldierDivsById[soldier.i] = domElement;
+            onClickOrTap(domElement, (event) => uiCallbacks.invokeCallback(soldier, 'soldierSelected', event));
+            return domElement;
         }
 
         function updateSoldierTooltips() {
@@ -286,7 +306,7 @@ erisk.gameRenderer = (function() {
                 let count = gameState.soldierCount(region);
                 if (count > 8) {
                     const moveSourceIsRegion =
-                        (gameState.moveDecision && (gameState.moveDecision.source == region.index));
+                        (gameState.moveDecision && (gameState.moveDecision.source === region.index));
                     let selected = moveSourceIsRegion ? gameState.moveDecision.count : 0;
                     selected += sequenceUtils.sum(gameState.soldiersAtRegion(regionIndex), function(soldier) {
                         return (typeof soldier.attackedRegion !== 'undefined') ? 1 : 0;
@@ -320,19 +340,16 @@ erisk.gameRenderer = (function() {
                     y = region.center.y;
                 } else if (floater.soldier) {
                     const node = soldierDivsById[floater.soldier.i];
-                    if (!node) {
-                        throw new Error("No node found for " + JSON.stringify(floater.soldier) +
-                            " in " + JSON.stringify(soldierDivsById[floater.soldier.i]));
-                    }
                     x = parseFloat(node.style.left) + 0.2;
                     y = parseFloat(node.style.top) + 0.2;
                 } else {
-                    throw new Error("The floater had niether region, nor soldier:\n" + JSON.stringify(floater));
+                    throw new Error("The floater had neither region, nor soldier:\n" + JSON.stringify(floater));
                 }
 
                 x -= floater.width / 2 + 0.5; y -= 4;
 
-                const styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
+                const styles = "left: " + x + "%;top:" + y + "%;color:" +
+                    floater.center + ";width:" + floater.width + "%";
                 const floatingNode = append('map', div({c: 'tt', s: styles}, floater.text));
                 setTransform(floatingNode, "translate3d(0,0,0)");
                 floatAway(floatingNode, 0, -3);
@@ -390,12 +407,13 @@ erisk.gameRenderer = (function() {
         } else {
             turnCountEl.innerHTML =
                 'Turn <b>' + gameState.turnIndex + '</b>' +
-                ((storage.gameSetup.turnCount != CONSTS.UNLIMITED_TURNS) ? ' / ' + storage.gameSetup.turnCount : '');
+                ((storage.gameSetup.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + storage.gameSetup.turnCount : '');
         }
 
         // player data
         gameData.players.map(function(player, index) {
-            $('player-box' + index).className = (index == gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
+            $('player-box' + index).className =
+                (index === gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
             const hasRegions = gameState.regionCount(player);
             const gameWinner = gameState.endResult;
             const regionCountEl = $('region-count' + index);
@@ -404,15 +422,15 @@ erisk.gameRenderer = (function() {
             if (!regionCountEl) return;
 
             if (hasRegions) {
-                regionCountEl.innerHTML = gameState.regionCount(player) + '&#9733;';
+                regionCountEl.innerHTML = gameState.regionCount(player) + REGION_SYMBOL;
                 if (gameWinner) {
-                    playerCashEl.innerHTML = (gameWinner == player) ? '&#9819;' : '';
+                    playerCashEl.innerHTML = (gameWinner === player) ? VICTORY_SYMBOL : '';
                 } else {
-                    playerCashEl.innerHTML = gameState.cash[player.index] + '&#9775;'; // faith
+                    playerCashEl.innerHTML = gameState.cash[player.index] + FAITH_SYMBOL;
                 }
             }
             else {
-                regionCountEl.innerHTML = '&#9760;'; // skull and crossbones, you're dead
+                regionCountEl.innerHTML = DEAD_SYMBOL;
                 playerCashEl.innerHTML = '';
             }
         });
@@ -420,7 +438,7 @@ erisk.gameRenderer = (function() {
         let moveInfo;
         if (!activePlayer.personality) {
             if (buildingMode) {
-                if (gameState.owner(decisionState.regionIndex).index == activePlayer.index)
+                if (gameState.owner(decisionState.regionIndex).index === activePlayer.index)
                     moveInfo = elem('p', {}, 'Choose an upgrade to build.');
                 else
                     moveInfo = '';
