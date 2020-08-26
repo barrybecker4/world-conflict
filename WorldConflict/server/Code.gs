@@ -39,9 +39,12 @@ function getUserId() {
   return email.substring(0, email.indexOf("@"));
 }
 
-function makeGameData(setup, gameId) {
+function makeGameData(setup, gameId, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
-    return erisk.makeGameData(setup, gameId);
+    if (clientGameData) {
+        gameData.initializeFrom(clientGameData);
+    }
+    return erisk.makeGameData(setup, gameId, clientGameData);
 }
 
 function appendGameMoves(moves) {
@@ -65,7 +68,6 @@ function getGameMoves(gameId, lastGameStateId) {
 async function makeComputerMoves(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
 
-    console.log("clientGameData.initialState =" + clientGameData.initialState); // unexpected; undefined
     gameData.initializeFrom(clientGameData);
 
     let newState = new GameState(state[0]);

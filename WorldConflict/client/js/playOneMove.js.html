@@ -58,7 +58,7 @@ var erisk = (function(my) {
     }
 
     function replayMovesFromServer(state) {
-        // console.log("Requesting replay moves from server starting at state.id = " + state.id);
+        console.log("Requesting replay moves from server starting at state.id = " + state.id);
         google.script.run
             .withSuccessHandler(getPlaybackHandler(state))
             .withFailureHandler(showError)

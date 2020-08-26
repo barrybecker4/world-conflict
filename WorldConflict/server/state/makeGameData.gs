@@ -1,32 +1,14 @@
 var erisk = (function(my) {
 
     /**
-     * Create game state, regions, and players based on setup configuration
-     * Update regions and players in the global gameData
+     * Create game state, regions, and players based on setup configuration.
+     * Update regions and players in the global gameData.
      * @param setup the new setup configuration from the user
      * @param gameId (optional) if present then the setup for this gameId will be updated, else created
+     * @param keepCurrentMap if true, then do not generate a new map (use the one already in the gameData)
      * @return fully fleshed out gameData that is persisted in firestore
      */
-    my.makeGameData = function(setup, gameId) {
-
-        let players = [];
-
-        setup.playerTypes.map(function(playerType, playerIndex) {
-            if (playerType === CONSTS.PLAYER_OFF) {
-                return;
-            }
-            const player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
-
-            if (playerType === CONSTS.PLAYER_AI) {
-                player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();
-            }
-
-            player.index = players.length;
-            player.originalIndex = playerIndex;
-            players.push(player);
-        });
-
-        let regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight);
+    my.makeGameData = function(setup, gameId, keepCurrentMap) {
 
         let gameState = new GameState({
             turnIndex: 1,
@@ -35,11 +17,19 @@ var erisk = (function(my) {
             gameId
         });
 
-        setupTemples(3, regions);
+        const oldNumPlayers = ((gameData.players && gameData.players.length) || 0);
+        const players = createPlayers(setup);
 
-        gameData.regions = regions;
+        // we cannot keep the old map if the number of players has changed.
+        keepCurrentMap = keepCurrentMap && players.length === oldNumPlayers;
+
         gameData.players = players;
-        gameData.initialGameState = gameState;
+        if (!keepCurrentMap) {
+            const regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight);
+            setupTemples(3, regions);
+            gameData.regions = regions;
+            gameData.initialGameState = gameState;
+        }
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
 
@@ -49,6 +39,26 @@ var erisk = (function(my) {
 
         function distanceScore(regions, allRegions) {
             return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
+        }
+
+        function createPlayers(setup) {
+            const players = [];
+
+            setup.playerTypes.map(function(playerType, playerIndex) {
+                if (playerType === CONSTS.PLAYER_OFF) {
+                    return;
+                }
+                const player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
+
+                if (playerType === CONSTS.PLAYER_AI) {
+                    player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();
+                }
+
+                player.index = players.length;
+                player.originalIndex = playerIndex;
+                players.push(player);
+            });
+            return players;
         }
 
         /**
@@ -117,7 +127,7 @@ var erisk = (function(my) {
             const possibleSetups = utils.range(0, 1000).map(function() {
                 return players.map(() => regions[utils.rint(0, regions.length)]);
             });
-            return sequenceUtils.max(possibleSetups, setup => distanceScore(setup, regions));
+            return sequenceUtils.max(possibleSetups, regionSetup => distanceScore(regionSetup, regions));
         }
 
         function putTemple(region, soldierCount) {

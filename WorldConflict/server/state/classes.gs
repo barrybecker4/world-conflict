@@ -13,13 +13,15 @@ class Player {
 
     getPlayerName() {
         switch(storage.gameSetup.playerTypes[this.originalIndex]) {
-            case CONSTS.PLAYER_OFF: return '&nbsp;';
-            case CONSTS.PLAYER_YOU: return getTrimmedUserName();
-            case CONSTS.PLAYER_HUMAN: return '<span style="color: #ccc;"><i>&lt; open &gt;</i></span>';
+            case CONSTS.PLAYER_OFF:
+                return '&nbsp;';
+            case CONSTS.PLAYER_YOU:
+                return getTrimmedName(domUtils.$('userid').textContent);
+            case CONSTS.PLAYER_HUMAN:
+                return this.name ? getTrimmedName(this.name) : '<span style="color: #ccc;"><i>&lt; open &gt;</i></span>';
             default: return this.defaultName;
         }
-        function getTrimmedUserName() {
-            const name = domUtils.$('userid').textContent;
+        function getTrimmedName(name) {
             return (name.length > 16) ? name.substring(0, 15) + '&#8230;' : name;
         }
     }

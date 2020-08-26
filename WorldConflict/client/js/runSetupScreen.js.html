@@ -9,31 +9,52 @@ var erisk = (function(my) {
         regenerateGameData();
         createSetupUI();
 
-        // callback for the buttons on the bottom: new map, or don configuring
+        // callback for the buttons on the bottom: new map, or done configuring
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
             if (whichButton === 0) { // change map
                 regenerateGameData();
-            } else {                 // start game
-                //startGame();
+            } else if (areOpenSlots()) {
                 doneConfiguring();
+            } else {
+                startGame();
             }
         });
 
+        function areOpenSlots() {
+            const reducer = (accumulator, currentValue) => accumulator + (currentValue === CONSTS.PLAYER_HUMAN ? 1 : 0);
+            const numOpen = storage.gameSetup.playerTypes.reduce(reducer, 0);
+            return numOpen > 0;
+        }
+
         // After clicking "done configuring", wait for other players to join.
-        // If you get tired of waiting, you can click "Start anyway" and unassigned players will be "off".
+        // If you get tired of waiting, you can click "Start anyway" and unassigned players will be AIs.
         function doneConfiguring() {
             updateStartAnywayButton();
             uiCallbacks.setBuildCB(startGame);
         }
 
         function startGame() {
-            prepareInGameUI();
-            erisk.gameRenderer.updateDisplay(gameData.initialGameState);
-            appState.setInGame(true); // playing the game now
-            const state = gameData.initialGameState;
-            erisk.gameRenderer.showPlayerBanner(state.activePlayer());
-            erisk.playOneMove(state);
+            convertOpenSlotsToAiPlayers(function() {
+                prepareInGameUI();
+                erisk.gameRenderer.updateDisplay(gameData.initialGameState);
+                appState.setInGame(true); // playing the game now
+                const state = gameData.initialGameState;
+                erisk.gameRenderer.showPlayerBanner(state.activePlayer());
+                erisk.playOneMove(state);
+            });
+        }
+
+        // Convert any unassigned open human slots to AI players to allow the game to start.
+        function convertOpenSlotsToAiPlayers(callback) {
+            for (let i = 0; i < gameData.players.length; i++) {
+                const player = gameData.players[i];
+                const pType = storage.gameSetup.playerTypes[player.originalIndex];
+                if (pType === CONSTS.PLAYER_HUMAN && !player.name) {
+                    storage.gameSetup.playerTypes[player.originalIndex] = CONSTS.PLAYER_AI;
+                }
+            }
+            regenerateGameDataWithoutNewMap(callback);
         }
 
         // Callback for player setup buttons. Assigns one of the player types.
@@ -43,7 +64,7 @@ var erisk = (function(my) {
 
             updatePlayerConfigButtons();
             updateConfigBottomButtons();
-            regenerateGameData();
+            regenerateGameDataWithoutNewMap();
         });
 
         // callback for AI config buttons
@@ -89,7 +110,11 @@ var erisk = (function(my) {
         ['move-info', 'undo-button', 'restart'].map(domUtils.show);
     }
 
-    function regenerateGameData() {
+    function regenerateGameDataWithoutNewMap(callback) {
+        regenerateGameData(callback, true);
+    }
+
+    function regenerateGameData(callback, keepCurrentMap) {
         if (!isSetupValid()) return;
 
         google.script.run
@@ -97,9 +122,12 @@ var erisk = (function(my) {
                 gameData.initializeFrom(newGameData);
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
+                if (callback) {
+                    callback();
+                }
              })
             .withFailureHandler(showError)
-            .makeGameData(storage.gameSetup, gameData.gameId);
+            .makeGameData(storage.gameSetup, gameData.gameId, keepCurrentMap ? gameData.getSimpleObject() : null);
     }
 
     function updatePlayerConfigButtons() {
@@ -147,7 +175,7 @@ var erisk = (function(my) {
     function updateStartAnywayButton() {
         erisk.gameRenderer.updateButtons([
             { text: 'Start anyway', disabled: false },
-        ], "Waiting for players to join...");
+        ], "Waiting for players to join open slots...");
     }
 
     // UI to configure the game to be played before it is played
