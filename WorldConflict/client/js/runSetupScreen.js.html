@@ -9,15 +9,23 @@ var erisk = (function(my) {
         regenerateGameData();
         createSetupUI();
 
-        // callback for the buttons on the bottom: new map, or start game
+        // callback for the buttons on the bottom: new map, or don configuring
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
             if (whichButton === 0) { // change map
                 regenerateGameData();
             } else {                 // start game
-                startGame();
+                //startGame();
+                doneConfiguring();
             }
         });
+
+        // After clicking "done configuring", wait for other players to join.
+        // If you get tired of waiting, you can click "Start anyway" and unassigned players will be "off".
+        function doneConfiguring() {
+            updateStartAnywayButton();
+            uiCallbacks.setBuildCB(startGame);
+        }
 
         function startGame() {
             prepareInGameUI();
@@ -33,27 +41,27 @@ var erisk = (function(my) {
             // set the controller type for the player
             storage.gameSetup.playerTypes[event.playerIndex] = event.playerTypeIndex;
 
-            updateConfigButtons();
-            updateBottomButtons();
+            updatePlayerConfigButtons();
+            updateConfigBottomButtons();
             regenerateGameData();
         });
 
         // callback for AI config buttons
         uiCallbacks.setSetupAiLevelCB(function(aiLevel) {
             storage.gameSetup.aiLevel = aiLevel;
-            updateConfigButtons();
+            updatePlayerConfigButtons();
         });
 
         uiCallbacks.setSetupTurnCountCB(function(turnCount) {
             storage.gameSetup.turnCount = turnCount;
-            updateConfigButtons();
+            updatePlayerConfigButtons();
         });
     }
 
     function createSetupUI() {
         prepareSetupUI();
-        updateConfigButtons();
-        updateBottomButtons();
+        updatePlayerConfigButtons();
+        updateConfigBottomButtons();
     }
 
     // Prepares the whole sidebar on the left for gameplay use.
@@ -94,7 +102,7 @@ var erisk = (function(my) {
             .makeGameData(storage.gameSetup, gameData.gameId);
     }
 
-    function updateConfigButtons() {
+    function updatePlayerConfigButtons() {
         // somebody changed something, so store the new setup
         storage.storeSetup();
 
@@ -128,11 +136,17 @@ var erisk = (function(my) {
         return enabledPlayers > 1 && numYouPlayers > 0;
     }
 
-    function updateBottomButtons() {
+    function updateConfigBottomButtons() {
         const buttonsDisabled = !isSetupValid();
         erisk.gameRenderer.updateButtons([
-            {text: 'Change map', disabled: buttonsDisabled},
-            {text: 'Done configuring', disabled: buttonsDisabled}
+            { text: 'Change map', disabled: buttonsDisabled },
+            { text: 'Done configuring', disabled: buttonsDisabled },
+        ]);
+    }
+
+    function updateStartAnywayButton() {
+        erisk.gameRenderer.updateButtons([
+            { text: 'Start anyway', disabled: false },
         ]);
     }
 
