@@ -18,7 +18,9 @@ var erisk = (function(my) {
                 prepareInGameUI();
                 erisk.gameRenderer.updateDisplay(gameData.initialGameState);
                 appState.setInGame(true); // playing the game now
-                erisk.playOneMove(gameData.initialGameState);
+                const state = gameData.initialGameState;
+                erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().getPlayerName() + "'s turn");
+                erisk.playOneMove(state);
             }
         });
 
