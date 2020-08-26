@@ -15,14 +15,18 @@ var erisk = (function(my) {
             if (whichButton === 0) { // change map
                 regenerateGameData();
             } else {                 // start game
-                prepareInGameUI();
-                erisk.gameRenderer.updateDisplay(gameData.initialGameState);
-                appState.setInGame(true); // playing the game now
-                const state = gameData.initialGameState;
-                erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().getPlayerName() + "'s turn");
-                erisk.playOneMove(state);
+                startGame();
             }
         });
+
+        function startGame() {
+            prepareInGameUI();
+            erisk.gameRenderer.updateDisplay(gameData.initialGameState);
+            appState.setInGame(true); // playing the game now
+            const state = gameData.initialGameState;
+            erisk.gameRenderer.showPlayerBanner(state.activePlayer());
+            erisk.playOneMove(state);
+        }
 
         // Callback for player setup buttons. Assigns one of the player types.
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
@@ -48,8 +52,8 @@ var erisk = (function(my) {
 
     function createSetupUI() {
         prepareSetupUI();
-        updateBottomButtons();
         updateConfigButtons();
+        updateBottomButtons();
     }
 
     // Prepares the whole sidebar on the left for gameplay use.
@@ -128,7 +132,7 @@ var erisk = (function(my) {
         const buttonsDisabled = !isSetupValid();
         erisk.gameRenderer.updateButtons([
             {text: 'Change map', disabled: buttonsDisabled},
-            {text: 'Start game', disabled: buttonsDisabled}
+            {text: 'Done configuring', disabled: buttonsDisabled}
         ]);
     }
 

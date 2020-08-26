@@ -207,7 +207,7 @@ var erisk = (function(my) {
         }
         else if (!state.simulatingPlayer && erisk.gameRenderer) {
             // if this is not simulated (as during search), we'd like a "next turn" banner
-            erisk.gameRenderer.showBanner(state.activePlayer().colorEnd, state.activePlayer().getPlayerName() + "'s turn");
+            erisk.gameRenderer.showPlayerBanner(state.activePlayer());
         }
     }
 

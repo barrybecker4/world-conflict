@@ -133,6 +133,10 @@ erisk.gameRenderer = (function() {
         $('undo-button').innerHTML = erisk.undoEnabled(gameState) ? "&#x21b6;" : "";
     }
 
+    my.showPlayerBanner = function(player) {
+        my.showBanner(player.colorEnd, player.getPlayerName() + "'s turn");
+    }
+
     my.showBanner = function(background, text, delay, duration) {
         delay = delay || 1;
         duration = duration || 1600;
