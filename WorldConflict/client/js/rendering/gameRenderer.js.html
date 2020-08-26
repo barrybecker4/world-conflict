@@ -21,8 +21,14 @@ erisk.gameRenderer = (function() {
         erisk.mapRenderer.updateMapDisplay(gameState);
     }
 
-    my.updateButtons = function(buttons) {
+    my.updateButtons = function(buttons, infoText) {
         $('footer-buttons').innerHTML = '';
+
+        if (infoText) {
+            const textBox = div({c: 'description info-text'}, infoText);
+            const buttonNode = append('footer-buttons', textBox);
+        }
+
         (buttons || []).map(function(button, index) {
             if (button.hidden) return;
 
