@@ -11,6 +11,8 @@ erisk.gameRenderer = (function() {
     const VICTORY_SYMBOL = '&#9819;';
     const REGION_SYMBOL = '&#9733;'; // a star represents a region
 
+    const footerButtonsId = 'footer-buttons';
+
 
     // Initial rendering of the game map (regions) as an SVG object. TODO: split out mapRenderer
     my.showMap = function(container, gameState) {
@@ -22,26 +24,29 @@ erisk.gameRenderer = (function() {
     }
 
     my.updateButtons = function(buttons, infoText) {
-        $('footer-buttons').innerHTML = '';
+        $(footerButtonsId).innerHTML = '';
 
         if (infoText) {
             const textBox = div({c: 'description info-text'}, infoText);
-            const buttonNode = append('footer-buttons', textBox);
+            const buttonNode = append(footerButtonsId, textBox);
         }
 
-        (buttons || []).map(function(button, index) {
-            if (button.hidden) return;
+        (buttons || []).map(createButton);
+    }
 
-            let buttonContents = div({}, button.text);
-            if (button.description)
-                buttonContents += div({c: 'description'}, button.description);
+    function createButton(button, index) {
+        if (button.hidden) return;
 
-            let buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : ''}, buttonContents);
-            const buttonNode = append('footer-buttons', buttonHTML);
-            if (!button.disabled) {
-                onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
-            }
-        });
+        let buttonContents = div({}, button.text);
+        if (button.description)
+            buttonContents += div({c: 'description'}, button.description);
+
+        const tip = button.tip ? button.tip : '';
+        const buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : '', tt: tip}, buttonContents);
+        const buttonNode = append(footerButtonsId, buttonHTML);
+        if (!button.disabled) {
+            onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
+        }
     }
 
     let displayedState;

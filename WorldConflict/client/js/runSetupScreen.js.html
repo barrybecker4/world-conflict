@@ -168,13 +168,18 @@ var erisk = (function(my) {
         const buttonsDisabled = !isSetupValid();
         erisk.gameRenderer.updateButtons([
             { text: 'Change map', disabled: buttonsDisabled },
-            { text: 'Done configuring', disabled: buttonsDisabled },
+            { text: 'Done configuring', disabled: buttonsDisabled,
+              tip: 'Click this when done configuring the game at the top'
+            },
         ]);
     }
 
     function updateStartAnywayButton() {
         erisk.gameRenderer.updateButtons([
-            { text: 'Start anyway', disabled: false },
+            { text: 'Start anyway', disabled: false,
+              tip: 'If you are tired of waiting for other human players to join, ' +
+                   'you can click this and AI players will be used instead'
+            },
         ], "Waiting for players to join open slots...");
     }
 
