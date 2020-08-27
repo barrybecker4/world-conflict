@@ -1,6 +1,7 @@
 
 var CONSTS = (function(my) {
 
+    const DEBUG = false;
     const SOLDIER_COSTS = calcCosts(8, 16);
 
     const UNLIMITED_TURNS = 1000000;
@@ -135,6 +136,7 @@ var CONSTS = (function(my) {
             PLAYERS,
             SOUNDS,
             AI_PERSONALITIES,
+            DEBUG,
 
             BASE_MOVES_PER_TURN: 3,
 

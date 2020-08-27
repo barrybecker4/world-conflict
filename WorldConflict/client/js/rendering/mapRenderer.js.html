@@ -39,6 +39,7 @@ erisk.mapRenderer = (function() {
 
         // replace the map container contents with the new map
         container.innerHTML = elem('svg', {
+            i: 'root-svg',
             viewbox: '0 0 100 100',
             preserveAspectRatio: 'none'
         }, defs + ocean + shadows + bottoms + tops + highlighters);
@@ -50,6 +51,10 @@ erisk.mapRenderer = (function() {
         gameData.regions.map(function(region, index) {
             region.elementId = 'region' + index;
             region.center = projectPoint(centerOfWeight(region.points));
+
+            if (CONSTS.DEBUG) {
+                append('root-svg', elem('text', {c: 'region-text', ...region.center}, ' ' +index));
+            }
 
             region.highlightId = 'highlight' + index;
             onClickOrTap($(region.highlightId), event => uiCallbacks.invokeCallback(region, 'regionSelected', event));
@@ -70,13 +75,13 @@ erisk.mapRenderer = (function() {
         // a helper for creating a polygon with a given setup for all regions
         function makeRegionPolys(idPrefix, gradient, xm, ym, xd, yd, stroke, clip) {
 
-            return elem('g', {}, gameData.regions.map((region, index) => {
+            return elem('g', {}, gameData.regions.map(createPoly).join(''));
+
+            function createPoly(region, index) {
                 const clipRegion = clip ? 'url(#' + clip + index + ')' : '';
-                return makePolygon(
-                    transformPoints(region.points, xm, ym, xd, yd),
-                    idPrefix + index, gradient, stroke, clipRegion
-                );
-            }).join(''));
+                return makePolygon(transformPoints(region.points, xm, ym, xd, yd),
+                                         idPrefix + index, gradient, stroke, clipRegion);
+            }
         }
 
         // makes temples, which are just <div>s with nested <div>s (the towers)
@@ -150,6 +155,7 @@ erisk.mapRenderer = (function() {
             }
 
             const regionEl = $(region.elementId);
+
             regionEl.style.fill = 'url(#' + gradientName + ')';
         }
 

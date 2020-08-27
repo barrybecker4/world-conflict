@@ -109,6 +109,8 @@ var erisk = (function(my) {
 
         function makeUpgradeButtons(temple) {
             const templeOwner = state.owner(temple.regionIndex);
+            if (!templeOwner)
+                throw new Error("Could not find owner for temple with regionIndex = " + temple.regionIndex);
             const upgradeButtons = CONSTS.UPGRADES.map(makeUpgradeButton);
 
             function makeUpgradeButton(upgrade) {
