@@ -22,6 +22,7 @@ var erisk = (function(my) {
                         .appendGameMoves(humanMoves);
                 }
                 if (player.personality) {
+                    erisk.setPreviousState(null); // only humans can undo
                     // request that the computer make the AI moves (and store it in firestore),
                     google.script.run
                         .withFailureHandler(showError)

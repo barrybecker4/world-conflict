@@ -137,11 +137,9 @@ erisk.gameRenderer = (function() {
         $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
         $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
-        // buttons
         my.updateButtons(decisionState && decisionState.buttons);
 
-        // undo
-        $('undo-button').innerHTML = erisk.undoEnabled(gameState) ? "&#x21b6;" : "";
+        domUtils.showOrHide('undo-button', erisk.undoEnabled(gameState));
     }
 
     my.showPlayerBanner = function(player) {

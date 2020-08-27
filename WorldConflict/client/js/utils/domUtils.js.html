@@ -54,8 +54,8 @@ var domUtils = (function(my) {
         my.$(elementId).style.display = visible ? 'block' : 'none';
     }
 
-    my.hide = function(elementId) { my.showOrHide(elementId, 0); }
-    my.show = function(elementId) { my.showOrHide(elementId, 1); }
+    my.hide = function(elementId) { my.showOrHide(elementId, false); }
+    my.show = function(elementId) { my.showOrHide(elementId, true); }
 
     my.toggleClass = function(element, className, on) {
         if (typeof element == 'string')
