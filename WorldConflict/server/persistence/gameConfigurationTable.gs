@@ -54,11 +54,15 @@ function getGameConfigurationTableAccessor() {
             doc.fields = gameData;
             updateGameConfiguration(doc);
         } else {
-            const doc = createGameConfiguration(gameData);
-            // Logger.log("persisted gameData = " + JSON.stringify(doc));
-            gameData.gameId = getGameIdFromDoc(doc);
-            gameData.initialGameState.gameId = gameData.gameId;
+            gameData = insert(gameData);
         }
+        return gameData;
+    }
+
+    function insert(gameData) {
+        const doc = createGameConfiguration(gameData);
+        gameData.gameId = getGameIdFromDoc(doc);
+        gameData.initialGameState.gameId = gameData.gameId;
         return gameData;
     }
 
@@ -75,6 +79,7 @@ function getGameConfigurationTableAccessor() {
         createGameConfiguration,
         updateGameConfiguration,
         deleteGameConfiguration,
+        insert,
         upsert,
     };
 }

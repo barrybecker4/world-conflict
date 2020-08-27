@@ -33,7 +33,8 @@ var erisk = (function(my) {
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
 
-        gameData = gameConfigurationTable.upsert(gameData, gameId);
+        gameConfigurationTable.deleteGameConfiguration(gameId);
+        gameData = gameConfigurationTable.insert(gameData);
 
         return gameData;
 
@@ -120,7 +121,6 @@ var erisk = (function(my) {
                 }
             }
         }
-
 
         // pick regions that are as far away as possible from each other for the players' initial temples
         function findHomeRegions(regions) {
