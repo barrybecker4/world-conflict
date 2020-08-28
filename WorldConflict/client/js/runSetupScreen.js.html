@@ -139,42 +139,42 @@ var erisk = (function(my) {
         // somebody changed something, so store the new setup
         storage.storeSetup();
         const isWaiting = appState.isWaiting();
-        console.log("updatePlayerButtons isWaiting = " + isWaiting);
 
-        // update player buttons
+        updatePlayerButtons(isWaiting);
+        updateAiButtons(isWaiting);
+        updateTurnCountButtons(isWaiting);
+    }
+
+    function updatePlayerButtons(isWaiting) {
         storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
-           utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
-               const id = 'sb' + playerIndex + buttonIndex;
-               domUtils.toggleClass(id, 'selected', (playerType === buttonIndex));
-               domUtils.toggleClass(id, 'disabled', isWaiting);
-               if (isWaiting) {
-                   domUtils.removeClickOrTap($(id));
-               }
-           });
+            utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
+               updateButton('sb' + playerIndex + buttonIndex, playerType === buttonIndex, isWaiting);
+            });
 
-           $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
+            $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
                CONSTS.PLAYERS[playerIndex].getPlayerName();
         });
+    }
 
-        // update AI buttons
+    function updateAiButtons(isWaiting) {
         utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
-            const id = 'ai' + index; domUtils.toggleClass(id, 'selected', index === storage.gameSetup.aiLevel);
-            domUtils.toggleClass(id, 'disabled', isWaiting);
-            if (isWaiting) {
-                domUtils.removeClickOrTap($(id));
-            }
+            updateButton('ai' + index, index === storage.gameSetup.aiLevel, isWaiting);
         });
-        // update turn-count buttons
+    }
+
+    function updateTurnCountButtons(isWaiting) {
         utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            const id = 'turn-count' + index;
-            domUtils.toggleClass(id, 'selected', CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount);
-            domUtils.toggleClass(id, 'disabled', isWaiting);
-            if (isWaiting) {
-                domUtils.removeClickOrTap($(id));
-            }
+            updateButton('turn-count' + index, CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount, isWaiting);
         });
+    }
 
 
+    function updateButton(id, isSelected, isWaiting) {
+        domUtils.toggleClass(id, 'selected', isSelected);
+        domUtils.toggleClass(id, 'disabled', isWaiting);
+        if (isWaiting) {
+            domUtils.removeClickOrTap($(id));
+        }
     }
 
     function isSetupValid() {
