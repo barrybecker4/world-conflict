@@ -1,13 +1,26 @@
 <script>
 var appState = (function(my) {
 
-    const APP_SETUP_SCREEN = 0;
-    const APP_IN_GAME = 1;
+    const APP_SETUP_SCREEN = 0; // configuring game
+    const APP_WAITING_SCREEN = 1; // done configuring, waiting for players to join
+    const APP_IN_GAME = 2; // game has started
 
     let currentState = APP_SETUP_SCREEN;
 
+    my.setInSetup = function() {
+        currentState = APP_SETUP_SCREEN;
+    }
+
+    my.setWaiting = function(inGame) {
+        currentState = APP_WAITING_SCREEN;
+    }
+
     my.setInGame = function(inGame) {
-        currentState = inGame ? APP_IN_GAME : APP_SETUP_SCREEN;
+        currentState = APP_IN_GAME;
+    }
+
+    my.isWaiting = function() {
+        return currentState === APP_WAITING_SCREEN;
     }
 
     my.isInGame = function() {

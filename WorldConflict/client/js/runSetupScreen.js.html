@@ -4,7 +4,7 @@ var erisk = (function(my) {
 
     my.runSetupScreen = function() {
         audio.setupAudio();
-        appState.setInGame(false); // in setup
+        appState.setInSetup();
 
         regenerateGameData();
         createSetupUI();
@@ -27,9 +27,14 @@ var erisk = (function(my) {
             return numOpen > 0;
         }
 
-        // After clicking "done configuring", wait for other players to join.
-        // If you get tired of waiting, you can click "Start anyway" and unassigned players will be AIs.
+        /**
+         * After clicking "done configuring", wait for other players to join.
+         * If you get tired of waiting, you can click "Start anyway" and unassigned players will be AIs.
+         * configuration will not be editable while waiting for players to join
+         */
         function doneConfiguring() {
+            appState.setWaiting();
+            updatePlayerConfigButtons();
             updateStartAnywayButton();
             uiCallbacks.setBuildCB(startGame);
         }
@@ -38,7 +43,7 @@ var erisk = (function(my) {
             convertOpenSlotsToAiPlayers(function() {
                 prepareInGameUI();
                 erisk.gameRenderer.updateDisplay(gameData.initialGameState);
-                appState.setInGame(true); // playing the game now
+                appState.setInGame();
                 const state = gameData.initialGameState;
                 erisk.gameRenderer.showPlayerBanner(state.activePlayer());
                 erisk.playOneMove(state);
@@ -59,7 +64,7 @@ var erisk = (function(my) {
 
         // Callback for player setup buttons. Assigns one of the player types.
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
-            // set the controller type for the player
+            // set the player type for the player
             storage.gameSetup.playerTypes[event.playerIndex] = event.playerTypeIndex;
 
             updatePlayerConfigButtons();
@@ -133,24 +138,43 @@ var erisk = (function(my) {
     function updatePlayerConfigButtons() {
         // somebody changed something, so store the new setup
         storage.storeSetup();
+        const isWaiting = appState.isWaiting();
+        console.log("updatePlayerButtons isWaiting = " + isWaiting);
 
         // update player buttons
         storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
            utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
                const id = 'sb' + playerIndex + buttonIndex;
                domUtils.toggleClass(id, 'selected', (playerType === buttonIndex));
+               domUtils.toggleClass(id, 'disabled', isWaiting);
+               if (isWaiting) {
+                   domUtils.removeClickOrTap($(id));
+               }
            });
 
            $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
                CONSTS.PLAYERS[playerIndex].getPlayerName();
         });
 
-        // update AI and turn count buttons
-        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            domUtils.toggleClass('ai' + index, 'selected', index === storage.gameSetup.aiLevel);
-            domUtils.toggleClass('turn-count' + index, 'selected',
-                CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount);
+        // update AI buttons
+        utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
+            const id = 'ai' + index; domUtils.toggleClass(id, 'selected', index === storage.gameSetup.aiLevel);
+            domUtils.toggleClass(id, 'disabled', isWaiting);
+            if (isWaiting) {
+                domUtils.removeClickOrTap($(id));
+            }
         });
+        // update turn-count buttons
+        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
+            const id = 'turn-count' + index;
+            domUtils.toggleClass(id, 'selected', CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount);
+            domUtils.toggleClass(id, 'disabled', isWaiting);
+            if (isWaiting) {
+                domUtils.removeClickOrTap($(id));
+            }
+        });
+
+
     }
 
     function isSetupValid() {

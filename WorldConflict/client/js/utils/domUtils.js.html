@@ -49,6 +49,13 @@ var domUtils = (function(my) {
         });
     }
 
+    // this will remove all event listeners on the specified element
+    my.removeClickOrTap = function(elem) {
+        const oldElem = elem;
+        const newElem = elem.cloneNode(true);
+        oldElem.parentNode.replaceChild(newElem, oldElem);
+    }
+
     // Shows or hides an element with the given ID, depending on the second parameter.
     my.showOrHide = function(elementId, visible) {
         my.$(elementId).style.display = visible ? 'block' : 'none';
