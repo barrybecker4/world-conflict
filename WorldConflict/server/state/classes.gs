@@ -94,7 +94,6 @@ class GameState {
         this.floatingText = obj.floatingText;
         this.undoDisabled = false;
         this.numBoughtSoldiers = obj.numBoughtSoldiers;
-        this.prevPlayerIndex = obj.prevPlayerIndex;
         this.conqueredRegions = obj.conqueredRegions;
         this.id = obj.id || 1;
         this.gameId = obj.gameId;
@@ -107,7 +106,6 @@ class GameState {
         const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
         const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, CONSTS.UPGRADES.AIR);
         this.turnIndex = turnNumber;
-        this.prevPlayerIndex = this.playerIndex;
         this.playerIndex = playerIndex;
         this.movesRemaining = numMoves;
         this.conqueredRegions = undefined;
@@ -171,10 +169,6 @@ class GameState {
 
     activePlayer() {
         return gameData.players[this.playerIndex];
-    }
-
-    prevPlayer() {
-       return (typeof this.prevPlayerIndex === 'number') ? gameData.players[this.prevPlayerIndex] : null;
     }
 
     owner(region) {
