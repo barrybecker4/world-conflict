@@ -6,10 +6,10 @@ var CONSTS = (function(my) {
 
     const UNLIMITED_TURNS = 1000000;
 
-    const PLAYER_OFF = 0;
-    const PLAYER_HUMAN_SET = 1;
-    const PLAYER_HUMAN_OPEN = 2;
-    const PLAYER_AI = 3;
+    const PLAYER_OFF = 'Off';
+    const PLAYER_HUMAN_SET = 'Set';
+    const PLAYER_HUMAN_OPEN = 'Open';
+    const PLAYER_AI = 'AI';
 
     const AI_NICE = 0;
     const AI_RUDE = 1;

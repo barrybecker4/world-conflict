@@ -78,7 +78,7 @@ var erisk = (function(my) {
         // Callback for player setup buttons. Assigns one of the player types.
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
             // set the player type for the player
-            storage.gameSetup.playerTypes[event.playerIndex] = event.playerTypeIndex;
+            storage.gameSetup.playerTypes[event.playerIndex] = CONSTS.PLAYER_TYPES[event.playerTypeIndex];
 
             updatePlayerConfigButtons();
             updateConfigBottomButtons();
@@ -161,7 +161,7 @@ var erisk = (function(my) {
     function updatePlayerButtons(isWaiting) {
         storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
             utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
-               updateButton('sb' + playerIndex + buttonIndex, playerType === buttonIndex, isWaiting);
+               updateButton('sb' + playerIndex + buttonIndex, playerType === CONSTS.PLAYER_TYPES[buttonIndex], isWaiting);
             });
 
             $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
@@ -234,7 +234,7 @@ var erisk = (function(my) {
         let html = div({c: 'side-control description'}, 'Player setup');
         const playerBoxes = CONSTS.PLAYERS.map(function(player) {
             const pid = player.index;
-            return buttonPanel(player.getPlayerName(), 'sb' + player.index, ['Off', 'Set', 'Human', 'AI'], {
+            return buttonPanel(player.getPlayerName(), 'sb' + player.index, CONSTS.PLAYER_TYPES, {
                 i: 'player-box' + pid,
                 c: 'player-box inactive',
                 s: 'background: ' + player.colorEnd
@@ -250,7 +250,7 @@ var erisk = (function(my) {
 
     function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
         const len = buttonLabels.length - 1;
-        const buttons = buttonLabels.reverse().map(function(label, index) {
+        const buttons = buttonLabels.concat().reverse().map(function(label, index) {
             const id = buttonIdPrefix + (len - index);
             return domUtils.elem('a', {i: id, c: 'right', href: '#', s: 'font-size: 90%'}, label);
         }).join('');

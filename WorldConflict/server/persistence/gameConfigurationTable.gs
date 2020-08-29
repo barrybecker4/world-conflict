@@ -28,7 +28,7 @@ function getGameConfigurationTableAccessor() {
 
         try {
             gameConfigs = firestore.query(GAME_CONFIGURATION_TABLE)
-               .Where('playerTypes', 'contains', '' + CONSTS.PLAYER_HUMAN_OPEN)
+               .Where('playerTypes', 'contains', CONSTS.PLAYER_HUMAN_OPEN)
                .Execute();
         }
         catch (err) {
@@ -49,7 +49,7 @@ function getGameConfigurationTableAccessor() {
         // since firestore does not currently allow filtering based on properties of objects in arrays,
         // add an array with the playerTypes that we will need to filter on.
         // See https://stackoverflow.com/questions/52351321/how-to-query-documents-containing-array-of-objects-in-firestore-collection-using
-        newGameConfiguration.playerTypes = newGameConfiguration.players.map(p => '' + p.type);
+        newGameConfiguration.playerTypes = newGameConfiguration.players.map(p => p.type);
 
         // assign our own id instead of letting firestore do it - that way we can persist it in the object
         const guid = getGuid();
