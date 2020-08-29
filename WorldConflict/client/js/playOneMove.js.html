@@ -13,24 +13,6 @@ var erisk = (function(my) {
 
             const player = state.activePlayer();
 
-            // Look for the transition from the player on this client and everyone else.
-            if (player.name != domUtils.userid()) {
-                if (humanMoves.length) {
-                    google.script.run
-                        .withFailureHandler(showError)
-                        .appendGameMoves(humanMoves);
-                }
-                if (player.personality) {
-                    erisk.setPreviousState(null); // only humans can undo
-                    // request that the computer make the AI moves (and store it in firestore),
-                    google.script.run
-                        .withFailureHandler(showError)
-                        // must wrap state in array to make GAS happy (don't know why)
-                        .makeComputerMoves([state], gameData.getSimpleObject());
-                }
-                humanMoves = [];
-            }
-
             if (player.name === domUtils.userid()) {
                 erisk.uiPickMove(player, state, function(move) {
                     const newState = erisk.makeMove(state, move);
@@ -49,6 +31,21 @@ var erisk = (function(my) {
                     }
                 });
             } else {
+                if (humanMoves.length) {
+                    google.script.run
+                        .withFailureHandler(showError)
+                        .appendGameMoves(humanMoves);
+                }
+                if (player.personality) {
+                    erisk.setPreviousState(null); // only humans can undo
+                    // request that the computer make the AI moves (and store it in firestore),
+                    google.script.run
+                        .withFailureHandler(showError)
+                        // must wrap state in array to make GAS happy (don't know why)
+                        .makeComputerMoves([state], gameData.getSimpleObject());
+                }
+                humanMoves = [];
+
                 // after a small delay, request from server whatever moves were made there since last request.
                 setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
             }
