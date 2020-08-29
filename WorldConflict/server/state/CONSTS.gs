@@ -7,8 +7,8 @@ var CONSTS = (function(my) {
     const UNLIMITED_TURNS = 1000000;
 
     const PLAYER_OFF = 0;
-    const PLAYER_YOU = 1;
-    const PLAYER_HUMAN = 2;
+    const PLAYER_HUMAN_SET = 1;
+    const PLAYER_HUMAN_OPEN = 2;
     const PLAYER_AI = 3;
 
     const AI_NICE = 0;
@@ -141,8 +141,8 @@ var CONSTS = (function(my) {
             BASE_MOVES_PER_TURN: 3,
 
             // Constants for setup screen
-            PLAYER_OFF, PLAYER_YOU, PLAYER_HUMAN, PLAYER_AI,
-            PLAYER_TYPES: [PLAYER_OFF, PLAYER_YOU, PLAYER_HUMAN, PLAYER_AI],
+            PLAYER_OFF, PLAYER_HUMAN_SET, PLAYER_HUMAN_OPEN, PLAYER_AI,
+            PLAYER_TYPES: [PLAYER_OFF, PLAYER_HUMAN_SET, PLAYER_HUMAN_OPEN, PLAYER_AI],
 
             AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL,
             AI_LEVELS: [AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL],
@@ -162,6 +162,10 @@ var CONSTS = (function(my) {
             MARTYR_BONUS: 4,
 
             LEVELS: ["Temple", "Cathedral"],
+
+            // Status (from server when making game data)
+            WAITING_FOR_PLAYERS: 'waitingForPlayers',
+            READY_TO_START: 'readyToStart',
         };
         return my;
     }

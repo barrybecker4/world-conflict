@@ -34,6 +34,10 @@ var domUtils = (function(my) {
         return container.lastChild;
     }
 
+    my.userid = function() {
+        return domUtils.$('userid').textContent;
+    }
+
     // Sets the 'transform' CSS property to a given value (also setting prefixed versions).
     my.setTransform = function(elem, value) {
         elem.style['-webkit-transform'] = value;

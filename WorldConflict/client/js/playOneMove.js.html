@@ -13,9 +13,8 @@ var erisk = (function(my) {
 
             const player = state.activePlayer();
 
-            //  player changed from human to AI or vv
-            //  later this will look for the transition from the player on this client and everyone else.
-            if (!state.prevPlayer() || player.personality !== state.prevPlayer().personality) {
+            // Look for the transition from the player on this client and everyone else.
+            if (player.name != domUtils.userid()) {
                 if (humanMoves.length) {
                     google.script.run
                         .withFailureHandler(showError)
@@ -32,7 +31,7 @@ var erisk = (function(my) {
                 humanMoves = [];
             }
 
-            if (!player.personality) {
+            if (player.name === domUtils.userid()) {
                 erisk.uiPickMove(player, state, function(move) {
                     const newState = erisk.makeMove(state, move);
                     move.stateId = newState.id;

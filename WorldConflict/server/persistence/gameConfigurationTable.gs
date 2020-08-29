@@ -21,11 +21,45 @@ function getGameConfigurationTableAccessor() {
     }
 
     /**
+     * @return the set of game configurations for which there are open player slots to be filled
+     */
+    function getOpenGameConfigurations() {
+        let gameConfigs = [];
+
+        try {
+            gameConfigs = firestore.query(GAME_CONFIGURATION_TABLE)
+               .Where('playerTypes', 'contains', '' + CONSTS.PLAYER_HUMAN_OPEN)
+               .Execute();
+        }
+        catch (err) {
+            Logger.log("err: " + err);
+        }
+
+        // firestore does not include the gameId as a prop, so we need to add it
+        gameConfigs = gameConfigs.map(gameConfig => gameConfig.obj);
+
+        return gameConfigs;
+    }
+
+    /**
      * @param newGameConfiguration the json for the new game
      * @return the new game configuration doc (which contains the gameId)
      */
     function createGameConfiguration(newGameConfiguration) {
-        return firestore.createDocument('/' + GAME_CONFIGURATION_TABLE, newGameConfiguration);
+        // since firestore does not currently allow filtering based on properties of objects in arrays,
+        // add an array with the playerTypes that we will need to filter on.
+        // See https://stackoverflow.com/questions/52351321/how-to-query-documents-containing-array-of-objects-in-firestore-collection-using
+        newGameConfiguration.playerTypes = newGameConfiguration.players.map(p => '' + p.type);
+
+        // assign our own id instead of letting firestore do it - that way we can persist it in the object
+        const guid = getGuid();
+        newGameConfiguration.initialGameState.gameId = guid;
+        newGameConfiguration.gameId = guid;
+        return firestore.createDocument(GAME_CONFIGURATION_TABLE + '/' + guid, newGameConfiguration);
+    }
+
+    function getGuid() {
+        return Utilities.getUuid().replace(/-/g, '');
     }
 
     /**
@@ -46,11 +80,9 @@ function getGameConfigurationTableAccessor() {
      * @param gameData the new game data to persist
      * @param gameId (optional) if specified then the existing gameData for that id is updated
      */
-    function upsert(gameData, gameId) {
-        if (gameId) {
-            const doc = getGameConfiguration(gameId);
-            // Logger.log("doc.name = " + doc.name);
-            gameData.gameId = gameId;
+    function upsert(gameData) {
+        if (gameData.gameId) {
+            const doc = getGameConfiguration(gameData.gameId);
             doc.fields = gameData;
             updateGameConfiguration(doc);
         } else {
@@ -79,6 +111,7 @@ function getGameConfigurationTableAccessor() {
         createGameConfiguration,
         updateGameConfiguration,
         deleteGameConfiguration,
+        getOpenGameConfigurations,
         insert,
         upsert,
     };

@@ -3,6 +3,8 @@ class Player {
     constructor(obj) {
         this.index = obj.index;
         this.originalIndex = obj.originalIndex || obj.index; // index into setup.playerTypes
+        this.type = obj.type;
+        this.name = obj.name;
         this.defaultName = obj.defaultName;
         this.colorStart = obj.colorStart;
         this.colorEnd = obj.colorEnd;
@@ -12,13 +14,15 @@ class Player {
     }
 
     getPlayerName() {
-        switch(storage.gameSetup.playerTypes[this.originalIndex]) {
+        // this is a hack. should find better way. Use type if it exists, else fall back to what is in storage
+        const pType = (typeof this.type === 'number') ? this.type : storage.gameSetup.playerTypes[this.originalIndex];
+        switch(pType) { //this.type) {
             case CONSTS.PLAYER_OFF:
                 return '&nbsp;';
-            case CONSTS.PLAYER_YOU:
-                return getTrimmedName(domUtils.$('userid').textContent);
-            case CONSTS.PLAYER_HUMAN:
-                return this.name ? getTrimmedName(this.name) : '<span style="color: #ccc;"><i>&lt; open &gt;</i></span>';
+            case CONSTS.PLAYER_HUMAN_SET:
+                return getTrimmedName(this.name || domUtils.userid());
+            case CONSTS.PLAYER_HUMAN_OPEN:
+                return '<span style="color: #ccc;"><i>&lt; open &gt;</i></span>';
             default: return this.defaultName;
         }
         function getTrimmedName(name) {

@@ -1,8 +1,16 @@
 var erisk = (function(my) {
 
     /**
-     * Create game state, regions, and players based on setup configuration.
+     * If there is an open game use that, otherwise
+     * create the game state, regions, and players based on setup configuration.
      * Update regions and players in the global gameData.
+     *
+     * If games exist with open slots, and this is the very first request from the client (gameId not set),
+     * then we will try to use them first instead of creating a new game with the specified configuration.
+     * A status flag will be returned with the gameData object that specifies if the game is
+     * "waitingForPlayers" (meaning some human player have yet to join),
+     * or "readyToStart" (meaning all human players have joined).
+     *
      * @param setup the new setup configuration from the user
      * @param gameId (optional) if present then the setup for this gameId will be updated, else created
      * @param keepCurrentMap if true, then do not generate a new map (use the one already in the gameData)
@@ -10,6 +18,46 @@ var erisk = (function(my) {
      */
     my.makeGameData = function(setup, gameId, keepCurrentMap) {
 
+        const openGames = gameConfigurationTable.getOpenGameConfigurations();
+        const userId = getUserId();
+        Logger.log("makeGameData userId = " + userId + " gameId = " + gameId + " openGames.length = " + openGames.length);
+
+        if (!gameId && openGames.length) {
+            return gameDataFromExistingGame(openGames[0], userId);
+        }
+        else {
+            return createNewGameData(setup, gameId, keepCurrentMap, userId);
+        }
+    }
+
+    /**
+     * Given an existing game with an open human player slot, fill that slot with that user and return the result.
+     * Set the status to either "waitingForPlayers" or "readyToStart" based on whether there are still open slots remaining.
+     */
+    function gameDataFromExistingGame(openGame, userId) {
+
+        Logger.log("Found open game with id = " + openGame.gameId);
+
+        openGame.players.forEach((player, i) => {
+            if (player.type === CONSTS.PLAYER_HUMAN_OPEN) {
+                player.name = userId;
+                player.type = CONSTS.PLAYER_HUMAN_SET;
+            }
+            console.log("player " + i + " = " + player.name + " type = " + player.type);
+        });
+
+        gameData = gameConfigurationTable.upsert(openGame);
+
+        const stillHasOpenSpots = gameData.players.some(p => p.type === CONSTS.PLAYER_HUMAN_OPEN);
+        gameData.status = stillHasOpenSpots ? CONSTS.WAITING_FOR_PLAYERS : CONSTS.READY_TO_START;
+
+        return gameData;
+    }
+
+    /**
+     * Create new gameData given setup information.
+     */
+    function createNewGameData(setup, gameId, keepCurrentMap, userId) {
         let gameState = new GameState({
             turnIndex: 1,
             playerIndex: 0,
@@ -33,7 +81,9 @@ var erisk = (function(my) {
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
 
-        gameConfigurationTable.deleteGameConfiguration(gameId);
+        if (gameId) {
+            gameConfigurationTable.deleteGameConfiguration(gameId);
+        }
         gameData = gameConfigurationTable.insert(gameData);
 
         return gameData;
@@ -56,7 +106,10 @@ var erisk = (function(my) {
                 }
 
                 player.index = players.length;
-                player.originalIndex = playerIndex;
+                player.type = setup.playerTypes[playerIndex];
+                if (player.type === CONSTS.PLAYER_HUMAN_SET) {
+                    player.name = userId;
+                }
                 players.push(player);
             });
             return players;

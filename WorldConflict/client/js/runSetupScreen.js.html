@@ -6,7 +6,13 @@ var erisk = (function(my) {
         audio.setupAudio();
         appState.setInSetup();
 
-        regenerateGameData();
+        regenerateGameData(status => {
+            // console.log("done making initial gameData status = " + status + " gameId = " + gameData.gameId);
+            switch (status) {
+                case CONSTS.WAITING_FOR_PLAYERS: doneConfiguring(); break;
+                case CONSTS.READY_TO_START: startGame(); break;
+            }
+        });
         createSetupUI();
 
         // callback for the buttons on the bottom: new map, or done configuring
@@ -22,7 +28,7 @@ var erisk = (function(my) {
         });
 
         function areOpenSlots() {
-            const reducer = (accumulator, currentValue) => accumulator + (currentValue === CONSTS.PLAYER_HUMAN ? 1 : 0);
+            const reducer = (accumulator, currentValue) => accumulator + (currentValue === CONSTS.PLAYER_HUMAN_OPEN ? 1 : 0);
             const numOpen = storage.gameSetup.playerTypes.reduce(reducer, 0);
             return numOpen > 0;
         }
@@ -40,7 +46,7 @@ var erisk = (function(my) {
         }
 
         function startGame() {
-            convertOpenSlotsToAiPlayers(function() {
+            convertOpenSlotsToAiPlayersIfNeeded(function() {
                 prepareInGameUI();
                 erisk.gameRenderer.updateDisplay(gameData.initialGameState);
                 appState.setInGame();
@@ -51,11 +57,18 @@ var erisk = (function(my) {
         }
 
         // Convert any unassigned open human slots to AI players to allow the game to start.
+        function convertOpenSlotsToAiPlayersIfNeeded(callback) {
+            const hasOpenSlots = gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
+            if (hasOpenSlots) {
+                convertOpenSlotsToAiPlayers(callback);
+            }
+            else callback();
+        }
+
         function convertOpenSlotsToAiPlayers(callback) {
             for (let i = 0; i < gameData.players.length; i++) {
                 const player = gameData.players[i];
-                const pType = storage.gameSetup.playerTypes[player.originalIndex];
-                if (pType === CONSTS.PLAYER_HUMAN && !player.name) {
+                if (player.type === CONSTS.PLAYER_HUMAN_OPEN && !player.name) {
                     storage.gameSetup.playerTypes[player.originalIndex] = CONSTS.PLAYER_AI;
                 }
             }
@@ -128,7 +141,7 @@ var erisk = (function(my) {
                 erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                 erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
                 if (callback) {
-                    callback();
+                    callback(newGameData.status);
                 }
              })
             .withFailureHandler(showError)
@@ -178,14 +191,14 @@ var erisk = (function(my) {
     }
 
     function isSetupValid() {
-        let numYouPlayers = 0;
+        let numSetPlayers = 0;
         const enabledPlayers = sequenceUtils.sum(storage.gameSetup.playerTypes, function(playerType) {
-            if (playerType === CONSTS.PLAYER_YOU) {
-                numYouPlayers++;
+            if (playerType === CONSTS.PLAYER_HUMAN_SET) {
+                numSetPlayers++;
             }
             return (playerType !== CONSTS.PLAYER_OFF) ? 1 : 0;
         });
-        return enabledPlayers > 1 && numYouPlayers > 0;
+        return enabledPlayers > 1 && numSetPlayers > 0;
     }
 
     function updateConfigBottomButtons() {
@@ -221,7 +234,7 @@ var erisk = (function(my) {
         let html = div({c: 'side-control description'}, 'Player setup');
         const playerBoxes = CONSTS.PLAYERS.map(function(player) {
             const pid = player.index;
-            return buttonPanel(player.getPlayerName(), 'sb' + player.index, ['Off', 'You', 'Human', 'AI'], {
+            return buttonPanel(player.getPlayerName(), 'sb' + player.index, ['Off', 'Set', 'Human', 'AI'], {
                 i: 'player-box' + pid,
                 c: 'player-box inactive',
                 s: 'background: ' + player.colorEnd
