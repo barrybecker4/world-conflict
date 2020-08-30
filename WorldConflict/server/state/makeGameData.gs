@@ -20,7 +20,7 @@ var erisk = (function(my) {
 
         const openGames = gameConfigurationTable.getOpenGameConfigurations();
         const userId = getUserId();
-        Logger.log("makeGameData userId = " + userId + " gameId = " + gameId + " openGames.length = " + openGames.length);
+        Logger.log(`makeGameData userId = ${userId} gameId = ${gameId} openGames.length = ${openGames.length}`);
 
         if (!gameId && openGames.length) {
             return gameDataFromExistingGame(openGames[0], userId);
@@ -31,26 +31,30 @@ var erisk = (function(my) {
     }
 
     /**
-     * Given an existing game with an open human player slot, fill that slot with that user and return the result.
-     * Set the status to either "waitingForPlayers" or "readyToStart" based on whether there are still open slots remaining.
+     * Given an existing game with at least one open human player slot, fill that slot
+     * with that user and return the result. Set the status to either "waitingForPlayers" or "readyToStart"
+     * based on whether there are still open slots remaining.
      */
     function gameDataFromExistingGame(openGame, userId) {
-
         Logger.log("Found open game with id = " + openGame.gameId);
 
-        openGame.players.forEach((player, i) => {
-            if (player.type === CONSTS.PLAYER_HUMAN_OPEN) {
-                player.name = userId;
-                player.type = CONSTS.PLAYER_HUMAN_SET;
-            }
-            console.log("player " + i + " = " + player.name + " type = " + player.type);
-        });
+        fillFirstOpenPlayerSlot(openGame.players, userId);
 
+        console.log("The turnCount of the openGame = "+ openGame.turnCount);
         gameData = gameConfigurationTable.upsert(openGame);
+        console.log("The turnCount of the new gamedata is = "+ gameData.turnCount);
+        return my.addStatus(gameData);
+    }
 
+    function fillFirstOpenPlayerSlot(players, userId) {
+        const player = players.find(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
+        player.name = userId;
+        player.type = CONSTS.PLAYER_HUMAN_SET;
+    }
+
+    my.addStatus = function(gameData) {
         const stillHasOpenSpots = gameData.players.some(p => p.type === CONSTS.PLAYER_HUMAN_OPEN);
         gameData.status = stillHasOpenSpots ? CONSTS.WAITING_FOR_PLAYERS : CONSTS.READY_TO_START;
-
         return gameData;
     }
 

@@ -7,7 +7,8 @@ function getGameConfigurationTableAccessor() {
     const GAME_CONFIGURATION_TABLE = "gameConfigurations";
 
     /**
-     * @return the game configuration for the specified gameId
+     * @return document for the game configuration for the specified gameId
+     *   Note: you need to do .obj to get the actual gameData object
      */
     function getGameConfiguration(gameId) {
         let doc = null;

@@ -1,34 +1,48 @@
 <script>
 var erisk = (function(my) {
     const { $, div } = domUtils;
+    const POLL_DELAY = 2000;
+    const OFF_PLAYER = new Player({type: CONSTS.PLAYER_OFF});
 
     my.runSetupScreen = function() {
         audio.setupAudio();
         appState.setInSetup();
 
-        regenerateGameData(status => {
-            // console.log("done making initial gameData status = " + status + " gameId = " + gameData.gameId);
-            switch (status) {
-                case CONSTS.WAITING_FOR_PLAYERS: doneConfiguring(); break;
-                case CONSTS.READY_TO_START: startGame(); break;
-            }
-        });
+        regenerateGameData(newGameDataCallback);
         createSetupUI();
 
         // callback for the buttons on the bottom: new map, or done configuring
         uiCallbacks.setBuildCB(function(whichButton) {
             if (!isSetupValid()) return;
-            if (whichButton === 0) { // change map
-                regenerateGameData();
-            } else if (areOpenSlots()) {
-                doneConfiguring();
-            } else {
-                startGame();
+
+            switch (whichButton) {
+                case 0: // change map
+                    regenerateGameData();
+                    break;
+                case 1: // done configuring
+                    if (areOpenSlots()) doneConfiguring();
+                    else startGame();
+                    break;
+                default: throw new Error("Invalid button: " + whichButton);
             }
         });
 
+        /**
+         * Called after we have retrieved new gameData from the server.
+         * Either the game will now start, or will will continue waiting for players to join.
+         */
+        function newGameDataCallback(status) {
+            console.log("done making initial gameData status = " + status + " gameId = " + gameData.gameId);
+            switch (status) {
+                case CONSTS.WAITING_FOR_PLAYERS: doneConfiguring(); break;
+                case CONSTS.READY_TO_START: startGame(); break;
+                default: // do nothing;
+            }
+        }
+
         function areOpenSlots() {
-            const reducer = (accumulator, currentValue) => accumulator + (currentValue === CONSTS.PLAYER_HUMAN_OPEN ? 1 : 0);
+            const reducer = (accumulator, currentValue) =>
+                accumulator + (currentValue === CONSTS.PLAYER_HUMAN_OPEN ? 1 : 0);
             const numOpen = storage.gameSetup.playerTypes.reduce(reducer, 0);
             return numOpen > 0;
         }
@@ -42,18 +56,44 @@ var erisk = (function(my) {
             appState.setWaiting();
             updatePlayerConfigButtons();
             updateStartAnywayButton();
-            uiCallbacks.setBuildCB(startGame);
+            uiCallbacks.setBuildCB(startGameAfterConvertingOpenSlots);
+
+            pollForNewPlayers();
+        }
+
+        // poll for updates to the configuration - which will happen if another player joins this game
+        function pollForNewPlayers() {
+            google.script.run
+                .withSuccessHandler(function(newGameData) {
+                    if (newGameData) { // we only get newGameData if players are different
+                        console.log("We got a player change from the server. newPlayers = " + JSON.stringify(newGameData.players));
+                        gameData.initializeFrom(newGameData);
+
+                        // These 2 lines should not be needed (remove?)
+                        erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
+                        erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
+
+                        newGameDataCallback(newGameData.status);
+                    } else {
+                        // keep calling recursively until all players have joined, or player gets tired of waiting
+                        setTimeout(pollForNewPlayers, POLL_DELAY);
+                    }
+                 })
+                .withFailureHandler(showError)
+                .getGameData(gameData.gameId, gameData.players);
+        }
+
+        function startGameAfterConvertingOpenSlots() {
+            convertOpenSlotsToAiPlayersIfNeeded(startGame);
         }
 
         function startGame() {
-            convertOpenSlotsToAiPlayersIfNeeded(function() {
-                prepareInGameUI();
-                erisk.gameRenderer.updateDisplay(gameData.initialGameState);
-                appState.setInGame();
-                const state = gameData.initialGameState;
-                erisk.gameRenderer.showPlayerBanner(state.activePlayer());
-                erisk.playOneMove(state);
-            });
+            prepareInGameUI();
+            erisk.gameRenderer.updateDisplay(gameData.initialGameState);
+            appState.setInGame();
+            const state = gameData.initialGameState;
+            erisk.gameRenderer.showPlayerBanner(state.activePlayer());
+            erisk.playOneMove(state);
         }
 
         // Convert any unassigned open human slots to AI players to allow the game to start.
@@ -151,41 +191,56 @@ var erisk = (function(my) {
     function updatePlayerConfigButtons() {
         // somebody changed something, so store the new setup
         storage.storeSetup();
-        const isWaiting = appState.isWaiting();
+        const editable = !appState.isWaiting();
 
-        updatePlayerButtons(isWaiting);
-        updateAiButtons(isWaiting);
-        updateTurnCountButtons(isWaiting);
+        updatePlayerButtons(editable);
+        updateAiButtons(editable);
+        updateTurnCountButtons(editable);
     }
 
-    function updatePlayerButtons(isWaiting) {
-        storage.gameSetup.playerTypes.map(function(playerType, playerIndex) {
+    function updatePlayerButtons(editable) {
+
+        const playerTypes = editable ?
+            storage.gameSetup.playerTypes :
+            utils.range(0, CONSTS.PLAYER_TYPES.length).map(i => getPlayer(i).type);
+
+        playerTypes.map(function(playerType, playerIndex) {
+
             utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
-               updateButton('sb' + playerIndex + buttonIndex, playerType === CONSTS.PLAYER_TYPES[buttonIndex], isWaiting);
+               const isSelected = playerType === CONSTS.PLAYER_TYPES[buttonIndex];
+               updateButton('sb' + playerIndex + buttonIndex, isSelected, editable);
             });
 
+            const player = editable ? CONSTS.PLAYERS[playerIndex] : getPlayer(playerIndex);
             $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
-               CONSTS.PLAYERS[playerIndex].getPlayerName();
+               player.getPlayerName();
         });
     }
 
-    function updateAiButtons(isWaiting) {
+    function getPlayer(playerIndex) {
+        return gameData.players.find(p => p.originalIndex === playerIndex) || OFF_PLAYER;
+    }
+
+    function updateAiButtons(editable) {
         utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
-            updateButton('ai' + index, index === storage.gameSetup.aiLevel, isWaiting);
+            const aiLevel = editable ? storage.gameSetup.aiLevel : gameData.aiLevel;
+            const isSelected = index === aiLevel;
+            updateButton('ai' + index, isSelected, editable);
         });
     }
 
-    function updateTurnCountButtons(isWaiting) {
+    function updateTurnCountButtons(editable) {
         utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            updateButton('turn-count' + index, CONSTS.TURN_COUNTS[index] === storage.gameSetup.turnCount, isWaiting);
+            const turnCount = editable ? storage.gameSetup.turnCount : gameData.turnCount;
+            const isSelected = CONSTS.TURN_COUNTS[index] === turnCount;
+            updateButton('turn-count' + index, isSelected, editable);
         });
     }
 
-
-    function updateButton(id, isSelected, isWaiting) {
+    function updateButton(id, isSelected, editable) {
         domUtils.toggleClass(id, 'selected', isSelected);
-        domUtils.toggleClass(id, 'disabled', isWaiting);
-        if (isWaiting) {
+        domUtils.toggleClass(id, 'disabled', !editable);
+        if (!editable) {
             domUtils.removeClickOrTap($(id));
         }
     }

@@ -53,6 +53,34 @@ function makeGameData(setup, gameId, clientGameData) {
     return erisk.makeGameData(setup, gameId, clientGameData);
 }
 
+/**
+ * Retrieve the configuration for the specified gameId,
+ * and if the players are different (IOW new ones have joined the game),
+ * then return that new configuration so that it can be shown on the client.
+ */
+function getGameData(gameId, players) {
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize(); // need?
+    const gameDataDoc = gameConfigurationTable.getGameConfiguration(gameId);
+
+    if (gameDataDoc) {
+        const gameData = gameDataDoc.obj;
+        if (!gameData) {
+            throw new Error("Could not find gameData for gameId: " + gameId);
+        }
+
+        return (playersDiffer(gameData.players, players)) ? erisk.addStatus(gameData) : null;
+    }
+    return null
+}
+
+function playersDiffer(newPlayers, oldPlayers) {
+    if (newPlayers.length != oldPlayers.length) {
+        throw new Error('The number of players were unexpectedly different\n.' +
+            ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers));
+    }
+    return oldPlayers.some((player, i) => player.name != newPlayers[i].name);
+}
+
 function appendGameMoves(moves) {
     gameMoveTable.appendGameMoves(moves);
 }
