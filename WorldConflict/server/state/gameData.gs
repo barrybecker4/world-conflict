@@ -8,7 +8,7 @@ var gameData = (function (my) {
     // @param obj plain object containing props.
     // Need to reconstitute the regions because they are only simple objects without methods
     my.initializeFrom = function(obj) {
-        my.regions = obj.regions.map(r => new Region(r));
+        my.regions = obj.regions ? obj.regions.map(r => new Region(r)) : null;
         my.players = obj.players.map(p => new Player(p));
         my.gameId = obj.gameId;
         my.initialGameState = new GameState(obj.initialGameState);

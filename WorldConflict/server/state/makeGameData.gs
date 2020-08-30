@@ -12,21 +12,21 @@ var erisk = (function(my) {
      * or "readyToStart" (meaning all human players have joined).
      *
      * @param setup the new setup configuration from the user
-     * @param gameId (optional) if present then the setup for this gameId will be updated, else created
+     * @param firstTime if true then check for open games
      * @param keepCurrentMap if true, then do not generate a new map (use the one already in the gameData)
-     * @return fully fleshed out gameData that is persisted in firestore
+     * @return fully fleshed out gameData
      */
-    my.makeGameData = function(setup, gameId, keepCurrentMap) {
+    my.makeGameData = function(setup, firstTime, keepCurrentMap) {
 
         const openGames = gameConfigurationTable.getOpenGameConfigurations();
         const userId = getUserId();
-        Logger.log(`makeGameData userId = ${userId} gameId = ${gameId} openGames.length = ${openGames.length}`);
+        Logger.log(`makeGameData userId = ${userId} firstTime = ${firstTime} openGames.length = ${openGames.length}`);
 
-        if (!gameId && openGames.length) {
+        if (firstTime && openGames.length) {
             return gameDataFromExistingGame(openGames[0], userId);
         }
         else {
-            return createNewGameData(setup, gameId, keepCurrentMap, userId);
+            return createNewGameData(setup, keepCurrentMap, userId);
         }
     }
 
@@ -48,8 +48,11 @@ var erisk = (function(my) {
 
     function fillFirstOpenPlayerSlot(players, userId) {
         const player = players.find(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
-        player.name = userId;
-        player.type = CONSTS.PLAYER_HUMAN_SET;
+        if (player) {
+            player.name = userId;
+            player.type = CONSTS.PLAYER_HUMAN_SET;
+        }
+
     }
 
     my.addStatus = function(gameData) {
@@ -61,12 +64,12 @@ var erisk = (function(my) {
     /**
      * Create new gameData given setup information.
      */
-    function createNewGameData(setup, gameId, keepCurrentMap, userId) {
+    function createNewGameData(setup, keepCurrentMap, userId) {
         let gameState = new GameState({
             turnIndex: 1,
             playerIndex: 0,
             movesRemaining: CONSTS.BASE_MOVES_PER_TURN,
-            gameId
+            //gameId
         });
 
         const oldNumPlayers = ((gameData.players && gameData.players.length) || 0);
@@ -85,10 +88,12 @@ var erisk = (function(my) {
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
 
+        /*
         if (gameId) {
             gameConfigurationTable.deleteGameConfiguration(gameId);
         }
         gameData = gameConfigurationTable.insert(gameData);
+        */
 
         return gameData;
 

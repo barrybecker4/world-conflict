@@ -2,13 +2,12 @@
 var erisk = (function(my) {
     const { $, div } = domUtils;
     const POLL_DELAY = 2000;
-    const OFF_PLAYER = new Player({type: CONSTS.PLAYER_OFF});
 
     my.runSetupScreen = function() {
         audio.setupAudio();
         appState.setInSetup();
 
-        regenerateGameData(newGameDataCallback);
+        regenerateGameData(newGameDataCallback, true, false);
         createSetupUI();
 
         // callback for the buttons on the bottom: new map, or done configuring
@@ -20,12 +19,31 @@ var erisk = (function(my) {
                     regenerateGameData();
                     break;
                 case 1: // done configuring
-                    if (areOpenSlots()) doneConfiguring();
-                    else startGame();
+                    persistGameData(() => {
+                        if (areOpenSlots()) {
+                            doneConfiguring();
+                        } else {
+                            startGame();
+                        }
+                    });
                     break;
                 default: throw new Error("Invalid button: " + whichButton);
             }
         });
+
+        function persistGameData(callback) {
+           google.script.run
+               .withSuccessHandler(gameId => {
+                   console.log("game was persisted with id: " + gameId);
+                   gameData.gameId = gameId;
+                   gameData.initialGameState.gameId = gameId;
+                   if (callback) {
+                       callback();
+                   }
+                })
+               .withFailureHandler(showError)
+               .persistGameData('unused', gameData.getSimpleObject());
+        }
 
         /**
          * Called after we have retrieved new gameData from the server.
@@ -169,10 +187,10 @@ var erisk = (function(my) {
     }
 
     function regenerateGameDataWithoutNewMap(callback) {
-        regenerateGameData(callback, true);
+        regenerateGameData(callback, false, true);
     }
 
-    function regenerateGameData(callback, keepCurrentMap) {
+    function regenerateGameData(callback, firstTime, keepCurrentMap) {
         if (!isSetupValid()) return;
 
         google.script.run
@@ -185,7 +203,7 @@ var erisk = (function(my) {
                 }
              })
             .withFailureHandler(showError)
-            .makeGameData(storage.gameSetup, gameData.gameId, keepCurrentMap ? gameData.getSimpleObject() : null);
+            .makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
     }
 
     function updatePlayerConfigButtons() {
@@ -218,7 +236,7 @@ var erisk = (function(my) {
     }
 
     function getPlayer(playerIndex) {
-        return gameData.players.find(p => p.originalIndex === playerIndex) || OFF_PLAYER;
+        return gameData.players.find(p => p.originalIndex === playerIndex) || new Player({ type: CONSTS.PLAYER_OFF });
     }
 
     function updateAiButtons(editable) {

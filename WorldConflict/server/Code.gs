@@ -45,12 +45,12 @@ function getUserId() {
  * If a gameId is specified, the old game data corresponding to that id will be deleted
  * before creating a new one (with new gameId).
  */
-function makeGameData(setup, gameId, clientGameData) {
+function makeGameData(setup, firstTime, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     if (clientGameData) {
         gameData.initializeFrom(clientGameData);
     }
-    return erisk.makeGameData(setup, gameId, clientGameData);
+    return erisk.makeGameData(setup, firstTime, clientGameData);
 }
 
 /**
@@ -70,7 +70,20 @@ function getGameData(gameId, players) {
 
         return (playersDiffer(gameData.players, players)) ? erisk.addStatus(gameData) : null;
     }
-    return null
+    return null;
+}
+
+/**
+ * Persist the specified gameData into firestore.
+ * There seems to be some limit on the size of the first argument, so I made the payload the secona arg,
+ */
+function persistGameData(unused, clientGameData) {
+      CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+      if (clientGameData) {
+          gameData.initializeFrom(clientGameData);
+      }
+      gameData = gameConfigurationTable.upsert(gameData);
+      return gameData.gameId;
 }
 
 function playersDiffer(newPlayers, oldPlayers) {
@@ -92,10 +105,9 @@ function getGameMoves(gameId, lastGameStateId) {
     return moves;
 }
 
-
 /**
- * Make AiMoves until it is no longer an Ai that is moving
- * store those states (with moveDecisions) in firestore as they are determined.
+ * Make AiMoves until it is no longer an Ai that is moving.
+ * Store those states (with moveDecisions) in firestore as they are determined.
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
  */

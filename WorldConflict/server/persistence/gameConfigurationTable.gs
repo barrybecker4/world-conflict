@@ -46,17 +46,22 @@ function getGameConfigurationTableAccessor() {
      * @param newGameConfiguration the json for the new game
      * @return the new game configuration doc (which contains the gameId)
      */
-    function createGameConfiguration(newGameConfiguration) {
-        // since firestore does not currently allow filtering based on properties of objects in arrays,
-        // add an array with the playerTypes that we will need to filter on.
-        // See https://stackoverflow.com/questions/52351321/how-to-query-documents-containing-array-of-objects-in-firestore-collection-using
-        newGameConfiguration.playerTypes = newGameConfiguration.players.map(p => p.type);
+    function createGameConfiguration(newGameData) {
+
+        addPlayerTypes(newGameData);
 
         // assign our own id instead of letting firestore do it - that way we can persist it in the object
         const guid = getGuid();
-        newGameConfiguration.initialGameState.gameId = guid;
-        newGameConfiguration.gameId = guid;
-        return firestore.createDocument(GAME_CONFIGURATION_TABLE + '/' + guid, newGameConfiguration);
+        newGameData.initialGameState.gameId = guid;
+        newGameData.gameId = guid;
+        return firestore.createDocument(GAME_CONFIGURATION_TABLE + '/' + guid, newGameData);
+    }
+
+    // since firestore does not currently allow filtering based on properties of objects in arrays,
+    // add an array with the playerTypes that we will need to filter on.
+    // See https://stackoverflow.com/questions/52351321/how-to-query-documents-containing-array-of-objects-in-firestore-collection-using
+    function addPlayerTypes(gameData) {
+        gameData.playerTypes = gameData.players.map(p => p.type);
     }
 
     function getGuid() {
@@ -84,6 +89,7 @@ function getGameConfigurationTableAccessor() {
     function upsert(gameData) {
         if (gameData.gameId) {
             const doc = getGameConfiguration(gameData.gameId);
+            addPlayerTypes(gameData);
             doc.fields = gameData;
             updateGameConfiguration(doc);
         } else {
