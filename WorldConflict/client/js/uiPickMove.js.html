@@ -10,12 +10,11 @@ var erisk = (function(my) {
 
     my.uiPickMove = function(player, state, reportMoveCallback) {
 
-        if (!state.regionCount(player)) // skip players that are not longer in the game
-            return reportMoveCallback(new EndMove());
-
         uiCallbacks.setRegionSelectedCB(function(region) {
-            if (!region || state.moveDecision.isBuildMove())
+            if (!region || state.moveDecision.isBuildMove()) {
+                console.log("cleaningState because region = " + region + " buildMove = " + state.moveDecision.isBuildMove());
                 setCleanState();
+            }
 
             if (typeof state.moveDecision.source == 'undefined' && region) {
                 // no move in progress - start a new move if this is legal

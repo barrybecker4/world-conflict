@@ -32,9 +32,11 @@ var erisk = (function(my) {
                 });
             } else {
                 if (humanMoves.length) {
+                    console.log("asking server to append moves: " + humanMoves.map(m => m.stateId));
                     google.script.run
                         .withFailureHandler(showError)
                         .appendGameMoves(humanMoves);
+                    humanMoves = [];
                 }
                 if (player.personality) {
                     erisk.setPreviousState(null); // only humans can undo
@@ -44,13 +46,12 @@ var erisk = (function(my) {
                         // must wrap state in array to make GAS happy (don't know why)
                         .makeComputerMoves([state], gameData.getSimpleObject());
                 }
-                humanMoves = [];
 
-                // after a small delay, request from server whatever moves were made there since last request.
+                // Request from server whatever human or AI moves were made there since last request.
                 setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
             }
 
-            erisk.gameRenderer.updateDisplay(state);
+            // erisk.gameRenderer.updateDisplay(state);
         });
     }
 
@@ -62,20 +63,21 @@ var erisk = (function(my) {
             .getGameMoves(state.gameId, state.id);
     }
 
-    function getPlaybackHandler(state) {
+    function getPlaybackHandler(startState) {
         return async function(moves) {
 
-            const finalState = await replayMove(0, state);
+            const finalState = await replayMove(0, startState);
 
-            async function replayMove(i, newState) {
+            async function replayMove(i, state) {
                 if (i >= moves.length) {
-                    return newState;
+                    return state;
                 }
                 const theMove = moves[i];
                 const move = Move.reconstitute(theMove);
-                let nextState = erisk.makeMove(newState, move);
+                let nextState = erisk.makeMove(state, move);
                 erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, function() {
-                    // console.log(i + ") aiMove found on server: " + JSON.stringify(move));
+                    if (CONSTS.DEBUG)
+                        console.log(i + ") aiMove found on server: " + JSON.stringify(move));
                     audio.playSound(CONSTS.SOUNDS.CLICK);
                     erisk.gameRenderer.updateDisplay(nextState);
                 });
@@ -86,8 +88,8 @@ var erisk = (function(my) {
                 showEndGame(finalState);
             }
             else {
-                if (finalState.activePlayer().personality) {
-                   // If we have not yet advanced to the next (human) player, request more moves until we do
+                if (finalState.activePlayer().name !== domUtils.userid()) {
+                   // If we have not yet advanced to the player on this client, request more moves until we do
                    setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                 }
                 else setTimeout(() => my.playOneMove(finalState), 1);

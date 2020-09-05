@@ -95,13 +95,14 @@ function playersDiffer(newPlayers, oldPlayers) {
 }
 
 function appendGameMoves(moves) {
+    Logger.log("appending human moves: " + moves.map(move => move.stateId));
     gameMoveTable.appendGameMoves(moves);
 }
 
 // Get the recent states (since lastGameState) that were stored on the server
 function getGameMoves(gameId, lastGameStateId) {
     const moves = gameMoveTable.getMovesForGame(gameId, lastGameStateId);
-    Logger.log("found " + moves.length + " moves that were computed on the server");
+    Logger.log("found " + moves.length + " new moves in firestore: " + moves.map(m => m.stateId));
     return moves;
 }
 
@@ -117,23 +118,21 @@ async function makeComputerMoves(state, clientGameData) {
     gameData.initializeFrom(clientGameData);
 
     let newState = new GameState(state[0]);
-    console.log("state.soldiersByRegion = " + JSON.stringify(state[0].soldiersByRegion));
+    Logger.log("state.soldiersByRegion = " + JSON.stringify(state[0].soldiersByRegion));
 
     let player = gameData.players[newState.playerIndex];
     Logger.log("Making AI moves for " + JSON.stringify(player));
 
     while (player.personality && !newState.endResult) {
         newState = await makeAndSaveMove(player, newState);
-        console.log(`new newState playerIndex=${newState.playerIndex}  = ` + JSON.stringify(newState));
+        Logger.log(`new newState playerIndex=${newState.playerIndex}  = ${newState.id}`);
         player = gameData.players[newState.playerIndex];
     }
 }
 
 async function makeAndSaveMove(player, state) {
     let promise = new Promise(function(resolve, reject) {
-        erisk.aiPickMove(player, state, function(move) {
-            resolve(move);
-        });
+        erisk.aiPickMove(player, state, resolve);
     });
 
     const move = await promise;
