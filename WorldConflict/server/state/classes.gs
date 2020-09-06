@@ -10,7 +10,7 @@ class Player {
         this.colorEnd = obj.colorEnd;
         this.highlightStart = obj.highlightStart;
         this.highlightEnd = obj.highlightEnd;
-        this.personality = obj.personality ? new AiPersonality(obj.personality) : null;
+        this.personality = obj.personality;
     }
 
     getPlayerName() {

@@ -111,7 +111,7 @@ var erisk = (function(my) {
                 const player = utils.deepCopy(CONSTS.PLAYERS[playerIndex], 1);
 
                 if (playerType === CONSTS.PLAYER_AI) {
-                    player.personality = CONSTS.AI_PERSONALITIES[utils.rint(0, CONSTS.AI_PERSONALITIES.length)].copy();
+                    player.personality = utils.rint(1, CONSTS.AI_PERSONALITIES.length);
                 }
 
                 player.index = players.length;

@@ -101,7 +101,7 @@ var erisk = (function(my) {
     // They have either moved back to the source region or occupy the destination.
     function resetAttackStatus(fromList) {
         fromList.map(function(soldier) {
-            soldier.attackedRegion = undefined;
+            delete soldier.attackedRegion;
         });
     }
 

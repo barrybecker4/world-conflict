@@ -1,7 +1,7 @@
 
 var CONSTS = (function(my) {
 
-    const DEBUG = false;
+    const DEBUG = true;
     const SOLDIER_COSTS = calcCosts(8, 16);
 
     const UNLIMITED_TURNS = 1000000;
@@ -120,6 +120,7 @@ var CONSTS = (function(my) {
 
         // AI personalities - how eagerly it builds soldiers, and what upgrades it prefers
         const AI_PERSONALITIES = [
+            null,
             new AiPersonality({ soldierEagerness: 1, preferredUpgrades: [] }),
             new AiPersonality({ soldierEagerness: 0.2, preferredUpgrades: [WATER, EARTH] }),
             new AiPersonality({ soldierEagerness: 0.25, preferredUpgrades: [WATER, FIRE, FIRE] }),

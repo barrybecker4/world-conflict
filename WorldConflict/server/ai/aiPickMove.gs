@@ -31,7 +31,7 @@ var erisk = (function(my) {
             return false;
 
         // Get preference for soldiers from our personality.
-        const soldierEagerness = player.personality.getSoldierEagerness();
+        const soldierEagerness = CONSTS.AI_PERSONALITIES[player.personality].getSoldierEagerness();
 
         // Calculate the relative cost of buying a soldier now.
         const relativeCost = state.soldierCost() / state.cash[player.index];
@@ -54,10 +54,12 @@ var erisk = (function(my) {
     }
 
     function upgradeToBuild(player, state) {
+        const perosnality = CONSTS.AI_PERSONALITIES[player.personality];
+
         // do we still want something?
-        if (!player.personality.preferredUpgrades.length)
+        if (!personality.preferredUpgrades.length)
             return;
-        const desiredUpgrade = player.personality.preferredUpgrades[0];
+        const desiredUpgrade = personality.preferredUpgrades[0];
         const currentLevel = state.rawUpgradeLevel(player, desiredUpgrade);
 
         // can we afford it?
