@@ -54,7 +54,7 @@ var erisk = (function(my) {
     }
 
     function upgradeToBuild(player, state) {
-        const perosnality = CONSTS.AI_PERSONALITIES[player.personality];
+        const personality = CONSTS.AI_PERSONALITIES[player.personality];
 
         // do we still want something?
         if (!personality.preferredUpgrades.length)

@@ -81,7 +81,7 @@ erisk.gameRenderer = (function() {
         } else {
             turnCountEl.innerHTML =
                 'Turn <b>' + gameState.turnIndex + '</b>' +
-                ((storage.gameSetup.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + storage.gameSetup.turnCount : '');
+                ((gameData.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + gameData.turnCount : '');
         }
 
         // player data

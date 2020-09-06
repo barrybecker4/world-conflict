@@ -75,7 +75,7 @@ function getGameData(gameId, players) {
 
 /**
  * Persist the specified gameData into firestore.
- * There seems to be some limit on the size of the first argument, so I made the payload the secona arg,
+ * There seems to be some limit on the size of the first argument, so I made the payload the second arg,
  */
 function persistGameData(unused, clientGameData) {
       CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
@@ -107,7 +107,7 @@ function getGameMoves(gameId, lastGameStateId) {
 }
 
 /**
- * Make AiMoves until it is no longer an Ai that is moving.
+ * Make AiMoves until it is no longer an Ai that is moving (or end of game reached).
  * Store those states (with moveDecisions) in firestore as they are determined.
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly

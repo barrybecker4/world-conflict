@@ -4,7 +4,7 @@ var erisk = (function(my) {
     const SERVER_REQUEST_DELAY = 1000;
     let humanMoves = [];
 
-    // Deals with responding to user actions - whether human or AI.
+    /** Deals with responding to user actions - whether human or AI. */
     my.playOneMove = function(state, afterUndo) {
         if (!appState.isInGame())
             return; // game terminated
@@ -14,23 +14,9 @@ var erisk = (function(my) {
             const player = state.activePlayer();
 
             if (player.name === domUtils.userid()) {
-                erisk.uiPickMove(player, state, function(move) {
-                    const newState = erisk.makeMove(state, move);
-                    move.stateId = newState.id;
-                    move.gameId = newState.gameId;
-                    if (afterUndo) {
-                        humanMoves.pop();
-                    }
-                    humanMoves.push(move);
-
-                    if (newState.endResult) { // did the game end?
-                        showEndGame(newState);
-                    } else {
-                        erisk.setPreviousState(state.copy()); // only humans can undo
-                        setTimeout(() => my.playOneMove(newState), 1); // recursive call
-                    }
-                });
-            } else {
+                getMovesForCurrentPlayer(player, state, afterUndo);
+            }
+            else {
                 if (humanMoves.length) {
                     console.log("asking server to append moves: " + humanMoves.map(m => m.stateId));
                     google.script.run
@@ -40,18 +26,39 @@ var erisk = (function(my) {
                 }
                 if (player.personality) {
                     erisk.setPreviousState(null); // only humans can undo
-                    // request that the computer make the AI moves (and store it in firestore),
+                    // request that the server make the AI moves (and store it in firestore),
                     google.script.run
                         .withFailureHandler(showError)
                         // must wrap state in array to make GAS happy (don't know why)
-                        .makeComputerMoves([state], gameData.getSimpleObject());
+                        .makeAiMovesOnServer([state], gameData.getSimpleObject());
                 }
-
-                // Request from server whatever human or AI moves were made there since last request.
+                // Request from server whatever human or AI moves were made since last request.
                 setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
             }
 
-            // erisk.gameRenderer.updateDisplay(state);
+            erisk.gameRenderer.updateDisplay(state);
+        });
+    }
+
+    /** This just stores the players move in humanMoves since, because of undo,
+     * its not final, until "end move" is clicked.
+     */
+    function getMovesForCurrentPlayer(player, state, afterUndo) {
+        erisk.uiPickMove(player, state, function(move) {
+            const newState = erisk.makeMove(state, move);
+            move.stateId = newState.id;
+            move.gameId = newState.gameId;
+            if (afterUndo) {
+                humanMoves.pop();
+            }
+            humanMoves.push(move);
+
+            if (newState.endResult) { // did the game end?
+                showEndGame(newState);
+            } else {
+                erisk.setPreviousState(state.copy()); // only humans can undo
+                setTimeout(() => my.playOneMove(newState), 0); // recursive call
+            }
         });
     }
 
@@ -75,9 +82,11 @@ var erisk = (function(my) {
                 const theMove = moves[i];
                 const move = Move.reconstitute(theMove);
                 let nextState = erisk.makeMove(state, move);
-                erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, function() {
-                    if (CONSTS.DEBUG)
-                        console.log(i + ") aiMove found on server: " + JSON.stringify(move));
+                erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
+                    if (CONSTS.DEBUG) {
+                        const name = state.activePlayer().getPlayerName();
+                        console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
+                    }
                     audio.playSound(CONSTS.SOUNDS.CLICK);
                     erisk.gameRenderer.updateDisplay(nextState);
                 });
@@ -89,10 +98,12 @@ var erisk = (function(my) {
             }
             else {
                 if (finalState.activePlayer().name !== domUtils.userid()) {
-                   // If we have not yet advanced to the player on this client, request more moves until we do
-                   setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
+                    console.log("activePlayer " + finalState.activePlayer().name +
+                        " is not " + domUtils.userid() + " so requesting more moves from sever");
+                    // If we have not yet advanced to the player on this client, request more moves until we do
+                    setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                 }
-                else setTimeout(() => my.playOneMove(finalState), 1);
+                else setTimeout(() => my.playOneMove(finalState), 0);
             }
         }
     }
@@ -104,7 +115,7 @@ var erisk = (function(my) {
             const delay = 200;
             const duration = 4000;
             if (winner !== CONSTS.DRAWN_GAME) {
-                erisk.gameRenderer.showBanner(winner.colorEnd, winner.name + " wins the game!", delay, duration);
+                erisk.gameRenderer.showBanner(winner.colorEnd, `${winner.name} wins the game!`, delay, duration);
             } else {
                 erisk.gameRenderer.showBanner('#333', "The game ends in a draw!", delay, duration);
             }
