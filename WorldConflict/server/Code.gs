@@ -112,7 +112,7 @@ function getGameMoves(gameId, lastGameStateId) {
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
  */
-async function makeComputerMoves(state, clientGameData) {
+async function makeAiMovesOnServer(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
 
     gameData.initializeFrom(clientGameData);

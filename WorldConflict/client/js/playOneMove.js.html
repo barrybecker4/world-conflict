@@ -119,7 +119,7 @@ var erisk = (function(my) {
             const delay = 200;
             const duration = 4000;
             if (winner !== CONSTS.DRAWN_GAME) {
-                erisk.gameRenderer.showBanner(winner.colorEnd, `${winner.name} wins the game!`, delay, duration);
+                erisk.gameRenderer.showBanner(winner.colorEnd, `${winner.getPlayerName()} wins the game!`, delay, duration);
             } else {
                 erisk.gameRenderer.showBanner('#333', "The game ends in a draw!", delay, duration);
             }
