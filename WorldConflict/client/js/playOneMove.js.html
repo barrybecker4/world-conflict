@@ -2,7 +2,7 @@
 var erisk = (function(my) {
     const $ = domUtils.$;
     const SERVER_REQUEST_DELAY = 1000;
-    let humanMoves = [];
+    let localHumanMoves = [];
 
     /** Deals with responding to user actions - whether human or AI. */
     my.playOneMove = function(state, afterUndo) {
@@ -17,13 +17,7 @@ var erisk = (function(my) {
                 getMovesForCurrentPlayer(player, state, afterUndo);
             }
             else {
-                if (humanMoves.length) {
-                    console.log("asking server to append moves: " + humanMoves.map(m => m.stateId));
-                    google.script.run
-                        .withFailureHandler(showError)
-                        .appendGameMoves(humanMoves);
-                    humanMoves = [];
-                }
+                persistLocalMovesIfAny();
                 if (player.personality) {
                     erisk.setPreviousState(null); // only humans can undo
                     // request that the server make the AI moves (and store it in firestore),
@@ -40,7 +34,7 @@ var erisk = (function(my) {
         });
     }
 
-    /** This just stores the players move in humanMoves since, because of undo,
+    /** This just stores the players move in localHumanMoves since, because of undo,
      * its not final, until "end move" is clicked.
      */
     function getMovesForCurrentPlayer(player, state, afterUndo) {
@@ -49,9 +43,9 @@ var erisk = (function(my) {
             move.stateId = newState.id;
             move.gameId = newState.gameId;
             if (afterUndo) {
-                humanMoves.pop();
+                localHumanMoves.pop();
             }
-            humanMoves.push(move);
+            localHumanMoves.push(move);
 
             if (newState.endResult) { // did the game end?
                 showEndGame(newState);
@@ -60,6 +54,16 @@ var erisk = (function(my) {
                 setTimeout(() => my.playOneMove(newState), 0); // recursive call
             }
         });
+    }
+
+    function persistLocalMovesIfAny() {
+        if (localHumanMoves.length) {
+            console.log("asking server to append moves: " + localHumanMoves.map(m => m.stateId));
+            google.script.run
+                .withFailureHandler(showError)
+                .appendGameMoves(localHumanMoves);
+            localHumanMoves = [];
+        }
     }
 
     function replayMovesFromServer(state) {
@@ -128,6 +132,8 @@ var erisk = (function(my) {
             infoEl.style.background = '#555';
             $('move-info').style.display = 'none';
             erisk.gameRenderer.updateButtons([ {text: "New game"} ]);
+
+            persistLocalMovesIfAny();
 
             uiCallbacks.setBuildCB(erisk.runSetupScreen);
         });
