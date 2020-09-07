@@ -57,18 +57,19 @@ var erisk = (function(my) {
         const personality = CONSTS.AI_PERSONALITIES[player.personality];
 
         // do we still want something?
-        if (!personality.preferredUpgrades.length)
+        const desiredUpgrade = findDesiredUpgrade(personality.preferredUpgrades, player, state);
+        if (!desiredUpgrade)
             return;
-        const desiredUpgrade = personality.preferredUpgrades[0];
-        const currentLevel = state.rawUpgradeLevel(player, desiredUpgrade);
+
+        const desiredLevel = state.rawUpgradeLevel(player, desiredUpgrade);
 
         // can we afford it?
-        if (state.cash[player.index] < desiredUpgrade.cost[currentLevel])
+        if (state.cash[player.index] < desiredUpgrade.cost[desiredLevel])
             return;
 
         // do we have a place to build it?
         const possibleTemplesToUpgrade = state.templesForPlayer(player).filter(function(temple) {
-            return (!temple.upgrade && !currentLevel) || (temple.upgrade === desiredUpgrade);
+            return (!temple.upgradeIndex && !desiredLevel) || (CONSTS.UPGRADES[temple.upgradeIndex] === desiredUpgrade);
         });
         if (!possibleTemplesToUpgrade.length)
             return;
@@ -77,13 +78,34 @@ var erisk = (function(my) {
         const temple = sequenceUtils.min(possibleTemplesToUpgrade, t => heuristics.templeDangerousness(state, t));
 
         // build the upgrade!
-        player.personality.preferredUpgrades.shift();
-        return new BuildMove({ upgrade: desiredUpgrade, regionIndex: temple.regionIndex });
+        return new BuildMove({ upgradeIndex: desiredUpgrade.index, regionIndex: temple.regionIndex });
     }
 
     function buildSoldierAtBestTemple(player, state) {
         const temple = sequenceUtils.max(state.templesForPlayer(player), t => heuristics.templeDangerousness(state, t));
-        return new BuildMove({ upgrade: CONSTS.UPGRADES.SOLDIER, regionIndex: temple.regionIndex });
+        return new BuildMove({ upgradeIndex: CONSTS.UPGRADES.SOLDIER.index, regionIndex: temple.regionIndex });
+    }
+
+    /** @return the upgrade that is desired by this AI based on the preferredUpgrades array */
+    function findDesiredUpgrade(preferredUpgrades, player, state) {
+        // first see what the AI has already
+        const playerTemples = state.templesForPlayer(player);
+
+        // find the first preferred upgrade for which we do not have the desired max level
+        const desiredUpgradeDef = preferredUpgrades.find(upgradeDef => {
+            const templeWithUpgrade = playerTemples.find(temple => temple.upgradeIndex === upgradeDef.index);
+
+            if (templeWithUpgrade) {
+                Logger.log("Found temple with desired upgrade: " + JSON.stringify(upgradeDef) + " temple level: " + templeWithUpgrade.level);
+                return (templeWithUpgrade.level + 1) < upgradeDef.level;
+            } else {
+               return true;
+            }
+        });
+
+        Logger.log("Found desired upgrade for player: " + player.getPlayerName()
+            + " desiredUpgradeDef: " + JSON.stringify(desiredUpgradeDef));
+        return desiredUpgradeDef ? CONSTS.UPGRADES[desiredUpgradeDef.index] : undefined;
     }
 
     return my;

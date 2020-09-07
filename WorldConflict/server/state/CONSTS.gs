@@ -38,53 +38,60 @@ var CONSTS = (function(my) {
 
         // Possible temple upgrades
         const UPGRADES = [
+            null,
             new Upgrade({
                 name: 'Extra soldier',
                 desc: '',
                 cost: SOLDIER_COSTS,
-                level: []
+                level: [],
+                index: 1,
             }),
             new Upgrade({
                 name: 'X of Water',
                 desc: 'Income: X% more each turn.',
                 cost: [15, 25],
                 level: [20, 40],
-                bgColor: '#66f'
+                bgColor: '#66f',
+                index: 2,
             }),
             new Upgrade({
                 name: 'X of Fire',
                 desc: 'Attack: X invincible soldier(s).',
                 cost: [20, 30],
-                level: [1, 2], bgColor: '#f88'
+                level: [1, 2], bgColor: '#f88',
+                index: 3,
             }),
             new Upgrade({
                 name: 'X of Air',
                 desc: 'Move: X extra move(s) per turn.',
                 cost: [25, 35],
                 level: [1, 2],
-                bgColor: '#ffa'
+                bgColor: '#ffa',
+                index: 4,
             }),
             new Upgrade({
                 name: 'X of Earth',
                 desc: 'Defense: Always kill X invader(s).',
                 cost: [30, 45],
                 level: [1, 2],
-                bgColor: '#696'
+                bgColor: '#696',
+                index: 5,
             }),
             new Upgrade({
                 name: 'Rebuild temple',
                 desc: 'Switch to a different upgrade.',
                 cost: [0],
-                level: []
+                level: [],
+                index: 6,
             })
         ];
 
-        UPGRADES.SOLDIER = UPGRADES[0];
-        UPGRADES.WATER = UPGRADES[1];
-        UPGRADES.FIRE = UPGRADES[2];
-        UPGRADES.AIR = UPGRADES[3];
-        UPGRADES.EARTH = UPGRADES[4];
-        UPGRADES.REBUILD = UPGRADES[5];
+        UPGRADES.SOLDIER = UPGRADES[1];
+        UPGRADES.WATER = UPGRADES[2];
+        UPGRADES.FIRE = UPGRADES[3];
+        UPGRADES.AIR = UPGRADES[4];
+        UPGRADES.EARTH = UPGRADES[5];
+        UPGRADES.REBUILD = UPGRADES[6];
 
         // These are the possible Players. Each can be human or AI.
         const PLAYERS = [
@@ -114,21 +121,46 @@ var CONSTS = (function(my) {
             }),
         ];
 
-        const WATER = UPGRADES.WATER;
-        const EARTH = UPGRADES.EARTH;
-        const FIRE = UPGRADES.FIRE;
+        const WATER = UPGRADES.WATER.index;
+        const EARTH = UPGRADES.EARTH.index;
+        const FIRE = UPGRADES.FIRE.index;
 
-        // AI personalities - how eagerly it builds soldiers, and what upgrades it prefers
+        // AI personalities - how eagerly it builds soldiers, and what upgrades it prefers.
+        // If the value of a a preferred upgrade is 2, then it should build to second level before getting the next type
         const AI_PERSONALITIES = [
             null,
-            new AiPersonality({ soldierEagerness: 1, preferredUpgrades: [] }),
-            new AiPersonality({ soldierEagerness: 0.2, preferredUpgrades: [WATER, EARTH] }),
-            new AiPersonality({ soldierEagerness: 0.25, preferredUpgrades: [WATER, FIRE, FIRE] }),
-            new AiPersonality({ soldierEagerness: 0.15, preferredUpgrades: [WATER, WATER, EARTH, EARTH] }),
-            new AiPersonality({ soldierEagerness: 0.4, preferredUpgrades: [WATER] }),
-            new AiPersonality({ soldierEagerness: 0.3, preferredUpgrades: [WATER, WATER] }),
-            new AiPersonality({ soldierEagerness: 0.25, preferredUpgrades: [FIRE, FIRE] }),
-            new AiPersonality({ soldierEagerness: 0.2, preferredUpgrades: [EARTH, EARTH] }),
+            new AiPersonality({
+                soldierEagerness: 1,
+                preferredUpgrades: [],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.2,
+                preferredUpgrades: [ {index: WATER, level: 1}, {index: EARTH, level: 1} ],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.25,
+                preferredUpgrades: [ {index: WATER, level: 1}, {FIRE, level: 2} ],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.15,
+                preferredUpgrades: [ {index: WATER, level: 2}, {EARTH, level: 2} ],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.4,
+                preferredUpgrades: [ {index: WATER, level: 1} ],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.3,
+                preferredUpgrades: [ {index: WATER, level: 2} ],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.25,
+                preferredUpgrades: [ {index: FIRE, level: 2} ],
+            }),
+            new AiPersonality({
+                soldierEagerness: 0.2,
+                preferredUpgrades: [ {index: EARTH, level: 2} ],
+            }),
         ];
 
         my = {
@@ -140,6 +172,7 @@ var CONSTS = (function(my) {
             DEBUG,
 
             BASE_MOVES_PER_TURN: 3,
+            NUM_UPGRADES: UPGRADES.length - 1,
 
             // Constants for setup screen
             PLAYER_OFF, PLAYER_HUMAN_SET, PLAYER_HUMAN_OPEN, PLAYER_AI,
@@ -162,7 +195,7 @@ var CONSTS = (function(my) {
             // amount of faith added when soldiers are killed defending a region
             MARTYR_BONUS: 4,
 
-            LEVELS: ["Temple", "Cathedral"],
+            TEMPLE_LEVELS: ["Temple", "Cathedral"],
 
             // Status (from server when making game data)
             WAITING_FOR_PLAYERS: 'waitingForPlayers',

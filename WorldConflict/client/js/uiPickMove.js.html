@@ -12,7 +12,6 @@ var erisk = (function(my) {
 
         uiCallbacks.setRegionSelectedCB(function(region) {
             if (!region || state.moveDecision.isBuildMove()) {
-                console.log("cleaningState because region = " + region + " buildMove = " + state.moveDecision.isBuildMove());
                 setCleanState();
             }
 
@@ -70,13 +69,13 @@ var erisk = (function(my) {
         uiCallbacks.setBuildCB(function(which) {
             if (state.moveDecision && state.moveDecision.isBuildMove()) {
                 // build buttons handled here
-                if (which >= CONSTS.UPGRADES.length) {
+                if (which >= CONSTS.NUM_UPGRADES) {
                     setCleanState();
                 } else {
                     // build an upgrade!
-                    state.moveDecision.upgrade = CONSTS.UPGRADES[which];
+                    state.moveDecision.upgradeIndex = which + 1;
                     // if its a soldier, store UI state so it can be kept after the move is made
-                    if (state.moveDecision.upgrade === CONSTS.UPGRADES.SOLDIER)
+                    if (state.moveDecision.upgradeIndex === CONSTS.UPGRADES.SOLDIER.index)
                         uiState[player.index] = gameData.regions[state.moveDecision.regionIndex];
                     reportMoveCallback(state.moveDecision);
                 }
@@ -110,17 +109,17 @@ var erisk = (function(my) {
             const templeOwner = state.owner(temple.regionIndex);
             if (!templeOwner)
                 throw new Error("Could not find owner for temple with regionIndex = " + temple.regionIndex);
-            const upgradeButtons = CONSTS.UPGRADES.map(makeUpgradeButton);
+            const upgradeButtons = CONSTS.UPGRADES.slice(1).map(makeUpgradeButton);
 
             function makeUpgradeButton(upgrade) {
                 // current upgrade level (either the level of the temple or number of soldiers bought already)
                 const level = getCurrentUpgradeLevel(temple);
 
                 const cost = upgrade.cost[level];
-                const text = utils.template(upgrade.name, CONSTS.LEVELS[level]) +
+                const text = utils.template(upgrade.name, CONSTS.TEMPLE_LEVELS[level]) +
                     domUtils.elem('b', {}, " (" + cost + "&#9775;)");
                 const description = utils.template(upgrade.desc, upgrade.level[level]);
-                let curUpgrade = temple.upgrade;
+                let curUpgrade = CONSTS.UPGRADES[temple.upgradeIndex];
 
                 const hidden =
                     (upgrade === CONSTS.UPGRADES.REBUILD && !curUpgrade) // rebuild only available if temple is upgraded
@@ -132,7 +131,7 @@ var erisk = (function(my) {
                 return {text, description, disabled: cost > state.cashForPlayer(player), hidden};
 
                 function getCurrentUpgradeLevel(temple) {
-                    return (temple.upgrade === upgrade) ?
+                    return (temple.upgradeIndex === upgrade.index) ?
                         temple.level + 1 : ((upgrade === CONSTS.UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
                 }
 

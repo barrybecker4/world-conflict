@@ -17,7 +17,7 @@ var erisk = (function(my) {
         if (move.isArmyMove()) {
             moveSoldiers(newState, move);
         } else if (move.isBuildMove()) {
-            buildUpgrade(newState, move.regionIndex, move.upgrade);
+            buildUpgrade(newState, move.regionIndex, move.upgradeIndex);
         } else if (move.isEndMove()) {
             nextTurn(newState);
         } else {
@@ -125,7 +125,7 @@ var erisk = (function(my) {
             // if there was a temple, reset its upgrades
             const temple = state.temples[toRegion];
             if (temple) {
-                delete temple.upgrade;
+                delete temple.upgradeIndex;
             }
             // play sound, launch particles!
             state.particleTempleRegion = gameData.regions[toRegion].index;
@@ -144,7 +144,8 @@ var erisk = (function(my) {
         erisk.oneAtaTime(delay || 500, () => erisk.gameRenderer.updateDisplay(keyframe));
     }
 
-    function buildUpgrade(state, regionIndex, upgrade) {
+    function buildUpgrade(state, regionIndex, upgradeIndex) {
+        const upgrade = CONSTS.UPGRADES[upgradeIndex];
         const temple = state.temples[regionIndex];
         const templeOwner = state.owner(regionIndex);
 
@@ -152,7 +153,7 @@ var erisk = (function(my) {
             buySoldier(state, templeOwner, upgrade, regionIndex);
         }
         else if (upgrade.name === CONSTS.UPGRADES.REBUILD.name) {
-            delete temple.upgrade; // remove current upgrade
+            delete temple.upgradeIndex; // remove current upgrade
         }
         else upgradeTemple(state, temple, templeOwner, upgrade);
     }
@@ -166,8 +167,8 @@ var erisk = (function(my) {
     }
 
     function upgradeTemple(state, temple, templeOwner, upgrade) {
-        if (!temple.upgrade || temple.upgrade.name != upgrade.name) { // virgin upgrade
-            temple.upgrade = upgrade;
+        if (!temple.upgradeIndex || CONSTS.UPGRADES[temple.upgradeIndex].name != upgrade.name) { // virgin upgrade
+            temple.upgradeIndex = upgrade.index;
             temple.level = 0;
         }
         else temple.level++; // upgrade to a higher level

@@ -38,14 +38,14 @@ class Upgrade {
         this.cost = obj.cost;
         this.level = obj.level;
         this.bgColor = obj.bgColor;
+        this.index = obj.index;
     }
 }
-
 
 class Temple {
     constructor(obj) {
         this.regionIndex = obj.regionIndex;
-        this.upgrade = obj.upgrade;
+        this.upgradeIndex = obj.upgradeIndex;
         this.level = obj.level;
         this.elementId = obj.elementId;
     }
@@ -72,7 +72,7 @@ class AiPersonality {
     copy() {
         return new AiPersonality({
             soldierEagerness: this.soldierEagerness,
-            preferredUpgrades: this.preferredUpgrades.slice(),
+            preferredUpgrades: this.preferredUpgrades,
         });
     }
 }
@@ -185,9 +185,10 @@ class GameState {
         return this.cash[player.index];
     }
 
+    /** @return the current upgrade level for specified player and upgradeType */
     rawUpgradeLevel(player, upgradeType) {
         return sequenceUtils.max(this.templesForPlayer(player).map(function(temple) {
-            if (temple.upgrade && temple.upgrade.name === upgradeType.name)
+            if (temple.upgradeIndex && CONSTS.UPGRADES[temple.upgradeIndex].name === upgradeType.name)
                 return temple.level + 1;
             else
                 return 0;
@@ -209,7 +210,8 @@ class GameState {
             if (this.isOwnedBy(region, player))
                 return 0;
             // does it have the right type of upgrade?
-            return (temple.upgrade && temple.upgrade.name == upgradeType.name) ? upgradeType.level[temple.level] : 0;
+            return (temple.upgradeIndex && CONSTS.UPGRADES[temple.upgradeIndex].name == upgradeType.name) ?
+                upgradeType.level[temple.level] : 0;
         }));
     }
 
@@ -224,14 +226,14 @@ class GameState {
     }
 
     templeInfo(temple) {
-        if (!temple.upgrade) {
+        if (!temple.upgradeIndex) {
             const name = this.owner(temple.regionIndex) ? "Basic Temple" : "Neutral Temple";
             return { name, description: "No upgrades" };
         } else {
-            let upgrade = temple.upgrade;
+            let upgrade = CONSTS.UPGRADES[temple.upgradeIndex];
             let level = temple.level;
             let description = utils.template(upgrade.desc, upgrade.level[level]);
-            return {name: utils.template(upgrade.name, CONSTS.LEVELS[level]), description};
+            return {name: utils.template(upgrade.name, CONSTS.TEMPLE_LEVELS[level]), description};
         }
     }
 
@@ -290,9 +292,6 @@ class Move {
                 }
                 return new ArmyMove(obj);
             case 'build-move':
-                if (obj.upgrade) {
-                    obj.upgrade = new Upgrade(obj.upgrade);
-                }
                 return new BuildMove(obj);
             case 'end-move':
                 return new EndMove(obj);
@@ -477,7 +476,7 @@ class BuildMove extends Move {
 
     constructor(obj) {
         super();
-        this.upgrade = obj.upgrade;
+        this.upgradeIndex = obj.upgradeIndex;
         this.regionIndex = obj.regionIndex;
         this.buttons = obj.buttons;
         this.type = 'build-move';

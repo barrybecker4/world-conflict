@@ -35,7 +35,7 @@ var heuristics = (function(my) {
         if (temple) {
             const templeBonus = slidingBonus(state, 6, 0, 0.5);
             const upgradeBonus = slidingBonus(state, 4, 0, 0.9);
-            const upgradeValue = temple.upgrade ? (temple.level + 1) : 0;
+            const upgradeValue = temple.upgradeIndex ? (temple.level + 1) : 0;
             return 1 + templeBonus + upgradeBonus * upgradeValue;
         } else {
             return 1;

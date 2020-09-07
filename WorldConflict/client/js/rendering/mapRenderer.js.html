@@ -222,11 +222,11 @@ erisk.mapRenderer = (function() {
             let element = $(temple.elementId);
 
             // right color and right number of levels (corresponding to upgrade level)
-            let templeLevels = temple.upgrade ? (temple.level + 3) : 2;
+            let templeLevels = temple.upgradeIndex ? (temple.level + 3) : 2;
             while (element) {
                 const style = element.style;
                 style.display = (templeLevels > 0) ? 'block' : 'none';
-                style.background = temple.upgrade ? temple.upgrade.bgColor : '#999';
+                style.background = temple.upgradeIndex ? CONSTS.UPGRADES[temple.upgradeIndex].bgColor : '#999';
 
                 templeLevels--;
                 element = element.firstChild;

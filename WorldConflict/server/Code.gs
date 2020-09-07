@@ -108,7 +108,7 @@ function getGameMoves(gameId, lastGameStateId) {
 
 /**
  * Make AiMoves until it is no longer an Ai that is moving (or end of game reached).
- * Store those states (with moveDecisions) in firestore as they are determined.
+ * Store the moves in firestore as they are determined.
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
  */
