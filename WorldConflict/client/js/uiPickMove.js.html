@@ -11,6 +11,9 @@ var erisk = (function(my) {
     my.uiPickMove = function(player, state, reportMoveCallback) {
 
         uiCallbacks.setRegionSelectedCB(function(region) {
+            if (!appState.isInGame()) {
+                return;
+            }
             if (!region || state.moveDecision.isBuildMove()) {
                 setCleanState();
             }

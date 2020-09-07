@@ -50,7 +50,6 @@ var erisk = (function(my) {
          * Either the game will now start, or will will continue waiting for players to join.
          */
         function newGameDataCallback(status) {
-            console.log("done making initial gameData status = " + status + " gameId = " + gameData.gameId);
             switch (status) {
                 case CONSTS.WAITING_FOR_PLAYERS: doneConfiguring(); break;
                 case CONSTS.READY_TO_START: startGame(); break;
@@ -143,12 +142,13 @@ var erisk = (function(my) {
             regenerateGameDataWithoutNewMap();
         });
 
-        // callback for AI config buttons
+        // callback for AI level buttons
         uiCallbacks.setSetupAiLevelCB(function(aiLevel) {
             storage.gameSetup.aiLevel = aiLevel;
             updatePlayerConfigButtons();
         });
 
+        // callback for number of turns buttons
         uiCallbacks.setSetupTurnCountCB(function(turnCount) {
             storage.gameSetup.turnCount = turnCount;
             updatePlayerConfigButtons();
@@ -193,6 +193,7 @@ var erisk = (function(my) {
     function regenerateGameData(callback, firstTime, keepCurrentMap) {
         if (!isSetupValid()) return;
 
+        console.log("regen game data");
         google.script.run
             .withSuccessHandler(function(newGameData) {
                 gameData.initializeFrom(newGameData);
