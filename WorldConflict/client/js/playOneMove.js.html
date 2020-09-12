@@ -17,15 +17,17 @@ var erisk = (function(my) {
                 getMovesForCurrentPlayer(player, state, afterUndo);
             }
             else {
-                persistLocalMovesIfAny();
-                if (player.personality) {
-                    erisk.setPreviousState(null); // only humans can undo
-                    // request that the server make the AI moves (and store it in firestore),
-                    google.script.run
-                        .withFailureHandler(showError)
-                        // must wrap state in array to make GAS happy (don't know why)
-                        .makeAiMovesOnServer([state], gameData.getSimpleObject());
-                }
+                persistLocalMovesIfAny(() => {
+                    if (player.personality) {
+                        erisk.setPreviousState(null); // only humans can undo
+                        // request that the server make the AI moves (and store it in firestore),
+                        google.script.run
+                            .withFailureHandler(showError)
+                            // must wrap state in array to make GAS happy (don't know why)
+                            .makeAiMovesOnServer([state], gameData.getSimpleObject());
+                    }
+                });
+
                 // Request from server whatever human or AI moves were made since last request.
                 setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
             }
@@ -56,13 +58,16 @@ var erisk = (function(my) {
         });
     }
 
-    function persistLocalMovesIfAny() {
+    function persistLocalMovesIfAny(callback) {
         if (localHumanMoves.length) {
             console.log("asking server to append moves: " + localHumanMoves.map(m => m.stateId));
             google.script.run
+                .withSuccessHandler(callback)
                 .withFailureHandler(showError)
                 .appendGameMoves(localHumanMoves);
             localHumanMoves = [];
+        } else {
+            callback();
         }
     }
 
@@ -133,7 +138,7 @@ var erisk = (function(my) {
             $('move-info').style.display = 'none';
             erisk.gameRenderer.updateButtons([ {text: "New game"} ]);
 
-            persistLocalMovesIfAny();
+            persistLocalMovesIfAny(() => {});
 
             uiCallbacks.setBuildCB(erisk.runSetupScreen);
         });
