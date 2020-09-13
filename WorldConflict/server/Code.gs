@@ -59,7 +59,7 @@ function makeGameData(setup, firstTime, clientGameData) {
  * then return that new configuration so that it can be shown on the client.
  */
 function getGameData(gameId, players) {
-    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize(); // need?
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     const gameDataDoc = gameConfigurationTable.getGameConfiguration(gameId);
 
     if (gameDataDoc) {

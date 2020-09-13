@@ -20,14 +20,23 @@ var erisk = (function(my) {
 
         const openGames = gameConfigurationTable.getOpenGameConfigurations();
         const userId = getUserId();
-        Logger.log(`makeGameData userId = ${userId} firstTime = ${firstTime} openGames.length = ${openGames.length}`);
+        const openGame = availableOpenGame(openGames, userId);
 
-        if (firstTime && openGames.length) {
-            return gameDataFromExistingGame(openGames[0], userId);
+        if (firstTime && openGame) {
+            return gameDataFromExistingGame(openGame, userId);
         }
         else {
             return createNewGameData(setup, keepCurrentMap, userId);
         }
+    }
+
+    /**
+     * @return an available game with open slots where this user is not already seated, else null
+     */
+    function availableOpenGame(openGames, userId) {
+        return openGames.find(game => {
+            return !game.players.some(p => p.name === userId);
+        });
     }
 
     /**
