@@ -5,11 +5,11 @@
 // start the game
 window.onload = function() {
     CONSTS = CONSTS.initialize();
-
-    setTimeout(function() {
-        erisk.runSetupScreen();
-        erisk.tutorialScreen();
-    }, 10);
+    erisk.tutorialScreen(() => {
+        if (!appState.isInSetup()) {
+            erisk.runSetupScreen();
+        }
+    });
 };
 
 //window.onbeforeunload = function () {

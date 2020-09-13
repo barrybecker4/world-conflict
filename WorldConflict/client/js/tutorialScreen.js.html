@@ -2,10 +2,15 @@
 var erisk = (function(my) {
     const { $, onClickOrTap } = domUtils;
 
-    my.tutorialScreen = function() {
+    my.tutorialScreen = function(callback) {
         ['overview-panel', 'tutorial-button', 'sound'].map(id => domUtils.showOrHide(id, 1));
 
-        onClickOrTap($('cancel-button'), () => setTutorialScreenVisibility(false));
+        onClickOrTap($('cancel-button'), () => {
+            setTutorialScreenVisibility(false);
+            if (callback) {
+                callback();
+            }
+        });
         onClickOrTap($('next'), () => switchTutorialCard(1));
         onClickOrTap($('prev'), () => switchTutorialCard(-1));
 
