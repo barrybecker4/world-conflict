@@ -86,12 +86,17 @@ function persistGameData(unused, clientGameData) {
       return gameData.gameId;
 }
 
+/**
+ * The players will be considered changed if either
+ * - a human player joins an open slot (name change)
+ * - an ope slot becomes an AI (type change: open -> ai)
+ */
 function playersDiffer(newPlayers, oldPlayers) {
     if (newPlayers.length != oldPlayers.length) {
         throw new Error('The number of players were unexpectedly different\n.' +
             ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers));
     }
-    return oldPlayers.some((player, i) => player.name != newPlayers[i].name);
+    return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);
 }
 
 function appendGameMoves(moves) {

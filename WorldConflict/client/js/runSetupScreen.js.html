@@ -6,6 +6,7 @@ var erisk = (function(my) {
     my.runSetupScreen = function() {
         audio.setupAudio();
         appState.setInSetup();
+        let configuringPlayer = null;
 
         regenerateGameData(newGameDataCallback, true, false);
         createSetupUI();
@@ -19,6 +20,7 @@ var erisk = (function(my) {
                     regenerateGameData();
                     break;
                 case 1: // done configuring
+                    configuringPlayer = domUtils.userid();
                     persistGameData(() => {
                         if (areOpenSlots()) {
                             doneConfiguring();
@@ -72,7 +74,10 @@ var erisk = (function(my) {
         function doneConfiguring() {
             appState.setWaiting();
             updatePlayerConfigButtons();
-            updateStartAnywayButton();
+
+            // only the configuring player (owner) can decide to start before all players have joined
+            const isConfiguringPlayer = configuringPlayer === domUtils.userid();
+            updateStartAnywayButton(isConfiguringPlayer);
             uiCallbacks.setBuildCB(startGameAfterConvertingOpenSlots);
 
             pollForNewPlayers();
@@ -117,7 +122,10 @@ var erisk = (function(my) {
         function convertOpenSlotsToAiPlayersIfNeeded(callback) {
             const hasOpenSlots = gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
             if (hasOpenSlots) {
-                convertOpenSlotsToAiPlayers(callback);
+                convertOpenSlotsToAiPlayers(() => {
+                    updatePlayerConfigButtons();
+                    persistGameData(callback);
+                });
             }
             else callback();
         }
@@ -193,7 +201,6 @@ var erisk = (function(my) {
     function regenerateGameData(callback, firstTime, keepCurrentMap) {
         if (!isSetupValid()) return;
 
-        console.log("regen game data");
         google.script.run
             .withSuccessHandler(function(newGameData) {
                 gameData.initializeFrom(newGameData);
@@ -264,6 +271,7 @@ var erisk = (function(my) {
         }
     }
 
+    // There must be at least one set player, and there must be at least 2 enabled players.
     function isSetupValid() {
         let numSetPlayers = 0;
         const enabledPlayers = sequenceUtils.sum(storage.gameSetup.playerTypes, function(playerType) {
@@ -285,11 +293,15 @@ var erisk = (function(my) {
         ]);
     }
 
-    function updateStartAnywayButton() {
+    function updateStartAnywayButton(enabled) {
+        const tip = enabled ?
+            'If you are tired of waiting for other human players to join, ' +
+            'you can click this and AI players will be used instead'
+            : 'Only the player that configured the game can decide to start before all players have joined';
+
         erisk.gameRenderer.updateButtons([
-            { text: 'Start anyway', disabled: false,
-              tip: 'If you are tired of waiting for other human players to join, ' +
-                   'you can click this and AI players will be used instead'
+            { text: 'Start anyway', disabled: !enabled,
+              tip
             },
         ], "Waiting for players to join open slots...");
     }

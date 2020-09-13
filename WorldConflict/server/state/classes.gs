@@ -414,6 +414,8 @@ class ArmyMove extends Move {
             const defendingStrength = defendingSoldiers * (1 + state.upgradeLevel(toOwner, CONSTS.UPGRADES.EARTH) * 0.01);
 
             const repeats = sequenceUtils.min([incomingSoldiers, defendingSoldiers]);
+
+            // This will be a number in a range like [0.01, 1000] depending on the ratio of incoming to defending
             const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
 
             // Jakub says that this should be fromOwner, but I believe that toOwner is correct.
@@ -423,8 +425,8 @@ class ArmyMove extends Move {
             function randomNumberForFight(index) {
                 var maximum = 120 + attackerWinChance;
                 if (state.simulatingPlayer) {
-                    // Simulated fight - return some numbers that exaggerate any advantage/
-                    // They're clustered about the center of the range to make the AI more "decisive"
+                    // Simulated fight - return some numbers that exaggerates any advantage.
+                    // They're clustered about the center of the range to make the AI more "decisive".
                     return (index + 3) * maximum / (repeats + 5);
                 } else {
                     // Not a simulated fight - return a real random number.

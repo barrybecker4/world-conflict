@@ -52,7 +52,6 @@ var erisk = (function(my) {
             player.name = userId;
             player.type = CONSTS.PLAYER_HUMAN_SET;
         }
-
     }
 
     my.addStatus = function(gameData) {
@@ -69,7 +68,6 @@ var erisk = (function(my) {
             turnIndex: 1,
             playerIndex: 0,
             movesRemaining: CONSTS.BASE_MOVES_PER_TURN,
-            //gameId
         });
 
         const oldNumPlayers = ((gameData.players && gameData.players.length) || 0);
@@ -88,14 +86,8 @@ var erisk = (function(my) {
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
 
-        /*
-        if (gameId) {
-            gameConfigurationTable.deleteGameConfiguration(gameId);
-        }
-        gameData = gameConfigurationTable.insert(gameData);
-        */
-
         return gameData;
+
 
         function distanceScore(regions, allRegions) {
             return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
@@ -116,12 +108,29 @@ var erisk = (function(my) {
 
                 player.index = players.length;
                 player.type = setup.playerTypes[playerIndex];
+                const playerFromGameData = getPlayerFromGameData(playerIndex);
+
                 if (player.type === CONSTS.PLAYER_HUMAN_SET) {
-                    player.name = userId;
+                    player.name = (playerFromGameData && playerFromGameData.name) || userId;
+                }
+                if (player.type === CONSTS.PLAYER_HUMAN_OPEN && playerFromGameData && playerFromGameData.name) {
+                    // if the gameData has a name for this player,
+                    // then someone has joined for this open slot and we want to preserve that.
+                    player.type = CONSTS.PLAYER_HUMAN_SET;
+                    player.name = playerFromGameData.name;
                 }
                 players.push(player);
             });
             return players;
+
+
+            /** @return the corresponding player from the gameData if there is one, else null */
+            function getPlayerFromGameData(playerIndex) {
+                if (gameData.players) {
+                    return gameData.players.find(p => p.originalIndex === playerIndex);
+                }
+                return null;
+            }
         }
 
         /**
