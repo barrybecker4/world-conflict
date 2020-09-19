@@ -103,7 +103,7 @@ var erisk = (function(my) {
             }
         });
 
-        Logger.log("Found desired upgrade for player: " + player.getPlayerName()
+        Logger.log("Found desired upgrade for player: " + player.getName()
             + " desiredUpgradeDef: " + JSON.stringify(desiredUpgradeDef));
         return desiredUpgradeDef ? CONSTS.UPGRADES[desiredUpgradeDef.index] : undefined;
     }

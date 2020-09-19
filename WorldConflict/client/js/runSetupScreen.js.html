@@ -36,7 +36,6 @@ var erisk = (function(my) {
         function persistGameData(callback) {
            google.script.run
                .withSuccessHandler(gameId => {
-                   console.log("game was persisted with id: " + gameId);
                    gameData.gameId = gameId;
                    gameData.initialGameState.gameId = gameId;
                    if (callback) {
@@ -88,7 +87,9 @@ var erisk = (function(my) {
             google.script.run
                 .withSuccessHandler(function(newGameData) {
                     if (newGameData) { // we only get newGameData if players are different
-                        console.log("We got a player change from the server. newPlayers = " + JSON.stringify(newGameData.players));
+                        if (CONSTS.DEBUG) {
+                            console.log("We got a player change from the server. newPlayers = " + JSON.stringify(newGameData.players));
+                        }
                         gameData.initializeFrom(newGameData);
 
                         // These 2 lines should not be needed (remove?)
@@ -178,7 +179,7 @@ var erisk = (function(my) {
         html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
             const pid = player.index;
             return div({ i: 'player-box' + pid, c: 'player-box inactive', style: 'background: ' + player.colorEnd },
-                player.getPlayerName() +
+                player.getName() +
                 div({ c: 'additional-info', i: 'region-count' + pid, tt: 'number of countries owned' }) +
                 div({ c: 'additional-info', i: 'player-cash' + pid, tt: 'amount of faith' })
             );
@@ -239,7 +240,7 @@ var erisk = (function(my) {
 
             const player = editable ? CONSTS.PLAYERS[playerIndex] : getPlayer(playerIndex);
             $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
-               player.getPlayerName();
+               player.getName();
         });
     }
 
@@ -320,7 +321,7 @@ var erisk = (function(my) {
         let html = div({c: 'side-control description'}, 'Player setup');
         const playerBoxes = CONSTS.PLAYERS.map(function(player) {
             const pid = player.index;
-            return buttonPanel(player.getPlayerName(), 'sb' + player.index, CONSTS.PLAYER_TYPES, {
+            return buttonPanel(player.getName(), 'sb' + player.index, CONSTS.PLAYER_TYPES, {
                 i: 'player-box' + pid,
                 c: 'player-box inactive',
                 s: 'background: ' + player.colorEnd

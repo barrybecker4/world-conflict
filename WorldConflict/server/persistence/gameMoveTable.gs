@@ -11,8 +11,6 @@ function getGameMoveTableAccessor() {
      */
     function getMovesForGame(gameId, lastStateId) {
         let moves = [];
-        // Logger.log("retrieving gameMoves for gameId = " + gameId + " and lastStateId = " +
-        //    lastStateId + " lastId type = " + (typeof lastStateId));
         try {
             moves = firestore.query(GAME_MOVE_TABLE)
                .Where('gameId', '==', gameId)
@@ -33,9 +31,6 @@ function getGameMoveTableAccessor() {
      * Add games moves - typically for a particular game, but doesn't have to be.
      */
     function appendGameMoves(gameMoves) {
-        // const gameId = (gameMoves && gameMoves.length) ? gameMoves[0].gameId : -1;
-        // Logger.log("about to append " + gameMoves.length);
-
         const appendedMoves = [];
         gameMoves.forEach(move => {
             appendedMoves.push(appendGameMove(move));

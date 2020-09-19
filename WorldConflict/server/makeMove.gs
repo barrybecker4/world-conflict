@@ -188,6 +188,7 @@ var erisk = (function(my) {
         const player = state.activePlayer();
 
         const playerIncome = state.income(player, gameData.aiLevel);
+        console.log("adding " + playerIncome + " faith for " + player.getName() + " to existing " + state.cash[player.index]);
         state.cash[player.index] += playerIncome;
 
         if (playerIncome) {
@@ -276,7 +277,7 @@ var erisk = (function(my) {
                 // show the world the good (or bad) news
                 if (!isOnServer(state)) {
                     erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
-                    erisk.gameRenderer.showBanner('#222', player.getPlayerName() + " has been eliminated!", 1000);
+                    erisk.gameRenderer.showBanner('#222', player.getName() + " has been eliminated!", 1000);
                 }
             }
         });

@@ -1,7 +1,7 @@
 <script>
 var erisk = (function(my) {
     const $ = domUtils.$;
-    const SERVER_REQUEST_DELAY = 1000;
+    const SERVER_REQUEST_DELAY = 2000;
     let localHumanMoves = [];
 
     /** Deals with responding to user actions - whether human or AI. */
@@ -36,14 +36,16 @@ var erisk = (function(my) {
         });
     }
 
-    /** This just stores the players move in localHumanMoves since, because of undo,
-     * its not final, until "end move" is clicked.
+    /** This just stores the players move(s) in localHumanMoves since, because of undo,
+     * it's not final, until "end move" is clicked.
      */
     function getMovesForCurrentPlayer(player, state, afterUndo) {
         erisk.uiPickMove(player, state, function(move) {
             const newState = erisk.makeMove(state, move);
             move.stateId = newState.id;
             move.gameId = newState.gameId;
+            console.log("applying cp-move with stateId: " + move.stateId + " to " + state.id + " to give " + newState.id);
+
             if (afterUndo) {
                 localHumanMoves.pop();
             }
@@ -91,9 +93,11 @@ var erisk = (function(my) {
                 const theMove = moves[i];
                 const move = Move.reconstitute(theMove);
                 let nextState = erisk.makeMove(state, move);
+                console.log("   applying move with stateId: " + theMove.stateId + " to " + state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
+
                 erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
                     if (CONSTS.DEBUG) {
-                        const name = state.activePlayer().getPlayerName();
+                        const name = state.activePlayer().getName();
                         console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
                     }
                     audio.playSound(CONSTS.SOUNDS.CLICK);
@@ -107,8 +111,10 @@ var erisk = (function(my) {
             }
             else {
                 if (finalState.activePlayer().name !== domUtils.userid()) {
-                    console.log("activePlayer " + finalState.activePlayer().name +
-                        " is not " + domUtils.userid() + " so requesting more moves from sever");
+                    if (CONSTS.DEBUG) {
+                        console.log("activePlayer " + finalState.activePlayer().name +
+                            " is not " + domUtils.userid() + " so requesting more moves from sever");
+                    }
                     // If we have not yet advanced to the player on this client, request more moves until we do
                     setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                 }
@@ -124,7 +130,7 @@ var erisk = (function(my) {
             const delay = 200;
             const duration = 4000;
             if (winner !== CONSTS.DRAWN_GAME) {
-                erisk.gameRenderer.showBanner(winner.colorEnd, `${winner.getPlayerName()} wins the game!`, delay, duration);
+                erisk.gameRenderer.showBanner(winner.colorEnd, `${winner.getName()} wins the game!`, delay, duration);
             } else {
                 erisk.gameRenderer.showBanner('#333', "The game ends in a draw!", delay, duration);
             }

@@ -12,24 +12,24 @@ var appState = (function(my) {
         currentState = APP_SETUP_SCREEN;
     }
 
-    my.setWaiting = function(inGame) {
-        currentState = APP_WAITING_SCREEN;
+    my.isInSetup = function() {
+        return currentState === APP_SETUP_SCREEN;
     }
 
-    my.setInGame = function(inGame) {
-        currentState = APP_IN_GAME;
+    my.setWaiting = function(inGame) {
+        currentState = APP_WAITING_SCREEN;
     }
 
     my.isWaiting = function() {
         return currentState === APP_WAITING_SCREEN;
     }
 
-    my.isInGame = function() {
-        return currentState === APP_IN_GAME;
+    my.setInGame = function(inGame) {
+        currentState = APP_IN_GAME;
     }
 
-    my.isInSetup = function() {
-        return currentState === APP_SETUP_SCREEN;
+    my.isInGame = function() {
+        return currentState === APP_IN_GAME;
     }
 
     return my;

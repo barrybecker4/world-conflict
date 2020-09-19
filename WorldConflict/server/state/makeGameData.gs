@@ -46,12 +46,8 @@ var erisk = (function(my) {
      */
     function gameDataFromExistingGame(openGame, userId) {
         Logger.log("Found open game with id = " + openGame.gameId);
-
         fillFirstOpenPlayerSlot(openGame.players, userId);
-
-        console.log("The turnCount of the openGame = "+ openGame.turnCount);
         gameData = gameConfigurationTable.upsert(openGame);
-        console.log("The turnCount of the new gamedata is = "+ gameData.turnCount);
         return my.addStatus(gameData);
     }
 

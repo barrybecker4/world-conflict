@@ -126,7 +126,7 @@ erisk.gameRenderer = (function() {
                     elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
             }
         } else {
-            moveInfo = elem('p', {}, activePlayer.getPlayerName() + ' is taking her turn.');
+            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
         }
         const infoEl = $('info');
         infoEl.innerHTML = moveInfo;
@@ -143,7 +143,7 @@ erisk.gameRenderer = (function() {
     }
 
     my.showPlayerBanner = function(player) {
-        my.showBanner(player.colorEnd, player.getPlayerName() + "'s turn");
+        my.showBanner(player.colorEnd, player.getName() + "'s turn");
     }
 
     my.showBanner = function(background, text, delay, duration) {
