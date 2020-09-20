@@ -3,9 +3,10 @@ var erisk = (function(my) {
     const $ = domUtils.$;
     const SERVER_REQUEST_DELAY = 2000;
     let localHumanMoves = [];
+    let firstTime = true;
 
     /** Deals with responding to user actions - whether human or AI. */
-    my.playOneMove = function(state, afterUndo) {
+    my.playOneMove = function(state, afterUndo, configuringPlayer) {
         if (!appState.isInGame())
             return; // game terminated
 
@@ -15,21 +16,14 @@ var erisk = (function(my) {
 
             if (player.name === domUtils.userid()) {
                 getMovesForCurrentPlayer(player, state, afterUndo);
+                erisk.setPreviousState(null); // only humans can undo
             }
             else {
-                persistLocalMovesIfAny(() => {
-                    if (player.personality) {
-                        erisk.setPreviousState(null); // only humans can undo
-                        // request that the server make the AI moves (and store it in firestore),
-                        google.script.run
-                            .withFailureHandler(showError)
-                            // must wrap state in array to make GAS happy (don't know why)
-                            .makeAiMovesOnServer([state], gameData.getSimpleObject());
-                    }
-                });
-
-                // Request from server whatever human or AI moves were made since last request.
-                setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
+                // Don't run the AI if AI is first and this is not the configuring player
+                const suppressAi = firstTime && player.personality && configuringPlayer != domUtils.userid();
+                firstTime = false;
+                persistLocalMovesIfAnyAndPlayAi(state, suppressAi);
+                localHumanMoves = [];
             }
 
             erisk.gameRenderer.updateDisplay(state);
@@ -60,25 +54,17 @@ var erisk = (function(my) {
         });
     }
 
-    function persistLocalMovesIfAny(callback) {
-        if (localHumanMoves.length) {
-            console.log("asking server to append moves: " + localHumanMoves.map(m => m.stateId));
-            google.script.run
-                .withSuccessHandler(callback)
-                .withFailureHandler(showError)
-                .appendGameMoves(localHumanMoves);
-            localHumanMoves = [];
-        } else {
-            callback();
-        }
-    }
-
+    /** Get all the moves since state and replay them on this client until it is our move again */
     function replayMovesFromServer(state) {
-        console.log("Requesting replay moves from server starting at state.id = " + state.id);
-        google.script.run
-            .withSuccessHandler(getPlaybackHandler(state))
-            .withFailureHandler(showError)
-            .getGameMoves(state.gameId, state.id);
+        if (!state.endResult) {
+            if (CONSTS.DEBUG) {
+                console.log("Requesting replay moves from server starting at state.id = " + state.id);
+            }
+            google.script.run
+                .withSuccessHandler(getPlaybackHandler(state))
+                .withFailureHandler(showError)
+                .getGameMoves(state.gameId, state.id);
+        }
     }
 
     function getPlaybackHandler(startState) {
@@ -123,6 +109,14 @@ var erisk = (function(my) {
         }
     }
 
+    // Add this players moves (if any) then AIs, then poll for all other players until our turn again
+    function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
+        google.script.run
+            .withSuccessHandler(() => replayMovesFromServer(state))
+            .withFailureHandler(showError)
+            .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state], gameData.getSimpleObject(), suppressAi);
+    }
+
     function showEndGame(state) {
         erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
         erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
@@ -144,7 +138,7 @@ var erisk = (function(my) {
             $('move-info').style.display = 'none';
             erisk.gameRenderer.updateButtons([ {text: "New game"} ]);
 
-            persistLocalMovesIfAny(() => {});
+            persistLocalMovesIfAnyAndPlayAi(state, true);
 
             uiCallbacks.setBuildCB(erisk.runSetupScreen);
         });

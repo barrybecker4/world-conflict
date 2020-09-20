@@ -11,7 +11,7 @@ var erisk = (function(my) {
     my.uiPickMove = function(player, state, reportMoveCallback) {
 
         uiCallbacks.setRegionSelectedCB(function(region) {
-            if (!appState.isInGame()) {
+            if (shouldAbort()) {
                 return;
             }
             if (!region || state.moveDecision.isBuildMove()) {
@@ -99,6 +99,10 @@ var erisk = (function(my) {
         if (uiState[player.index]) {
             uiCallbacks.templeSelected(uiState[player.index]);
             delete uiState[player.index];
+        }
+
+        function shouldAbort() {
+            return !appState.isInGame() || appState.isWaiting();
         }
 
         function setCleanState() {

@@ -188,7 +188,6 @@ var erisk = (function(my) {
         const player = state.activePlayer();
 
         const playerIncome = state.income(player, gameData.aiLevel);
-        console.log("adding " + playerIncome + " faith for " + player.getName() + " to existing " + state.cash[player.index]);
         state.cash[player.index] += playerIncome;
 
         if (playerIncome) {

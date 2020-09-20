@@ -73,6 +73,16 @@ function getGameData(gameId, players) {
     return null;
 }
 
+async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData, suppressAi) {
+
+    Logger.log("appending human moves: " + humanMoves.map(move => move.stateId));
+    gameMoveTable.appendGameMoves(humanMoves);
+
+    if (!suppressAi) {
+        await makeAiMovesOnServer(state, clientGameData);
+    }
+}
+
 /**
  * Persist the specified gameData into firestore.
  * There seems to be some limit on the size of the first argument, so I made the payload the second arg,
@@ -99,11 +109,6 @@ function playersDiffer(newPlayers, oldPlayers) {
     return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);
 }
 
-function appendGameMoves(moves) {
-    Logger.log("appending human moves: " + moves.map(move => move.stateId));
-    gameMoveTable.appendGameMoves(moves);
-}
-
 // Get the recent states (since lastGameState) that were stored on the server
 function getGameMoves(gameId, lastGameStateId) {
     const moves = gameMoveTable.getMovesForGame(gameId, lastGameStateId);
@@ -112,7 +117,7 @@ function getGameMoves(gameId, lastGameStateId) {
 }
 
 /**
- * Make AiMoves until it is no longer an Ai that is moving (or end of game reached).
+ * Make AiMoves (if any) until it is no longer an Ai that is moving (or end of game reached).
  * Store the moves in firestore as they are determined.
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
@@ -121,16 +126,14 @@ async function makeAiMovesOnServer(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
 
     gameData.initializeFrom(clientGameData);
-
     let newState = new GameState(state[0]);
-    Logger.log("state.soldiersByRegion = " + JSON.stringify(state[0].soldiersByRegion));
 
     let player = gameData.players[newState.playerIndex];
     Logger.log("Making AI moves for " + JSON.stringify(player));
 
     while (player.personality && !newState.endResult) {
         newState = await makeAndSaveMove(player, newState);
-        Logger.log(`new newState playerIndex=${newState.playerIndex}  = ${newState.id}`);
+        Logger.log(`new newState playerIndex=${newState.playerIndex} = ${newState.id}`);
         player = gameData.players[newState.playerIndex];
     }
 }

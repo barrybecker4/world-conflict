@@ -116,7 +116,7 @@ var erisk = (function(my) {
             appState.setInGame();
             const state = gameData.initialGameState;
             erisk.gameRenderer.showPlayerBanner(state.activePlayer());
-            erisk.playOneMove(state);
+            erisk.playOneMove(state, false, configuringPlayer);
         }
 
         // Convert any unassigned open human slots to AI players to allow the game to start.
