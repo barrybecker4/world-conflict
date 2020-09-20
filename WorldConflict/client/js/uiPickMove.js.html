@@ -11,7 +11,7 @@ var erisk = (function(my) {
     my.uiPickMove = function(player, state, reportMoveCallback) {
 
         uiCallbacks.setRegionSelectedCB(function(region) {
-            if (shouldAbort()) {
+            if (!appState.isInGame()) {
                 return;
             }
             if (!region || state.moveDecision.isBuildMove()) {
@@ -101,10 +101,6 @@ var erisk = (function(my) {
             delete uiState[player.index];
         }
 
-        function shouldAbort() {
-            return !appState.isInGame() || appState.isWaiting();
-        }
-
         function setCleanState() {
             state.moveDecision = new Move();
             state.moveDecision.highlitRegions =
@@ -135,7 +131,7 @@ var erisk = (function(my) {
                     || level < state.rawUpgradeLevel(templeOwner, upgrade) // another temple has this upgrade already
                     || templeOwner.index != player.index; // we're looking at an opponent's temple
 
-                return {text, description, disabled: cost > state.cashForPlayer(player), hidden};
+                return { text, description, disabled: cost > state.cashForPlayer(player), hidden };
 
                 function getCurrentUpgradeLevel(temple) {
                     return (temple.upgradeIndex === upgrade.index) ?

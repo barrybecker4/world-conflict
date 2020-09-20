@@ -71,7 +71,7 @@ var erisk = (function(my) {
          * configuration will not be editable while waiting for players to join
          */
         function doneConfiguring() {
-            appState.setWaiting();
+            appState.setWaitingForPlayersToJoin();
             updatePlayerConfigButtons();
 
             // only the configuring player (owner) can decide to start before all players have joined
@@ -218,7 +218,7 @@ var erisk = (function(my) {
     function updatePlayerConfigButtons() {
         // somebody changed something, so store the new setup
         storage.storeSetup();
-        const editable = !appState.isWaiting();
+        const editable = !appState.isWaitingForPlayersToJoin();
 
         updatePlayerButtons(editable);
         updateAiButtons(editable);
@@ -301,9 +301,7 @@ var erisk = (function(my) {
             : 'Only the player that configured the game can decide to start before all players have joined';
 
         erisk.gameRenderer.updateButtons([
-            { text: 'Start anyway', disabled: !enabled,
-              tip
-            },
+            { text: 'Start anyway', disabled: !enabled, tip },
         ], "Waiting for players to join open slots...");
     }
 

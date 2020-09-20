@@ -202,16 +202,14 @@ class GameState {
         }
 
         return sequenceUtils.max(gameData.regions.map(region => {
-            // does it have a temple?
             const temple = this.temples[region.index];
-            if (!temple)
-                return 0;
-            // does it belong to us?
-            if (this.isOwnedBy(region, player))
-                return 0;
-            // does it have the right type of upgrade?
-            return (temple.upgradeIndex && CONSTS.UPGRADES[temple.upgradeIndex].name == upgradeType.name) ?
-                upgradeType.level[temple.level] : 0;
+
+            if (temple && this.isOwnedBy(region, player)) {
+                // return the level if its the right type of upgrade
+                return (temple.upgradeIndex && CONSTS.UPGRADES[temple.upgradeIndex].name == upgradeType.name) ?
+                                upgradeType.level[temple.level] : 0;
+            }
+            return 0;
         }));
     }
 
@@ -418,10 +416,9 @@ class ArmyMove extends Move {
             // This will be a number in a range like [0.01, 1000] depending on the ratio of incoming to defending
             const attackerWinChance = 100 * Math.pow(incomingStrength / defendingStrength, 1.6);
 
-            // Jakub says that this should be fromOwner, but I believe that toOwner is correct.
-            // See https://github.com/krajzeg/compact-conflict/issues/3
-            let invincibility = state.upgradeLevel(toOwner, CONSTS.UPGRADES.FIRE);
+            let invincibility = state.upgradeLevel(fromOwner, CONSTS.UPGRADES.FIRE);
 
+            // A high random number means the attacker is more likely to win the skirmish
             function randomNumberForFight(index) {
                 var maximum = 120 + attackerWinChance;
                 if (state.simulatingPlayer) {

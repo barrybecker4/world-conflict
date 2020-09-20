@@ -38,14 +38,18 @@ erisk.gameRenderer = (function() {
         if (button.hidden) return;
 
         let buttonContents = div({}, button.text);
-        if (button.description)
+        if (button.description) {
             buttonContents += div({c: 'description'}, button.description);
+        }
 
         const tip = button.tip ? button.tip : '';
         const buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : '', tt: tip}, buttonContents);
         const buttonNode = append(footerButtonsId, buttonHTML);
         if (!button.disabled) {
-            onClickOrTap(buttonNode, (event) => uiCallbacks.invokeCallback(index, 'build', event));
+            onClickOrTap(buttonNode, (event) => {
+                uiCallbacks.invokeCallback(index, 'build', event);
+                buttonNode.remove();
+            });
         }
     }
 
@@ -57,8 +61,9 @@ erisk.gameRenderer = (function() {
         }
 
         my.updateMapDisplay(displayedState);
-        if (appState.isInGame())
+        if (appState.isInGame()) {
             updateInGameUI(displayedState);
+        }
 
         if (displayedState.soundCue) {
             audio.playSound(displayedState.soundCue);

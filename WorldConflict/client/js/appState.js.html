@@ -1,35 +1,53 @@
 <script>
 var appState = (function(my) {
 
-    const NOT_STARTED = -1; // before game configuration screen shown
-    const APP_SETUP_SCREEN = 0; // configuring game
-    const APP_WAITING_SCREEN = 1; // done configuring, waiting for players to join
-    const APP_IN_GAME = 2; // game has started
+    // before game configuration screen shown
+    const NOT_STARTED = -1;
+    // configuring game
+    const SETUP_SCREEN = 0;
+    // done configuring, waiting for players to join
+    const WAITING_FOR_PLAYERS_TO_JOIN = 1;
+    // waiting for other player(s) to move
+    const WAITING_FOR_PLAYERS_TO_MOVE = 2;
+    // game has started
+    const IN_GAME = 3;
 
     let currentState = NOT_STARTED;
 
     my.setInSetup = function() {
-        currentState = APP_SETUP_SCREEN;
+        currentState = SETUP_SCREEN;
     }
 
     my.isInSetup = function() {
-        return currentState === APP_SETUP_SCREEN;
+        return currentState === SETUP_SCREEN;
     }
 
-    my.setWaiting = function(inGame) {
-        currentState = APP_WAITING_SCREEN;
+    my.setWaitingForPlayersToJoin = function() {
+        currentState = WAITING_FOR_PLAYERS_TO_JOIN;
     }
 
-    my.isWaiting = function() {
-        return currentState === APP_WAITING_SCREEN;
+    my.isWaitingForPlayersToJoin = function() {
+        return currentState === WAITING_FOR_PLAYERS_TO_JOIN;
     }
 
-    my.setInGame = function(inGame) {
-        currentState = APP_IN_GAME;
+    my.setWaitingForPlayersToMove = function() {
+        currentState = WAITING_FOR_PLAYERS_TO_MOVE;
+    }
+
+    my.isWaitingForPlayersToMove = function() {
+        return currentState === WAITING_FOR_PLAYERS_TO_MOVE;
+    }
+
+    my.setInGame = function() {
+        currentState = IN_GAME;
     }
 
     my.isInGame = function() {
-        return currentState === APP_IN_GAME;
+        return currentState === IN_GAME;
+    }
+
+    my.isInGameOrWaiting = function() {
+         return currentState === IN_GAME || currentState === WAITING_FOR_PLAYERS_TO_MOVE;
     }
 
     return my;

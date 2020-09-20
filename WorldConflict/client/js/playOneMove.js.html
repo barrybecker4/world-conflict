@@ -7,7 +7,7 @@ var erisk = (function(my) {
 
     /** Deals with responding to user actions - whether human or AI. */
     my.playOneMove = function(state, afterUndo, configuringPlayer) {
-        if (!appState.isInGame())
+        if (!appState.isInGameOrWaiting() )
             return; // game terminated
 
         erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
@@ -21,11 +21,9 @@ var erisk = (function(my) {
             else {
                 // Don't run the AI if AI is first and this is not the configuring player
                 const suppressAi = firstTime && player.personality && configuringPlayer != domUtils.userid();
-                firstTime = false;
                 persistLocalMovesIfAnyAndPlayAi(state, suppressAi);
-                localHumanMoves = [];
             }
-
+            firstTime = false;
             erisk.gameRenderer.updateDisplay(state);
         });
     }
@@ -52,6 +50,16 @@ var erisk = (function(my) {
                 setTimeout(() => my.playOneMove(newState), 0); // recursive call
             }
         });
+    }
+
+    // Add this player's moves (if any) then AIs, then poll for all other players until our turn again
+    function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
+        appState.setWaitingForPlayersToMove();
+        google.script.run
+            .withSuccessHandler(() => replayMovesFromServer(state))
+            .withFailureHandler(showError)
+            .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state], gameData.getSimpleObject(), suppressAi);
+        localHumanMoves = [];
     }
 
     /** Get all the moves since state and replay them on this client until it is our move again */
@@ -104,17 +112,12 @@ var erisk = (function(my) {
                     // If we have not yet advanced to the player on this client, request more moves until we do
                     setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                 }
-                else setTimeout(() => my.playOneMove(finalState), 0);
+                else {
+                    appState.setInGame();
+                    setTimeout(() => my.playOneMove(finalState), 0);
+                }
             }
         }
-    }
-
-    // Add this players moves (if any) then AIs, then poll for all other players until our turn again
-    function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
-        google.script.run
-            .withSuccessHandler(() => replayMovesFromServer(state))
-            .withFailureHandler(showError)
-            .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state], gameData.getSimpleObject(), suppressAi);
     }
 
     function showEndGame(state) {
