@@ -4,6 +4,7 @@ var CONSTS = (function(my) {
     const DEBUG = false;
     const SOLDIER_COSTS = calcCosts(8, 16);
 
+    const STANDARD_TURN_COUNT = 10;
     const UNLIMITED_TURNS = 1000000;
 
     const PLAYER_OFF = 'Off';
@@ -181,8 +182,9 @@ var CONSTS = (function(my) {
             AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL,
             AI_LEVELS: [AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL],
 
+            STANDARD_TURN_COUNT,
             UNLIMITED_TURNS,
-            TURN_COUNTS: [2, 12, 15, UNLIMITED_TURNS],
+            TURN_COUNTS: [3, STANDARD_TURN_COUNT, 15, UNLIMITED_TURNS],
 
             // === Special "player" for signifying a draw game
             DRAWN_GAME: {},

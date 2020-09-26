@@ -155,12 +155,14 @@ var erisk = (function(my) {
         uiCallbacks.setSetupAiLevelCB(function(aiLevel) {
             storage.gameSetup.aiLevel = aiLevel;
             updatePlayerConfigButtons();
+            regenerateGameDataWithoutNewMap();
         });
 
         // callback for number of turns buttons
         uiCallbacks.setSetupTurnCountCB(function(turnCount) {
             storage.gameSetup.turnCount = turnCount;
             updatePlayerConfigButtons();
+            regenerateGameDataWithoutNewMap();
         });
     }
 
