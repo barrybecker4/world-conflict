@@ -16,9 +16,9 @@ var erisk = (function(my) {
 
             if (player.name === domUtils.userid()) {
                 getMovesForCurrentPlayer(player, state, afterUndo);
-                erisk.setPreviousState(null); // only humans can undo
             }
             else {
+                erisk.setPreviousState(null); // only humans can undo
                 // Don't run the AI if AI is first and this is not the configuring player
                 const suppressAi = firstTime && player.personality && configuringPlayer != domUtils.userid();
                 persistLocalMovesIfAnyAndPlayAi(state, suppressAi);
