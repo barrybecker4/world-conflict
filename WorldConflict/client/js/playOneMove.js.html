@@ -32,11 +32,11 @@ var erisk = (function(my) {
      * it's not final until "end move" is clicked.
      */
     function getMovesForCurrentPlayer(player, state, afterUndo) {
+        appState.setInGame();
         erisk.uiPickMove(player, state, function(move) {
             const newState = erisk.makeMove(state, move);
             move.stateId = newState.id;
             move.gameId = newState.gameId;
-            console.log("applying cp-move with stateId: " + move.stateId + " to " + state.id + " to give " + newState.id);
 
             if (afterUndo) {
                 localHumanMoves.pop();
@@ -87,8 +87,10 @@ var erisk = (function(my) {
                 const theMove = moves[i];
                 const move = Move.reconstitute(theMove);
                 let nextState = erisk.makeMove(state, move);
-                console.log("   applying move with stateId: " + theMove.stateId +
-                    " to " + state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
+                if (CONSTS.DEBUG) {
+                    console.log("   applying move with stateId: " + theMove.stateId + " to " +
+                        state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
+                }
 
                 erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
                     if (CONSTS.DEBUG) {
@@ -114,7 +116,6 @@ var erisk = (function(my) {
                     setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                 }
                 else {
-                    appState.setInGame();
                     setTimeout(() => my.playOneMove(finalState), 0);
                 }
             }

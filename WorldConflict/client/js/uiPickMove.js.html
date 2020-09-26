@@ -50,6 +50,9 @@ var erisk = (function(my) {
         });
 
         uiCallbacks.setTempleSelectedCB(function(region) {
+            if (!appState.isInGame()) {
+                return;
+            }
             const temple = state.temples[region.index];
             state.moveDecision = new BuildMove({
                 buttons: makeUpgradeButtons(temple),
