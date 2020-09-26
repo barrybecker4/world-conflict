@@ -2,17 +2,25 @@
 var appState = (function(my) {
 
     // before game configuration screen shown
-    const NOT_STARTED = -1;
+    const NOT_STARTED = 'NOT_STARTED';
     // configuring game
-    const SETUP_SCREEN = 0;
+    const SETUP_SCREEN = 'SETUP_SCREEN';
     // done configuring, waiting for players to join
-    const WAITING_FOR_PLAYERS_TO_JOIN = 1;
+    const WAITING_FOR_PLAYERS_TO_JOIN = 'WAITING_FOR_PLAYERS_TO_JOIN';
     // waiting for other player(s) to move
-    const WAITING_FOR_PLAYERS_TO_MOVE = 2;
+    const WAITING_FOR_PLAYERS_TO_MOVE = 'WAITING_FOR_PLAYERS_TO_MOVE';
     // game has started
-    const IN_GAME = 3;
+    const IN_GAME = 'IN_GAME';
 
     let currentState = NOT_STARTED;
+
+    my.getCurrentState = function() {
+        return currentState;
+    }
+
+    my.isNotStarted = function() {
+        return currentState === NOT_STARTED;
+    }
 
     my.setInSetup = function() {
         currentState = SETUP_SCREEN;

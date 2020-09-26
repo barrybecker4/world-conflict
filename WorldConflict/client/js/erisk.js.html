@@ -6,7 +6,7 @@
 window.onload = function() {
     CONSTS = CONSTS.initialize();
     erisk.tutorialScreen(() => {
-        if (!appState.isInSetup()) {
+        if (appState.isNotStarted()) {
             erisk.runSetupScreen();
         }
     });
