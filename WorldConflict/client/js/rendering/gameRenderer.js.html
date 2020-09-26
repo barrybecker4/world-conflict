@@ -23,36 +23,6 @@ erisk.gameRenderer = (function() {
         erisk.mapRenderer.updateMapDisplay(gameState);
     }
 
-    my.updateButtons = function(buttons, infoText) {
-        $(footerButtonsId).innerHTML = '';
-
-        if (infoText) {
-            const textBox = div({c: 'description info-text'}, infoText);
-            const buttonNode = append(footerButtonsId, textBox);
-        }
-
-        (buttons || []).map(createButton);
-    }
-
-    function createButton(button, index) {
-        if (button.hidden) return;
-
-        let buttonContents = div({}, button.text);
-        if (button.description) {
-            buttonContents += div({c: 'description'}, button.description);
-        }
-
-        const tip = button.tip ? button.tip : '';
-        const buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : '', tt: tip}, buttonContents);
-        const buttonNode = append(footerButtonsId, buttonHTML);
-        if (!button.disabled) {
-            onClickOrTap(buttonNode, (event) => {
-                uiCallbacks.invokeCallback(index, 'build', event);
-                buttonNode.remove();
-            });
-        }
-    }
-
     let displayedState;
     my.updateDisplay = function(gameState) {
         // just for debugging
@@ -61,7 +31,7 @@ erisk.gameRenderer = (function() {
         }
 
         my.updateMapDisplay(displayedState);
-        if (appState.isInGame()) {
+        if (appState.isInGameOrWaiting()) {
             updateInGameUI(displayedState);
         }
 
@@ -71,6 +41,7 @@ erisk.gameRenderer = (function() {
         }
     }
 
+    // Update the information on the left for the current active player
     function updateInGameUI(gameState) {
         const decisionState = gameState.moveDecision;
         const buildingMode = decisionState && decisionState.isBuildMove();
@@ -126,7 +97,6 @@ erisk.gameRenderer = (function() {
                     elem('p', {}, 'Click on a target region to move the army.');
 
             } else {
-
                 moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
                     elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
             }
@@ -145,6 +115,36 @@ erisk.gameRenderer = (function() {
         my.updateButtons(decisionState && decisionState.buttons);
 
         domUtils.showOrHide('undo-button', erisk.undoEnabled(gameState));
+    }
+
+    my.updateButtons = function(buttons, infoText) {
+        $(footerButtonsId).innerHTML = '';
+
+        if (infoText) {
+            const textBox = div({c: 'description info-text'}, infoText);
+            const buttonNode = append(footerButtonsId, textBox);
+        }
+
+        (buttons || []).map(createButton);
+    }
+
+    function createButton(button, index) {
+        if (button.hidden) return;
+
+        let buttonContents = div({}, button.text);
+        if (button.description) {
+            buttonContents += div({c: 'description'}, button.description);
+        }
+
+        const tip = button.tip ? button.tip : '';
+        const buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : '', tt: tip}, buttonContents);
+        const buttonNode = append(footerButtonsId, buttonHTML);
+        if (!button.disabled) {
+            onClickOrTap(buttonNode, (event) => {
+                uiCallbacks.invokeCallback(index, 'build', event);
+                buttonNode.remove();
+            });
+        }
     }
 
     my.showPlayerBanner = function(player) {

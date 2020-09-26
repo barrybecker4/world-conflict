@@ -29,7 +29,7 @@ var erisk = (function(my) {
     }
 
     /** This just stores the players move(s) in localHumanMoves since, because of undo,
-     * it's not final, until "end move" is clicked.
+     * it's not final until "end move" is clicked.
      */
     function getMovesForCurrentPlayer(player, state, afterUndo) {
         erisk.uiPickMove(player, state, function(move) {
@@ -87,7 +87,8 @@ var erisk = (function(my) {
                 const theMove = moves[i];
                 const move = Move.reconstitute(theMove);
                 let nextState = erisk.makeMove(state, move);
-                console.log("   applying move with stateId: " + theMove.stateId + " to " + state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
+                console.log("   applying move with stateId: " + theMove.stateId +
+                    " to " + state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
 
                 erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
                     if (CONSTS.DEBUG) {
