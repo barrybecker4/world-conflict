@@ -332,33 +332,25 @@ erisk.mapRenderer = (function() {
 
         function updateFloatingText() {
             let floaters = gameState.floatingText || [];
-            floaters.map(function(floater) {
-                let x, y;
-                if (typeof floater.regionIdx === 'number') {
-                    const region = gameData.regions[floater.regionIdx]
-                    x = region.center.x;
-                    y = region.center.y;
-                } else if (floater.soldier) {
-                    const node = soldierDivsById[floater.soldier.i];
-                    if (!node) {
-                        console.log("Could not update floatingText for solder " + floater.soldier.i)
-                        return;
-                    }
-                    x = parseFloat(node.style.left) + 0.2;
-                    y = parseFloat(node.style.top) + 0.2;
-                } else {
-                    throw new Error("The floater had neither region, nor soldier:\n" + JSON.stringify(floater));
-                }
-
-                x -= floater.width / 2 + 0.5; y -= 4;
-
-                const styles = "left: " + x + "%;top:" + y + "%;color:" +
-                    floater.center + ";width:" + floater.width + "%";
-                const floatingNode = append('map', div({c: 'tt', s: styles}, floater.text));
-                setTransform(floatingNode, "translate3d(0,0,0)");
-                renderUtils.floatAway(floatingNode, 0, -3);
-            });
+            floaters.forEach(showFloater);
             gameState.floatingText = undefined;
+        }
+
+        function showFloater(floater) {
+            if (floater.soldier) {
+                const soldierDiv = soldierDivsById[floater.soldier.i];
+                if (soldierDiv) {
+                    floater.soldierDiv = soldierDiv;
+                    renderUtils.showFloatingText(floater);
+                    // remove the soldierDiv because DOM nodes give error if sent to server
+                    delete floater.soldierDiv;
+                } else {
+                    console.log("Error: there was a soldier " + JSON.stringify(floater.soldier) +
+                        " but no corresponding soldierDiv in soldierDivsById:\n" +
+                        JSON.stringify(soldierDivsById[floater.soldier.i]));
+                }
+            }
+            else renderUtils.showFloatingText(floater);
         }
     }
 

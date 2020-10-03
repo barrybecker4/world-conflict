@@ -1,7 +1,7 @@
 <script>
 var erisk = (function(my) {
     const $ = domUtils.$;
-    const SERVER_REQUEST_DELAY = 2000;
+    const SERVER_REQUEST_DELAY = 4000;
     let localHumanMoves = [];
     let firstTime = true;
 
@@ -56,10 +56,10 @@ var erisk = (function(my) {
     function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
         appState.setWaitingForPlayersToMove();
         google.script.run
-            .withSuccessHandler(() => replayMovesFromServer(state))
             .withFailureHandler(showError)
             .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state], gameData.getSimpleObject(), suppressAi);
         localHumanMoves = [];
+        setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
     }
 
     /** Get all the moves since state and replay them on this client until it is our move again */
@@ -78,6 +78,7 @@ var erisk = (function(my) {
     function getPlaybackHandler(startState) {
         return async function(moves) {
 
+            // console.log("moves to replay: " + JSON.stringify(moves.map(m => ({ stateId: m.stateId, type: m.type }))));
             const finalState = await replayMove(0, startState);
 
             async function replayMove(i, state) {

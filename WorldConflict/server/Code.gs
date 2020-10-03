@@ -1,5 +1,5 @@
 /**
- * Main entry point of GAS web application. Called by the framework.
+ * Entry point of this GAS web application. Called by the framework.
  * Serves HTML of the application for HTTP GET requests.
  * Get "LandingPage", or a requested page using 'page' parameter in query string.
  *
@@ -73,16 +73,6 @@ function getGameData(gameId, players) {
     return null;
 }
 
-async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData, suppressAi) {
-
-    Logger.log("appending human moves: " + humanMoves.map(move => move.stateId));
-    gameMoveTable.appendGameMoves(humanMoves);
-
-    if (!suppressAi) {
-        await makeAiMovesOnServer(state, clientGameData);
-    }
-}
-
 /**
  * Persist the specified gameData into firestore.
  * There seems to be some limit on the size of the first argument, so I made the payload the second arg,
@@ -114,6 +104,15 @@ function getGameMoves(gameId, lastGameStateId) {
     const moves = gameMoveTable.getMovesForGame(gameId, lastGameStateId);
     Logger.log("found " + moves.length + " new moves in firestore: " + moves.map(m => m.stateId));
     return moves;
+}
+
+async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData, suppressAi) {
+    Logger.log("appending human moves: " + humanMoves.map(move => move.stateId));
+    gameMoveTable.appendGameMoves(humanMoves);
+
+    if (!suppressAi) {
+        await makeAiMovesOnServer(state, clientGameData);
+    }
 }
 
 /**

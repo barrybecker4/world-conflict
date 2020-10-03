@@ -239,7 +239,7 @@ class GameState {
         const self = this;
         const soldierList = self.soldiersAtRegion(regionIndex);
         utils.range(0, count).map(function() {
-            const soldierId = utils.rint(1, 1000000000);    // slight chance of duplicates?
+            const soldierId = utils.rint(1, 1000000000000000);    // slight chance of duplicates?
             soldierList.push({ i: soldierId });   // can't use counter if generated in multiple places
         });
     }

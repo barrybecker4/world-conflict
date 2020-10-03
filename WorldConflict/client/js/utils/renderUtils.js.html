@@ -37,6 +37,30 @@
             my.floatAway(particle, vx, vy);
         }
 
+        my.showFloatingText = function(floater) {
+            let x, y;
+            if (typeof floater.regionIdx === 'number') {
+                const region = gameData.regions[floater.regionIdx]
+                x = region.center.x;
+                y = region.center.y;
+            }
+            else if (floater.soldierDiv) {
+                const style = floater.soldierDiv.style;
+                x = parseFloat(style.left) + 0.2;
+                y = parseFloat(style.top) + 0.2;
+            }
+            else {
+                throw new Error("The floater had neither region, nor soldierDiv:\n" + JSON.stringify(floater));
+            }
+
+            x -= floater.width / 2 + 0.5; y -= 4;
+
+            const styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
+            const floatingNode = append('map', div({ c: 'tt', s: styles }, floater.text));
+            setTransform(floatingNode, "translate3d(0,0,0)");
+            renderUtils.floatAway(floatingNode, 0, -3);
+        }
+
         my.floatAway = function(elem, vx, vy) {
             setTimeout(function() {
                 setTransform(elem, "translate3d(" + vx + "em," + vy + "em,0)");

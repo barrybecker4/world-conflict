@@ -54,11 +54,22 @@ var erisk = (function(my) {
                 return;
             }
             const temple = state.temples[region.index];
-            state.moveDecision = new BuildMove({
-                buttons: makeUpgradeButtons(temple),
-                regionIndex: temple.regionIndex
-            });
-            erisk.gameRenderer.updateDisplay(state);
+            const templeOwner = state.owner(temple.regionIndex);
+            if (templeOwner) {
+                state.moveDecision = new BuildMove({
+                    buttons: makeUpgradeButtons(temple),
+                    regionIndex: temple.regionIndex
+                });
+                erisk.gameRenderer.updateDisplay(state);
+            }
+            else {
+                renderUtils.showFloatingText({
+                    regionIdx: temple.regionIndex,
+                    text: "You do not own this temple",
+                    color: '#fff',
+                    width: 7,
+                });
+            }
         });
 
         uiCallbacks.setSoldierSelectedCB(function(soldier) {
@@ -113,8 +124,11 @@ var erisk = (function(my) {
 
         function makeUpgradeButtons(temple) {
             const templeOwner = state.owner(temple.regionIndex);
-            if (!templeOwner)
-                throw new Error("Could not find owner for temple with regionIndex = " + temple.regionIndex);
+            if (!templeOwner) {
+                console.log("Could not find owner for temple with regionIndex = " + temple.regionIndex);
+                return;
+            }
+
             const upgradeButtons = CONSTS.UPGRADES.slice(1).map(makeUpgradeButton);
 
             function makeUpgradeButton(upgrade) {
