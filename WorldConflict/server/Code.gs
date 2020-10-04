@@ -123,6 +123,7 @@ async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData
  */
 async function makeAiMovesOnServer(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+    appState = null; // appState not used on server, only client
 
     gameData.initializeFrom(clientGameData);
     let newState = new GameState(state[0]);

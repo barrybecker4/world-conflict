@@ -347,7 +347,7 @@ erisk.mapRenderer = (function() {
                 } else {
                     console.log("Error: there was a soldier " + JSON.stringify(floater.soldier) +
                         " but no corresponding soldierDiv in soldierDivsById:\n" +
-                        JSON.stringify(soldierDivsById[floater.soldier.i]));
+                        JSON.stringify(soldierDivsById));
                 }
             }
             else renderUtils.showFloatingText(floater);

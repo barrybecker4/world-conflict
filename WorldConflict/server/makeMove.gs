@@ -29,6 +29,9 @@ var erisk = (function(my) {
 
     // If there is a fight while moving, then add the fight sequence to the move.
     function moveSoldiers(state, move) {
+        if (appState) { // avoid input while playing movement/fight (if on client)
+             appState.setWaitingForPlayersToMove();
+        }
         const fromRegion = move.source;
         const toRegion = move.destination;
         const incomingSoldiers = move.count;
