@@ -376,7 +376,7 @@ class ArmyMove extends Move {
                 soundCue: CONSTS.SOUNDS.OURS_DEAD,
                 delay: 50,
                 floatingText: [{
-                    soldier: toList[0],  // was fromList
+                    regionIdx: toRegion,
                     text: "Earth kills " + preemptiveDamage + "!",
                     color: CONSTS.UPGRADES.EARTH.bgColor,
                     width: 9
@@ -449,7 +449,7 @@ class ArmyMove extends Move {
                             soundCue: CONSTS.SOUNDS.OURS_DEAD,
                             delay: 800,
                             floatingText: [{
-                                soldier: fromList[0],
+                                regionIdx: fromRegion,
                                 text: "Protected by Fire!",
                                 color: CONSTS.UPGRADES.FIRE.bgColor,
                                 width: 11

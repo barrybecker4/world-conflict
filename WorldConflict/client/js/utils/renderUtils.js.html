@@ -50,7 +50,7 @@
                 y = parseFloat(style.top) + 0.2;
             }
             else {
-                throw new Error("The floater had neither region, nor soldierDiv:\n" + JSON.stringify(floater));
+                throw new Error("The floater had neither regionIdx, nor soldierDiv:\n" + JSON.stringify(floater));
             }
 
             x -= floater.width / 2 + 0.5; y -= 4;
