@@ -376,7 +376,7 @@ class ArmyMove extends Move {
                 soundCue: CONSTS.SOUNDS.OURS_DEAD,
                 delay: 50,
                 floatingText: [{
-                    soldier: fromList[0],
+                    soldier: toList[0],  // was fromList
                     text: "Earth kills " + preemptiveDamage + "!",
                     color: CONSTS.UPGRADES.EARTH.bgColor,
                     width: 9

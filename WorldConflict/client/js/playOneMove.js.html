@@ -46,7 +46,7 @@ var erisk = (function(my) {
             if (newState.endResult) { // did the game end?
                 showEndGame(newState);
             } else {
-                erisk.setPreviousState(state.copy()); // only humans can undo
+                erisk.setPreviousState(new GameState(state)); // only humans can undo
                 setTimeout(() => my.playOneMove(newState), 0); // recursive call
             }
         });
