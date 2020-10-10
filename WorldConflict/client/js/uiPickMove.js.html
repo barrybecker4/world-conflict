@@ -10,6 +10,8 @@ var erisk = (function(my) {
 
     my.uiPickMove = function(player, state, reportMoveCallback) {
 
+        domUtils.show('move-expiration');
+
         uiCallbacks.setRegionSelectedCB(function(region) {
             if (!appState.isInGame()) {
                 return;
@@ -101,6 +103,7 @@ var erisk = (function(my) {
                 // move action buttons handled here
                 if (which === 1) {
                     uiCallbacks.clearAll(); // end turn
+                    domUtils.hide('move-expiration');
                     reportMoveCallback(new EndMove());
                 } else {
                     setCleanState(); // cancel move

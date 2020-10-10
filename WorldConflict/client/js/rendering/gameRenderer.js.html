@@ -86,7 +86,10 @@ erisk.gameRenderer = (function() {
         });
 
         let moveInfo;
-        if (!activePlayer.personality) {
+        if (activePlayer.personality) {
+            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
+        }
+        else {
             if (buildingMode) {
                 if (gameState.owner(decisionState.regionIndex).index === activePlayer.index)
                     moveInfo = elem('p', {}, 'Choose an upgrade to build.');
@@ -100,15 +103,13 @@ erisk.gameRenderer = (function() {
                 moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
                     elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
             }
-        } else {
-            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
         }
         const infoEl = $('info');
         infoEl.innerHTML = moveInfo;
         infoEl.style.background = activePlayer.colorEnd;
 
         // activePlayer stats
-        $('pd').style.display =  buildingMode ? 'none' : 'block';
+        domUtils.showOrHide('pd', !buildingMode);
         $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
         $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
 
