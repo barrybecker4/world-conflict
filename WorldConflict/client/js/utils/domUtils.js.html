@@ -69,8 +69,9 @@ var domUtils = (function(my) {
     my.show = function(elementId) { my.showOrHide(elementId, true); }
 
     my.toggleClass = function(element, className, on) {
-        if (typeof element == 'string')
+        if (typeof element == 'string') {
             element = my.$(element);
+        }
         element.classList[on ? 'add' : 'remove'](className);
     }
 
