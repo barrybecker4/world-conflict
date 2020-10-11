@@ -16,6 +16,10 @@ var gameData = (function (my) {
         my.turnCount = obj.turnCount;
     }
 
+    my.numHumanPlayers = function() {
+        return my.players.filter(p => !p.personality).length;
+    }
+
     // GAS does not allow transferring properties that have function type
     my.getSimpleObject = function() {
         return {

@@ -110,7 +110,9 @@ var erisk = (function(my) {
         uiCallbacks.setUndoCB(() => erisk.performUndo(state));
         setCleanState();
 
-        erisk.startExpirationTimer(endTurn);
+        if (gameData.numHumanPlayers() > 1) {
+            erisk.startExpirationTimer(endTurn);
+        }
 
         if (uiState[player.index]) {
             uiCallbacks.templeSelected(uiState[player.index]);

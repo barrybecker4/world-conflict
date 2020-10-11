@@ -2,7 +2,7 @@
 var erisk = (function(my) {
 
     const $ = domUtils.$;
-    const WARNING_TIME = 15;
+    const WARNING_TIME = 10;
 
     // make the HUMAN_MOVE_TIME_LIMIT time a const. Active only when more than one human player.
     let expirationTimer = null;
@@ -38,7 +38,8 @@ var erisk = (function(my) {
             else if (expirationTimeRemaining <= 0) {
                 audio.playSound(CONSTS.SOUNDS.OUT_OF_TIME);
 
-                expirationCallback();
+                // call using oneAtaTime in case the user is in the middle of a move.
+                erisk.oneAtaTime(0, expirationCallback);
             }
         }
     }
