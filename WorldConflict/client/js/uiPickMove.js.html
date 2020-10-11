@@ -7,12 +7,6 @@ var erisk = (function(my) {
      * it is decided,
      */
     const uiState = {};
-    const $ = domUtils.$;
-
-    // move to expirationTimer.js.html
-    // make the HUMAN_MOVE_TIME_LIMIT time a const. Active only when more than one human player.
-    let expirationTimer = null;
-    let expirationTimeRemaining;
 
     my.uiPickMove = function(player, state, reportMoveCallback) {
 
@@ -116,56 +110,15 @@ var erisk = (function(my) {
         uiCallbacks.setUndoCB(() => erisk.performUndo(state));
         setCleanState();
 
-
-        startExpirationTimer();
-
+        erisk.startExpirationTimer(endTurn);
 
         if (uiState[player.index]) {
             uiCallbacks.templeSelected(uiState[player.index]);
             delete uiState[player.index];
         }
 
-        // pull this out to separate file
-        // starts the timer if there is not one running already, or restarts the timer so we have the corrent context.
-        function startExpirationTimer() {
-            domUtils.show('move-expiration');
-            console.log("starting move timer")
-
-            if (expirationTimer) {
-                // stop the current one, and start new so we have the correct context
-                clearInterval(expirationTimer);
-            }
-            else {
-                expirationTimeRemaining = 12;
-                $('remaining-time').textContent = expirationTimeRemaining;
-            }
-
-            expirationTimer = setInterval(expirationTimerCB, 1000);
-
-            function expirationTimerCB() {
-
-                const remainingTime = $('remaining-time')
-                remainingTime.textContent = --expirationTimeRemaining;
-                domUtils.toggleClass(remainingTime, 'glow', true);
-                setTimeout(() => domUtils.toggleClass(remainingTime, 'glow', false), 300);
-
-                if (expirationTimeRemaining > 0 && expirationTimeRemaining <= 5) {
-                    audio.playSound(CONSTS.SOUNDS.ALMOST_OUT_OF_TIME);
-                }
-                else if (expirationTimeRemaining <= 0) {
-                    audio.playSound(CONSTS.SOUNDS.OUT_OF_TIME);
-                    console.log("expirationTimeRemaining = " + expirationTimeRemaining);
-
-                    endTurn();
-                }
-            }
-        }
-
         function endTurn() {
-            clearInterval(expirationTimer);
-            console.log("stopped move timer and ending turn. " + expirationTimer);
-            expirationTimer = null;
-            domUtils.hide('move-expiration');
+            erisk.stopExpirationTimer();
 
             uiCallbacks.clearAll(); // end turn
             reportMoveCallback(new EndMove());
