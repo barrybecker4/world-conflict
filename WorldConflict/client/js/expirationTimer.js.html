@@ -2,6 +2,7 @@
 var erisk = (function(my) {
 
     const $ = domUtils.$;
+    const WARNING_TIME = 15;
 
     // make the HUMAN_MOVE_TIME_LIMIT time a const. Active only when more than one human player.
     let expirationTimer = null;
@@ -19,7 +20,7 @@ var erisk = (function(my) {
             clearInterval(expirationTimer);
         }
         else {
-            expirationTimeRemaining = 30;
+            expirationTimeRemaining = CONSTS.HUMAN_TIME_LIMIT;
             $('remaining-time').textContent = expirationTimeRemaining;
         }
 
@@ -31,7 +32,7 @@ var erisk = (function(my) {
             domUtils.toggleClass(remainingTime, 'glow', true);
             setTimeout(() => domUtils.toggleClass(remainingTime, 'glow', false), 300);
 
-            if (expirationTimeRemaining > 0 && expirationTimeRemaining <= 5) {
+            if (expirationTimeRemaining > 0 && expirationTimeRemaining <= WARNING_TIME) {
                 audio.playSound(CONSTS.SOUNDS.ALMOST_OUT_OF_TIME);
             }
             else if (expirationTimeRemaining <= 0) {

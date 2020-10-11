@@ -6,6 +6,7 @@ var CONSTS = (function(my) {
 
     const STANDARD_TURN_COUNT = 10;
     const UNLIMITED_TURNS = 1000000;
+    const HUMAN_TIME_LIMIT = 30; // in seconds
 
     const PLAYER_OFF = 'Off';
     const PLAYER_HUMAN_SET = 'Set';
@@ -173,6 +174,7 @@ var CONSTS = (function(my) {
             SOUNDS,
             AI_PERSONALITIES,
             DEBUG,
+            HUMAN_TIME_LIMIT,
 
             BASE_MOVES_PER_TURN: 3,
             NUM_UPGRADES: UPGRADES.length - 1,
