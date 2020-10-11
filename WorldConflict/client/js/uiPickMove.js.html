@@ -7,10 +7,14 @@ var erisk = (function(my) {
      * it is decided,
      */
     const uiState = {};
+    const $ = domUtils.$;
+
+    // move to expirationTimer.js.html
+    // make the HUMAN_MOVE_TIME_LIMIT time a const. Active only when more than one human player.
+    let expirationTimer = null;
+    let expirationTimeRemaining;
 
     my.uiPickMove = function(player, state, reportMoveCallback) {
-
-        domUtils.show('move-expiration');
 
         uiCallbacks.setRegionSelectedCB(function(region) {
             if (!appState.isInGame()) {
@@ -102,9 +106,7 @@ var erisk = (function(my) {
             } else {
                 // move action buttons handled here
                 if (which === 1) {
-                    uiCallbacks.clearAll(); // end turn
-                    domUtils.hide('move-expiration');
-                    reportMoveCallback(new EndMove());
+                    endTurn();
                 } else {
                     setCleanState(); // cancel move
                 }
@@ -112,11 +114,56 @@ var erisk = (function(my) {
         });
 
         uiCallbacks.setUndoCB(() => erisk.performUndo(state));
-
         setCleanState();
+
+
+        startExpirationTimer();
+
+
         if (uiState[player.index]) {
             uiCallbacks.templeSelected(uiState[player.index]);
             delete uiState[player.index];
+        }
+
+        // pull this out to separate file
+        // starts the timer if there is not one running already, or restarts the timer so we have the corrent context.
+        function startExpirationTimer() {
+            domUtils.show('move-expiration');
+            console.log("starting move timer")
+
+            if (expirationTimer) {
+                // stop the current one, and start new so we have the correct context
+                clearInterval(expirationTimer);
+            }
+            else {
+                expirationTimeRemaining = 12;
+                $('remaining-time').textContent = expirationTimeRemaining;
+            }
+
+            expirationTimer = setInterval(expirationTimerCB, 1000);
+
+            function expirationTimerCB() {
+                $('remaining-time').textContent = --expirationTimeRemaining;
+                if (expirationTimeRemaining > 0 && expirationTimeRemaining <= 5) {
+                    audio.playSound(CONSTS.SOUNDS.ALMOST_OUT_OF_TIME);
+                }
+                else if (expirationTimeRemaining <= 0) {
+                    audio.playSound(CONSTS.SOUNDS.OUT_OF_TIME);
+                    console.log("expirationTimeRemaining = " + expirationTimeRemaining);
+
+                    endTurn();
+                }
+            }
+        }
+
+        function endTurn() {
+            clearInterval(expirationTimer);
+            console.log("stopped move timer and ending turn. " + expirationTimer);
+            expirationTimer = null;
+            domUtils.hide('move-expiration');
+
+            uiCallbacks.clearAll(); // end turn
+            reportMoveCallback(new EndMove());
         }
 
         function setCleanState() {
@@ -169,9 +216,6 @@ var erisk = (function(my) {
 
             upgradeButtons.push({text: "Done"});
             return upgradeButtons;
-        }
-
-        function isHidden() {
         }
     }
 

@@ -15,7 +15,7 @@ var erisk = (function(my) {
             const player = state.activePlayer();
 
             if (player.name === domUtils.userid()) {
-                getMovesForCurrentPlayer(player, state, afterUndo);
+                getMoveForCurrentPlayer(player, state, afterUndo);
             }
             else {
                 erisk.setPreviousState(null); // only humans can undo
@@ -31,7 +31,7 @@ var erisk = (function(my) {
     /** This just stores the players move(s) in localHumanMoves since, because of undo,
      * it's not final until "end move" is clicked.
      */
-    function getMovesForCurrentPlayer(player, state, afterUndo) {
+    function getMoveForCurrentPlayer(player, state, afterUndo) {
         appState.setInGame();
 
         erisk.uiPickMove(player, state, function(move) {

@@ -18,14 +18,20 @@ var audio = (function(my) {
             wSlide(1.0, 0.3, 0.1, wSin(200))
         ), 0.2, 0.6);
         soundMap['TAKE_OVER'] = makeBuffer(wNotes([
-            {t:0, p:261, d:1}, {t:0.1, p:329, d:2}     // C-E
+            {t: 0, p: 261, d: 1}, {t: 0.1, p: 329, d: 2}     // C-E
         ]), 0.6, 0.2);
         soundMap['VICTORY'] = makeBuffer(wNotes([
             {t:0, p:261,d:1}, {t:0.0, p:329, d:2}, {t:0.0, p:392, d:3},     // C-E-G
             {t:0.2, p:261,d:1}, {t:0.2, p:349, d:2}, {t:0.2, p:440, d:3}    // C-F-A
         ]), 0.6, 0.2);
         soundMap['DEFEAT'] = makeBuffer(wNotes([
-            {t:0, p:392, d:3},{t:0.15, p:329, d: 2}, {t:0.3, p:261, d:1}
+            {t: 0, p: 392, d: 3},{t: 0.15, p: 329, d: 2}, {t: 0.3, p: 261, d: 1}
+        ]), 0.6, 0.2);
+        soundMap['ALMOST_OUT_OF_TIME'] = makeBuffer(wNotes([
+            {t: 0, p: 452, d: 2},{t: 0.1, p: 339, d: 2},
+        ]), 0.5, 0.1);
+        soundMap['OUT_OF_TIME'] = makeBuffer(wNotes([
+            {t: 0, p: 452, d: 2},{t: 0.1, p: 339, d: 2}, {t: 0.2, p: 452, d: 2},{t: 0.3, p: 309, d: 2}
         ]), 0.6, 0.2);
 
         // update the mute button
@@ -95,6 +101,12 @@ var audio = (function(my) {
         }
     }
 
+    /**
+     * Params are
+     * t - time offset from 0
+     * p - pitch
+     * d - duration
+     */
     function wNotes(notes) {
         notes.map(function(note) {
             note.f = adsr(0.01, 0.03, 0.03 * note.d, 0.03 * note.d, 0.7, wSin(note.p));

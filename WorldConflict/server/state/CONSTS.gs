@@ -35,6 +35,8 @@ var CONSTS = (function(my) {
             TAKE_OVER: 'TAKE_OVER',
             VICTORY: 'VICTORY',
             DEFEAT: 'DEFEAT',
+            OUT_OF_TIME: 'OUT_OF_TIME',
+            ALMOST_OUT_OF_TIME: 'ALMOST_OUT_OF_TIME',
         };
 
         // Possible temple upgrades
