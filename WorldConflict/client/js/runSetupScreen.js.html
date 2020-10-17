@@ -278,7 +278,6 @@ var erisk = (function(my) {
         utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
             const timeLimit = editable ? storage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
             const isSelected = CONSTS.TIME_LIMITS[index] === timeLimit;
-            console.log("isSelected = "  + isSelected + " l=" + CONSTS.TIME_LIMITS[index] + " tl=" + timeLimit);
             updateButton('time-limit' + index, isSelected, editable);
         });
     }

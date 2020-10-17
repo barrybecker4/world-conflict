@@ -15,6 +15,7 @@ var gameData = (function (my) {
         my.aiLevel = obj.aiLevel;
         my.turnCount = obj.turnCount;
         my.humanTimeLimit = obj.humanTimeLimit;
+        my.eliminatedPlayers = obj.eliminatedPlayers || {};
     }
 
     my.numHumanPlayers = function() {
@@ -31,6 +32,7 @@ var gameData = (function (my) {
             aiLevel: my.aiLevel,
             turnCount: my.turnCount,
             humanTimeLimit: my.humanTimeLimit,
+            eliminatedPlayers: my.eliminatedPlayers,
         }
     }
 

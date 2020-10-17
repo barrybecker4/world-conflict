@@ -263,21 +263,25 @@ var erisk = (function(my) {
 
     // update region ownership and notify if any players are eliminated
     function updatePlayerRegions(state) {
+        console.log("update regions after move by " + state.activePlayer().getName());
         gameData.players.map(function(player) {
             const totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
                 return state.isOwnedBy(region, player) ? state.soldierCount(region) : 0;
             });
-            if (!totalSoldiers && state.regionCount(player)) {
-                // lost!
+            if (!totalSoldiers && !gameData.eliminatedPlayers[player.index]) { //state.regionCount(player)) {
+                console.log("Player " + player.getName() + " lost!   isOnServer = " + isOnServer(state));
+
                 utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
                     if (player.index === gameData.players[ownerIdx].index)
                         delete state.owners[regionIdx];
                 });
                 // dead people get no more moves
-                if (state.activePlayer() === player)
+                if (state.activePlayer() === player) {
                     state.movesRemaining = 0;
+                }
                 // show the world the good (or bad) news
                 if (!isOnServer(state)) {
+                    gameData.eliminatedPlayers[player.index] = true; // lost!
                     erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
                     erisk.gameRenderer.showBanner('#222', player.getName() + " has been eliminated!", 1000);
                 }

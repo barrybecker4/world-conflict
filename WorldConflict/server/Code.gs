@@ -88,8 +88,8 @@ function persistGameData(unused, clientGameData) {
 
 /**
  * The players will be considered changed if either
- * - a human player joins an open slot (name change)
- * - an ope slot becomes an AI (type change: open -> ai)
+ * - a human player joins an open slot (name change), or
+ * - an open slot becomes an AI (type change: open -> ai)
  */
 function playersDiffer(newPlayers, oldPlayers) {
     if (newPlayers.length != oldPlayers.length) {
@@ -106,8 +106,14 @@ function getGameMoves(gameId, lastGameStateId) {
     return moves;
 }
 
+/**
+ * First persist any humanMoves, then play all AI players until the next human player.
+ * Can all the local human moves be persisted atomically?
+ * This may be thrown 409 (conflict) error if we try to persist a move with same id as one already there.
+ */
 async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData, suppressAi) {
     Logger.log("appending human moves: " + humanMoves.map(move => move.stateId));
+
     gameMoveTable.appendGameMoves(humanMoves);
 
     if (!suppressAi) {
@@ -133,7 +139,8 @@ async function makeAiMovesOnServer(state, clientGameData) {
 
     while (player.personality && !newState.endResult) {
         newState = await makeAndSaveMove(player, newState);
-        Logger.log(`new newState playerIndex=${newState.playerIndex} = ${newState.id}`);
+        if (CONSTS.DEBUG)
+            Logger.log(`new newState playerIndex=${newState.playerIndex} = ${newState.id}`);
         player = gameData.players[newState.playerIndex];
     }
 }
@@ -149,7 +156,8 @@ async function makeAndSaveMove(player, state) {
 
     move.gameId = newState.gameId;
     move.stateId = newState.id;
-    Logger.log("picked AI move = \n" + JSON.stringify(move));
+    if (CONSTS.DEBUG)
+        Logger.log("picked AI move = \n" + JSON.stringify(move));
     gameMoveTable.appendGameMove(move);
     return newState;
 }
