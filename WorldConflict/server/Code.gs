@@ -75,7 +75,7 @@ function getGameData(gameId, players) {
 
 /**
  * Persist the specified gameData into firestore.
- * There seems to be some limit on the size of the first argument, so I made the payload the second arg,
+ * There seems to be some limit on the size of the first argument, so I made the payload the second arg.
  */
 function persistGameData(unused, clientGameData) {
       CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();

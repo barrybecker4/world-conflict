@@ -20,7 +20,7 @@ var erisk = (function(my) {
             clearInterval(expirationTimer);
         }
         else {
-            expirationTimeRemaining = CONSTS.HUMAN_TIME_LIMIT;
+            expirationTimeRemaining = gameData.humanTimeLimit;
             $('remaining-time').textContent = expirationTimeRemaining;
         }
 

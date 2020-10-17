@@ -14,6 +14,7 @@ var gameData = (function (my) {
         my.initialGameState = new GameState(obj.initialGameState);
         my.aiLevel = obj.aiLevel;
         my.turnCount = obj.turnCount;
+        my.humanTimeLimit = obj.humanTimeLimit;
     }
 
     my.numHumanPlayers = function() {
@@ -29,6 +30,7 @@ var gameData = (function (my) {
             initialGameState: my.initialGameState,
             aiLevel: my.aiLevel,
             turnCount: my.turnCount,
+            humanTimeLimit: my.humanTimeLimit,
         }
     }
 

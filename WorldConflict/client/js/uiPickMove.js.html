@@ -110,7 +110,7 @@ var erisk = (function(my) {
         uiCallbacks.setUndoCB(() => erisk.performUndo(state));
         setCleanState();
 
-        if (gameData.numHumanPlayers() > 1) {
+        if (gameData.numHumanPlayers() > 1 && gameData.humanTimeLimit != CONSTS.UNLIMITED_TIME) {
             erisk.startExpirationTimer(endTurn);
         }
 

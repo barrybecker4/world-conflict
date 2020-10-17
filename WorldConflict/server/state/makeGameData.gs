@@ -90,6 +90,7 @@ var erisk = (function(my) {
         }
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
+        gameData.humanTimeLimit = setup.humanTimeLimit;
 
         return gameData;
 

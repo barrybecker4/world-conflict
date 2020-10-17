@@ -164,6 +164,13 @@ var erisk = (function(my) {
             updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
         });
+
+        // callback for time limit buttons
+        uiCallbacks.setSetupTimeLimitCB(function(timeLimit) {
+            storage.gameSetup.humanTimeLimit = timeLimit;
+            updatePlayerConfigButtons();
+            regenerateGameDataWithoutNewMap();
+        });
     }
 
     function createSetupUI() {
@@ -225,6 +232,7 @@ var erisk = (function(my) {
         updatePlayerButtons(editable);
         updateAiButtons(editable);
         updateTurnCountButtons(editable);
+        updateTimeLimitButtons(editable);
     }
 
     function updatePlayerButtons(editable) {
@@ -263,6 +271,15 @@ var erisk = (function(my) {
             const turnCount = editable ? storage.gameSetup.turnCount : gameData.turnCount;
             const isSelected = CONSTS.TURN_COUNTS[index] === turnCount;
             updateButton('turn-count' + index, isSelected, editable);
+        });
+    }
+
+    function updateTimeLimitButtons(editable) {
+        utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
+            const timeLimit = editable ? storage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
+            const isSelected = CONSTS.TIME_LIMITS[index] === timeLimit;
+            console.log("isSelected = "  + isSelected + " l=" + CONSTS.TIME_LIMITS[index] + " tl=" + timeLimit);
+            updateButton('time-limit' + index, isSelected, editable);
         });
     }
 
@@ -329,8 +346,12 @@ var erisk = (function(my) {
         }).join('');
         html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
         html += buttonPanel('AI', 'ai', ['Nice', 'Rude', 'Mean', 'Evil']);
-        const labels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
-        html += buttonPanel('Turns', 'turn-count', labels);
+
+        const turnCountLabels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
+        html += buttonPanel('Turns', 'turn-count', turnCountLabels);
+
+        const timeLimitLabels = CONSTS.TIME_LIMITS.map(time => (time === CONSTS.UNLIMITED_TIME) ? 'Unlimited' : '' + time);
+        html += buttonPanel('Time (sec)', 'time-limit', timeLimitLabels);
 
         $('game-info').innerHTML = html;
     }
@@ -353,6 +374,7 @@ var erisk = (function(my) {
         setupButtonHandlersForPlayers();
         setupButtonHandlersForAiType();
         setupButtonHandlersForTurnCount();
+        setupButtonHandlersForTimeLimits();
     }
 
     function setupButtonHandlersForPlayers() {
@@ -378,6 +400,15 @@ var erisk = (function(my) {
             domUtils.onClickOrTap(
                 $('turn-count' + index),
                 event => uiCallbacks.invokeCallback(CONSTS.TURN_COUNTS[index], 'setupTurnCount', event)
+            );
+        });
+    }
+
+    function setupButtonHandlersForTimeLimits() {
+        utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
+            domUtils.onClickOrTap(
+                $('time-limit' + index),
+                event => uiCallbacks.invokeCallback(CONSTS.TIME_LIMITS[index], 'setupTimeLimit', event)
             );
         });
     }
