@@ -2,7 +2,7 @@
 var CONSTS = (function(my) {
 
     const DEBUG = false;
-    const SOLDIER_COSTS = calcCosts(8, 16);
+    const SOLDIER_COSTS = calcSoldierCosts(8, 16);
 
     const STANDARD_TURN_COUNT = 10;
     const UNLIMITED_TURNS = 1000000;
@@ -19,14 +19,8 @@ var CONSTS = (function(my) {
     const AI_MEAN = 2;
     const AI_EVIL = 3;
 
-    function calcCosts(initial, n) {
-        const costs = [];
-        let current = initial;
-        for (let i = 1; i < n; i++) {
-            costs.push(current);
-            current += i;
-        }
-        return costs;
+    function calcSoldierCosts(initial, n) {
+        return Array(n).fill().map((x, i) => initial + i)
     }
 
     my.initialize = function() {

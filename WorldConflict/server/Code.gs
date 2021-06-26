@@ -32,7 +32,7 @@ function getUserEmail() {
 }
 
 /**
- * @return the user's id. Its the first part of the email.
+ * @return the user's id. It's the first part of the email.
  */
 function getUserId() {
   const email = getUserEmail();
@@ -54,8 +54,8 @@ function makeGameData(setup, firstTime, clientGameData) {
 }
 
 /**
- * Retrieve the configuration for the specified gameId,
- * and if the players are different (IOW new ones have joined the game),
+ * Retrieve the configuration for the specified gameId.
+ * If the players are different (IOW new ones have joined the game),
  * then return that new configuration so that it can be shown on the client.
  */
 function getGameData(gameId, players) {
@@ -67,7 +67,6 @@ function getGameData(gameId, players) {
         if (!gameData) {
             throw new Error("Could not find gameData for gameId: " + gameId);
         }
-
         return (playersDiffer(gameData.players, players)) ? erisk.addStatus(gameData) : null;
     }
     return null;
@@ -99,7 +98,9 @@ function playersDiffer(newPlayers, oldPlayers) {
     return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);
 }
 
-// Get the recent states (since lastGameState) that were stored on the server
+/**
+  * Get the recent states (since lastGameState) that were stored on the server.
+  */
 function getGameMoves(gameId, lastGameStateId) {
     const moves = gameMoveTable.getMovesForGame(gameId, lastGameStateId);
     Logger.log("found " + moves.length + " new moves in firestore: " + moves.map(m => m.stateId));
@@ -109,7 +110,7 @@ function getGameMoves(gameId, lastGameStateId) {
 /**
  * First persist any humanMoves, then play all AI players until the next human player.
  * Can all the local human moves be persisted atomically?
- * This may be thrown 409 (conflict) error if we try to persist a move with same id as one already there.
+ * This may be throwing 409 (conflict) error if we try to persist a move with same id as one already there.
  */
 async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData, suppressAi) {
     Logger.log("appending human moves: " + humanMoves.map(move => move.stateId));
