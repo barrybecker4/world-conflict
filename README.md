@@ -1,7 +1,9 @@
 World Conflict
 ================
 
-A risk-based strategy game originally created for [JS13k 2014](http://js13kgames.com/) by Jakub Wasilewski. This project modifies that code in order to support multiplayer online games using Google App Script. 
+A multi-player, online, Risk-like strategy game.
+
+The original version was created for [JS13k 2014](http://js13kgames.com/) by Jakub Wasilewski. This project modifies that code in order to support multi-player online games using [Google Apps Script](https://developers.google.com/apps-script) (GAS). GAS is essentially Javascript which runs on a server.
 
 **Play the [Google Apps Script version](https://script.google.com/macros/s/AKfycbxM8hi7pTwGz5TwrYummeqWnpnKAa6SWEDCfIBAPK8TBjImVS8/exec)**
 
@@ -12,14 +14,14 @@ A risk-based strategy game originally created for [JS13k 2014](http://js13kgames
 
 ## How to Run and Contribute
 
-This is a Google App Script (GAS) application. 
+This is a [Google Apps Script](https://developers.google.com/apps-script) application. 
 If you would like to contribute, first install [CLASP](https://github.com/google/clasp).
 Next git clone this repository somewhere on your local machine. 
 
-This project uses [Firestore](https://firebase.google.com/docs/firestore) to persist data. You will need your own instance to run. Firestore is free for low usage limits. Create an instance and put the private key in server/persistence/firestorePrivateKey.txt. This file should not be checked into git. 
+This project uses [Firestore](https://firebase.google.com/docs/firestore) to persist data. You will need your own instance to run. Firestore is free for low usage limits. Create an instance and put the private key in `server/persistence/firestorePrivateKey.txt`. This file should _not_ be checked into git. 
 
 Now, from the WorldConflict directory within the cloned project directory, run the following commands:
-* `clasp login`    using gmail account
+* `clasp login`  using gmail account
 * `clasp create --type webapp` this creates a script with this name in your Google Drive
    after you do this, you will have a .clasp.json file locally with contents that look something like this <br>
    ```{"scriptId":"13Py0mZIfz-mg5F7KA0HcUH9vL2g4Q8ep416zi6qJmMfD5CA9AUiZ969K"}```
@@ -32,8 +34,4 @@ Do git commit, push, and create pull requests through Github when you have a fea
 
 #### Thanks
 
-Thanks go to:
-
-* Krzysztof Kula, for recommending JS13k, and for quality feedback throughout.
-* Adam Kwapiński and Tomasz Bylina for invaluable gameplay testing sessions.
-* All the kind folks at [Schibsted Tech Polska](http://schibsted.pl/) who tested the game!
+Thanks to Jakub Wasilewski for the initial compact Javascript implementation of the game.
