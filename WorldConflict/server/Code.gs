@@ -162,5 +162,3 @@ async function makeAndSaveMove(player, state) {
     gameMoveTable.appendGameMove(move);
     return newState;
 }
-
-

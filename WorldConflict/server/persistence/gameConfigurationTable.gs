@@ -1,5 +1,6 @@
 // encapsulate access to the persistent "game state" table that contains
 // all the states of all games - whether played or in progress.
+// See gameConfigurations in firestore database
 var gameConfigurationTable = getGameConfigurationTableAccessor();
 
 function getGameConfigurationTableAccessor() {

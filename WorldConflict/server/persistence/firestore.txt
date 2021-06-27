@@ -2,7 +2,10 @@ var firestore;
 
 function getFirestore() {
 
-    /** @return singleton firestore database instance */
+    /**
+     * Refer to // See gameModes in firestore database - https://console.firebase.google.com/u/0/project/onlinettt/firestore/data
+     * @return singleton firestore database instance
+     */
     function getInstance() {
         if (!firestore) {
             const projectId = "onlinettt";

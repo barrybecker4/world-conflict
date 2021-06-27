@@ -1,10 +1,10 @@
 var erisk = (function(my) {
 
     /**
-     * Takes an existing state and a move, and returns a new game state with the move
-     * already applied. The object returned is a copy, and the original is left untouched.
+     * Takes an existing state and a move, and returns a new game state with the move applied.
+     * The object returned is a copy, and the original is left untouched.
      *
-     * Furthermore, note that this will show the move being applied visually. That means
+     * Furthermore, this will show the move being applied visually. That means
      * that the move must deterministically define the transition.
      *
      * @param state an existing game state
