@@ -1,7 +1,7 @@
 var erisk = (function(my) {
 
     /**
-     * If there is an open game use that, otherwise
+     * If there is an open game, use that. Otherwise
      * create the game state, regions, and players based on setup configuration.
      * Update regions and players in the global gameData.
      *

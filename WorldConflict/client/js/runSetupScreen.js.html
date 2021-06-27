@@ -8,7 +8,7 @@ var erisk = (function(my) {
         appState.setInSetup();
         let configuringPlayer = null;
 
-        regenerateGameData(newGameDataCallback, true, false);
+        generateFirstTimeGameData(newGameDataCallback);
         createSetupUI();
 
         // callback for the buttons on the bottom: new map, or done configuring
@@ -17,7 +17,7 @@ var erisk = (function(my) {
 
             switch (whichButton) {
                 case 0: // change map
-                    regenerateGameData();
+                    regenerateGameDataWithNewMap();
                     break;
                 case 1: // done configuring
                     configuringPlayer = domUtils.userid();
@@ -204,11 +204,19 @@ var erisk = (function(my) {
         ['move-info', 'undo-button', 'restart'].map(domUtils.show);
     }
 
-    function regenerateGameDataWithoutNewMap(callback) {
-        regenerateGameData(callback, false, true);
+    function generateFirstTimeGameData(callback) {
+        generateGameData(callback, true, false);
     }
 
-    function regenerateGameData(callback, firstTime, keepCurrentMap) {
+    function regenerateGameDataWithNewMap(callback) {
+        generateGameData(callback, false, false);
+    }
+
+    function regenerateGameDataWithoutNewMap(callback) {
+        generateGameData(callback, false, true);
+    }
+
+    function generateGameData(callback, firstTime, keepCurrentMap) {
         if (!isSetupValid()) return;
 
         google.script.run
