@@ -8,12 +8,13 @@ var erisk = (function(my) {
         appState.setInSetup();
         let configuringPlayer = null;
 
+        //retrieveOpenGames();
         generateFirstTimeGameData(newGameDataCallback);
-        createSetupUI();
+        erisk.createSetupUI();
 
         // callback for the buttons on the bottom: new map, or done configuring
         uiCallbacks.setBuildCB(function(whichButton) {
-            if (!isSetupValid()) return;
+            if (!storage.isSetupValid()) return;
 
             switch (whichButton) {
                 case 0: // change map
@@ -72,7 +73,7 @@ var erisk = (function(my) {
          */
         function doneConfiguring() {
             appState.setWaitingForPlayersToJoin();
-            updatePlayerConfigButtons();
+            erisk.updatePlayerConfigButtons();
 
             // only the configuring player (owner) can decide to start before all players have joined
             const isConfiguringPlayer = configuringPlayer === domUtils.userid();
@@ -80,6 +81,17 @@ var erisk = (function(my) {
             uiCallbacks.setBuildCB(startGameAfterConvertingOpenSlots);
 
             pollForNewPlayers();
+        }
+
+        function updateStartAnywayButton(enabled) {
+            const tip = enabled ?
+                'If you are tired of waiting for other human players to join, ' +
+                'you can click this and AI players will be used instead'
+                : 'Only the player that configured the game can decide to start before all players have joined';
+
+            erisk.gameRenderer.updateButtons([
+                { text: 'Start anyway', disabled: !enabled, tip },
+            ], "Waiting for players to join open slots...");
         }
 
         // poll for updates to the configuration - which will happen if another player joins this game
@@ -110,8 +122,36 @@ var erisk = (function(my) {
             convertOpenSlotsToAiPlayersIfNeeded(startGame);
         }
 
+        function generateFirstTimeGameData(callback) {
+            generateGameData(callback, true, false);
+        }
+
+        function regenerateGameDataWithNewMap(callback) {
+            generateGameData(callback, false, false);
+        }
+
+        function regenerateGameDataWithoutNewMap(callback) {
+            generateGameData(callback, false, true);
+        }
+
+        function generateGameData(callback, firstTime, keepCurrentMap) {
+            if (!storage.isSetupValid()) return;
+
+            google.script.run
+                .withSuccessHandler(function(newGameData) {
+                    gameData.initializeFrom(newGameData);
+                    erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
+                    erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
+                    if (callback) {
+                        callback(newGameData.status);
+                    }
+                 })
+                .withFailureHandler(showError)
+                .makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
+        }
+
         function startGame() {
-            prepareInGameUI();
+            erisk.prepareInGameUI();
             erisk.gameRenderer.updateDisplay(gameData.initialGameState);
             appState.setInGame();
             const state = gameData.initialGameState;
@@ -124,7 +164,7 @@ var erisk = (function(my) {
             const hasOpenSlots = gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
             if (hasOpenSlots) {
                 convertOpenSlotsToAiPlayers(() => {
-                    updatePlayerConfigButtons();
+                    erisk.updatePlayerConfigButtons();
                     persistGameData(callback);
                 });
             }
@@ -146,277 +186,30 @@ var erisk = (function(my) {
             // set the player type for the player
             storage.gameSetup.playerTypes[event.playerIndex] = CONSTS.PLAYER_TYPES[event.playerTypeIndex];
 
-            updatePlayerConfigButtons();
-            updateConfigBottomButtons();
+            erisk.updatePlayerConfigButtons();
+            erisk.updateConfigBottomButtons();
             regenerateGameDataWithoutNewMap();
         });
 
         // callback for AI level buttons
         uiCallbacks.setSetupAiLevelCB(function(aiLevel) {
             storage.gameSetup.aiLevel = aiLevel;
-            updatePlayerConfigButtons();
+            erisk.updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
         });
 
         // callback for number of turns buttons
         uiCallbacks.setSetupTurnCountCB(function(turnCount) {
             storage.gameSetup.turnCount = turnCount;
-            updatePlayerConfigButtons();
+            erisk.updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
         });
 
         // callback for time limit buttons
         uiCallbacks.setSetupTimeLimitCB(function(timeLimit) {
             storage.gameSetup.humanTimeLimit = timeLimit;
-            updatePlayerConfigButtons();
+            erisk.updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
-        });
-    }
-
-    function createSetupUI() {
-        prepareSetupUI();
-        updatePlayerConfigButtons();
-        updateConfigBottomButtons();
-    }
-
-    // Prepares the whole sidebar on the left for gameplay use.
-    function prepareInGameUI() {
-        // turn counter
-        let html = div({i: 'turn-count', c: 'side-control'});
-
-        // player box area
-        html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
-            const pid = player.index;
-            return div({ i: 'player-box' + pid, c: 'player-box inactive', style: 'background: ' + player.colorEnd },
-                player.getName() +
-                div({ c: 'additional-info', i: 'region-count' + pid, tt: 'number of countries owned' }) +
-                div({ c: 'additional-info', i: 'player-cash' + pid, tt: 'amount of faith' })
-            );
-        }).join(''));
-
-        // info box
-        html += div({c: 'side-control user-name description', i: 'info'});
-
-        // set it all
-        $('game-info').innerHTML = html;
-
-        // show stat box, undo button, and restart game buttons
-        ['move-info', 'undo-button', 'restart'].map(domUtils.show);
-    }
-
-    function generateFirstTimeGameData(callback) {
-        generateGameData(callback, true, false);
-    }
-
-    function regenerateGameDataWithNewMap(callback) {
-        generateGameData(callback, false, false);
-    }
-
-    function regenerateGameDataWithoutNewMap(callback) {
-        generateGameData(callback, false, true);
-    }
-
-    function generateGameData(callback, firstTime, keepCurrentMap) {
-        if (!isSetupValid()) return;
-
-        google.script.run
-            .withSuccessHandler(function(newGameData) {
-                gameData.initializeFrom(newGameData);
-                erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
-                erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
-                if (callback) {
-                    callback(newGameData.status);
-                }
-             })
-            .withFailureHandler(showError)
-            .makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
-    }
-
-    function updatePlayerConfigButtons() {
-        // somebody changed something, so store the new setup
-        storage.storeSetup();
-        const editable = !appState.isWaitingForPlayersToJoin();
-
-        updatePlayerButtons(editable);
-        updateAiButtons(editable);
-        updateTurnCountButtons(editable);
-        updateTimeLimitButtons(editable);
-    }
-
-    function updatePlayerButtons(editable) {
-
-        const playerTypes = editable ?
-            storage.gameSetup.playerTypes :
-            utils.range(0, CONSTS.PLAYER_TYPES.length).map(i => getPlayer(i).type);
-
-        playerTypes.map(function(playerType, playerIndex) {
-
-            utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
-               const isSelected = playerType === CONSTS.PLAYER_TYPES[buttonIndex];
-               updateButton('sb' + playerIndex + buttonIndex, isSelected, editable);
-            });
-
-            const player = editable ? CONSTS.PLAYERS[playerIndex] : getPlayer(playerIndex);
-            $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
-               player.getName();
-        });
-    }
-
-    function getPlayer(playerIndex) {
-        return gameData.players.find(p => p.originalIndex === playerIndex) || new Player({ type: CONSTS.PLAYER_OFF });
-    }
-
-    function updateAiButtons(editable) {
-        utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
-            const aiLevel = editable ? storage.gameSetup.aiLevel : gameData.aiLevel;
-            const isSelected = index === aiLevel;
-            updateButton('ai' + index, isSelected, editable);
-        });
-    }
-
-    function updateTurnCountButtons(editable) {
-        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            const turnCount = editable ? storage.gameSetup.turnCount : gameData.turnCount;
-            const isSelected = CONSTS.TURN_COUNTS[index] === turnCount;
-            updateButton('turn-count' + index, isSelected, editable);
-        });
-    }
-
-    function updateTimeLimitButtons(editable) {
-        utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
-            const timeLimit = editable ? storage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
-            const isSelected = CONSTS.TIME_LIMITS[index] === timeLimit;
-            updateButton('time-limit' + index, isSelected, editable);
-        });
-    }
-
-    function updateButton(id, isSelected, editable) {
-        domUtils.toggleClass(id, 'selected', isSelected);
-        domUtils.toggleClass(id, 'disabled', !editable);
-        if (!editable) {
-            domUtils.removeClickOrTap($(id));
-        }
-    }
-
-    // There must be at least one set player, and there must be at least 2 enabled players.
-    function isSetupValid() {
-        let numSetPlayers = 0;
-        const enabledPlayers = sequenceUtils.sum(storage.gameSetup.playerTypes, function(playerType) {
-            if (playerType === CONSTS.PLAYER_HUMAN_SET) {
-                numSetPlayers++;
-            }
-            return (playerType !== CONSTS.PLAYER_OFF) ? 1 : 0;
-        });
-        return enabledPlayers > 1 && numSetPlayers > 0;
-    }
-
-    function updateConfigBottomButtons() {
-        const buttonsDisabled = !isSetupValid();
-        erisk.gameRenderer.updateButtons([
-            { text: 'Change map', disabled: buttonsDisabled },
-            { text: 'Done configuring', disabled: buttonsDisabled,
-              tip: 'Click this when done configuring the game at the top'
-            },
-        ]);
-    }
-
-    function updateStartAnywayButton(enabled) {
-        const tip = enabled ?
-            'If you are tired of waiting for other human players to join, ' +
-            'you can click this and AI players will be used instead'
-            : 'Only the player that configured the game can decide to start before all players have joined';
-
-        erisk.gameRenderer.updateButtons([
-            { text: 'Start anyway', disabled: !enabled, tip },
-        ], "Waiting for players to join open slots...");
-    }
-
-    // UI to configure the game to be played before it is played
-    function prepareSetupUI() {
-        createPlayerBoxArea();
-
-        // hide stat box and undo button
-        ['move-info', 'move-expiration', 'undo-button', 'restart'].map(domUtils.hide);
-
-        setupButtonHandlersForPlayerSetupPanel();
-    }
-
-    function createPlayerBoxArea() {
-        let html = div({c: 'side-control description'}, 'Player setup');
-        const playerBoxes = CONSTS.PLAYERS.map(function(player) {
-            const pid = player.index;
-            return buttonPanel(player.getName(), 'sb' + player.index, CONSTS.PLAYER_TYPES, {
-                i: 'player-box' + pid,
-                c: 'player-box inactive',
-                s: 'background: ' + player.colorEnd
-            });
-        }).join('');
-        html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
-        html += buttonPanel('AI', 'ai', ['Nice', 'Rude', 'Mean', 'Evil']);
-
-        const turnCountLabels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
-        html += buttonPanel('Turns', 'turn-count', turnCountLabels);
-
-        const timeLimitLabels = CONSTS.TIME_LIMITS.map(time => (time === CONSTS.UNLIMITED_TIME) ? 'Unlimited' : '' + time);
-        html += buttonPanel('Time (sec)', 'time-limit', timeLimitLabels);
-
-        $('game-info').innerHTML = html;
-    }
-
-    function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
-        const len = buttonLabels.length - 1;
-        const buttons = buttonLabels.concat().reverse().map(function(label, index) {
-            const id = buttonIdPrefix + (len - index);
-            return domUtils.elem('a', {i: id, c: 'right', href: '#', s: 'font-size: 90%'}, label);
-        }).join('');
-        const properties = {i: buttonIdPrefix, c: 'side-control description', s: 'padding-right: 0.5em'};
-        utils.forEachProperty(additionalProperties, function(value, name) {
-            properties[name] = value;
-        });
-        const titleSpan = domUtils.elem('span', {c: 'player-name'}, title);
-        return div(properties, titleSpan + buttons);
-    }
-
-    function setupButtonHandlersForPlayerSetupPanel() {
-        setupButtonHandlersForPlayers();
-        setupButtonHandlersForAiType();
-        setupButtonHandlersForTurnCount();
-        setupButtonHandlersForTimeLimits();
-    }
-
-    function setupButtonHandlersForPlayers() {
-        utils.for2d(0, CONSTS.PLAYERS.length, 0, CONSTS.PLAYER_TYPES.length, function(playerIndex, playerTypeIndex) {
-            domUtils.onClickOrTap(
-                $('sb' + playerIndex + playerTypeIndex),
-                event => uiCallbacks.invokeCallback({ playerIndex, playerTypeIndex }, 'setupPlayerButtons', event)
-            );
-        });
-    }
-
-    function setupButtonHandlersForAiType() {
-        utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
-            domUtils.onClickOrTap(
-                $('ai' + index),
-                event => uiCallbacks.invokeCallback(index, 'setupAiLevel', event)
-            );
-        });
-    }
-
-    function setupButtonHandlersForTurnCount() {
-        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            domUtils.onClickOrTap(
-                $('turn-count' + index),
-                event => uiCallbacks.invokeCallback(CONSTS.TURN_COUNTS[index], 'setupTurnCount', event)
-            );
-        });
-    }
-
-    function setupButtonHandlersForTimeLimits() {
-        utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
-            domUtils.onClickOrTap(
-                $('time-limit' + index),
-                event => uiCallbacks.invokeCallback(CONSTS.TIME_LIMITS[index], 'setupTimeLimit', event)
-            );
         });
     }
 

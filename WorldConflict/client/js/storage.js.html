@@ -35,6 +35,18 @@ var storage = (function(my) {
         }
     }
 
+    // There must be at least one set player, and there must be at least 2 enabled players.
+    my.isSetupValid = function() {
+        let numSetPlayers = 0;
+        const enabledPlayers = sequenceUtils.sum(my.gameSetup.playerTypes, function(playerType) {
+            if (playerType === CONSTS.PLAYER_HUMAN_SET) {
+                numSetPlayers++;
+            }
+            return (playerType !== CONSTS.PLAYER_OFF) ? 1 : 0;
+        });
+        return enabledPlayers > 1 && numSetPlayers > 0;
+    }
+
     /**
      *The default game setup screen configuration.
      * firstTimeInstructions are shown only the first time player plays on a given computer (or until cache cleared).
