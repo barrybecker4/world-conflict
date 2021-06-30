@@ -150,6 +150,27 @@ var erisk = (function(my) {
                 .makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
         }
 
+        /**
+         * Get all open games from server. There are 2 cases:
+         * - There are one or more open games. In this case show the open game(s) and allow creating a new one.
+         * - No open games. Go straight to the game setup screen to create a new one.
+         */
+        function retrieveOpenGames() {
+            if (!storage.isSetupValid()) return;
+
+            google.script.run
+                .withSuccessHandler(function(openGames) {
+                    if (openGames.length == 0) {
+                        generateFirstTimeGameData(newGameDataCallback);
+                    }
+                    else {
+                        // show the gameTableSelection UI
+                    }
+                 })
+                .withFailureHandler(showError)
+                .retrieveOpenGames();
+        }
+
         function startGame() {
             erisk.prepareInGameUI();
             erisk.gameRenderer.updateDisplay(gameData.initialGameState);
