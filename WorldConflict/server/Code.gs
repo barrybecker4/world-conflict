@@ -39,6 +39,13 @@ function getUserId() {
   return email.substring(0, email.indexOf("@"));
 }
 
+function retrieveOpenGames() {
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+    const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
+    console.log("num gameDataDocs = " + gameDataDocs.length);
+    return [];
+}
+
 /**
  * Creates the game configuration data that will remain fixed for the duration of the game, once started.
  * The setup defines how the player wants the game configured.
@@ -91,11 +98,11 @@ function persistGameData(unused, clientGameData) {
  * - an open slot becomes an AI (type change: open -> ai)
  */
 function playersDiffer(newPlayers, oldPlayers) {
-    if (newPlayers.length != oldPlayers.length) {
+    if (newPlayers.length !== oldPlayers.length) {
         throw new Error('The number of players were unexpectedly different\n.' +
             ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers));
     }
-    return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);
+    return oldPlayers.some((player, i) => player.name !== newPlayers[i].name || player.type !== newPlayers[i].type);
 }
 
 /**

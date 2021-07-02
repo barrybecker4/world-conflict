@@ -6,7 +6,7 @@ var storage = (function(my) {
 
     const STORAGE_KEY = 'world-conflict';
 
-    /** Gets user preferences from local storage, or returns false if there aren't any. */
+    /** Gets user preferences from local storage, or returns default config if not there. */
     my.retrieveSetup = function() {
         if (localStorage) {
             let stored = localStorage.getItem(STORAGE_KEY);
