@@ -26,6 +26,7 @@ var domUtils = (function(my) {
     }
 
     my.div = (attrs, contents) => my.elem('div', attrs, contents);
+    my.span = (attrs, contents) => my.elem('span', attrs, contents);
 
     // Appends new HTML to a container with the designated ID, and returns the resulting DOM node.
     my.append = function(containerId, newHTML) {

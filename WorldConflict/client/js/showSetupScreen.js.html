@@ -130,7 +130,7 @@ var erisk = (function(my) {
             });
         }).join('');
         html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
-        html += buttonPanel('AI', 'ai', ['Nice', 'Rude', 'Mean', 'Evil']);
+        html += buttonPanel('AI', 'ai', CONSTS.AI_LEVEL_LABELS);
 
         const turnCountLabels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
         html += buttonPanel('Turns', 'turn-count', turnCountLabels);

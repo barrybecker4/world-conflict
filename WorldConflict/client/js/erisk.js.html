@@ -5,6 +5,7 @@
 // start the game
 window.onload = function() {
     CONSTS = CONSTS.initialize();
+    erisk.setOpenGamesScreenVisibility(false);
     erisk.tutorialScreen(() => {
         if (appState.isNotStarted()) {
             erisk.runSetupScreen();

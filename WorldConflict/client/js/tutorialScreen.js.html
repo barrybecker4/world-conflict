@@ -3,10 +3,10 @@ var erisk = (function(my) {
     const { $, onClickOrTap } = domUtils;
 
     my.tutorialScreen = function(callback) {
-        ['overview-panel', 'tutorial-button', 'sound'].map(id => domUtils.showOrHide(id, 1));
+        ['overview-panel', 'tutorial-button', 'sound'].map(id => domUtils.showOrHide(id, true));
 
         onClickOrTap($('cancel-button'), () => {
-            setTutorialScreenVisibility(false);
+            erisk.setTutorialScreenVisibility(false);
             if (callback) {
                 callback();
             }
@@ -14,7 +14,7 @@ var erisk = (function(my) {
         onClickOrTap($('next'), () => switchTutorialCard(1));
         onClickOrTap($('prev'), () => switchTutorialCard(-1));
 
-        onClickOrTap($('tutorial-button'), () => setTutorialScreenVisibility(true));
+        onClickOrTap($('tutorial-button'), () => erisk.setTutorialScreenVisibility(true));
         onClickOrTap($('sound'), audio.toggleSound);
         onClickOrTap($('undo-button'), event => uiCallbacks.invokeCallback(0, 'undo', event));
         onClickOrTap($('restart'), () => {
@@ -23,7 +23,7 @@ var erisk = (function(my) {
         });
 
         switchTutorialCard(0);
-        setTimeout(() => setTutorialScreenVisibility(true), 10);
+        setTimeout(() => erisk.setTutorialScreenVisibility(true), 10);
     }
 
     let currentCard = 0;
@@ -37,7 +37,7 @@ var erisk = (function(my) {
         domUtils.showOrHide('next', currentCard < totalCards - 1);
     }
 
-    function setTutorialScreenVisibility(visible) {
+    my.setTutorialScreenVisibility = function(visible) {
         if (visible) {
             $('title-screen').style.display = 'block';
         }

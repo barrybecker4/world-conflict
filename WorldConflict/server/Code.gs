@@ -42,8 +42,9 @@ function getUserId() {
 function retrieveOpenGames() {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
-    console.log("num gameDataDocs = " + gameDataDocs.length);
-    return [];
+    const userId = getUserId();
+    const openGames = gameConfigurationTable.availableOpenGames(gameDataDocs, userId);
+    return openGames;
 }
 
 /**

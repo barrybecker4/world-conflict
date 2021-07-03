@@ -179,6 +179,7 @@ var CONSTS = (function(my) {
 
             AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL,
             AI_LEVELS: [AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL],
+            AI_LEVEL_LABELS: ['Nice', 'Rude', 'Mean', 'Evil'],
 
             STANDARD_TURN_COUNT,
             UNLIMITED_TURNS,

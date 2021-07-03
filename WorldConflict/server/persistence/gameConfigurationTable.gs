@@ -114,6 +114,25 @@ function getGameConfigurationTableAccessor() {
         return getPathFromDoc(doc).substr(GAME_CONFIGURATION_TABLE.length + 1);
     }
 
+    /**
+     * @return an available game with open slots where this user is not already seated, else null
+     */
+    function availableOpenGame(openGames, userId) {
+        return openGames.find(game => playerNotSeated(game, userId));
+    }
+
+    /**
+     * @return all available games with open slots where this user is not already seated, else null
+     */
+    function availableOpenGames(openGames, userId) {
+        return openGames.filter(game => playerNotSeated(game, userId));
+    }
+
+    function playerNotSeated(game, userId) {
+        return !game.players.some(p => p.name === userId);
+    }
+
+
     return {
         getGameConfiguration,
         createGameConfiguration,
@@ -122,5 +141,7 @@ function getGameConfigurationTableAccessor() {
         getOpenGameConfigurations,
         insert,
         upsert,
+        availableOpenGame,
+        availableOpenGames,
     };
 }

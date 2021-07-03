@@ -8,7 +8,6 @@ var erisk = (function(my) {
         appState.setInSetup();
         let configuringPlayer = null;
 
-        console.log("About to retrieve open games");
         retrieveOpenGames();
         //generateFirstTimeGameData(newGameDataCallback);
         erisk.createSetupUI();
@@ -157,6 +156,7 @@ var erisk = (function(my) {
          * - No open games. Go straight to the game setup screen to create a new one.
          */
         function retrieveOpenGames() {
+            console.log("valid = " + storage.isSetupValid());
             if (!storage.isSetupValid()) return;
 
             google.script.run
@@ -168,7 +168,11 @@ var erisk = (function(my) {
                     else {
                         // show the gameTableSelection UI
                         console.log("there were open games");
-                        alert("select")
+                        erisk.openGamesScreen(openGames, () => {
+                            if (appState.isNotStarted()) {
+                                erisk.runSetupScreen();
+                            }
+                        });
                     }
                  })
                 .withFailureHandler(showError)

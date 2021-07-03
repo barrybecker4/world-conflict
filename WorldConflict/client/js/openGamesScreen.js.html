@@ -1,0 +1,77 @@
+<script>
+var erisk = (function(my) {
+    const { $, div, span, onClickOrTap } = domUtils;
+
+    my.openGamesScreen = function(openGames, callback) {
+        ['overview-panel', 'sound'].map(id => domUtils.showOrHide(id, true));
+
+        erisk.setTutorialScreenVisibility(false);
+
+        onClickOrTap($('new-game-button'), () => {
+            erisk.setOpenGamesScreenVisibility(false);
+            if (callback) {
+                callback();
+            }
+        });
+
+        erisk.setTutorialScreenVisibility(false);
+
+        // handle selection of an existing open game
+        //onClickOrTap($('next'), () => switchTutorialCard(1));
+
+        console.log("now showing " + openGames.length + " open games");
+        showUiForOpenGames(openGames);
+
+        onClickOrTap($('sound'), audio.toggleSound);
+
+        setTimeout(() => erisk.setOpenGamesScreenVisibility(true), 10);
+    }
+
+    function showUiForOpenGames(openGames) {
+
+        let html = div({id: 'open-games-list', class: 'side-control user-name'}, openGames.map(openGame => {
+            console.log(JSON.stringify(openGame.players, undefined, 2));
+            const turnCount = openGame.turnCount;
+            const aiLevelLabel = CONSTS.AI_LEVEL_LABELS[openGame.aiLevel];
+            const gid = "game-" + openGame.gameId;
+
+            playerHtmls = openGame.players.map(p => {
+                const player = new Player(p);
+                const isButton = player.type == CONSTS.PLAYER_HUMAN_OPEN;
+                const pid = 'player' + player.index + '-' + gid;
+                if (isButton) {
+                    return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, player.getName());
+                } else {
+                    return div({ id: pid, c: 'player-name', tt: 'some text' }, player.getName())
+                }
+            });
+
+            const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
+            playerHtmls.push(div({ c: 'player-name', style: 'background: ' + "0x000" }, gameMeta));
+
+            return playerHtmls.join('');
+            //div({ id: gid, c: 'player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
+        }).join(''));
+
+        $('open-games-panel').innerHTML = html;
+    }
+
+
+    // mv to domUtils and call setOverlayVisibility(visible, id)
+    erisk.setOpenGamesScreenVisibility = function(visible) {
+        if (visible) {
+            $('open-games-screen').style.display = 'block';
+        }
+
+        setTimeout(function() {
+            domUtils.toggleClass('open-games-screen', 'h', !visible);
+        }, 200);
+
+        if (!visible) {
+            domUtils.hide('open-games-screen');
+        }
+    }
+
+    return my;
+}(erisk || {}));
+</script>

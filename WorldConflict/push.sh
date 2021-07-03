@@ -2,6 +2,7 @@
 # copy common source file to client side so that they can be shared before calling "clasp push"
 { echo "<script>"; cat server/utils/utils.gs; echo "</script>"; } > client/js/utils/utils.js.html
 { echo "<script>"; cat server/utils/sequenceUtils.gs; echo "</script>"; } > client/js/utils/sequenceUtils.js.html
+mkdir -p client/js/state
 { echo "<script>"; cat server/state/gameData.gs; echo "</script>"; } > client/js/state/gameData.js.html
 { echo "<script>"; cat server/state/classes.gs; echo "</script>"; } > client/js/state/classes.js.html
 { echo "<script>"; cat server/state/CONSTS.gs; echo "</script>"; } > client/js/state/CONSTS.js.html

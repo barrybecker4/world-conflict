@@ -29,7 +29,7 @@
     </div>
     <div id='map'></div>
 
-    <div id='title-screen' class='h'>
+    <div id='title-screen' class='h title-screen'>
         <h1>World Conflict
             <div class="title-subheader">
                 <span>User: </span><span id="userid"><?= getUserId() ?></span>
@@ -120,6 +120,22 @@
             <a id='cancel-button' href='#'>Got it!</a>
         </div>
     </div>
+
+
+    <div id='open-games-screen' class='h title-screen'>
+        <h1>Select Game
+            <div class="title-subheader">
+                Select an open game or create a new one
+            </div>
+        </h1>
+
+        <div id="open-games-panel"></div>
+
+        <div class='bottom-box'>
+            <a href="#" class="round-button" id="new-game-button">New Game</a>
+        </div>
+    </div>
+
     <a id="restart" href="#" class="corner-button round-button" title="Restart">&#9762;</a>
     <a id="tutorial-button" href="#" style="right: 5.7%" class="corner-button round-button" title="Instructions">?</a>
     <a id="sound" href="#" style="right: 10.4%" class="corner-button round-button" title="Sound"></a>
@@ -158,5 +174,6 @@
 <?!= include('client/js/playOneMove.js'); ?>
 <?!= include('client/js/makeMove.js'); ?>
 <?!= include('client/js/tutorialScreen.js'); ?>
+<?!= include('client/js/openGamesScreen.js'); ?>
 
 <?!= include('client/js/erisk.js'); ?>
