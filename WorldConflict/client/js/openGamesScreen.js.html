@@ -39,10 +39,15 @@ var erisk = (function(my) {
                 const player = new Player(p);
                 const isButton = player.type == CONSTS.PLAYER_HUMAN_OPEN;
                 const pid = 'player' + player.index + '-' + gid;
+                const name = player.type === CONSTS.PLAYER_AI ? player.getTextName() + '(AI)' : player.getTextName();
+
+
                 if (isButton) {
-                    return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, player.getName());
+                    const openContent = '<span style="color: ' + player.colorStart + ';"><i>' + player.getTextName() + '</i></span>';
+                    return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, openContent);
                 } else {
-                    return div({ id: pid, c: 'player-name', tt: 'some text' }, player.getName())
+                    const nameContent = '<span style="color: ' + player.colorStart + ';">' + player.getTextName() + '</span>';
+                    return div({ id: pid, c: 'player-name', tt: 'some text' }, nameContent);
                 }
             });
 

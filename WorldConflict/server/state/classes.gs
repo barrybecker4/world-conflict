@@ -14,6 +14,11 @@ class Player {
     }
 
     getName() {
+        const textName = this.getTextName();
+        return textName === CONSTS.OPEN_LABEL ? '<span style="color: #ccc;"><i>' + textName + '</i></span>' : textName;
+    }
+
+    getTextName() {
         // this is a hack. should find better way. Use type if it exists, else fall back to what is in storage
         const pType = (typeof this.type === 'string') ? this.type : storage.gameSetup.playerTypes[this.originalIndex];
         switch(pType) {
@@ -22,7 +27,7 @@ class Player {
             case CONSTS.PLAYER_HUMAN_SET:
                 return getTrimmedName(this.name || domUtils.userid());
             case CONSTS.PLAYER_HUMAN_OPEN:
-                return '<span style="color: #ccc;"><i>&lt; open &gt;</i></span>';
+                return CONSTS.OPEN_LABEL;
             default: return this.defaultName;
         }
         function getTrimmedName(name) {

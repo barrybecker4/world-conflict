@@ -187,6 +187,7 @@ var CONSTS = (function(my) {
             STANDARD_HUMAN_TIME_LIMIT,
             UNLIMITED_TIME,
             TIME_LIMITS: [10, STANDARD_HUMAN_TIME_LIMIT, 60, UNLIMITED_TIME],
+            OPEN_LABEL: '&lt; open &gt;',
 
             // === Special "player" for signifying a draw game
             DRAWN_GAME: {},
