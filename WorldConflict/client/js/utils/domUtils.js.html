@@ -76,6 +76,22 @@ var domUtils = (function(my) {
         element.classList[on ? 'add' : 'remove'](className);
     }
 
+
+    // mv to domUtils and call setOverlayVisibility(visible, id)
+    my.setOverlayVisibility = function(visible, id) {
+        if (visible) {
+            my.$(id).style.display = 'block';
+        }
+
+        setTimeout(function() {
+            domUtils.toggleClass(id, 'h', !visible);
+        }, 200);
+
+        if (!visible) {
+            domUtils.hide(id);
+        }
+    }
+
     return my;
 } (domUtils || {}));
 </script>

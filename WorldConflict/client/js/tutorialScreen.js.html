@@ -38,17 +38,7 @@ var erisk = (function(my) {
     }
 
     my.setTutorialScreenVisibility = function(visible) {
-        if (visible) {
-            $('title-screen').style.display = 'block';
-        }
-
-        setTimeout(function() {
-            domUtils.toggleClass('title-screen', 'h', !visible);
-        }, 200);
-
-        if (!visible) {
-            domUtils.hide('title-screen');
-        }
+        domUtils.setOverlayVisibility(visible, 'title-screen');
     }
 
     return my;

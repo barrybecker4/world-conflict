@@ -64,17 +64,7 @@ var erisk = (function(my) {
 
     // mv to domUtils and call setOverlayVisibility(visible, id)
     erisk.setOpenGamesScreenVisibility = function(visible) {
-        if (visible) {
-            $('open-games-screen').style.display = 'block';
-        }
-
-        setTimeout(function() {
-            domUtils.toggleClass('open-games-screen', 'h', !visible);
-        }, 200);
-
-        if (!visible) {
-            domUtils.hide('open-games-screen');
-        }
+        domUtils.setOverlayVisibility(visible, 'open-games-screen');
     }
 
     return my;
