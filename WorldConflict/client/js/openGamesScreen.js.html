@@ -43,10 +43,10 @@ var erisk = (function(my) {
 
 
                 if (isButton) {
-                    const openContent = '<span style="color: ' + player.colorStart + ';"><i>' + player.getTextName() + '</i></span>';
+                    const openContent =  '<span style="color: ' + player.colorStart + ';"><i>' + name + '</i></span>';
                     return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, openContent);
                 } else {
-                    const nameContent = '<span style="color: ' + player.colorStart + ';">' + player.getTextName() + '</span>';
+                    const nameContent =  '<span style="color: ' + player.colorStart + ';">' + name + '</span>';
                     return div({ id: pid, c: 'player-name', tt: 'some text' }, nameContent);
                 }
             });
