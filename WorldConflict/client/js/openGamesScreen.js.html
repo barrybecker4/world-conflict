@@ -2,15 +2,15 @@
 var erisk = (function(my) {
     const { $, div, span, onClickOrTap } = domUtils;
 
-    my.openGamesScreen = function(openGames, callback) {
+    my.openGamesScreen = function(openGames, newGameCallback) {
         ['overview-panel', 'sound'].map(id => domUtils.showOrHide(id, true));
 
         erisk.setTutorialScreenVisibility(false);
 
         onClickOrTap($('new-game-button'), () => {
             erisk.setOpenGamesScreenVisibility(false);
-            if (callback) {
-                callback();
+            if (newGameCallback) {
+                newGameCallback();
             }
         });
 

@@ -50,6 +50,18 @@ function retrieveOpenGames() {
 /**
  * Creates the game configuration data that will remain fixed for the duration of the game, once started.
  * The setup defines how the player wants the game configured.
+ */
+function makeNewGameData(setup, clientGameData) {
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+    if (clientGameData) {
+        gameData.initializeFrom(clientGameData);
+    }
+    return erisk.makeNewGameData(setup, clientGameData);
+}
+
+/**
+ * Creates the game configuration data that will remain fixed for the duration of the game, once started.
+ * The setup defines how the player wants the game configured.
  * If a gameId is specified, the old game data corresponding to that id will be deleted
  * before creating a new one (with new gameId).
  */

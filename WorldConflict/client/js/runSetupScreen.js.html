@@ -9,30 +9,33 @@ var erisk = (function(my) {
         let configuringPlayer = null;
 
         retrieveOpenGames();
-        //generateFirstTimeGameData(newGameDataCallback);
-        erisk.createSetupUI();
 
-        // callback for the buttons on the bottom: new map, or done configuring
-        uiCallbacks.setBuildCB(function(whichButton) {
-            if (!storage.isSetupValid()) return;
+        function showNewGameSetup() {
+            generateFirstTimeGameData(newGameDataCallback);
+            erisk.createSetupUI();
 
-            switch (whichButton) {
-                case 0: // change map
-                    regenerateGameDataWithNewMap();
-                    break;
-                case 1: // done configuring
-                    configuringPlayer = domUtils.userid();
-                    persistGameData(() => {
-                        if (areOpenSlots()) {
-                            doneConfiguring();
-                        } else {
-                            startGame();
-                        }
-                    });
-                    break;
-                default: throw new Error("Invalid button: " + whichButton);
-            }
-        });
+            // callback for the buttons on the bottom: new map, or done configuring
+            uiCallbacks.setBuildCB(function(whichButton) {
+                if (!storage.isSetupValid()) return;
+
+                switch (whichButton) {
+                    case 0: // change map
+                        regenerateGameDataWithNewMap();
+                        break;
+                    case 1: // done configuring
+                        configuringPlayer = domUtils.userid();
+                        persistGameData(() => {
+                            if (areOpenSlots()) {
+                                doneConfiguring();
+                            } else {
+                                startGame();
+                            }
+                        });
+                        break;
+                    default: throw new Error("Invalid button: " + whichButton);
+                }
+            });
+        }
 
         function persistGameData(callback) {
            google.script.run
@@ -147,7 +150,8 @@ var erisk = (function(my) {
                     }
                  })
                 .withFailureHandler(showError)
-                .makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
+                .makeNewGameData(storage.gameSetup, keepCurrentMap ? gameData.getSimpleObject() : null);
+                //.makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
         }
 
         /**
@@ -162,16 +166,14 @@ var erisk = (function(my) {
             google.script.run
                 .withSuccessHandler(function(openGames) {
                     if (openGames.length === 0) {
-                        console.log("No open games");
-                        generateFirstTimeGameData(newGameDataCallback);
+                        console.log("no open games");
+                        showNewGameSetup();
                     }
                     else {
                         // show the gameTableSelection UI
-                        console.log("there were open games");
+                        console.log("has open games");
                         erisk.openGamesScreen(openGames, () => {
-                            if (appState.isNotStarted()) {
-                                erisk.runSetupScreen();
-                            }
+                            showNewGameSetup();
                         });
                     }
                  })

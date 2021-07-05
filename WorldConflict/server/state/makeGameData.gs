@@ -1,6 +1,18 @@
 var erisk = (function(my) {
 
     /**
+     * Create a new game state, regions, and players based on setup configuration.
+     * Update regions and players in the global gameData.
+     *
+     * @param setup the new setup configuration from the user
+     * @return fully fleshed out gameData
+     */
+    my.makeNewGameData = function(setup, keepCurrentMap) {
+        const userId = getUserId();
+        return createNewGameData(setup, keepCurrentMap, userId);
+    }
+
+    /**
      * If there is an open game, use that. Otherwise
      * create the game state, regions, and players based on setup configuration.
      * Update regions and players in the global gameData.
