@@ -52,10 +52,9 @@ var erisk = (function(my) {
             });
 
             const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
-            playerHtmls.push(div({ c: 'player-name', style: 'background: ' + "0x000" }, gameMeta));
+            playerHtmls.push(div({ c: 'player-name info', style: 'background: ' + "0x000" }, gameMeta));
 
-            return playerHtmls.join('');
-            //div({ id: gid, c: 'player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
+            return div({ id: gid, c: 'player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
         }).join(''));
 
         $('open-games-panel').innerHTML = html;
