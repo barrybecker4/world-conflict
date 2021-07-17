@@ -1,6 +1,6 @@
-// encapsulate access to the persistent "game state" table that contains
+// Encapsulate access to the persistent "game state" table that contains
 // all the states of all games - whether played or in progress.
-// See gameConfigurations in firestore database
+// See gameConfigurations in firestore database.
 var gameConfigurationTable = getGameConfigurationTableAccessor();
 
 function getGameConfigurationTableAccessor() {
@@ -58,9 +58,11 @@ function getGameConfigurationTableAccessor() {
         return firestore.createDocument(GAME_CONFIGURATION_TABLE + '/' + guid, newGameData);
     }
 
-    // since firestore does not currently allow filtering based on properties of objects in arrays,
-    // add an array with the playerTypes that we will need to filter on.
-    // See https://stackoverflow.com/questions/52351321/how-to-query-documents-containing-array-of-objects-in-firestore-collection-using
+    /**
+     * Since firestore does not currently allow filtering based on properties of objects in arrays,
+     * add an array with the playerTypes that we will need to filter on.
+     * See https://stackoverflow.com/questions/52351321/how-to-query-documents-containing-array-of-objects-in-firestore-collection-using
+     */
     function addPlayerTypes(gameData) {
         gameData.playerTypes = gameData.players.map(p => p.type);
     }
@@ -77,6 +79,13 @@ function getGameConfigurationTableAccessor() {
     }
 
     /**
+     * @param gameIds ids of the game to delete
+     */
+    function deleteGameConfigurations(gameIds) {
+        gameIds.forEach(id => deleteGameConfiguration(id));
+    }
+
+    /**
      * @param gameId id of the game to delete
      */
     function deleteGameConfiguration(gameId) {
@@ -84,8 +93,8 @@ function getGameConfigurationTableAccessor() {
     }
 
     /**
-     * @param gameData the new game data to persist
-     * @param gameId (optional) if specified then the existing gameData for that id is updated
+     * @param gameData the new game data to persist.
+     *     If gameData has gaeID property,then the existing gameData for that id is updated.
      */
     function upsert(gameData) {
         if (gameData.gameId) {
@@ -128,8 +137,19 @@ function getGameConfigurationTableAccessor() {
         return openGames.filter(game => playerNotSeated(game, userId));
     }
 
+    /**
+     * @return all available games with open slots where this user is already seated, else null
+     */
+    function availableOpenGamesWhereSeated(openGames, userId) {
+        return openGames.filter(game => playerIsSeated(game, userId));
+    }
+
     function playerNotSeated(game, userId) {
         return !game.players.some(p => p.name === userId);
+    }
+
+    function playerIsSeated(game, userId) {
+        return game.players.some(p => p.name === userId);
     }
 
 
@@ -138,10 +158,12 @@ function getGameConfigurationTableAccessor() {
         createGameConfiguration,
         updateGameConfiguration,
         deleteGameConfiguration,
+        deleteGameConfigurations,
         getOpenGameConfigurations,
         insert,
         upsert,
         availableOpenGame,
         availableOpenGames,
+        availableOpenGamesWhereSeated,
     };
 }

@@ -39,6 +39,9 @@ function getUserId() {
   return email.substring(0, email.indexOf("@"));
 }
 
+/**
+ * @return all games with open slots where this player is not already seated.
+ */
 function retrieveOpenGames() {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
@@ -64,6 +67,8 @@ function makeNewGameData(setup, clientGameData) {
  * The setup defines how the player wants the game configured.
  * If a gameId is specified, the old game data corresponding to that id will be deleted
  * before creating a new one (with new gameId).
+ * Remove any other open games that this player may have started because each player can only be seated
+ * at no more than one game table.
  */
 function makeGameData(setup, firstTime, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();

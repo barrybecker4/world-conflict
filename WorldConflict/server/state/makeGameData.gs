@@ -9,7 +9,28 @@ var erisk = (function(my) {
      */
     my.makeNewGameData = function(setup, keepCurrentMap) {
         const userId = getUserId();
+        unseatFromOpenGames(userId);
         return createNewGameData(setup, keepCurrentMap, userId);
+    }
+
+    /**
+     * If the player (userId) is already seated at an open game, then
+     * they should be unseated because a user can only be seated at one game.
+     * If this is the only player at the game and they are leaving, then the game will be deleted.
+     */
+    function unseatFromOpenGames(userId) {
+        // get all open games where this player is seated
+        const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
+        const openGames = gameConfigurationTable.availableOpenGamesWhereSeated(gameDataDocs, userId);
+
+        openGames.forEach(game => {
+            const numHumanPlayers = getNumSeatedPlayers(game.players);
+
+            if (numHumanPlayers === 1) {
+                gameConfigurationTable.deleteGameConfiguration(game.gameId);
+            }
+            else unseatPlayerFromOpenGame(game, userId);
+        });
     }
 
     /**
@@ -54,11 +75,38 @@ var erisk = (function(my) {
         return my.addStatus(gameData);
     }
 
+    /**
+     * Given an existing open game with at least one open human player slot and the specified player seated there,
+     * remove that play so that their spot becomes open. Persist the new state.
+     */
+    function unseatPlayerFromOpenGame(openGame, userId) {
+        Logger.log("Unseating player " + userId + " from open game " + openGame.gameId);
+        unseatPlayer(openGame.players, userId);
+        gameData = gameConfigurationTable.upsert(openGame);
+    }
+
     function fillFirstOpenPlayerSlot(players, userId) {
         const player = players.find(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
         if (player) {
             player.name = userId;
             player.type = CONSTS.PLAYER_HUMAN_SET;
+        }
+    }
+
+    /**
+     * @return number of human seated players (AI's excluded)
+     */
+    function getNumSeatedPlayers(players) {
+        return players.filter(p => p.type === CONSTS.LAYER_HUMAN_SET).length;
+    }
+
+    function unseatPlayer(players, userId) {
+        const player = players.find(player => player.name === userId);
+        if (player) {
+            player.name = '';
+            player.type = CONSTS.PLAYER_HUMAN_OPEN;
+        } else {
+            throw new Error("Did not find player " + userId + " among " + JSON.stringify(players));
         }
     }
 

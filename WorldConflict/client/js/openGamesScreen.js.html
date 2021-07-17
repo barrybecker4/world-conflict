@@ -29,7 +29,7 @@ var erisk = (function(my) {
 
     function showUiForOpenGames(openGames) {
 
-        let html = div({id: 'open-games-list', class: 'side-control user-name'}, openGames.map(openGame => {
+        let html = div({id: 'open-games-list', class: ''}, openGames.map(openGame => {
             console.log(JSON.stringify(openGame.players, undefined, 2));
             const turnCount = openGame.turnCount;
             const aiLevelLabel = CONSTS.AI_LEVEL_LABELS[openGame.aiLevel];
@@ -37,7 +37,7 @@ var erisk = (function(my) {
 
             playerHtmls = openGame.players.map(p => {
                 const player = new Player(p);
-                const isButton = player.type == CONSTS.PLAYER_HUMAN_OPEN;
+                const isButton = player.type === CONSTS.PLAYER_HUMAN_OPEN;
                 const pid = 'player' + player.index + '-' + gid;
                 const name = player.type === CONSTS.PLAYER_AI ? player.getTextName() + '(AI)' : player.getTextName();
 
@@ -54,7 +54,7 @@ var erisk = (function(my) {
             const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
             playerHtmls.push(div({ c: 'player-name info', style: 'background: ' + "0x000" }, gameMeta));
 
-            return div({ id: gid, c: 'player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
+            return div({ id: gid, c: 'side-control player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
         }).join(''));
 
         $('open-games-panel').innerHTML = html;
