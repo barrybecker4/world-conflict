@@ -134,7 +134,7 @@ function getGameConfigurationTableAccessor() {
      * @return all available games with open slots where this user is not already seated, else null
      */
     function availableOpenGames(openGames, userId) {
-        return openGames.filter(game => playerNotSeated(game, userId));
+        return openGames.filter(game => playerNotSeated(game, userId) && getNumSeatedPlayers(game) > 0);
     }
 
     /**
@@ -152,6 +152,26 @@ function getGameConfigurationTableAccessor() {
         return game.players.some(p => p.name === userId);
     }
 
+    /**
+     * @return number of human seated players (AI's excluded)
+     */
+    function getNumSeatedPlayers(game) {
+        return game.players.filter(p => p.type === CONSTS.PLAYER_HUMAN_SET).length;
+    }
+
+    /**
+     * For any games in the list where there are no human players, asynchronously remove them.
+     */
+    function removeGamesWithNoHumans(games) {
+        const gamesToDelete = games.filter(game => getNumSeatedPlayers(game) == 0);
+        const gameIdsToDelete = gamesToDelete.map(g => g.gameId);
+        console.log("Deleting " + gameIdsToDelete.length + " games where there are no human players.");
+        const startTime = new Date();
+        deleteGameConfigurations(gameIdsToDelete);
+        const elapsed = new Date() - startTime;
+        console.log("Deleted in "+ elapsed + " milliseconds.");
+    }
+
 
     return {
         getGameConfiguration,
@@ -165,5 +185,6 @@ function getGameConfigurationTableAccessor() {
         availableOpenGame,
         availableOpenGames,
         availableOpenGamesWhereSeated,
+        getNumSeatedPlayers,
     };
 }

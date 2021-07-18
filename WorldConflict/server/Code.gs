@@ -41,12 +41,17 @@ function getUserId() {
 
 /**
  * @return all games with open slots where this player is not already seated.
+ *  If there are games where no human players are seated, then they will be deleted asynchronously.
  */
 function retrieveOpenGames() {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
     const userId = getUserId();
     const openGames = gameConfigurationTable.availableOpenGames(gameDataDocs, userId);
+    console.log("Retrieved " + openGames.length + " open games for " + userId);
+    const promise = new Promise(function(resolve, reject) {
+        removeGamesWithNoHumans(gameDataDocs)
+    });
     return openGames;
 }
 

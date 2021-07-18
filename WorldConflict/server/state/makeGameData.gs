@@ -24,7 +24,7 @@ var erisk = (function(my) {
         const openGames = gameConfigurationTable.availableOpenGamesWhereSeated(gameDataDocs, userId);
 
         openGames.forEach(game => {
-            const numHumanPlayers = getNumSeatedPlayers(game.players);
+            const numHumanPlayers = gameConfigurationTable.getNumSeatedPlayers(game);
 
             if (numHumanPlayers === 1) {
                 gameConfigurationTable.deleteGameConfiguration(game.gameId);
@@ -91,13 +91,6 @@ var erisk = (function(my) {
             player.name = userId;
             player.type = CONSTS.PLAYER_HUMAN_SET;
         }
-    }
-
-    /**
-     * @return number of human seated players (AI's excluded)
-     */
-    function getNumSeatedPlayers(players) {
-        return players.filter(p => p.type === CONSTS.LAYER_HUMAN_SET).length;
     }
 
     function unseatPlayer(players, userId) {
