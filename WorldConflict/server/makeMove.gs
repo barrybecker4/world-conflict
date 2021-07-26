@@ -170,7 +170,7 @@ var erisk = (function(my) {
     }
 
     function upgradeTemple(state, temple, templeOwner, upgrade) {
-        if (!temple.upgradeIndex || CONSTS.UPGRADES[temple.upgradeIndex].name != upgrade.name) { // virgin upgrade
+        if (!temple.upgradeIndex || CONSTS.UPGRADES[temple.upgradeIndex].name !== upgrade.name) { // virgin upgrade
             temple.upgradeIndex = upgrade.index;
             temple.level = 0;
         }

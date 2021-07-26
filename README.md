@@ -30,8 +30,17 @@ Now, from the WorldConflict directory within the cloned project directory, run t
 Now you are good to go! Deploy the web-app from your script on Google Drive.
 Make changes locally (in IntelliJ for example), do `./push.sh` (as described above), and refresh the deployed app script page to see the change. 
 Do git commit, push, and create pull requests through Github when you have a feature or fix to contribute.
-
+ 
 
 #### Thanks
 
 Thanks to Jakub Wasilewski for the initial compact Javascript implementation of the game.
+
+
+#### TODO:
+
+* Clicking open slot should enter the game and wait for additional players. If last player to join, then game should automatically start.
+* you should be able to leave a game once seated. If last to leave, then delete game
+* If you join and don't like spot, you should be able to change your slot.
+* refresh button on select game dialog
+

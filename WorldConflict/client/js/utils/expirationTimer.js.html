@@ -2,9 +2,9 @@
 var erisk = (function(my) {
 
     const $ = domUtils.$;
+    // When only this many seconds remainign start warning the user.
     const WARNING_TIME = 10;
 
-    // make the HUMAN_MOVE_TIME_LIMIT time a const. Active only when more than one human player.
     let expirationTimer = null;
     let expirationTimeRemaining;
 

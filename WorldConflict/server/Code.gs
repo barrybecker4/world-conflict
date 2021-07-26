@@ -157,6 +157,7 @@ async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData
  * Store the moves in firestore as they are determined.
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
+ * @param clientGameData current state of the game
  */
 async function makeAiMovesOnServer(state, clientGameData) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();

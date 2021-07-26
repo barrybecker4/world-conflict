@@ -75,6 +75,9 @@ function getGameConfigurationTableAccessor() {
      * @doc - the configuration doc to update. Has name and fields properties. The fields prop is the json for the game.
      */
     function updateGameConfiguration(doc) {
+        if (!doc) {
+            throw new Error("Calling updateGameConfiguration with null doc");
+        }
         firestore.updateDocument(getPathFromDoc(doc), doc.fields);
     }
 
@@ -99,6 +102,9 @@ function getGameConfigurationTableAccessor() {
     function upsert(gameData) {
         if (gameData.gameId) {
             const doc = getGameConfiguration(gameData.gameId);
+            if (!doc) {
+                throw new Error("Could not retrieve game with gameId = " + gameData.gameId)
+            }
             addPlayerTypes(gameData);
             doc.fields = gameData;
             updateGameConfiguration(doc);
