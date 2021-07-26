@@ -2,7 +2,7 @@
 var erisk = (function(my) {
     const { $, div, span, onClickOrTap } = domUtils;
 
-    my.openGamesScreen = function(openGames, newGameCallback) {
+    my.openGamesScreen = function(openGames, newGameCallback, playerSeatedCallback) {
         ['overview-panel', 'sound'].map(id => domUtils.showOrHide(id, true));
 
         erisk.setTutorialScreenVisibility(false);
@@ -16,50 +16,75 @@ var erisk = (function(my) {
 
         erisk.setTutorialScreenVisibility(false);
 
-        // handle selection of an existing open game
-        //onClickOrTap($('next'), () => switchTutorialCard(1));
-
         console.log("now showing " + openGames.length + " open games");
-        showUiForOpenGames(openGames);
+        showUiForOpenGames(openGames, playerSeatedCallback);
 
         onClickOrTap($('sound'), audio.toggleSound);
 
         setTimeout(() => erisk.setOpenGamesScreenVisibility(true), 10);
     }
 
-    function showUiForOpenGames(openGames) {
-
-        let html = div({id: 'open-games-list', class: ''}, openGames.map(openGame => {
-            console.log(JSON.stringify(openGame.players, undefined, 2));
-            const turnCount = openGame.turnCount;
-            const aiLevelLabel = CONSTS.AI_LEVEL_LABELS[openGame.aiLevel];
-            const gid = "game-" + openGame.gameId;
-
-            playerHtmls = openGame.players.map(p => {
-                const player = new Player(p);
-                const isButton = player.type === CONSTS.PLAYER_HUMAN_OPEN;
-                const pid = 'player' + player.index + '-' + gid;
-                const name = player.type === CONSTS.PLAYER_AI ? player.getTextName() + '(AI)' : player.getTextName();
-
-
-                if (isButton) {
-                    const openContent =  '<span style="color: ' + player.colorStart + ';"><i>' + name + '</i></span>';
-                    return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, openContent);
-                } else {
-                    const nameContent =  '<span style="color: ' + player.colorStart + ';">' + name + '</span>';
-                    return div({ id: pid, c: 'player-name', tt: 'some text' }, nameContent);
-                }
-            });
-
-            const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
-            playerHtmls.push(div({ c: 'player-name info', style: 'background: ' + "0x000" }, gameMeta));
-
-            return div({ id: gid, c: 'side-control player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
-        }).join(''));
-
-        $('open-games-panel').innerHTML = html;
+    function showUiForOpenGames(openGames, playerSeatedCallback) {
+        $('open-games-panel').innerHTML =
+            div(
+                {id: 'open-games-list', class: ''},
+                openGames.map(openGame => createRowHtmlForGame(openGame)).join('')
+            );
+        openGames.map(openGame => addHandlersForOpenSeats(openGame, playerSeatedCallback));
     }
 
+    function createRowHtmlForGame(openGame) {
+        // console.log(JSON.stringify(openGame.players, undefined, 2));
+        const turnCount = openGame.turnCount;
+        const aiLevelLabel = CONSTS.AI_LEVEL_LABELS[openGame.aiLevel];
+        const gid = "game-" + openGame.gameId;
+
+        playerHtmls = openGame.players.map((p) => {
+            const player = new Player(p);
+            const isButton = player.type === CONSTS.PLAYER_HUMAN_OPEN;
+            const pid = 'player' + player.index + '-' + gid;
+            const name = player.type === CONSTS.PLAYER_AI ? player.getTextName() + '(AI)' : player.getTextName();
+
+            if (isButton) {
+                const openContent = '<span style="color: ' + player.colorStart + ';"><i>' + name + '</i></span>';
+                return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, openContent);
+            }
+            else {
+                const nameContent = '<span style="color: ' + player.colorStart + ';">' + name + '</span>';
+                return div({ id: pid, c: 'player-name', tt: 'some text' }, nameContent);
+            }
+        });
+
+        const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
+        playerHtmls.push(div({ c: 'player-name info', style: 'background: ' + "0x000" }, gameMeta));
+
+        return div({ id: gid, c: 'side-control player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
+    }
+
+    function addHandlersForOpenSeats(openGame, playerSeatedCallback) {
+        const gid = "game-" + openGame.gameId;
+        openGame.players.map((p, position) => {
+            const player = new Player(p);
+            const isOpen = player.type === CONSTS.PLAYER_HUMAN_OPEN;
+            const pid = 'player' + player.index + '-' + gid;
+            if (isOpen) {
+                onClickOrTap($(pid), () => {
+                    // Make a call to the server indicating where the player wants to sit.
+                    google.script.run
+                        .withSuccessHandler(function(gameDataObj) {
+                            gameData.initializeFrom(gameDataObj);
+                            erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
+                            erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
+                            if (playerSeatedCallback) {
+                                playerSeatedCallback(gameDataObj.status);
+                            }
+                        })
+                        .withFailureHandler(showError)
+                        .seatPlayerAtGame(openGame.gameId, position);
+                });
+            }
+        });
+    }
 
     // mv to domUtils and call setOverlayVisibility(visible, id)
     erisk.setOpenGamesScreenVisibility = function(visible) {

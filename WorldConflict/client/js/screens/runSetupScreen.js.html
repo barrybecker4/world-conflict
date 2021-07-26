@@ -151,7 +151,6 @@ var erisk = (function(my) {
                  })
                 .withFailureHandler(showError)
                 .makeNewGameData(storage.gameSetup, keepCurrentMap ? gameData.getSimpleObject() : null);
-                //.makeGameData(storage.gameSetup, firstTime, keepCurrentMap ? gameData.getSimpleObject() : null);
         }
 
         /**
@@ -172,9 +171,11 @@ var erisk = (function(my) {
                     else {
                         // show the gameTableSelection UI
                         console.log("has open games");
-                        erisk.openGamesScreen(openGames, () => {
-                            showNewGameSetup();
-                        });
+                        erisk.openGamesScreen(
+                            openGames,
+                            () => { showNewGameSetup(); },
+                            newGameDataCallback
+                        );
                     }
                  })
                 .withFailureHandler(showError)

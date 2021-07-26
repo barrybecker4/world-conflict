@@ -44,7 +44,7 @@ function getGameConfigurationTableAccessor() {
     }
 
     /**
-     * @param newGameConfiguration the json for the new game
+     * @param newGameData the json for the new game
      * @return the new game configuration doc (which contains the gameId)
      */
     function createGameConfiguration(newGameData) {
@@ -97,7 +97,7 @@ function getGameConfigurationTableAccessor() {
 
     /**
      * @param gameData the new game data to persist.
-     *     If gameData has gaeID property,then the existing gameData for that id is updated.
+     *     If gameData has gameID property, then the existing gameData for that id is updated.
      */
     function upsert(gameData) {
         if (gameData.gameId) {
@@ -169,7 +169,7 @@ function getGameConfigurationTableAccessor() {
      * For any games in the list where there are no human players, asynchronously remove them.
      */
     function removeGamesWithNoHumans(games) {
-        const gamesToDelete = games.filter(game => getNumSeatedPlayers(game) == 0);
+        const gamesToDelete = games.filter(game => getNumSeatedPlayers(game) === 0);
         const gameIdsToDelete = gamesToDelete.map(g => g.gameId);
         console.log("Deleting " + gameIdsToDelete.length + " games where there are no human players.");
         const startTime = new Date();
