@@ -5,7 +5,7 @@ var erisk = (function(my) {
      * Update regions and players in the global gameData.
      *
      * @param setup the new setup configuration from the user
-     * @keepCurrentMap if true, then do not generate new map
+     * @param keepCurrentMap if true, then do not generate new map
      * @return fully fleshed out gameData
      */
     my.makeNewGameData = function(setup, keepCurrentMap) {
@@ -35,37 +35,7 @@ var erisk = (function(my) {
     }
 
     /**
-     * If there is an open game, use that. Otherwise
-     * create the game state, regions, and players based on setup configuration.
-     * Update regions and players in the global gameData.
-     *
-     * If games exist with open slots, and this is the very first request from the client (gameId not set),
-     * then we will try to use one of those first instead of creating a new game with the specified configuration.
-     * A status flag will be returned with the gameData object that specifies if the game is
-     * "waitingForPlayers" (meaning some human player have yet to join),
-     * or "readyToStart" (meaning all human players have joined).
-     *
-     * @param setup the new setup configuration from the user
-     * @param firstTime if true then check for open games
-     * @param keepCurrentMap if true, then do not generate a new map (use the one already in the gameData)
-     * @return fully fleshed out gameData
-     *
-    my.makeGameData = function(setup, firstTime, keepCurrentMap) {
-
-        const openGames = gameConfigurationTable.getOpenGameConfigurations();
-        const userId = getUserId();
-        const openGame = gameConfigurationTable.availableOpenGame(openGames, userId);
-
-        if (firstTime && openGame) {
-            return gameDataFromExistingGame(openGame, userId);
-        }
-        else {
-            return createNewGameData(setup, keepCurrentMap, userId);
-        }
-    }*/
-
-    /**
-     * Seat the specified player at the specified game at the specified postion.
+     * Seat the specified player at the specified game at the specified position.
      * Set the status to either "waitingForPlayers" or "readyToStart"
      * depending on whether there are still open slots after this player is seated.
      */
@@ -80,20 +50,9 @@ var erisk = (function(my) {
         player.name = userId;
         player.type = CONSTS.PLAYER_HUMAN_SET;
         gameData = gameConfigurationTable.upsert(game);
+
         return my.addStatus(gameData);
     }
-
-    /**
-     * Given an existing game with at least one open human player slot, fill that slot
-     * with that user and return the result. Set the status to either "waitingForPlayers" or "readyToStart"
-     * depending on whether there are still open slots.
-     *
-    function gameDataFromExistingGame(openGame, userId) {
-        Logger.log("Found open game with id = " + openGame.gameId);
-        fillFirstOpenPlayerSlot(openGame.players, userId);
-        gameData = gameConfigurationTable.upsert(openGame);
-        return my.addStatus(gameData);
-    }*/
 
     /**
      * Given an existing open game with at least one open human player slot and the specified player seated there,
@@ -105,15 +64,6 @@ var erisk = (function(my) {
         gameData = gameConfigurationTable.upsert(openGame);
     }
 
-    /*
-    function fillFirstOpenPlayerSlot(players, userId) {
-        const player = players.find(player => player.type === CONSTS.PLAYER_HUMAN_OPEN);
-        if (player) {
-            player.name = userId;
-            player.type = CONSTS.PLAYER_HUMAN_SET;
-        }
-    }*/
-
     function unseatPlayer(players, userId) {
         const player = players.find(player => player.name === userId);
         if (player) {
@@ -124,6 +74,10 @@ var erisk = (function(my) {
         }
     }
 
+    /**
+     * Add a status enum to the pass gameData.
+     * @returns updated gameData
+     */
     my.addStatus = function(gameData) {
         const stillHasOpenSpots = gameData.players.some(p => p.type === CONSTS.PLAYER_HUMAN_OPEN);
         gameData.status = stillHasOpenSpots ? CONSTS.WAITING_FOR_PLAYERS : CONSTS.READY_TO_START;

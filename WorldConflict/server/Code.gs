@@ -67,20 +67,6 @@ function makeNewGameData(setup, clientGameData) {
     return erisk.makeNewGameData(setup, clientGameData);
 }
 
-/**
- * Creates the game configuration data that will remain fixed for the duration of the game, once started.
- * The setup defines how the player wants the game configured.
- * Remove any other open games that this player may have started because each player can only be seated
- * at no more than one game table.
- *
-function makeGameData(setup, firstTime, clientGameData) {
-    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
-    if (clientGameData) {
-        gameData.initializeFrom(clientGameData);
-    }
-    return erisk.makeGameData(setup, firstTime, clientGameData);
-}*/
-
 function seatPlayerAtGame(gameId, playerPosition) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     const userId = getUserId();

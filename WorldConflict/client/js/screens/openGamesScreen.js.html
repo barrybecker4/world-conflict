@@ -63,7 +63,7 @@ var erisk = (function(my) {
 
     function addHandlersForOpenSeats(openGame, playerSeatedCallback) {
         const gid = "game-" + openGame.gameId;
-        openGame.players.map((p, position) => {
+        openGame.players.map((p, position) =>{
             const player = new Player(p);
             const isOpen = player.type === CONSTS.PLAYER_HUMAN_OPEN;
             const pid = 'player' + player.index + '-' + gid;
@@ -86,7 +86,6 @@ var erisk = (function(my) {
         });
     }
 
-    // mv to domUtils and call setOverlayVisibility(visible, id)
     erisk.setOpenGamesScreenVisibility = function(visible) {
         domUtils.setOverlayVisibility(visible, 'open-games-screen');
     }

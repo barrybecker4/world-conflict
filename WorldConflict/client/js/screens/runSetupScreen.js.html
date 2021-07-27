@@ -183,6 +183,7 @@ var erisk = (function(my) {
         }
 
         function startGame() {
+            erisk.setOpenGamesScreenVisibility(false);
             erisk.prepareInGameUI();
             erisk.gameRenderer.updateDisplay(gameData.initialGameState);
             appState.setInGame();
