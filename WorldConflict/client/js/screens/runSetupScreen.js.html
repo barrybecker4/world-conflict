@@ -11,7 +11,7 @@ var erisk = (function(my) {
         retrieveOpenGames();
 
         function showNewGameSetup() {
-            generateFirstTimeGameData(newGameDataCallback);
+            generateFirstTimeGameData(gameEnteredCallback);
             erisk.createSetupUI();
 
             // callback for the buttons on the bottom: new map, or done configuring
@@ -51,10 +51,11 @@ var erisk = (function(my) {
         }
 
         /**
-         * Called after we have retrieved new gameData from the server.
-         * Either the game will now start, or will will continue waiting for players to join.
+         * Called after a user enters (sits down at) an existing or new game.
+         * Either the game will now start, or will will continue waiting for other players to join.
          */
-        function newGameDataCallback(status) {
+        function gameEnteredCallback(status) {
+            erisk.setOpenGamesScreenVisibility(false);
             switch (status) {
                 case CONSTS.WAITING_FOR_PLAYERS: doneConfiguring(); break;
                 case CONSTS.READY_TO_START: startGame(); break;
@@ -111,7 +112,7 @@ var erisk = (function(my) {
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
-                        newGameDataCallback(newGameData.status);
+                        gamEnteredCallback(newGameData.status);
                     } else {
                         // keep calling recursively until all players have joined, or player gets tired of waiting
                         setTimeout(pollForNewPlayers, POLL_DELAY);
@@ -174,7 +175,7 @@ var erisk = (function(my) {
                         erisk.openGamesScreen(
                             openGames,
                             () => { showNewGameSetup(); },
-                            newGameDataCallback
+                            gameEnteredCallback
                         );
                     }
                  })
@@ -183,7 +184,6 @@ var erisk = (function(my) {
         }
 
         function startGame() {
-            erisk.setOpenGamesScreenVisibility(false);
             erisk.prepareInGameUI();
             erisk.gameRenderer.updateDisplay(gameData.initialGameState);
             appState.setInGame();
