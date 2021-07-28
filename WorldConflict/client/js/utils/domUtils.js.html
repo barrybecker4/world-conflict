@@ -71,11 +71,14 @@ var domUtils = (function(my) {
 
     my.toggleClass = function(element, className, on) {
         if (typeof element == 'string') {
-            element = my.$(element);
+            const selector = element;
+            element = my.$(selector);
+            if (!element) {
+                throw new Error(`Could not find el for selector = ${selector}`);
+            }
         }
         element.classList[on ? 'add' : 'remove'](className);
     }
-
 
     my.setOverlayVisibility = function(visible, id) {
         if (visible) {

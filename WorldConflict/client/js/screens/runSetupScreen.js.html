@@ -10,8 +10,26 @@ var erisk = (function(my) {
 
         retrieveOpenGames();
 
+        /**
+         * Called after a user enters (sits down at) an existing or new game.
+         * Either the game will now start, or will will continue waiting for other players to join.
+         */
+        const gameEnterCallback = function(status) {
+            erisk.setOpenGamesScreenVisibility(false);
+            switch (status) {
+                case CONSTS.WAITING_FOR_PLAYERS:
+                    erisk.createSetupUI();
+                    doneConfiguring();
+                    break;
+                case CONSTS.READY_TO_START:
+                    startGame();
+                    break;
+                default: // do nothing;
+            }
+        }
+
         function showNewGameSetup() {
-            generateFirstTimeGameData(gameEnteredCallback);
+            generateFirstTimeGameData(gameEnterCallback);
             erisk.createSetupUI();
 
             // callback for the buttons on the bottom: new map, or done configuring
@@ -48,19 +66,6 @@ var erisk = (function(my) {
                 })
                .withFailureHandler(showError)
                .persistGameData('unused', gameData.getSimpleObject());
-        }
-
-        /**
-         * Called after a user enters (sits down at) an existing or new game.
-         * Either the game will now start, or will will continue waiting for other players to join.
-         */
-        function gameEnteredCallback(status) {
-            erisk.setOpenGamesScreenVisibility(false);
-            switch (status) {
-                case CONSTS.WAITING_FOR_PLAYERS: doneConfiguring(); break;
-                case CONSTS.READY_TO_START: startGame(); break;
-                default: // do nothing;
-            }
         }
 
         function areOpenSlots() {
@@ -175,7 +180,7 @@ var erisk = (function(my) {
                         erisk.openGamesScreen(
                             openGames,
                             () => { showNewGameSetup(); },
-                            gameEnteredCallback
+                            gameEnterCallback
                         );
                     }
                  })
