@@ -14,7 +14,7 @@ var erisk = (function(my) {
          * Called after a user enters (sits down at) an existing or new game.
          * Either the game will now start, or will will continue waiting for other players to join.
          */
-        const gameEnterCallback = function(status) {
+        const gameEnteredCallback = function(status) {
             erisk.setOpenGamesScreenVisibility(false);
             switch (status) {
                 case CONSTS.WAITING_FOR_PLAYERS:
@@ -29,7 +29,7 @@ var erisk = (function(my) {
         }
 
         function showNewGameSetup() {
-            generateFirstTimeGameData(gameEnterCallback);
+            generateFirstTimeGameData(gameEnteredCallback);
             erisk.createSetupUI();
 
             // callback for the buttons on the bottom: new map, or done configuring
@@ -117,7 +117,7 @@ var erisk = (function(my) {
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
-                        gamEnteredCallback(newGameData.status);
+                        gameEnteredCallback(newGameData.status);
                     } else {
                         // keep calling recursively until all players have joined, or player gets tired of waiting
                         setTimeout(pollForNewPlayers, POLL_DELAY);
@@ -180,7 +180,7 @@ var erisk = (function(my) {
                         erisk.openGamesScreen(
                             openGames,
                             () => { showNewGameSetup(); },
-                            gameEnterCallback
+                            gameEnteredCallback
                         );
                     }
                  })
