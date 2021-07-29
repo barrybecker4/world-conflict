@@ -73,6 +73,11 @@ function seatPlayerAtGame(gameId, playerPosition) {
     return erisk.seatPlayerAtExistingGame(gameId, playerPosition, userId);
 }
 
+function unseatPlayerFromOpenGame(userId, gameId) {
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+    erisk.unseatPlayerFromOpenGameById(userId, gameId);
+}
+
 /**
  * Retrieve the configuration for the specified gameId.
  * If the players are different (IOW new ones have joined the game),
