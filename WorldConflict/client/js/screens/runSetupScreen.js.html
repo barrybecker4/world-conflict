@@ -8,7 +8,7 @@ var erisk = (function(my) {
         appState.setInSetup();
         let configuringPlayer = null;
 
-        retrieveOpenGames();
+        retrieveAndShowOpenGames();
 
         /**
          * Called after a user enters (sits down at) an existing or new game.
@@ -88,20 +88,21 @@ var erisk = (function(my) {
             erisk.updatePlayerConfigButtons();
 
             // only the configuring player (owner) can decide to start before all players have joined
-            const isConfiguringPlayer = configuringPlayer === domUtils.userid();
+            const userid = domUtils.userid();
+            const isConfiguringPlayer = configuringPlayer === userid;
             updateStartAnywayButton(isConfiguringPlayer);
             uiCallbacks.setBuildCB(function(whichButton) {
                 switch (whichButton) {
-                    case 0: // change map
+                    case 0: // start anyway (before all slots filled)
                         startGameAfterConvertingOpenSlots();
                         break;
-                    case 1: // done configuring
+                    case 1: // leave this game table
                         console.log("Leaving!");
                         appState.setInSetup();
                         google.script.run
                             .withSuccessHandler(() => {
-                                console.log("Player left the table");
-                                erisk.setOpenGamesScreenVisibility(true);
+                                console.log("Player " + userid + " left the table");
+                                retrieveAndShowOpenGames();
                             })
                             .withFailureHandler(showError)
                             .unseatPlayerFromOpenGame(domUtils.userid(), gameData.gameId);
@@ -138,8 +139,8 @@ var erisk = (function(my) {
                         gameData.initializeFrom(newGameData);
 
                         // These 2 lines should not be needed (remove?)
-                        //erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
-                        //erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
+                        erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
+                        erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
                         gameEnteredCallback(newGameData.status);
                     } else {
@@ -188,7 +189,7 @@ var erisk = (function(my) {
          * - There are one or more open games. In this case, allow the user to select one or create a new one.
          * - No open games. Go straight to the game setup screen to create a new one.
          */
-        function retrieveOpenGames() {
+        function retrieveAndShowOpenGames() {
             console.log("valid = " + storage.isSetupValid());
             if (!storage.isSetupValid()) return;
 
