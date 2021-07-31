@@ -14,11 +14,8 @@ var erisk = (function(my) {
             }
         });
 
-        console.log("now showing " + openGames.length + " open games");
         showUiForOpenGames(openGames, playerSeatedCallback);
-
         onClickOrTap($('sound'), audio.toggleSound);
-
         setTimeout(() => erisk.setOpenGamesScreenVisibility(true), 10);
     }
 
@@ -73,6 +70,7 @@ var erisk = (function(my) {
                             erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                             erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
                             if (playerSeatedCallback) {
+                                console.log(`player seated cb - new staatus = ${gameDataObj.status}`);
                                 playerSeatedCallback(gameDataObj.status);
                             }
                         })

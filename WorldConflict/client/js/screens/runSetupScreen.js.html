@@ -16,6 +16,7 @@ var erisk = (function(my) {
          */
         const gameEnteredCallback = function(status) {
             erisk.setOpenGamesScreenVisibility(false);
+            console.log("game entered. status = " + status);
             switch (status) {
                 case CONSTS.WAITING_FOR_PLAYERS:
                     erisk.createSetupUI();
@@ -29,7 +30,7 @@ var erisk = (function(my) {
         }
 
         function showNewGameSetup() {
-            generateFirstTimeGameData(gameEnteredCallback);
+            regenerateGameDataWithNewMap(gameEnteredCallback);
             erisk.createSetupUI();
 
             // callback for the buttons on the bottom: new map, or done configuring
@@ -86,6 +87,7 @@ var erisk = (function(my) {
         function doneConfiguring() {
             appState.setWaitingForPlayersToJoin();
             erisk.updatePlayerConfigButtons();
+            console.log("In doneConfiguring");
 
             // only the configuring player (owner) can decide to start before all players have joined
             const userid = domUtils.userid();
@@ -135,11 +137,12 @@ var erisk = (function(my) {
                     if (newGameData) { // we only get newGameData if players are different
                         gameData.initializeFrom(newGameData);
 
-                        // Can these 2 lines be remved? Not sure
-                        // Noticed some strange behavior in 3 palyer game if they are commented.
+                        // Can these 2 lines be removed? Not sure
+                        // Noticed some strange behavior in 3 player game if they are commented.
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
+                        console.log("A new player joined this game. new status = " + newGameData.status);
                         gameEnteredCallback(newGameData.status);
                     } else {
                         // keep calling recursively until all players have joined, or player gets tired of waiting
@@ -154,21 +157,19 @@ var erisk = (function(my) {
             convertOpenSlotsToAiPlayersIfNeeded(startGame);
         }
 
-        function generateFirstTimeGameData(callback) {
-            generateGameData(callback, true, false);
-        }
-
         function regenerateGameDataWithNewMap(callback) {
-            generateGameData(callback, false, false);
+            generateGameData(callback, false);
         }
 
         function regenerateGameDataWithoutNewMap(callback) {
-            generateGameData(callback, false, true);
+            generateGameData(callback, true);
         }
 
-        function generateGameData(callback, firstTime, keepCurrentMap) {
-            if (!storage.isSetupValid()) return;
+        function generateGameData(callback, keepCurrentMap) {
+            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !storage.isSetupValid() )
+                return;
 
+            console.log(`Calling makeNewGameData - which will unseat ${domUtils.userid()}.`);
             google.script.run
                 .withSuccessHandler(function(newGameData) {
                     gameData.initializeFrom(newGameData);
@@ -186,25 +187,28 @@ var erisk = (function(my) {
          * Get all open games from server. There are 2 cases:
          * - There are one or more open games. In this case, allow the user to select one or create a new one.
          * - No open games. Go straight to the game setup screen to create a new one.
+         * The method recursively calls itself to update the list of open games.
          */
         function retrieveAndShowOpenGames() {
-            console.log("valid = " + storage.isSetupValid());
-            if (!storage.isSetupValid()) return;
+            console.log("appState = " + appState.getCurrentState());
+            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !storage.isSetupValid())
+                return;
 
             google.script.run
                 .withSuccessHandler(function(openGames) {
+                    console.log("num openGames = " + openGames.length + " appState = " + appState.getCurrentState());
                     if (openGames.length === 0) {
-                        console.log("no open games");
                         showNewGameSetup();
                     }
                     else {
                         // show the gameTableSelection UI
-                        console.log("has open games");
                         erisk.openGamesScreen(
                             openGames,
-                            () => { showNewGameSetup(); },
-                            gameEnteredCallback
+                            () => { showNewGameSetup(); }, // if new game button clicked
+                            gameEnteredCallback // if seat selected
                         );
+                        // keep calling recursively until the player selects a spot
+                        setTimeout(retrieveAndShowOpenGames, POLL_DELAY);
                     }
                  })
                 .withFailureHandler(showError)
