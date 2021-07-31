@@ -190,7 +190,7 @@ erisk.mapRenderer = (function() {
             const source = gameData.regions[gameState.moveDecision.source];
             showTooltipOver(source, "Click this region again to change the number of soldiers.");
             // pick the furthest neighbor
-            const furthestIdx = sequenceUtils.max(source.neighbors, (nbr) => source.centerDistanceFrom(gameData.regions[nbr]));
+            const furthestIdx = sequenceUtils.max(source.neighbors, nbr => source.centerDistanceFrom(gameData.regions[nbr]));
             showTooltipOver(gameData.regions[furthestIdx], "Click a bordering region to move.");
         }
 

@@ -58,8 +58,7 @@ var erisk = (function(my) {
             });
 
             const player = editable ? CONSTS.PLAYERS[playerIndex] : getPlayer(playerIndex);
-            $('player-box' + playerIndex).querySelector('.player-name').innerHTML =
-               player.getName();
+            $('player-box' + playerIndex).querySelector('.player-name').innerHTML = player.getName();
         });
     }
 

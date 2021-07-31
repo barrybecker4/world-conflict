@@ -133,12 +133,10 @@ var erisk = (function(my) {
             google.script.run
                 .withSuccessHandler(function(newGameData) {
                     if (newGameData) { // we only get newGameData if players are different
-                        if (CONSTS.DEBUG) {
-                            console.log("We got a player change from the server. newPlayers = " + JSON.stringify(newGameData.players));
-                        }
                         gameData.initializeFrom(newGameData);
 
-                        // These 2 lines should not be needed (remove?)
+                        // Can these 2 lines be remved? Not sure
+                        // Noticed some strange behavior in 3 palyer game if they are commented.
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 

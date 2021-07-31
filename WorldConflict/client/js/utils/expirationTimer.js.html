@@ -16,7 +16,7 @@ var erisk = (function(my) {
         domUtils.show('move-expiration');
 
         if (expirationTimer) {
-            // stop the current one, and start new so we have the correct context
+            // stop the current one and start new so we have the correct context
             clearInterval(expirationTimer);
         }
         else {

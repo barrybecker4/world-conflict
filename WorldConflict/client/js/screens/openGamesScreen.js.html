@@ -32,7 +32,6 @@ var erisk = (function(my) {
     }
 
     function createRowHtmlForGame(openGame) {
-        // console.log(JSON.stringify(openGame.players, undefined, 2));
         const turnCount = openGame.turnCount;
         const aiLevelLabel = CONSTS.AI_LEVEL_LABELS[openGame.aiLevel];
         const gid = "game-" + openGame.gameId;
