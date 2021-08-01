@@ -5,6 +5,8 @@ var appState = (function(my) {
     const NOT_STARTED = 'NOT_STARTED';
     // configuring game
     const SETUP_SCREEN = 'SETUP_SCREEN';
+    // open games dialog
+    const OPEN_GAMES_DIALOG = 'OPN_GAMES_DIALOG';
     // done configuring, waiting for players to join so game can start
     const WAITING_FOR_PLAYERS_TO_JOIN = 'WAITING_FOR_PLAYERS_TO_JOIN';
     // in game, waiting for other player(s) to move
@@ -28,6 +30,14 @@ var appState = (function(my) {
 
     my.isInSetup = function() {
         return currentState === SETUP_SCREEN;
+    }
+
+    my.setInOpenGamesDialog = function() {
+        currentState = OPEN_GAMES_DIALOG;
+    }
+
+    my.isInOpenGamesDialog = function() {
+        return currentState === OPEN_GAMES_DIALOG;
     }
 
     my.setWaitingForPlayersToJoin = function() {

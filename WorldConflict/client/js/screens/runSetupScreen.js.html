@@ -30,6 +30,7 @@ var erisk = (function(my) {
         }
 
         function showNewGameSetup() {
+            appState.setInSetup();
             regenerateGameDataWithNewMap(gameEnteredCallback);
             erisk.createSetupUI();
 
@@ -182,21 +183,26 @@ var erisk = (function(my) {
                 .makeNewGameData(storage.gameSetup, keepCurrentMap ? gameData.getSimpleObject() : null);
         }
 
+        function retrieveAndShowOpenGames() {
+            appState.setInOpenGamesDialog();
+            retrieveAndShowOpenGamesPolling();
+        }
+
         /**
          * Get all open games from server. There are 2 cases:
          * - There are one or more open games. In this case, allow the user to select one or create a new one.
          * - No open games. Go straight to the game setup screen to create a new one.
          * The method recursively calls itself to update the list of open games.
          */
-        function retrieveAndShowOpenGames() {
+        function retrieveAndShowOpenGamesPolling() {
             console.log("appState = " + appState.getCurrentState());
-            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !storage.isSetupValid())
+            if (!appState.isInOpenGamesDialog() || !storage.isSetupValid())
                 return;
 
             google.script.run
                 .withSuccessHandler(function(openGames) {
                     console.log("num openGames = " + openGames.length + " appState = " + appState.getCurrentState());
-                    if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting()) {
+                    if (!appState.isInOpenGamesDialog()) {
                         // intentionally do nothing. Waiting for players to join.
                     }
                     else if (openGames.length === 0) {
@@ -210,7 +216,7 @@ var erisk = (function(my) {
                             gameEnteredCallback // if seat selected
                         );
                         // keep calling recursively until the player selects a spot
-                        setTimeout(retrieveAndShowOpenGames, POLL_DELAY);
+                        setTimeout(retrieveAndShowOpenGamesPolling, POLL_DELAY);
                     }
                  })
                 .withFailureHandler(showError)
