@@ -33,7 +33,7 @@ var erisk = (function(my) {
             regenerateGameDataWithNewMap(gameEnteredCallback);
             erisk.createSetupUI();
 
-            // callback for the buttons on the bottom: new map, or done configuring
+            // callback for the buttons on the bottom
             uiCallbacks.setBuildCB(function(whichButton) {
                 if (!storage.isSetupValid()) return;
 
@@ -137,8 +137,7 @@ var erisk = (function(my) {
                     if (newGameData) { // we only get newGameData if players are different
                         gameData.initializeFrom(newGameData);
 
-                        // Can these 2 lines be removed? Not sure
-                        // Noticed some strange behavior in 3 player game if they are commented.
+                        // These lines needed to update regions
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
@@ -197,7 +196,10 @@ var erisk = (function(my) {
             google.script.run
                 .withSuccessHandler(function(openGames) {
                     console.log("num openGames = " + openGames.length + " appState = " + appState.getCurrentState());
-                    if (openGames.length === 0) {
+                    if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting()) {
+                        // intentionally do nothing. Waiting for players to join.
+                    }
+                    else if (openGames.length === 0) {
                         showNewGameSetup();
                     }
                     else {

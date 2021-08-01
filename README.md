@@ -39,10 +39,6 @@ Thanks to Jakub Wasilewski for the initial compact Javascript implementation of 
 
 #### TODO:
 
-* Clicking open slot should enter the game and wait for additional players. If last player to join, then game should automatically start.
-* you should be able to leave a game once seated. If last to leave, then delete game
 * If you join and don't like spot, you should be able to change your slot.
-* add 2 second polling in open games dialog.
-* ad "leave" button if not all players joined yet. It should take you back to the open games dialog (or game config if not other open games).
 
 

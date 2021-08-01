@@ -70,7 +70,7 @@ var erisk = (function(my) {
                             erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                             erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
                             if (playerSeatedCallback) {
-                                console.log(`player seated cb - new staatus = ${gameDataObj.status}`);
+                                console.log(`player seated cb - new status = ${gameDataObj.status}`);
                                 playerSeatedCallback(gameDataObj.status);
                             }
                         })
