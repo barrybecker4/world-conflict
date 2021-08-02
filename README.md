@@ -35,10 +35,5 @@ Do git commit, push, and create pull requests through Github when you have a fea
 #### Thanks
 
 Thanks to Jakub Wasilewski for the initial compact Javascript implementation of the game.
-
-
-#### TODO:
-
-* If you join and don't like spot, you should be able to change your slot.
-
+ 
 
