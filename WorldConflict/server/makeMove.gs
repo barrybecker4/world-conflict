@@ -268,7 +268,7 @@ var erisk = (function(my) {
             const totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
                 return state.isOwnedBy(region, player) ? state.soldierCount(region) : 0;
             });
-            if (!totalSoldiers && !gameData.eliminatedPlayers[player.index]) { //state.regionCount(player)) {
+            if (!totalSoldiers && !gameData.eliminatedPlayers[player.index]) {
                 console.log("Player " + player.getName() + " lost!   isOnServer = " + isOnServer(state));
 
                 utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
