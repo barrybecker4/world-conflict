@@ -4,6 +4,8 @@ var erisk = (function(my) {
     const SERVER_REQUEST_DELAY = 2000;
     let localHumanMoves = [];
     let firstTime = true;
+    let timeSinceMovesFromServer = 0;
+    let requestStartTime;
 
     /** Deals with responding to user actions - whether human or AI. */
     my.playOneMove = function(state, afterUndo, configuringPlayer) {
@@ -52,7 +54,7 @@ var erisk = (function(my) {
         });
     }
 
-    // Add this player's moves (if any) then AIs, then poll for all other players until our turn again
+    // Add this player's moves (if any) then AIs, then poll for all other players until our turn again.
     function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
         appState.setWaitingForPlayersToMove();
         google.script.run
@@ -62,14 +64,20 @@ var erisk = (function(my) {
         setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
     }
 
-    /** Get all the moves since state and replay them on this client until it is our move again */
+    /**
+     * Get all the moves since the specified state and replay them on this client until it is our move again.
+     * If a player has left the game (say by closing the browser, not by time expiry) then they should be eliminated.
+     * This is preferable to waiting forever for them to move.
+     */
     function replayMovesFromServer(state) {
         if (!state.endResult) {
+            requestStartTime = new Date();
             appState.setWaitingForPlayersToMove(); // don't allow clicking when moves being replayed
 
             if (CONSTS.DEBUG) {
                 console.log("Requesting replay moves from server starting at state.id = " + state.id);
             }
+
             google.script.run
                 .withSuccessHandler(getPlaybackHandler(state))
                 .withFailureHandler(showError)
@@ -78,7 +86,24 @@ var erisk = (function(my) {
     }
 
     function getPlaybackHandler(startState) {
+
+        /* @param moves - the moves that have been played since we last checked */
         return async function(moves) {
+
+            if (!moves.length) {
+                const elapsedTimeSinceRequest = new Date() - requestStartTime;
+                timeSinceMovesFromServer += elapsedTimeSinceRequest;
+                console.log("Waiting for moves from server for " + (timeSinceMovesFromServer / 1000) + "s. ");
+                if (timeSinceMovesFromServer > gameData.humanTimeLimit * 1000) {
+                    const nextPlayer = startState.getNextPlayer();
+                    console.log("Time limit expired for " + nextPlayer.getTextName() + ". They will now be eliminated.");
+                    // eliminate next human player because they took too long to play
+                    moves.push(new ResignationMove());
+                    timeSinceMovesFromServer = 0;
+                }
+            } else {
+                timeSinceMovesFromServer = 0;
+            }
 
             // console.log("moves to replay: " + JSON.stringify(moves.map(m => ({ stateId: m.stateId, type: m.type }))));
             const finalState = await replayMove(0, startState);

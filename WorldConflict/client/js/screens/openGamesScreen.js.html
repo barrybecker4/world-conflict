@@ -41,16 +41,16 @@ var erisk = (function(my) {
 
             if (isButton) {
                 const openContent = '<span style="color: ' + player.colorStart + ';"><i>' + name + '</i></span>';
-                return domUtils.elem('a', {i: pid, c: 'open player-name', href: '#', s: 'font-size: 90%'}, openContent);
+                return domUtils.elem('a', {i: pid, c: 'open player-slot', href: '#', s: 'font-size: 90%'}, openContent);
             }
             else {
                 const nameContent = '<span style="color: ' + player.colorStart + ';">' + name + '</span>';
-                return div({ id: pid, c: 'player-name', tt: 'some text' }, nameContent);
+                return div({ id: pid, c: 'player-slot', tt: 'some text' }, nameContent);
             }
         });
 
         const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
-        playerHtmls.push(div({ c: 'player-name info', style: 'background: ' + "0x000" }, gameMeta));
+        playerHtmls.push(div({ c: 'player-slot info', style: 'background: ' + "0x000" }, gameMeta));
 
         return div({ id: gid, c: 'side-control player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));
     }

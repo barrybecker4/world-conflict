@@ -105,8 +105,7 @@ class GameState {
     }
 
     advanceToNextPlayer() {
-        const playerCount = gameData.players.length;
-        const playerIndex = (this.playerIndex + 1) % playerCount;
+        const playerIndex = this.getNextPlayerIndex();
         const upcomingPlayer = gameData.players[playerIndex];
         const turnNumber = this.turnIndex + (playerIndex ? 0 : 1);
         const numMoves = CONSTS.BASE_MOVES_PER_TURN + this.upgradeLevel(upcomingPlayer, CONSTS.UPGRADES.AIR);
@@ -116,6 +115,15 @@ class GameState {
         this.conqueredRegions = undefined;
         this.numBoughtSoldiers = undefined;
         return upcomingPlayer;
+    }
+
+    getNextPlayer() {
+        return gameData.players[this.getNextPlayerIndex()];
+    }
+
+    getNextPlayerIndex() {
+        const playerCount = gameData.players.length;
+        return (this.playerIndex + 1) % playerCount;
     }
 
     soldierCount(region) {
@@ -275,7 +283,7 @@ class GameState {
 }
 
 
-// Represents a player move in a game.
+// Represents a player's move in a game.
 // A player is allowed some number of moves per turn.
 class Move {
 
@@ -298,6 +306,8 @@ class Move {
                 return new BuildMove(obj);
             case 'end-move':
                 return new EndMove(obj);
+            case 'resignation-move':
+                return new ResignationMove(obj);
             default: alert("Unexpected move type: " + obj.type);
         }
     }
@@ -309,6 +319,9 @@ class Move {
         return false;
     }
     isEndMove() {
+        return false;
+    }
+    isResignationMove() {
         return false;
     }
 }
@@ -497,6 +510,17 @@ class EndMove extends Move {
         this.type = 'end-move';
     }
     isEndMove() {
+        return true;
+    }
+}
+
+class ResignationMove extends Move {
+
+    constructor(obj) {
+        super();
+        this.type = 'resignation-move';
+    }
+    isResignationMove() {
         return true;
     }
 }
