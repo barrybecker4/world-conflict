@@ -4,8 +4,7 @@ var erisk = (function(my) {
     const SERVER_REQUEST_DELAY = 2000;
     let localHumanMoves = [];
     let firstTime = true;
-    let timeSinceMovesFromServer = 0;
-    let requestStartTime;
+    let requestStartTime = null;
 
     /** Deals with responding to user actions - whether human or AI. */
     my.playOneMove = function(state, afterUndo, configuringPlayer) {
@@ -71,7 +70,9 @@ var erisk = (function(my) {
      */
     function replayMovesFromServer(state) {
         if (!state.endResult) {
-            requestStartTime = new Date();
+            if (requestStartTime == null) {
+                requestStartTime = new Date();
+            }
             appState.setWaitingForPlayersToMove(); // don't allow clicking when moves being replayed
 
             if (CONSTS.DEBUG) {
@@ -90,19 +91,28 @@ var erisk = (function(my) {
         /* @param moves - the moves that have been played since we last checked */
         return async function(moves) {
 
-            if (!moves.length) {
-                const elapsedTimeSinceRequest = new Date() - requestStartTime;
-                timeSinceMovesFromServer += elapsedTimeSinceRequest;
-                console.log("Waiting for moves from server for " + (timeSinceMovesFromServer / 1000) + "s. ");
-                if (timeSinceMovesFromServer > gameData.humanTimeLimit * 1000) {
-                    const nextPlayer = startState.getNextPlayer();
-                    console.log("Time limit expired for " + nextPlayer.getTextName() + ". They will now be eliminated.");
-                    // eliminate next human player because they took too long to play
-                    moves.push(new ResignationMove());
-                    timeSinceMovesFromServer = 0;
+            const nextPlayer = startState.getNextPlayer();
+            const nextHumanPlayer = startState.getNextActiveHumanPlayer(nextPlayer);
+
+            // We don't want every player to submit to the server because that would result in race conditions.
+            // Instead, only submit to server for AI players to play if this will be the next human player.
+            if (!moves.length && domUtils.userid() == nextHumanPlayer.name) {
+                console.log("currentUser = " + domUtils.userid() + "  next human player = " + nextHumanPlayer);
+                const elapsedTimeSinceRequest = new Date() - requestStartTime + SERVER_REQUEST_DELAY;
+                console.log("Waiting for moves from server for " + (elapsedTimeSinceRequest / 1000) + "s. ");
+                if (elapsedTimeSinceRequest > gameData.humanTimeLimit * 1000) {
+                    console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
+                    // eliminate next human player because they are no longer around
+                    const resignationMove = new ResignationMove();
+                    startState = erisk.makeMove(startState, resignationMove);
+                    resignationMove.stateId = startState.id;
+                    resignationMove.gameId = startState.gameId;
+                    localHumanMoves = [resignationMove];
+                    persistLocalMovesIfAnyAndPlayAi(startState, false);
+                    requestStartTime = null;
                 }
             } else {
-                timeSinceMovesFromServer = 0;
+                requestStartTime = null
             }
 
             // console.log("moves to replay: " + JSON.stringify(moves.map(m => ({ stateId: m.stateId, type: m.type }))));

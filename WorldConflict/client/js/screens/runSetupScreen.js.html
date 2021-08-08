@@ -247,10 +247,12 @@ var erisk = (function(my) {
         function convertOpenSlotsToAiPlayers(callback) {
             for (let i = 0; i < gameData.players.length; i++) {
                 const player = gameData.players[i];
+                console.log("player.type = " + player.type + " player.name = " + player.name);
                 if (player.type === CONSTS.PLAYER_HUMAN_OPEN && !player.name) {
                     storage.gameSetup.playerTypes[player.originalIndex] = CONSTS.PLAYER_AI;
                 }
             }
+            appState.setInSetup();
             regenerateGameDataWithoutNewMap(callback);
         }
 

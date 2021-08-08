@@ -121,6 +121,24 @@ class GameState {
         return gameData.players[this.getNextPlayerIndex()];
     }
 
+    /** @return the next non-eliminated human player after the specified player.
+     *      Its possible that there could be none, if there is only one human playing.
+     */
+    getNextActiveHumanPlayer(player) {
+        const playerCount = gameData.players.length;
+        let idx = (player.index + 1) % playerCount;
+        let nextPlayer = gameData.players[idx];
+        while (nextPlayer.personality && !gameData.eliminatedPlayers[nextPlayer.index]) {
+            idx = (idx + 1) % playerCount;
+            nextPlayer = gameData.players[idx];
+            if (idx === player.index) {
+                console.log("No other human player found after " + player.name);
+                return null;
+            }
+        }
+        return nextPlayer;
+    }
+
     getNextPlayerIndex() {
         const playerCount = gameData.players.length;
         return (this.playerIndex + 1) % playerCount;
