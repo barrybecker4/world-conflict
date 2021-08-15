@@ -298,7 +298,7 @@ var erisk = (function(my) {
 
     // show the world the good (or bad) news
     function notifyOfPlayerElimination(player, state) {
-        if (!isOnServer(state)) {
+        if (!isOnServer(state) && !gameData.eliminatedPlayers[player.index]) {
             gameData.eliminatedPlayers[player.index] = true; // lost!
             erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
             erisk.gameRenderer.showBanner('#222', player.getName() + " has been eliminated!", 1000);
