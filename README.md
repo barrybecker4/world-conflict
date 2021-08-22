@@ -5,7 +5,7 @@ A multi-player, online, Risk-like strategy game.
 
 The original version was created for [JS13k 2014](http://js13kgames.com/) by Jakub Wasilewski. This project modifies that code in order to support multi-player online games using [Google Apps Script](https://developers.google.com/apps-script) (GAS). GAS is essentially Javascript which runs on a server.
 
-**Play the [Google Apps Script version](https://script.google.com/macros/s/AKfycbxM8hi7pTwGz5TwrYummeqWnpnKAa6SWEDCfIBAPK8TBjImVS8/exec)**
+**Play the [Google Apps Script version](https://script.google.com/macros/s/AKfycbwVE_rgBHGJYGRk9DWIczLbKCTodxYbKCQ821F5qf44XoVXln7XbmhISvmAtnq5bKWz/exec)**
 
 **Play the [original version](http://wasyl.eu/games/compact-conflict/play.html)**
 
