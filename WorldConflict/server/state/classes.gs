@@ -121,25 +121,32 @@ class GameState {
         return gameData.players[this.getNextPlayerIndex()];
     }
 
-    /** @return the next non-eliminated human player after the specified player.
-     *          It's possible that there could be none, if there is only one human playing.
+    /** @return an object containing
+     *  {nextHumanPlayer: <player>, numSkippedAIs: <number of ais> }
+     * Where nextHumanPlayer is the next non-eliminated human player after the specified player,
+     * and numSkippedAIs is the number of AIs after the specified player, but before nextHumanPlayer (0, 1, or 2).
+     *  It's possible that there could be no next human player, if there is only one human playing.
      */
     getHumanPlayerAfter(player) {
+        const result = { nextHumanPlayer: null, numSkippedAIs: 0 };
         const playerCount = gameData.players.length;
         let idx = (player.index + 1) % playerCount;
-        let nextPlayer = gameData.players[idx];
-        while (nextPlayer.personality || gameData.eliminatedPlayers[nextPlayer.index]) {
+        result.nextPlayer = gameData.players[idx];
+        while (result.nextPlayer.personality || gameData.eliminatedPlayers[idx]) {
+            if (result.nextPlayer.personality) {
+                result.numSkippedAIs += 1;
+            }
             idx = (idx + 1) % playerCount;
-            nextPlayer = gameData.players[idx];
+            result.nextPlayer = gameData.players[idx];
             if (idx === player.index) {
                 console.log("No other human player found after " + player.name);
                 return null;
             }
         }
-        if (nextPlayer.name == player.name) {
+        if (result.nextPlayer.name === player.name) {
              throw new Error("Player and human player after that were unexpectedly both " + player.name);
         }
-        return nextPlayer;
+        return result;
     }
 
     getNextPlayerIndex() {

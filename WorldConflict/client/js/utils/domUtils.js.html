@@ -51,7 +51,9 @@ var domUtils = (function(my) {
         elem.addEventListener('touchstart', function(event) {
             event.preventDefault();
             return fn(event);
-        });
+        }, {
+           passive: true
+         });
     }
 
     // this will remove all event listeners on the specified element

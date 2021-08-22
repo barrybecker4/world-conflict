@@ -3,6 +3,7 @@ var erisk = (function(my) {
     const $ = domUtils.$;
     const SERVER_REQUEST_DELAY = 2000;
     const HUMAN_EXPIRATION_DELAY = 3 * SERVER_REQUEST_DELAY;
+    const AI_TURN_DELAY = 6000;
     let localHumanMoves = [];
     let firstTime = true;
     let requestStartTime = null;
@@ -141,19 +142,23 @@ var erisk = (function(my) {
      * If a player has closed browser or browser tab, then they should be eliminated.
      */
     function continueIfNextPlayerLeftGame(startState, moves) {
-        const nextPlayer = startState.activePlayer(); //getNextPlayer();
+        const nextPlayer = startState.activePlayer();
         if (!nextPlayer) {
             throw new Error("nextPlayer unexpectedly " + nextPlayer +".\n startState=\n" + JSON.stringify(startState));
         }
-        const nextNextHumanPlayer = startState.getHumanPlayerAfter(nextPlayer);
+        const result = startState.getHumanPlayerAfter(nextPlayer);
+        //const { nextNextHumanPlayer, numSkippedAIs } = startState.getHumanPlayerAfter(nextPlayer);
+        const nextNextHumanPlayer = result.nextNextHumanPlayer;
+        const numSkippedAIs = result.numSkippedAIs;
 
         // We don't want every player to submit to the server because that would result in race conditions.
         // Instead, only submit to server for AI players to play if this will be the next human player.
         if (!moves.length && nextNextHumanPlayer && domUtils.userid() == nextNextHumanPlayer.name) {
             const elapsedTimeSinceRequest = new Date() - requestStartTime;
-            console.log(`Waiting for ${nextPlayer.name} for ${elapsedTimeSinceRequest/1000}s.  next human player = ${nextNextHumanPlayer.name}`);
+            console.log(`Waiting for ${nextPlayer.name} for ${elapsedTimeSinceRequest/1000}s. Next human player = ${nextNextHumanPlayer.name}`);
             // If this is true, then we waited too long for some other human player
-            if (elapsedTimeSinceRequest > gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY) {
+            const timeout = gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY + numSkippedAIs * AI_TURN_DELAY;
+            if (elapsedTimeSinceRequest > timeout) {
                 requestStartTime = null;
                 console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
                 const resignationMove = new ResignationMove();
@@ -161,7 +166,7 @@ var erisk = (function(my) {
                 resignationMove.stateId = startState.id;
                 resignationMove.gameId = startState.gameId;
                 localHumanMoves = [resignationMove];
-                console.log("Persisting move where " + nextPlayer.name + " resigned. Current player is now " + startState.activePlayer().name);
+                console.log(`Persisting move where ${nextPlayer.name} resigned. Current player is now ${startState.activePlayer().name}`);
                 persistLocalMovesIfAnyAndPlayAi(startState, false);
             }
         } else {
