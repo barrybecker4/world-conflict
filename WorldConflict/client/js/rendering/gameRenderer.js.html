@@ -45,9 +45,16 @@ erisk.gameRenderer = (function() {
         const buildingMode = decisionState && decisionState.isBuildMove();
         const movingArmy = decisionState && decisionState.isArmyMove();
 
-        const activePlayer = gameState.activePlayer();
+        my.showTurnCountOrBuilding(gameState, buildingMode);
+        my.showPlayerInfo(gameState, movingArmy);
+        my.showMoveInfo(gameState, buildingMode)
+        my.showActivePlayerStats(gameState, buildingMode);
 
-        // turn counter/building name
+        my.updateButtons(decisionState && decisionState.buttons);
+        domUtils.showOrHide('undo-button', erisk.undoEnabled(gameState));
+    }
+
+    my.showTurnCountOrBuilding = function(gameState, buildingMode) {
         const turnCountEl = $('turn-count');
         if (buildingMode) {
             const info = gameState.templeInfo(gameState.templeForRegion(decisionState.regionIndex));
@@ -57,40 +64,6 @@ erisk.gameRenderer = (function() {
                 'Turn <b>' + gameState.turnIndex + '</b>' +
                 ((gameData.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + gameData.turnCount : '');
         }
-
-        my.showPlayerInfo(gameState);
-
-        let moveInfo;
-        if (activePlayer.personality) {
-            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
-        }
-        else {
-            if (buildingMode) {
-                if (gameState.owner(decisionState.regionIndex).index === activePlayer.index)
-                    moveInfo = elem('p', {}, 'Choose an upgrade to build.');
-                else
-                    moveInfo = '';
-            } else if (movingArmy) {
-                moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +
-                    elem('p', {}, 'Click on a target region to move the army.');
-
-            } else {
-                moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
-                    elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
-            }
-        }
-        const infoEl = $('info');
-        infoEl.innerHTML = moveInfo;
-        infoEl.style.background = activePlayer.colorEnd;
-
-        // activePlayer stats
-        domUtils.showOrHide('pd', !buildingMode);
-        $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
-        $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
-
-        my.updateButtons(decisionState && decisionState.buttons);
-
-        domUtils.showOrHide('undo-button', erisk.undoEnabled(gameState));
     }
 
     my.showPlayerInfo = function(gameState)  {
@@ -117,6 +90,39 @@ erisk.gameRenderer = (function() {
                 playerCashEl.innerHTML = '';
             }
         });
+    }
+
+    my.showMoveInfo = function(gameState, buildingMode, movingArmy) {
+        let moveInfo;
+        const activePlayer = gameState.activePlayer();
+        if (activePlayer.personality) {
+            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
+        }
+        else {
+            if (buildingMode) {
+                if (gameState.owner(decisionState.regionIndex).index === activePlayer.index)
+                    moveInfo = elem('p', {}, 'Choose an upgrade to build.');
+                else
+                    moveInfo = '';
+            } else if (movingArmy) {
+                moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +
+                    elem('p', {}, 'Click on a target region to move the army.');
+
+            } else {
+                moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
+                    elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
+            }
+        }
+        const infoEl = $('info');
+        infoEl.innerHTML = moveInfo;
+        infoEl.style.background = activePlayer.colorEnd;
+    }
+
+    my.showActivePlayerStats = function(gameState, buildingMode) {
+        const activePlayer = gameState.activePlayer();
+        domUtils.showOrHide('pd', !buildingMode);
+        $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
+        $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
     }
 
     my.updateButtons = function(buttons, infoText) {
