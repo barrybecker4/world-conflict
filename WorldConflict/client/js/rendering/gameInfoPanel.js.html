@@ -1,0 +1,100 @@
+<script>
+erisk.gameInfoPanel = (function() {
+
+    const my  = {};
+    const { elem, div, $,  append, onClickOrTap, setTransform } = domUtils;
+
+    const DEAD_SYMBOL = '&#9760;'; // skull and crossbones - shows when you're dead
+    const FAITH_SYMBOL = '&#9775;'; // faith is like money
+    const VICTORY_SYMBOL = '&#9819;'; // a crown
+    const REGION_SYMBOL = '&#9733;'; // a star represents a region
+
+
+    // Update the information on the left for the current active player
+    my.render = function(gameState) {
+        const decisionState = gameState.moveDecision;
+        const buildingMode = decisionState && decisionState.isBuildMove();
+        const movingArmy = decisionState && decisionState.isArmyMove();
+        const regionIndex = decisionState && decisionState.regionIndex;
+
+        showTurnCountOrBuilding(gameState, buildingMode, regionIndex);
+        showPlayerInfo(gameState);
+        showMoveInfo(gameState, buildingMode, movingArmy, regionIndex)
+        showActivePlayerStats(gameState, buildingMode);
+    }
+
+    function showTurnCountOrBuilding(gameState, buildingMode, regionIndex) {
+        const turnCountEl = $('turn-count');
+
+        if (buildingMode) {
+            const info = gameState.templeInfo(gameState.templeForRegion(regionIndex));
+            turnCountEl.innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
+        } else {
+            turnCountEl.innerHTML =
+                'Turn <b>' + gameState.turnIndex + '</b>' +
+                ((gameData.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + gameData.turnCount : '');
+        }
+    }
+
+    function showPlayerInfo(gameState)  {
+        gameData.players.map(function(player, index) {
+            $('player-box' + index).className =
+                (index === gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
+            const hasRegions = gameState.regionCount(player);
+            const gameWinner = gameState.endResult;
+            const regionCountEl = $('region-count' + index);
+            const playerCashEl = $('player-cash' + index);
+
+            if (!regionCountEl) return;
+
+            if (hasRegions) {
+                regionCountEl.innerHTML = gameState.regionCount(player) + REGION_SYMBOL;
+                if (gameWinner) {
+                    playerCashEl.innerHTML = (gameWinner === player) ? VICTORY_SYMBOL : '';
+                } else {
+                    playerCashEl.innerHTML = gameState.cash[player.index] + FAITH_SYMBOL;
+                }
+            }
+            else {
+                regionCountEl.innerHTML = DEAD_SYMBOL;
+                playerCashEl.innerHTML = '';
+            }
+        });
+    }
+
+    function showMoveInfo(gameState, buildingMode, movingArmy, regionIndex) {
+        let moveInfo;
+        const activePlayer = gameState.activePlayer();
+        if (activePlayer.personality) {
+            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
+        }
+        else {
+            if (buildingMode) {
+                if (gameState.owner(regionIndex).index === activePlayer.index)
+                    moveInfo = elem('p', {}, 'Choose an upgrade to build.');
+                else
+                    moveInfo = '';
+            } else if (movingArmy) {
+                moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +
+                    elem('p', {}, 'Click on a target region to move the army.');
+
+            } else {
+                moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
+                    elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
+            }
+        }
+        const infoEl = $('info');
+        infoEl.innerHTML = moveInfo;
+        infoEl.style.background = activePlayer.colorEnd;
+    }
+
+    function showActivePlayerStats(gameState, buildingMode) {
+        const activePlayer = gameState.activePlayer();
+        domUtils.showOrHide('pd', !buildingMode);
+        $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
+        $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
+    }
+
+    return my;
+}());
+</script>
