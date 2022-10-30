@@ -6,13 +6,13 @@ erisk.gameRenderer = (function() {
 
     const DEAD_SYMBOL = '&#9760;'; // skull and crossbones - shows when you're dead
     const FAITH_SYMBOL = '&#9775;'; // faith is like money
-    const VICTORY_SYMBOL = '&#9819;';
+    const VICTORY_SYMBOL = '&#9819;'; // a crown
     const REGION_SYMBOL = '&#9733;'; // a star represents a region
 
     const footerButtonsId = 'footer-buttons';
 
 
-    // Initial rendering of the game map (regions) as an SVG object. TODO: split out mapRenderer
+    // Initial rendering of the game map (regions) as an SVG object.
     my.showMap = function(container, gameState) {
         erisk.mapRenderer.showMap(container, gameState);
     }
@@ -58,30 +58,7 @@ erisk.gameRenderer = (function() {
                 ((gameData.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + gameData.turnCount : '');
         }
 
-        // player data
-        gameData.players.map(function(player, index) {
-            $('player-box' + index).className =
-                (index === gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
-            const hasRegions = gameState.regionCount(player);
-            const gameWinner = gameState.endResult;
-            const regionCountEl = $('region-count' + index);
-            const playerCashEl = $('player-cash' + index);
-
-            if (!regionCountEl) return;
-
-            if (hasRegions) {
-                regionCountEl.innerHTML = gameState.regionCount(player) + REGION_SYMBOL;
-                if (gameWinner) {
-                    playerCashEl.innerHTML = (gameWinner === player) ? VICTORY_SYMBOL : '';
-                } else {
-                    playerCashEl.innerHTML = gameState.cash[player.index] + FAITH_SYMBOL;
-                }
-            }
-            else {
-                regionCountEl.innerHTML = DEAD_SYMBOL;
-                playerCashEl.innerHTML = '';
-            }
-        });
+        my.showPlayerInfo(gameState);
 
         let moveInfo;
         if (activePlayer.personality) {
@@ -114,6 +91,32 @@ erisk.gameRenderer = (function() {
         my.updateButtons(decisionState && decisionState.buttons);
 
         domUtils.showOrHide('undo-button', erisk.undoEnabled(gameState));
+    }
+
+    my.showPlayerInfo = function(gameState)  {
+        gameData.players.map(function(player, index) {
+            $('player-box' + index).className =
+                (index === gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
+            const hasRegions = gameState.regionCount(player);
+            const gameWinner = gameState.endResult;
+            const regionCountEl = $('region-count' + index);
+            const playerCashEl = $('player-cash' + index);
+
+            if (!regionCountEl) return;
+
+            if (hasRegions) {
+                regionCountEl.innerHTML = gameState.regionCount(player) + REGION_SYMBOL;
+                if (gameWinner) {
+                    playerCashEl.innerHTML = (gameWinner === player) ? VICTORY_SYMBOL : '';
+                } else {
+                    playerCashEl.innerHTML = gameState.cash[player.index] + FAITH_SYMBOL;
+                }
+            }
+            else {
+                regionCountEl.innerHTML = DEAD_SYMBOL;
+                playerCashEl.innerHTML = '';
+            }
+        });
     }
 
     my.updateButtons = function(buttons, infoText) {
@@ -181,7 +184,7 @@ erisk.gameRenderer = (function() {
 
         function transform(offset) {
             return "translate3d(10px, " + 20 * offset + "px, 0)";
-             // rotateY(" + (8 + offset * 2) + "deg)"; // this doesn't work on Safarr
+             // rotateY(" + (8 + offset * 2) + "deg)"; // this doesn't work on Safari
         }
     }
 
