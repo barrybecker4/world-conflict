@@ -1,11 +1,18 @@
 {
   "timeZone": "America/Los_Angeles",
   "dependencies": {
-    "libraries": [{
-      "userSymbol": "FirestoreApp",
-      "libraryId": "1VUSl4b1r1eoNcRWotZM3e87ygkxvXltOgyDZhixqncz9lQ3MjfT1iKFw",
-      "version": "33"
-    }]
+    "libraries": [
+      {
+        "userSymbol": "FirestoreApp",
+        "libraryId": "1VUSl4b1r1eoNcRWotZM3e87ygkxvXltOgyDZhixqncz9lQ3MjfT1iKFw",
+        "version": "33"
+      },
+      {
+        "userSymbol": "QUnitGS2",
+        "version": "23",
+        "libraryId": "1tXPhZmIyYiA_EMpTRJw0QpVGT5Pdb02PpOHCi9A9FFidblOc9CY_VLgG"
+      }
+    ]
   },
   "webapp": {
     "access": "ANYONE",

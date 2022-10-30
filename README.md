@@ -31,6 +31,9 @@ Now you are good to go! Deploy the web-app from your script on Google Drive.
 Make changes locally (in IntelliJ for example), do `./push.sh` (as described above), and refresh the deployed app script page to see the change. 
 Do git commit, push, and create pull requests through Github when you have a feature or fix to contribute. If you do not actively use the project for a while, you may need to do the clasp login again.
  
+#### Test
+
+In order to run the unit tests, append `?test=true` to the URL.
 
 #### Thanks
 

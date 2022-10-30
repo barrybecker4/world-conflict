@@ -7,12 +7,45 @@
  * @returns {String/html} Html to be served
  */
 function doGet(e) {
+  if (e.parameter.test) {
+     return getUnitTestHtml();
+  }
 
   const pageName = e.parameter.page ? e.parameter['page'] : 'client/html/LandingPage';
 
   // Build and return HTML in IFRAME sandbox mode.
   return HtmlService.createTemplateFromFile(pageName).evaluate()
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+}
+
+function getUnitTestHtml() {
+    QUnitGS2.init();
+    const QUnit = QUnitGS2.QUnit;
+
+    /**
+     * Add your test functions here.
+     */
+    QUnit.test("simple numbers", function( assert ) {
+        assert.equal(divideThenRound(10, 2), 5, "whole numbers");
+        assert.equal(divideThenRound(10, 4), 2.5, "decimal numbers");
+    });
+
+    QUnit.test("simple numbers2", function( assert ) {
+        assert.equal(divideThenRound(15, 5), 3, "whole numbers2");
+        assert.equal(divideThenRound(100, 4), 25, "decimal numbers2");
+    });
+
+    QUnit.start();
+    return QUnitGS2.getHtml();
+}
+
+// Retrieve test results when ready.
+function getResultsFromServer() {
+   return QUnitGS2.getResultsFromServer();
+}
+
+function divideThenRound(numerator, denominator) {
+  return numerator / denominator;
 }
 
 /**
