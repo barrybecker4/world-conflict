@@ -2,6 +2,7 @@
  * Entry point of this GAS web application. Called by the framework.
  * Serves HTML of the application for HTTP GET requests.
  * Get "LandingPage", or a requested page using 'page' parameter in query string.
+ * If you access the URL with "test" (e.g. "/dev?test=true" on the end of the URL) then QUnit tests will be run.
  *
  * @param {Object} e event parameter that can contain information about any URL parameters provided.
  * @returns {String/html} Html to be served

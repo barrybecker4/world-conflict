@@ -3,31 +3,70 @@ function getResultsFromServer() {
    return QUnitGS2.getResultsFromServer();
 }
 
+/**
+ * Add all Unit tests here.
+ * - Move to subdir
+ * - Separate out into separate files
+ */
 var unitTests = (function (my) {
 
-    function divideThenRound(numerator, denominator) {
-      return numerator / denominator;
-    }
-
     my.getUnitTestHtml = function() {
-         QUnitGS2.init();
-         const QUnit = QUnitGS2.QUnit;
+    QUnitGS2.init();
+        const QUnit = QUnitGS2.QUnit;
 
-         /**
-          * Add your test functions here.
-          */
-         QUnit.test("simple numbers", function( assert ) {
-             assert.equal(divideThenRound(10, 2), 5, "whole numbers");
-             assert.equal(divideThenRound(10, 4), 2.5, "decimal numbers");
-         });
+        QUnit.test("Verify valid user email", function( assert ) {
+            assert.equal(getUserEmail().endsWith("@gmail.com"), true, "The users email must end with @gmail.com");
+        });
 
-         QUnit.test("simple numbers2", function( assert ) {
-             assert.equal(divideThenRound(15, 5), 3, "whole numbers2");
-             assert.equal(divideThenRound(100, 4), 25, "decimal numbers2");
-         });
+        QUnit.test("Verify valid user id", function( assert ) {
+            const userId = getUserId();
+            assert.equal(userId.length > 1, true, "The users id must have non 0 length.");
+            assert.equal(getUserEmail().startsWith(userId), true, "The users id should be the first part of their email");
+        });
 
-         QUnit.start();
-         return QUnitGS2.getHtml();
+        QUnit.test("Verify CONSTS", function( assert ) {
+            CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+            assert.equal(CONSTS != null, true, "There should be CONSTS.");
+            assert.equal(CONSTS.PLAYERS.length > 0, true, "There should be players.");
+            assert.equal(CONSTS.AI_PERSONALITIES.length > 0, true, "There should be ai personalities.");
+        });
+
+        /* storage is not accessible on the server
+        QUnit.test("Verify storage.getDefaultSetup()", function( assert ) {
+            //storage.gameSetup.playerTypes[this.originalIndex];
+            assert.equal(storage != null, true, "Should be player types.");
+            //assert.equal(storage.gameSetup != null, true, "Should be player types.");
+            //assert.equal(setup.playerTypes != null, true, "Should be player types.");
+            //const setup = storage.getDefaultSetup();
+            //assert.equal(true, true, "foo");
+            //assert.equal(setup.playerTypes.length, 4, "Should be 4 players.");
+        });
+        */
+
+        QUnit.test("Verify makeNewGameData when no clientGameData specified", function( assert ) {
+            CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+            const setup = {
+                playerTypes: [CONSTS.PLAYER_HUMAN_SET, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_AI],
+                aiLevel: CONSTS.AI_NICE,
+                sound: true,
+                turnCount: CONSTS.STANDARD_TURN_COUNT,
+                firstTimeInstructions: {},
+                mapWidth: 400, //geomUtils.MAP_WIDTH,
+                mapHeight: 300, //geomUtils.MAP_HEIGHT,
+                humanTimeLimit: CONSTS.STANDARD_HUMAN_TIME_LIMIT,
+            };
+            assert.equal(setup != null, true, "Have setup data.");
+            const clientGameData = null;
+
+            assert.equal(erisk != null, true, "Have erisk.");
+            assert.equal(erisk.makeNewGameData != null, true, "Have makeNewGameData.");
+            // can't call this because it accesses firestore
+            //const gameData = erisk.makeNewGameData(setup, clientGameData);
+            //assert.equal(gameData != null, true, "Unexpected game data.");
+        });
+
+        QUnit.start();
+        return QUnitGS2.getHtml();
     }
 
     return my;
