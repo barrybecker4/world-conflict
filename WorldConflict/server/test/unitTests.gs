@@ -5,7 +5,6 @@ function getResultsFromServer() {
 
 /**
  * Add all Unit tests here.
- * - Move to subdir
  * - Separate out into separate files
  */
 var unitTests = (function (my) {
@@ -31,17 +30,7 @@ var unitTests = (function (my) {
             assert.equal(CONSTS.AI_PERSONALITIES.length > 0, true, "There should be ai personalities.");
         });
 
-        /* storage is not accessible on the server
-        QUnit.test("Verify storage.getDefaultSetup()", function( assert ) {
-            //storage.gameSetup.playerTypes[this.originalIndex];
-            assert.equal(storage != null, true, "Should be player types.");
-            //assert.equal(storage.gameSetup != null, true, "Should be player types.");
-            //assert.equal(setup.playerTypes != null, true, "Should be player types.");
-            //const setup = storage.getDefaultSetup();
-            //assert.equal(true, true, "foo");
-            //assert.equal(setup.playerTypes.length, 4, "Should be 4 players.");
-        });
-        */
+        /* storage and db actions are not accessible on the server */
 
         QUnit.test("Verify makeNewGameData when no clientGameData specified", function( assert ) {
             CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
