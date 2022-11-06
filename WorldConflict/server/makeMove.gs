@@ -55,41 +55,50 @@ var erisk = (function(my) {
 
     // Show the fight using the attackSequence that was generated on the server.
     function showFight(state, fromRegion, toRegion, fromList, toList, incomingSoldiers, attackSequence) {
-        const toOwner = state.owner(toRegion);
-
         state.undoDisabled = true; // fights cannot be undone
         showSoldiersMovedHalfway(state, incomingSoldiers, fromList, toRegion);
 
         attackSequence.forEach(function(frame) {
-            if (frame.attackerCasualties) {
-                utils.range(0, frame.attackerCasualties).map(function () {
-                    fromList.shift();
-                    incomingSoldiers--;
-                });
-            }
-            else if (frame.defenderCasualties) {
-                utils.range(0, frame.defenderCasualties).map(function () {
-                    toList.shift();
-                });
-                if (toOwner && frame.martyrBonus) {
-                    state.cash[toOwner.index] += frame.martyrBonus;
-                }
-            }
-            battleAnimationKeyframe(state, frame.delay, frame.soundCue, frame.floatingText);
+            incomingSoldiers = showStepInAttackSequence(frame, state, incomingSoldiers, fromList, toList, toRegion);
         });
 
         // are there defenders left?
         if (toList.length) {
             incomingSoldiers = 0; // prevent anybody from moving in
-            state.soundCue = CONSTS.SOUNDS.DEFEAT;
-            const color = toOwner ? toOwner.highlightStart : '#fff';
-            state.floatingText = [
-                {regionIdx: toRegion, color, text: "Defended!", width: 7}
-            ];
+            showDefended(state, toRegion);
         }
 
         resetAttackStatus(fromList);
         return incomingSoldiers;
+    }
+
+    function showStepInAttackSequence(frame, state, incomingSoldiers, fromList, toList, toRegion) {
+        if (frame.attackerCasualties) {
+            utils.range(0, frame.attackerCasualties).map(function () {
+                fromList.shift();
+                incomingSoldiers--;
+            });
+        }
+        else if (frame.defenderCasualties) {
+            const toOwner = state.owner(toRegion);
+            utils.range(0, frame.defenderCasualties).map(function () {
+                toList.shift();
+            });
+            if (toOwner && frame.martyrBonus) {
+                state.cash[toOwner.index] += frame.martyrBonus;
+            }
+        }
+        battleAnimationKeyframe(state, frame.delay, frame.soundCue, frame.floatingText);
+        return incomingSoldiers
+    }
+
+    function showDefended(state, toRegion) {
+        const toOwner = state.owner(toRegion);
+        state.soundCue = CONSTS.SOUNDS.DEFEAT;
+        const color = toOwner ? toOwner.highlightStart : '#fff';
+        state.floatingText = [
+            {regionIdx: toRegion, color, text: "Defended!", width: 7}
+        ];
     }
 
     // move the soldiers halfway for animation
