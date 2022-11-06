@@ -54,8 +54,8 @@ var unitTests = (function (my) {
             //assert.equal(gameData != null, true, "Unexpected game data.");
         });
 
-        // test utils
         utilsTests.runTests(QUnit);
+        sequenceUtilsTests.runTests(QUnit);
 
         QUnit.start();
         return QUnitGS2.getHtml();

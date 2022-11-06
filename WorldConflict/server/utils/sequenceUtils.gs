@@ -4,7 +4,8 @@ var sequenceUtils = (function (my) {
     // If no key is given, the elements themselves are compared.
     my.min = function(seq, keyFn) {
         keyFn = keyFn || utils.identity;
-        var smallestValue = keyFn(seq[0]), smallestElement;
+        let smallestValue = keyFn(seq[0]);
+        let smallestElement;
         seq.map(e => {
             if (keyFn(e) <= smallestValue) {
                 smallestElement = e;

@@ -74,16 +74,14 @@ var erisk = (function(my) {
 
     function showStepInAttackSequence(frame, state, incomingSoldiers, fromList, toList, toRegion) {
         if (frame.attackerCasualties) {
-            utils.range(0, frame.attackerCasualties).map(function () {
+            utils.range(0, frame.attackerCasualties).map(() => {
                 fromList.shift();
                 incomingSoldiers--;
             });
         }
         else if (frame.defenderCasualties) {
             const toOwner = state.owner(toRegion);
-            utils.range(0, frame.defenderCasualties).map(function () {
-                toList.shift();
-            });
+            utils.range(0, frame.defenderCasualties).map(() => toList.shift());
             if (toOwner && frame.martyrBonus) {
                 state.cash[toOwner.index] += frame.martyrBonus;
             }
@@ -97,7 +95,7 @@ var erisk = (function(my) {
         state.soundCue = CONSTS.SOUNDS.DEFEAT;
         const color = toOwner ? toOwner.highlightStart : '#fff';
         state.floatingText = [
-            {regionIdx: toRegion, color, text: "Defended!", width: 7}
+            { regionIdx: toRegion, color, text: "Defended!", width: 7 }
         ];
     }
 
@@ -235,7 +233,7 @@ var erisk = (function(my) {
 
     // temples produce one soldier per turn automatically
     function generateSoldersAtTemples(state, player) {
-        utils.forEachProperty(state.temples, function(temple) {
+        utils.forEachProperty(state.temples, (temple) => {
             if (state.isOwnedBy(temple.regionIndex, player)) {
                 // this is our temple, add a soldier to the temple's element
                 state.addSoldiers(temple.regionIndex, 1);
@@ -282,7 +280,7 @@ var erisk = (function(my) {
     // update region ownership and notify if any players are eliminated
     function updatePlayerRegions(state) {
         console.log("update regions after move by " + state.activePlayer().getName());
-        gameData.players.map(function(player) {
+        gameData.players.map((player) => {
             const totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
                 return state.isOwnedBy(region, player) ? state.soldierCount(region) : 0;
             });
@@ -294,7 +292,7 @@ var erisk = (function(my) {
     }
 
     function updateEliminatedPlayer(player, state) {
-        utils.forEachProperty(state.owners, function(ownerIdx, regionIdx) {
+        utils.forEachProperty(state.owners, (ownerIdx, regionIdx) => {
             if (player.index === gameData.players[ownerIdx].index)
                 delete state.owners[regionIdx];
         });
