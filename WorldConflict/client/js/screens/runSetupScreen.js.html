@@ -44,13 +44,16 @@ var erisk = (function(my) {
                         break;
                     case 1: // done configuring
                         configuringPlayer = domUtils.userid();
-                        persistGameData(() => {
-                            if (areOpenSlots()) {
-                                doneConfiguring();
-                            } else {
-                                startGame();
-                            }
-                        });
+                        // gameData.regions will be there after the map has been drawn
+                        if (gameData.regions) {
+                            persistGameData(() => {
+                                if (areOpenSlots()) {
+                                    doneConfiguring();
+                                } else {
+                                    startGame();
+                                }
+                            });
+                        }
                         break;
                     default: throw new Error("Invalid button: " + whichButton);
                 }
