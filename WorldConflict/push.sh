@@ -8,7 +8,7 @@ mkdir -p client/js/state/classes
 { echo "<script>"; cat server/state/gameData.gs; echo "</script>"; } > client/js/state/gameData.js.html
 { echo "<script>"; cat server/state/CONSTS.gs; echo "</script>"; } > client/js/state/CONSTS.js.html
 
-declare -a CLASSES=("AiPersonality" "GameState" "Move" "Player" "Region" "Temple" "Upgrade")
+declare -a CLASSES=("AiPersonality" "GameState" "Move" "AttackSequenceGenerator" "Player" "Region" "Temple" "Upgrade")
 for clazz in "${CLASSES[@]}"
 do
   { echo "<script>"; cat server/state/classes/$clazz.gs; echo "</script>"; } > client/js/state/classes/$clazz.js.html
