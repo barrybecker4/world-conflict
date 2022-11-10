@@ -37,14 +37,14 @@ class AttackSequenceGenerator {
         if (preemptiveDamage || defendingSoldiers) {
             attackSequence = [];
             if (preemptiveDamage) {
-                this.recordPreemptiveDamage(preemptiveDamage, attackSequence);
+                recordPreemptiveDamage(preemptiveDamage, attackSequence);
             }
         }
 
         // if there is still defense and offense, let's record a fight
         if (defendingSoldiers && this.incomingSoldiers) {
 
-            this.recordFight(defendingSoldiers, attackSequence);
+            recordFight(defendingSoldiers, attackSequence);
 
             // are there defenders left?
             if (this.toList.length) {
@@ -57,7 +57,7 @@ class AttackSequenceGenerator {
         return attackSequence;
     }
 
-    recordPreemptiveDamage(preemptiveDamage, attackSequence) {
+    function recordPreemptiveDamage(preemptiveDamage, attackSequence) {
         attackSequence.push({
             soundCue: CONSTS.SOUNDS.OURS_DEAD,
             delay: 50,
@@ -77,7 +77,7 @@ class AttackSequenceGenerator {
         });
     }
 
-    recordFight(defendingSoldiers, attackSequence) {
+    function recordFight(defendingSoldiers, attackSequence) {
         const incomingStrength = this.incomingSoldiers * (1 + this.state.upgradeLevel(this.fromOwner, CONSTS.UPGRADES.FIRE) * 0.01);
         const defendingStrength = defendingSoldiers * (1 + this.state.upgradeLevel(this.toOwner, CONSTS.UPGRADES.EARTH) * 0.01);
 
@@ -89,7 +89,7 @@ class AttackSequenceGenerator {
         let invincibility = this.state.upgradeLevel(this.fromOwner, CONSTS.UPGRADES.FIRE);
 
         utils.range(0, repeats).map(index => {
-            const rndNum = this.randomNumberForFight(index, attackerWinChance, repeats);
+            const rndNum = randomNumberForFight(index, attackerWinChance, repeats);
             if (rndNum <= WIN_THRESHOLD) {
                 // defender wins!
                 if (invincibility-- <= 0) {
@@ -126,7 +126,7 @@ class AttackSequenceGenerator {
     }
 
     // A high random number means the attacker is more likely to win the skirmish
-    randomNumberForFight(index, attackerWinChance, repeats) {
+    function randomNumberForFight(index, attackerWinChance, repeats) {
         var maximum = WIN_THRESHOLD + attackerWinChance;
         if (this.state.simulatingPlayer) {
             // Simulated fight - return some numbers that exaggerates any advantage.
