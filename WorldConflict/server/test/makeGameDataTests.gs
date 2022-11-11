@@ -10,8 +10,7 @@ var makeGameDataTests = (function (my) {
                 new Player({ index: 1, name: "Player2"}),
             ];
             // Inject a generator that will yield a fixed sequence of random numbers.
-            const randomGenerator = new RandomNumberGenerator(1);
-            utils.random = randomGenerator.nextRandom;
+            utils.random = new RandomNumberGenerator(1).nextRandom;
 
             const regions = [
                 new Region({index: 0, neighbors: [1, 2, 4], distanceTo: []}),
@@ -33,19 +32,63 @@ var makeGameDataTests = (function (my) {
             );
         });
 
-/*
+
         QUnit.test("Verify findHomeRegions for 3 players and many regions", function( assert ) {
-            // findHomeRegions(regions, numSetupsToTry)
 
-            const players = [ {name: "Player1"}, {name: "Player2"}, {name: "Player3"} ];
+            const players = [
+                new Player({ index: 0, name: "Player1"}),
+                new Player({ index: 1, name: "Player2"}),
+                new Player({ index: 2, name: "Player3"}),
+            ];
+            utils.random = new RandomNumberGenerator(1).nextRandom;
 
+            const regions = [
+                new Region({index: 0, neighbors: [3,10,16,13,1], distanceTo: []}),
+                new Region({index: 1, neighbors: [10,0,2,13,28], distanceTo: []}),
+                new Region({index: 2, neighbors: [10,4,9,28,1], distanceTo: []}),
+                new Region({index: 3, neighbors: [15,22,6,7,0], distanceTo: []}),
+                new Region({index: 4, neighbors: [5,9,2], distanceTo: []}),
+                new Region({index: 5, neighbors: [8,14,4], distanceTo: []}),
+                new Region({index: 6, neighbors: [21,22,3], distanceTo: []}),
+                new Region({index: 7, neighbors: [3,16], distanceTo: []}),
+                new Region({index: 8, neighbors: [11,21,14,5], distanceTo: []}),
+                new Region({index: 9, neighbors: [4,2], distanceTo: [3,,,,,,,,3,,,,,,,,,,,,,,,,7,,,,2,4]}),
+                new Region({index: 10, neighbors: [2,0,1], distanceTo: [1,,,,,,,,4,,,,,,,,,,,,,,,,8,,,,2,5]}),
+                new Region({index: 11, neighbors: [12,29,8], distanceTo: [5,,,,,,,,1,,,,,,,,,,,,,,,,3,,,,5,1]}),
+                new Region({index: 12, neighbors: [26,23,18,11], distanceTo: [6,,,,,,,,2,,,,,,,,,,,,,,,,2,,,,6]}),
+                new Region({index: 13, neighbors: [0,16,1], distanceTo: [1,,,,,,,,5,,,,,,,,,,,,,,,,9,,,,2]}),
+                new Region({index: 14, neighbors: [29,8,5], distanceTo: [5,,,,,,,,1,,,,,,,,,,,,,,,,5,,,,4]}),
+                new Region({index: 15, neighbors: [17,22,3], distanceTo: [2,,,,,,,,4,,,,,,,,,,,,,,,,8,,,,4]}),
+                new Region({index: 16, neighbors: [7,0,13], distanceTo: [1,,,,,,,,5,,,,,,,,,,,,,,,,9,,,,3]}),
+                new Region({index: 17, neighbors: [19,20,15], distanceTo: [3,,,,,,,,3,,,,,,,,,,,,,,,,7,,,,5]}),
+                new Region({index: 18, neighbors: [26,12], distanceTo: [7,,,,,,,,3,,,,,,,,,,,,,,,,3,,,,7]}),
+                new Region({index: 19, neighbors: [17,20], distanceTo: [4,,,,,,,,3,,,,,,,,,,,,,,,,7,,,,6]}),
+                new Region({index: 20, neighbors: [19,17,21,22], distanceTo: [3,,,,,,,,2,,,,,,,,,,,,,,,,6,,,,5]}),
+                new Region({index: 21, neighbors: [20,8,6], distanceTo: [3,,,,,,,,1,,,,,,,,,,,,,,,,5,,,,5]}),
+                new Region({index: 22, neighbors: [20,15,6,3], distanceTo: []}),
+                new Region({index: 23, neighbors: [25,24,12], distanceTo: []}),
+                new Region({index: 24, neighbors: [23], distanceTo: []}),
+                new Region({index: 25, neighbors: [23], distanceTo: []}),
+                new Region({index: 26, neighbors: [27,18,12], distanceTo: []}),
+                new Region({index: 27, neighbors: [26], distanceTo: [8,,,,,,,,4,,,,,,,,,,,,,,,,4,,,,8]}),
+                new Region({index: 28, neighbors: [2,1], distanceTo: []}),
+                new Region({index: 29, neighbors: [11,14], distanceTo: []}),
+            ];
 
-            const region = new Region({index: 3, points: [{x:2, y:4}], center: {x:5, y:6}});
-            assert.equal(region.index, 3);
-            assert.equal(region.points.length, 1);
-            assert.equal(region.center.y, 6);
+            assert.equal(erisk.findHomeRegions != null, true);
+            const startTime = Date.now();
+            const homes = erisk.findHomeRegions(players, regions, 50);
+            const elapsed = Date.now() - startTime;
+            assert.equal(homes.length, 3);
+            assert.equal(JSON.stringify(homes),
+              '[{"index":18,"distanceTo":[7,null,null,6,null,null,null,7,3,6,null,null,null,null,null,null,null,6,null,6,null,null,null,2,3,null,null,null,7],"neighbors":[26,12]},' +
+              '{"index":9,"distanceTo":[3,null,null,null,null,null,null,5,3,null,null,4,null,null,null,5,null,null,6,6,null,null,null,null,7,null,null,null,2,4],"neighbors":[4,2]},' +
+              '{"index":19,"distanceTo":[4,null,null,3,null,null,null,null,3,6,null,4,null,null,null,null,null,null,6,null,null,null,null,null,7,7,null,7,6],"neighbors":[17,20]}]'
+            );
+            console.log("elapsed = " + elapsed);
+            // before optimization, it takes about .05 seconds.
+            assert.equal(elapsed < 100, true, "Took too long. Elapsed time was " + elapsed + "ms");
         });
-        */
 
     }
 

@@ -231,17 +231,14 @@ var erisk = (function(my) {
     my.findHomeRegions = function(players, regions, numSetupsToTry) {
         let regionIndices = utils.range(0, regions.length)
         let numSetups = numSetupsToTry ? numSetupsToTry : 100;
-        console.log("Players = " + players);
         const possibleSetups = utils.range(0, numSetups).map(function() {
             regionIndices = sequenceUtils.shuffle(regionIndices);
             return players.map((player, i) => regions[regionIndices[i]]);
         });
-        console.log("possibleSetups = " + possibleSetups)
         return sequenceUtils.max(possibleSetups, regionSetup => distanceScore(regionSetup, regions));
     }
 
     function distanceScore(regions, allRegions) {
-        console.log("regions = " + regions.map(region => region.toString).join("\n"));
         return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
     }
 
