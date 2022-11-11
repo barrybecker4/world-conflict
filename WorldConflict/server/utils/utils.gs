@@ -1,8 +1,14 @@
 var utils = (function (my) {
 
+
+    // We may want to substitute a seeded random number generator here
+    my.random = function() {
+        return Math.random();
+    }
+
     // Returns a random number between low (inclusive) and high (exclusive).
     my.rint = function(low, high) {
-        return Math.floor(low + Math.random() * (high - low));
+        return Math.floor(low + my.random() * (high - low));
     }
 
     // Returns an array of integers from low (inclusive) to high (exclusive).

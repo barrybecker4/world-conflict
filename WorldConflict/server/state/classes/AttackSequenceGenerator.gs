@@ -68,7 +68,7 @@ class AttackSequenceGenerator {
                 width: 9
             }]
         });
-        utils.range(0, preemptiveDamage).map(function () {
+        utils.range(0, preemptiveDamage).map(() => {
             this.fromList.shift();
             this.incomingSoldiers--;
         });

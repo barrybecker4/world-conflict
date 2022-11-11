@@ -31,7 +31,6 @@ var unitTests = (function (my) {
         });
 
         /* storage and db actions are not accessible on the server */
-
         QUnit.test("Verify makeNewGameData when no clientGameData specified", function( assert ) {
             CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
             const setup = {
@@ -55,10 +54,10 @@ var unitTests = (function (my) {
         });
 
         // Run all the other unit test files
+        makeGameDataTests.runTests(QUnit);
         utilsTests.runTests(QUnit);
         sequenceUtilsTests.runTests(QUnit);
         RegionTests.runTests(QUnit);
-
 
         QUnit.start();
         return QUnitGS2.getHtml();

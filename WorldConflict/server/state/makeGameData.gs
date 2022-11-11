@@ -118,11 +118,6 @@ var erisk = (function(my) {
 
         return gameData;
 
-
-        function distanceScore(regions, allRegions) {
-            return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
-        }
-
         function createPlayers(setup) {
             const players = [];
 
@@ -167,7 +162,7 @@ var erisk = (function(my) {
          */
         function setupTemples(initialSoldierCount, regions) {
 
-            const homes = findHomeRegions(regions);
+            const homes = my.findHomeRegions(players, regions);
 
             setupPlayersWithTheirTemples(players, homes);
             setupNeutralTemples(players, homes, regions);
@@ -222,24 +217,32 @@ var erisk = (function(my) {
             }
         }
 
-        /**
-         * @return player home regions that are as far away as possible from each other
-         *         based on players' initial temples.
-         */
-        function findHomeRegions(regions) {
-            let regionIndices = utils.range(0, regions.length)
-            const possibleSetups = utils.range(0, 100).map(function() {
-                regionIndices = sequenceUtils.shuffle(regionIndices);
-                return players.map((player, i) => regions[regionIndices[i]]);
-            });
-            return sequenceUtils.max(possibleSetups, regionSetup => distanceScore(regionSetup, regions));
-        }
-
         function putTemple(region, soldierCount) {
             const regionIndex = region.index;
             gameState.temples[regionIndex] = new Temple({ regionIndex });
             gameState.addSoldiers(regionIndex, soldierCount);
         }
+    }
+
+    /**
+     * @return player home regions that are as far away as possible from each other
+     *         based on players' initial temples.
+     */
+    my.findHomeRegions = function(players, regions, numSetupsToTry) {
+        let regionIndices = utils.range(0, regions.length)
+        let numSetups = numSetupsToTry ? numSetupsToTry : 100;
+        console.log("Players = " + players);
+        const possibleSetups = utils.range(0, numSetups).map(function() {
+            regionIndices = sequenceUtils.shuffle(regionIndices);
+            return players.map((player, i) => regions[regionIndices[i]]);
+        });
+        console.log("possibleSetups = " + possibleSetups)
+        return sequenceUtils.max(possibleSetups, regionSetup => distanceScore(regionSetup, regions));
+    }
+
+    function distanceScore(regions, allRegions) {
+        console.log("regions = " + regions.map(region => region.toString).join("\n"));
+        return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
     }
 
     return my;

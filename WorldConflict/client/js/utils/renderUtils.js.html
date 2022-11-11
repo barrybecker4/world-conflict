@@ -12,7 +12,7 @@
             const y = parseFloat(div.style.top);
             const numParticles = 20;
             range(0, numParticles).map(function() {
-                const angle = Math.random() * 6.28;
+                const angle = utils.random() * 6.28;
                 const dist = rint(0, 200) / 80;
                 spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#112');
             });
