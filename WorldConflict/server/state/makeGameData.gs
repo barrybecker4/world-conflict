@@ -153,7 +153,6 @@ var erisk = (function(my) {
             });
             return players;
 
-
             /** @return the corresponding player from the gameData if there is one, else null */
             function getPlayerFromGameData(playerIndex) {
                 if (gameData.players) {
@@ -223,10 +222,15 @@ var erisk = (function(my) {
             }
         }
 
-        // pick regions that are as far away as possible from each other for the players' initial temples
+        /**
+         * @return player home regions that are as far away as possible from each other
+         *         based on players' initial temples.
+         */
         function findHomeRegions(regions) {
-            const possibleSetups = utils.range(0, 1000).map(function() {
-                return players.map(() => regions[utils.rint(0, regions.length)]);
+            let regionIndices = utils.range(0, regions.length)
+            const possibleSetups = utils.range(0, 100).map(function() {
+                regionIndices = sequenceUtils.shuffle(regionIndices);
+                return players.map((player, i) => regions[regionIndices[i]]);
             });
             return sequenceUtils.max(possibleSetups, regionSetup => distanceScore(regionSetup, regions));
         }

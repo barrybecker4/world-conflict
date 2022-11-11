@@ -17,7 +17,11 @@ class Region {
         this.center = obj.center;
     }
 
-    // regionArray is optional. Needed only if we don't have the map yet.
+    /** @return string containing everything about the region except for its array of points */
+    toString() {
+       return `{index: ${this.index}, neighbors: [${this.neighbors}], distanceTo: [${this.distanceTo}]}`;
+    }
+
     distanceFrom(regionB, regions) {
         return Region.distance(this, regionB, regions);
     }
@@ -26,7 +30,10 @@ class Region {
         return Math.abs(this.center.x - regionB.center.x) + Math.abs(this.center.y - regionB.center.y);
     }
 
-    // Use breadth-first search and memoization to find distance from this (regionA) to some other regionB.
+    /**
+     * Use breadth-first search and memoization to find distance from this (regionA) to some other regionB.
+     * @return distance distance is defined by the minimum number of hops between two regions.
+     */
     static distance(regionA, regionB, regions) {
         let queue = [{region: regionA, distance: 0}];
         let visited = [regionA];

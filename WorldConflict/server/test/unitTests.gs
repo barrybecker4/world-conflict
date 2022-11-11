@@ -54,8 +54,11 @@ var unitTests = (function (my) {
             //assert.equal(gameData != null, true, "Unexpected game data.");
         });
 
+        // Run all the other unit test files
         utilsTests.runTests(QUnit);
         sequenceUtilsTests.runTests(QUnit);
+        RegionTests.runTests(QUnit);
+
 
         QUnit.start();
         return QUnitGS2.getHtml();

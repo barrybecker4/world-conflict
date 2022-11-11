@@ -21,19 +21,38 @@ var sequenceUtilsTests = (function (my) {
              assert.equal(sequenceUtils.max(seq, keyFn), 23);
         });
 
-        QUnit.test("Verify pairwise", function( assert ) {
+        QUnit.test("Verify pairwise distance", function( assert ) {
              const seq = [4, 3, 17, 2, 10, 12];
              const distanceFn = (a, b) => Math.abs(a - b);
-             assert.deepEqual(sequenceUtils.pairwise(seq, distanceFn), [1, 13, 2, 6, 8, 14, 1, 7, 9, 15, 7, 5, 8, 10, 2]);
+             assert.deepEqual(sequenceUtils.pairwise(seq, distanceFn),
+                 [1, 13, 2, 6, 8, 14, 1, 7, 9, 15, 7, 5, 8, 10, 2]
+             );
+        });
+
+        QUnit.test("Verify pairwise concat", function( assert ) {
+             const seq = ["cat", "dog", "foo", "bar"];
+             const concatFn = (a, b) => a + ':' + b;
+             assert.deepEqual(sequenceUtils.pairwise(seq, concatFn),
+                 ["cat:dog", "cat:foo", "cat:bar", "dog:foo", "dog:bar", "foo:bar"]
+             );
         });
 
         QUnit.test("Verify shuffle", function( assert ) {
              const seq = [4, 3, 17, 2, 10, 12];
-             const shuffled = sequenceUtils.shuffle(seq)
-             assert.equals(shuffled.length, seq.length);
+             // must make a copy of the array because shuffle happens in-place.
+             const shuffled = sequenceUtils.shuffle(seq.concat());
+             assert.equal(shuffled.length, seq.length);
              assert.notDeepEqual(seq, shuffled);
+             /*
+             let same = true;
+             for (let i = 0; i < seq.length; i++) {
+                 if (seq[i] != shuffled[i]) {
+                     same = false;
+                 }
+             }
+             assert.equal(same, false);
+             */
         });
-
     }
 
     return my;
