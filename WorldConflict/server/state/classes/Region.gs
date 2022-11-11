@@ -35,13 +35,14 @@ class Region {
      * @return distance distance is defined by the minimum number of hops between two regions.
      */
     static distance(regionA, regionB, regions) {
-        let queue = [{region: regionA, distance: 0}];
+        let queue = new Queue();
+        queue.enqueue({region: regionA, distance: 0});
         let visited = [regionA];
         let answer = -1;
         let bound = 100;
 
         while (answer < 0) {
-            let item = queue.shift();
+            let item = queue.dequeue();
             let region = item.region;
             let distanceFromA = item.distance;
             if (region === regionB) {
@@ -61,7 +62,7 @@ class Region {
                 region.neighbors.map(function (neighborIdx) {
                     let neighbor = regions[neighborIdx];
                     if (!sequenceUtils.contains(visited, neighbor)) {
-                        queue.push({region: neighbor, distance: distanceFromA + 1});
+                        queue.enqueue({region: neighbor, distance: distanceFromA + 1});
                     }
                 });
                 visited.push(region);
