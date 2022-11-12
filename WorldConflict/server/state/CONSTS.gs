@@ -8,6 +8,7 @@ var CONSTS = (function(my) {
     const UNLIMITED_TURNS = 1000000;
     const STANDARD_HUMAN_TIME_LIMIT = 30;
     const UNLIMITED_TIME = 3600;
+    const STANDARD_MAP_SIZE = "Medium";
 
     const PLAYER_OFF = 'Off';
     const PLAYER_HUMAN_SET = 'Set';
@@ -180,6 +181,8 @@ var CONSTS = (function(my) {
             AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL,
             AI_LEVELS: [AI_NICE, AI_RUDE, AI_MEAN, AI_EVIL],
             AI_LEVEL_LABELS: ['Nice', 'Rude', 'Mean', 'Evil'],
+            STANDARD_MAP_SIZE,
+            MAP_SIZE_LABELS: ['Small', STANDARD_MAP_SIZE, 'Large'],
 
             STANDARD_TURN_COUNT,
             UNLIMITED_TURNS,

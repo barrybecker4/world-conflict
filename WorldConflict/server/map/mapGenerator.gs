@@ -1,17 +1,19 @@
-var mapGenerator = (function(my) {
-    const MAX_REGION_SIZE = 11;
-    const BASE_NUM_REGIONS = 13;
-    const REGIONS_PER_PLAYER_ALLOCATION = 3;
 
-    const MIN_REGION_SIZE = 3;
+
+var mapGenerator = (function(my) {
+
+    const MIN_REGION_SIZE_MAP = {Small: 6, Medium: 3, Large: 3};
+    const MAX_REGION_SIZE_MAP = {Small: 12, Medium: 11, Large: 8};
+    const BASE_NUM_REGIONS_MAP = {Small: 4, Medium: 13, Large: 21};
+    const REGIONS_PER_PLAYER_ALLOCATION_MAP = {Small: 2, Medium: 3, Large: 3};
 
     class Bounds {
 
-        constructor(maxRegionSize, mapWidth, mapHeight) {
+        constructor(maxRegionSize, mapWidth, mapHeight, mapSize) {
             this.left = utils.rint(1, mapWidth - maxRegionSize + 1);
             this.top = utils.rint(1, mapHeight - maxRegionSize + 1);
-            this.width = utils.rint(MIN_REGION_SIZE, maxRegionSize);
-            this.height = utils.rint(MIN_REGION_SIZE, maxRegionSize);
+            this.width = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
+            this.height = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
         }
 
         markInMap(region, regionMap) {
@@ -81,9 +83,9 @@ var mapGenerator = (function(my) {
      * Generates a new procedural map for a given number of players.
      * @return an array of Regions that will define the initial map.
      */
-    my.generateMap = function(playerCount, mapWidth, mapHeight) {
-        const maxRegionSize = MAX_REGION_SIZE - playerCount;
-        const neededRegions = BASE_NUM_REGIONS + playerCount * REGIONS_PER_PLAYER_ALLOCATION;
+    my.generateMap = function(playerCount, mapWidth, mapHeight, mapSize) {
+        const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
+        const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
         let regionMap, regions, count, retries;
 
         // Repeat until we get a workable map
@@ -97,7 +99,7 @@ var mapGenerator = (function(my) {
             // handle cases where the map generator runs into a dead end.
             while (count < neededRegions && --retries > 0) {
                 // create a random bounded region
-                const bounds = new Bounds(maxRegionSize, mapWidth, mapHeight);
+                const bounds = new Bounds(maxRegionSize, mapWidth, mapHeight, mapSize);
 
                 // it has to overlap one of the existing ones
                 if (count && !bounds.overlaps(regionMap)) continue;

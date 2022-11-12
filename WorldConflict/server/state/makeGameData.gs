@@ -107,7 +107,7 @@ var erisk = (function(my) {
 
         gameData.players = players;
         if (!keepCurrentMap) {
-            const regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight);
+            const regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight, setup.mapSize);
             setupTemples(3, regions);
             gameData.regions = regions;
             gameData.initialGameState = gameState;
@@ -115,6 +115,7 @@ var erisk = (function(my) {
         gameData.aiLevel = setup.aiLevel;
         gameData.turnCount = setup.turnCount;
         gameData.humanTimeLimit = setup.humanTimeLimit;
+        gameData.mapSize = setup.mapSize;
 
         return gameData;
 

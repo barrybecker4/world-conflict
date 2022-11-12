@@ -42,6 +42,7 @@ var erisk = (function(my) {
         updateAiButtons(editable);
         updateTurnCountButtons(editable);
         updateTimeLimitButtons(editable);
+        updateMapSizeButtons(editable);
     }
 
     my.updatePlayerButtons = function(editable) {
@@ -87,6 +88,15 @@ var erisk = (function(my) {
             const timeLimit = editable ? storage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
             const isSelected = CONSTS.TIME_LIMITS[index] === timeLimit;
             updateButton('time-limit' + index, isSelected, editable);
+        });
+    }
+
+    function updateMapSizeButtons(editable) {
+        CONSTS.MAP_SIZE_LABELS.map(function(mapSize, index) {
+            console.log("storage.size=" + storage.gameSetup.mapSize + " gameData.mapSize=" + gameData.mapSize);
+            const size = editable ? storage.gameSetup.mapSize : gameData.mapSize;
+            const isSelected = size === mapSize;
+            updateButton('map-size' + index, isSelected, editable);
         });
     }
 
@@ -137,6 +147,8 @@ var erisk = (function(my) {
         const timeLimitLabels = CONSTS.TIME_LIMITS.map(time => (time === CONSTS.UNLIMITED_TIME) ? 'Unlimited' : '' + time);
         html += buttonPanel('Time (sec)', 'time-limit', timeLimitLabels);
 
+        html += buttonPanel('Map size', 'map-size', CONSTS.MAP_SIZE_LABELS);
+
         $('game-info').innerHTML = html;
     }
 
@@ -159,6 +171,7 @@ var erisk = (function(my) {
         setupButtonHandlersForAiType();
         setupButtonHandlersForTurnCount();
         setupButtonHandlersForTimeLimits();
+        setupButtonHandlersForMapSizes();
     }
 
     function setupButtonHandlersForPlayers() {
@@ -193,6 +206,15 @@ var erisk = (function(my) {
             domUtils.onClickOrTap(
                 $('time-limit' + index),
                 event => uiCallbacks.invokeCallback(CONSTS.TIME_LIMITS[index], 'setupTimeLimit', event)
+            );
+        });
+    }
+
+    function setupButtonHandlersForMapSizes() {
+        utils.range(0, CONSTS.MAP_SIZE_LABELS.length).map(function(index) {
+            domUtils.onClickOrTap(
+                $('map-size' + index),
+                event => uiCallbacks.invokeCallback(CONSTS.MAP_SIZE_LABELS[index], 'setupMapSize', event)
             );
         });
     }
