@@ -294,7 +294,7 @@ var erisk = (function(my) {
         uiCallbacks.setSetupMapSizeCB(function(mapSize) {
             storage.gameSetup.mapSize = mapSize;
             erisk.updatePlayerConfigButtons();
-            regenerateGameDataWithoutNewMap();
+            regenerateGameDataWithNewMap();
         });
     }
 
