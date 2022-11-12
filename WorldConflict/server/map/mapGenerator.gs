@@ -9,11 +9,11 @@ var mapGenerator = (function(my) {
 
     class Bounds {
 
-        constructor(maxRegionSize, mapWidth, mapHeight, mapSize) {
-            this.left = utils.rint(1, mapWidth - maxRegionSize + 1);
-            this.top = utils.rint(1, mapHeight - maxRegionSize + 1);
-            this.width = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
-            this.height = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
+        constructor(left, top, width, height) {
+            this.left = left;
+            this.top = top;
+            this.width = width;
+            this.height = height;
         }
 
         markInMap(region, regionMap) {
@@ -79,6 +79,14 @@ var mapGenerator = (function(my) {
         return { x: xPos, y: yPos };
     }
 
+    function createBounds(maxRegionSize, mapWidth, mapHeight, mapSize) {
+        const left = utils.rint(1, mapWidth - maxRegionSize + 1);
+        const top = utils.rint(1, mapHeight - maxRegionSize + 1);
+        const width = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
+        const height = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
+        return new Bounds(left, top, width, height);
+    }
+
     /**
      * Generates a new procedural map for a given number of players.
      * @return an array of Regions that will define the initial map.
@@ -99,7 +107,7 @@ var mapGenerator = (function(my) {
             // handle cases where the map generator runs into a dead end.
             while (count < neededRegions && --retries > 0) {
                 // create a random bounded region
-                const bounds = new Bounds(maxRegionSize, mapWidth, mapHeight, mapSize);
+                const bounds = createBounds(maxRegionSize, mapWidth, mapHeight, mapSize);
 
                 // it has to overlap one of the existing ones
                 if (count && !bounds.overlaps(regionMap)) continue;
