@@ -1,83 +1,9 @@
-
-
 var mapGenerator = (function(my) {
 
     const MIN_REGION_SIZE_MAP = {Small: 6, Medium: 3, Large: 3};
     const MAX_REGION_SIZE_MAP = {Small: 12, Medium: 11, Large: 8};
     const BASE_NUM_REGIONS_MAP = {Small: 4, Medium: 13, Large: 21};
     const REGIONS_PER_PLAYER_ALLOCATION_MAP = {Small: 2, Medium: 3, Large: 3};
-
-    class Bounds {
-
-        constructor(left, top, width, height) {
-            this.left = left;
-            this.top = top;
-            this.width = width;
-            this.height = height;
-        }
-
-        markInMap(region, regionMap) {
-            utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
-                regionMap[x][y] = region;
-            });
-        }
-
-        // Shrink the region given by 'bounds' in a random direction
-        shrink() {
-            var r = utils.rint(0, 4);
-            if (r % 2) this.width--;
-            else this.height--;
-            if (r === 2) this.top++;
-            if (r === 3) this.left++;
-            return (this.width * this.height < 9);
-        }
-
-        // Checks if the region given by 'bounds' overlaps any existing region.
-        overlaps(regionMap) {
-            var rv = false;
-            utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
-                rv = rv || regionMap[x][y];
-            });
-            return rv;
-        }
-
-        // Puts a new rectangular region at the position given in bounds {Left, Top, Width, Height}.
-        makeRegion(index) {
-            const left = this.left;
-            const top = this.top;
-            var width = this.width;
-            var height = this.height;
-
-            var points = [];
-            utils.range(0, width).map(function(i) {
-                points[i] = perturbPoint(left + i, top);
-                points[width + height + i] = perturbPoint(left + width - i, top + height);
-            });
-            utils.range(0, height).map(function(i) {
-                points[width + i] = perturbPoint(left + width, top + i);
-                points[width + height + width + i] = perturbPoint(left, top + height - i);
-            });
-            return new Region({ index, points });
-        }
-    }
-
-    let perturbConst = null; // don't access directly
-    function getPerturbConst() {
-      if (perturbConst == null) {
-          perturbConst = utils.rint(10000, 100000);
-      }
-      return perturbConst;
-    }
-
-    // Perturbs a point to give the region borders a natural feel.
-    function perturbPoint(x, y) {
-        const pc = getPerturbConst();
-        const angle = (Math.sin(x * x * y * y * 600 + pc * 357)) * 2 * Math.PI;
-        const dist = (Math.sin(x * y * 600 + pc * 211)) / 2;
-        const xPos = x + Math.sin(angle) * dist;
-        const yPos = y + Math.cos(angle) * dist;
-        return { x: xPos, y: yPos };
-    }
 
     function createBounds(maxRegionSize, mapWidth, mapHeight, mapSize) {
         const left = utils.rint(1, mapWidth - maxRegionSize + 1);
