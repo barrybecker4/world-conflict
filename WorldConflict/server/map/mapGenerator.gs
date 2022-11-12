@@ -5,14 +5,6 @@ var mapGenerator = (function(my) {
     const BASE_NUM_REGIONS_MAP = {Small: 4, Medium: 13, Large: 21};
     const REGIONS_PER_PLAYER_ALLOCATION_MAP = {Small: 2, Medium: 3, Large: 3};
 
-    function createBounds(maxRegionSize, mapWidth, mapHeight, mapSize) {
-        const left = utils.rint(1, mapWidth - maxRegionSize + 1);
-        const top = utils.rint(1, mapHeight - maxRegionSize + 1);
-        const width = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
-        const height = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
-        return new Bounds(left, top, width, height);
-    }
-
     /**
      * Generates a new procedural map for a given number of players.
      * @return an array of Regions that will define the initial map.
@@ -51,24 +43,31 @@ var mapGenerator = (function(my) {
             }
         } while (!retries);
 
-        fillNeighborLists();
+        fillNeighborLists(mapWidth, mapHeight, regionMap);
         return regions;
+    }
 
+    function createBounds(maxRegionSize, mapWidth, mapHeight, mapSize) {
+        const left = utils.rint(1, mapWidth - maxRegionSize + 1);
+        const top = utils.rint(1, mapHeight - maxRegionSize + 1);
+        const width = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
+        const height = utils.rint(MIN_REGION_SIZE_MAP[mapSize], maxRegionSize);
+        return new Bounds(left, top, width, height);
+    }
 
-        // Figures out who borders with who, using the 2d grid in 'regionMap'.
-        function fillNeighborLists() {
-            utils.for2d(1, mapWidth - 1, 1, mapHeight - 1, function(x, y) {
-                const region = regionMap[x][y];
-                if (region) {
-                    [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {
-                        const potentialNeighbor = regionMap[x + d[0]][y + d[1]];
-                        if (potentialNeighbor && (potentialNeighbor !== region)
-                            && (region.neighbors.indexOf(potentialNeighbor.index) === -1))
-                            region.neighbors.push(potentialNeighbor.index);
-                    });
-                }
-            });
-        }
+    // Figures out who borders with who, using the 2d grid in 'regionMap'.
+    function fillNeighborLists(mapWidth, mapHeight, regionMap) {
+        utils.for2d(1, mapWidth - 1, 1, mapHeight - 1, function(x, y) {
+            const region = regionMap[x][y];
+            if (region) {
+                [[-1, 0], [1, 0], [0, -1], [0, 1]].map(function(d) {
+                    const potentialNeighbor = regionMap[x + d[0]][y + d[1]];
+                    if (potentialNeighbor && (potentialNeighbor !== region)
+                        && (region.neighbors.indexOf(potentialNeighbor.index) === -1))
+                        region.neighbors.push(potentialNeighbor.index);
+                });
+            }
+        });
     }
 
     return my;
