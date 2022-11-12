@@ -17,14 +17,14 @@ class MapGenerator {
     generateMap(playerCount, mapWidth, mapHeight, mapSize) {
         const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
         const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
-        let retries;
+        let retries, count;
 
         // Repeat until we get a workable map
         do {
             this.regionMap = utils.range(0, mapWidth).map(() => []);
             this.regions = [];
-            let count = 0;
-            retries = 2500;
+            count = 0;
+            retries = 1000;
 
             // The main loop is repeated only a limited number of times to
             // handle cases where the map generator runs into a dead end.
@@ -46,7 +46,8 @@ class MapGenerator {
                     }
                 }
             }
-        } while (!retries);
+            console.log("count = " + count + " neededRegions = " + neededRegions);
+        } while (count < neededRegions);
 
         this.fillNeighborLists(mapWidth, mapHeight);
         return this.regions;
