@@ -107,7 +107,7 @@ var erisk = (function(my) {
 
         gameData.players = players;
         if (!keepCurrentMap) {
-            const regions = mapGenerator.generateMap(players.length, setup.mapWidth, setup.mapHeight, setup.mapSize);
+            const regions = new MapGenerator().generateMap(players.length, setup.mapWidth, setup.mapHeight, setup.mapSize);
             setupTemples(3, regions);
             gameData.regions = regions;
             gameData.initialGameState = gameState;
