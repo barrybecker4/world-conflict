@@ -20,13 +20,13 @@ class Bounds {
     }
 
     // Shrink the region given by 'bounds' in a random direction
-    shrink() {
+    shrink(minRegionArea) {
         var r = utils.rint(0, 4);
         if (r % 2) this.width--;
         else this.height--;
         if (r === 2) this.top++;
         if (r === 3) this.left++;
-        return (this.width * this.height < 9);
+        return (this.width * this.height < minRegionArea);
     }
 
     // Checks if the region given by 'bounds' overlaps any existing region.

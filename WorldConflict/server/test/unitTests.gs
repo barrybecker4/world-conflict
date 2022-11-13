@@ -53,13 +53,12 @@ var unitTests = (function (my) {
         });
 
         // Run all the other unit test files
-        MapGeneratorTests.runTests(QUnit);
         RandomNumberGeneratorTests.runTests(QUnit);
         makeGameDataTests.runTests(QUnit);
         utilsTests.runTests(QUnit);
         sequenceUtilsTests.runTests(QUnit);
         RegionTests.runTests(QUnit);
-
+        MapGeneratorTests.runTests(QUnit);
 
         QUnit.start();
         return QUnitGS2.getHtml();

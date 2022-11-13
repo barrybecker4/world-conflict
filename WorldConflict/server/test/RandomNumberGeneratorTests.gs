@@ -29,7 +29,6 @@ var RandomNumberGeneratorTests = (function (my) {
             assert.equal(str, '621, 92, 332, 597, 511, 403, 428, 210, 861, ');
         });
 
-
         QUnit.test("Verify roughly uniform distribution", function( assert ) {
             injectRandom(1);
             const histogram = [];

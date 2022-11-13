@@ -33,7 +33,7 @@ var sequenceUtils = (function (my) {
 
     // Checks whether a sequence contains a given element.
     my.contains = function(seq, elem) {
-        return seq && (seq.indexOf(elem) >= 0);
+        return !!seq && (seq.indexOf(elem) >= 0);
     }
 
     // Takes an array, and returns another array containing the result of applying a function

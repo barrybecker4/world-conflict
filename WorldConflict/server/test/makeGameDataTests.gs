@@ -2,6 +2,30 @@ var makeGameDataTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+
+        QUnit.test("makeGameData: Verify distanceScore", function( assert ) {
+            const generator = new RandomNumberGenerator(1);
+            utils.random = () => generator.nextRandom();
+
+            const region1 = new Region({index: 3, neighbors: [2, 5, 7, 8], distanceTo: []});
+            const region2 = new Region({index: 7, neighbors: [5, 3, 8], distanceTo: []});
+            const region3 = new Region({index: 0, neighbors: [1, 2, 4], distanceTo: []});
+            const regions = [
+                region1,
+                new Region({index: 1, neighbors: [0], distanceTo: []}),
+                new Region({index: 2, neighbors: [0, 6, 5, 4, 3], distanceTo: []}),
+                region2,
+                new Region({index: 4, neighbors: [0, 2, 5], distanceTo: []}),
+                new Region({index: 5, neighbors: [2, 4, 3, 7], distanceTo: []}),
+                new Region({index: 6, neighbors: [2], distanceTo: []}),
+                region3,
+                new Region({index: 8, neighbors: [3, 7], distanceTo: []})
+            ];
+
+            const score = erisk.distanceScore([region1, region2, region3], regions);
+            assert.equal(score, 1);
+        });
+
         QUnit.test("makeGameData: Verify findHomeRegions for 2 players and few regions", function( assert ) {
             const players = [
                 new Player({ index: 0, name: "Player1"}),
@@ -78,11 +102,11 @@ var makeGameDataTests = (function (my) {
             const startTime = Date.now();
             const homes = erisk.findHomeRegions(players, regions, 50);
             const elapsed = Date.now() - startTime;
+            console.log("Time to find home regions = " + elapsed);
             assert.equal(homes.length, 3);
             assert.equal(JSON.stringify(homes),
               '[{"index":18,"distanceTo":[7,7,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,6,5,4,6,null,3,null,null,null,7,3],"neighbors":[26,12]},{"index":19,"distanceTo":[null,null,null,3,null,null,null,null,null,6,null,null,5,null,null,null,null,1,6,null,null,null,null,null,7,7,null,null,6],"neighbors":[17,20]},{"index":28,"distanceTo":[2,1,null,3,2,null,null,null,null,null,2,null,null,2,null,null,null,null,7,6,null,5,4,7,null,null,null,8,null,5],"neighbors":[2,1]}]'
             );
-            console.log("elapsed = " + elapsed);
             // before optimization, it takes about .05 seconds.
             assert.equal(elapsed < 100, true, "Took too long. Elapsed time was " + elapsed + "ms");
         });

@@ -13,6 +13,12 @@ var sequenceUtilsTests = (function (my) {
              assert.equal(sequenceUtils.min(seq, keyFn), "bar");
         });
 
+        QUnit.test("sequenceUtils: Verify min/max for numerics", function( assert ) {
+             const seq = [4, 3, 17, 23, 21, 12, 1, 11];
+             assert.equal(sequenceUtils.min(seq), 1);
+             assert.equal(sequenceUtils.max(seq), 23);
+        });
+
         QUnit.test("sequenceUtils: Verify min/max given key function and numerics", function( assert ) {
              const seq = [4, 3, 17, 23, 21, 12, 1, 11];
              const keyFn = (v) => Math.pow(v - 10, 2);
@@ -42,6 +48,17 @@ var sequenceUtilsTests = (function (my) {
              const shuffled = sequenceUtils.shuffle(seq.concat());
              assert.equal(shuffled.length, seq.length);
              assert.notDeepEqual(seq, shuffled);
+        });
+
+        QUnit.test("sequenceUtils: Verify contains", function( assert ) {
+             const item1 = { a: 'cat', b: 'dog' };
+             const item2 = { a: 'hammer', b: 'nail' };
+             const seq = [item1, item2];
+
+             assert.equal(sequenceUtils.contains(seq, item1), true);
+             assert.equal(sequenceUtils.contains(seq, item2), true);
+             assert.equal(sequenceUtils.contains(seq, { a: "cat", b: "dog" }), false);
+             assert.equal(sequenceUtils.contains(null, item1), false);
         });
     }
 

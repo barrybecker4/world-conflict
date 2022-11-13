@@ -203,7 +203,7 @@ var erisk = (function(my) {
 
                     const updated = updatedDistances(newTemple);
                     const inequality = sequenceUtils.max(updated) - sequenceUtils.min(updated);
-                    let templeDistances = distanceScore(templeRegions.concat(homes).concat(newTemple), regions);
+                    let templeDistances = my.distanceScore(templeRegions.concat(homes).concat(newTemple), regions);
                     if (!templeDistances)
                         templeDistances = -5;
 
@@ -236,11 +236,12 @@ var erisk = (function(my) {
             regionIndices = sequenceUtils.shuffle(regionIndices);
             return players.map((player, i) => regions[regionIndices[i]]);
         });
-        return sequenceUtils.max(possibleSetups, regionSetup => distanceScore(regionSetup, regions));
+        return sequenceUtils.max(possibleSetups, regionSetup => my.distanceScore(regionSetup, regions));
     }
 
-    function distanceScore(regions, allRegions) {
-        return sequenceUtils.min(sequenceUtils.pairwise(regions, Region.distance, allRegions));
+    my.distanceScore = function(regions, allRegions) {
+        const allPairs = sequenceUtils.pairwise(regions, Region.distance, allRegions);
+        return sequenceUtils.min(allPairs);
     }
 
     return my;
