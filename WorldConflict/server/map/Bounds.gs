@@ -9,6 +9,10 @@ class Bounds {
         this.height = height;
     }
 
+    toString() {
+        return `{ left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height} }`;
+    }
+
     markInMap(region, regionMap) {
         utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
             regionMap[x][y] = region;
@@ -28,7 +32,7 @@ class Bounds {
     // Checks if the region given by 'bounds' overlaps any existing region.
     overlaps(regionMap) {
         var rv = false;
-        utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
+        utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, (x, y) => {
             rv = rv || regionMap[x][y];
         });
         return rv;

@@ -1,10 +1,7 @@
 var utils = (function (my) {
 
-
     // We may want to substitute a seeded random number generator here
-    my.random = function() {
-        return Math.random();
-    }
+    my.random = () => Math.random();
 
     // Returns a random number between low (inclusive) and high (exclusive).
     my.rint = function(low, high) {

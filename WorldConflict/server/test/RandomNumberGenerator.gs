@@ -7,15 +7,23 @@
 class RandomNumberGenerator {
 
     constructor(seed) {
-        this.seed = seed;
+        this.seed = seed ? seed : 1;
     }
+
+    /* Not a completely uniform distribution
+    nextRandom() {
+        const x = 10000.0 * Math.sin(this.seed);
+        this.seed += 5.4321;
+        return x - Math.floor(x);
+    }*/
 
     // See https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
     nextRandom() {
-        var t = this.seed += 0x6D2B79F5;
+        var t = this.seed + 0x6D2B79F5;
+        this.seed++;
         t = Math.imul(t ^ t >>> 15, t | 1);
         t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-        this.seed = ((t ^ t >>> 14) >>> 0) / 4294967296;
-        return this.seed;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
+
 }

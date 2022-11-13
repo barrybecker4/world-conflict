@@ -12,42 +12,45 @@ class MapGenerator {
 
     /**
      * Generates a new procedural map for a given number of players.
-     * @return an array of Regions that will define the initial map.
+     * @return an array of Regions that will define the map.
      */
     generateMap(playerCount, mapWidth, mapHeight, mapSize) {
         const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
         const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
-        let retries, count;
+        let regionCount;
+        let numIterations = 0;
 
         // Repeat until we get a workable map
         do {
             this.regionMap = utils.range(0, mapWidth).map(() => []);
             this.regions = [];
-            count = 0;
-            retries = 1000;
+            regionCount = 0;
+            let retries = 1000;
 
             // The main loop is repeated only a limited number of times to
             // handle cases where the map generator runs into a dead end.
-            while (count < neededRegions && --retries > 0) {
-                // create a random bounded region
+            while (regionCount < neededRegions && --retries > 0) {
+                // Create a random bounded region that is the size of the whole map initially
                 const bounds = MapGenerator.createBounds(maxRegionSize, mapWidth, mapHeight, mapSize);
 
-                // it has to overlap one of the existing ones
-                if (count && !bounds.overlaps(this.regionMap)) continue;
+                // It has to overlap one of the existing ones
+                if (regionCount && !bounds.overlaps(this.regionMap)) continue;
 
-                // we shrink it until it no longer overlaps - this guarantees
+                // We shrink it until it no longer overlaps - this guarantees
                 // that it will border at least one other region, making the map contiguous
                 while (!bounds.shrink()) {
+                    //console.log("Shrank bounds to " + bounds);
                     if (!bounds.overlaps(this.regionMap)) {
-                        const region = bounds.makeRegion(count++);
+                        const region = bounds.makeRegion(regionCount++);
                         this.regions.push(region);
+                        //console.log("Created region = " + region);
                         bounds.markInMap(region, this.regionMap);
                         break;
                     }
                 }
             }
-            console.log("count = " + count + " neededRegions = " + neededRegions);
-        } while (count < neededRegions);
+            //console.log("regionCount = " + regionCount + " neededRegions = " + neededRegions + " iter = " + numIterations +"  num regions = " + this.regions.length);
+        } while (regionCount < neededRegions && numIterations++ < 5);
 
         this.fillNeighborLists(mapWidth, mapHeight);
         return this.regions;

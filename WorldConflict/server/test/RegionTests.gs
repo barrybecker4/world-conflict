@@ -1,4 +1,3 @@
-
 var RegionTests = (function (my) {
 
     my.runTests = function(QUnit) {
@@ -29,9 +28,6 @@ var RegionTests = (function (my) {
 
            assert.equal(distance, 2);
        });
-
-
-
     }
 
     return my;

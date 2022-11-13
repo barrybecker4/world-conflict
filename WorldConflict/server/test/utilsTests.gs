@@ -1,4 +1,3 @@
-
 var utilsTests = (function (my) {
 
     my.runTests = function(QUnit) {
@@ -74,24 +73,7 @@ var utilsTests = (function (my) {
 
             assert.equal(str, "(1, 2) (1, 3) (2, 2) (2, 3) ");
         });
-
-
-        QUnit.test("Verify deterministic pseudo random nu,bers", function( assert ) {
-
-            const rndGenerator = new RandomNumberGenerator(2);
-            utils.random = rndGenerator.nextRandom;
-            let str = '';
-
-            for (let i = 0; i <= 10; i++) {
-                str += utils.random() + ", ";
-            }
-
-            assert.equal(str, "0.26642920868471265, 0.26642920868471265, 0.26642920868471265, 0.26642920868471265, 0.26642920868471265, " +
-            "0.26642920868471265, 0.26642920868471265, 0.26642920868471265, 0.26642920868471265, 0.26642920868471265, 0.26642920868471265, ");
-        });
-
     }
 
     return my;
 } (utilsTests || {}));
-

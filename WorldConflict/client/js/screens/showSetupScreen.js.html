@@ -93,7 +93,6 @@ var erisk = (function(my) {
 
     function updateMapSizeButtons(editable) {
         CONSTS.MAP_SIZE_LABELS.map(function(mapSize, index) {
-            console.log("storage.size=" + storage.gameSetup.mapSize + " gameData.mapSize=" + gameData.mapSize);
             const size = editable ? storage.gameSetup.mapSize : gameData.mapSize;
             const isSelected = size === mapSize;
             updateButton('map-size' + index, isSelected, editable);
