@@ -2,6 +2,16 @@ var utilsTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.test("Verify Set", function( assert ) {
+            const set = new Set();
+            set.add(1);
+            set.add(5);
+            set.add(5);
+            assert.equal(set.has(1), true);
+            assert.equal(set.has(3), false);
+            assert.equal(set.has(5), true);
+        });
+
         QUnit.test("Verify rint", function( assert ) {
             for (let i = 0; i < 20; i++) {
                 const min = i;

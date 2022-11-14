@@ -14,7 +14,7 @@ var MapGeneratorTests = (function (my) {
             const regions = mapGenerator.generateMap(playerCount, mapWidth, mapHeight, mapSize);
 
             //printRegions(regions);
-            assert.equal(regions.length, 8);
+            assert.equal(regions.length, 6);
         });
 
         QUnit.test("MapGenerator: Verify generating medium map", function( assert ) {
@@ -32,7 +32,7 @@ var MapGeneratorTests = (function (my) {
             console.log("Time to generate medium map = " + elapsed);
             //printRegions(regions);
             assert.equal(regions.length, 22);
-            assert.equal(elapsed < 500, true);
+            assert.equal(elapsed < 300, true);
         });
 
         QUnit.test("MapGenerator: Verify generating large map", function( assert ) {
@@ -49,8 +49,8 @@ var MapGeneratorTests = (function (my) {
             const elapsed = Date.now() - startTime;
             console.log("Time to generate large map = " + elapsed);
             //printRegions(regions);
-            assert.equal(regions.length, 32);
-            assert.equal(elapsed < 500, true);
+            assert.equal(regions.length, 29);
+            assert.equal(elapsed < 1000, true);
         });
 
         function printRegions(regions) {

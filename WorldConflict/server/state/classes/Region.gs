@@ -35,9 +35,14 @@ class Region {
      * @return distance distance is defined by the minimum number of hops between two regions.
      */
     static distance(regionA, regionB, regions) {
+        if (!regionA || !regionB) {
+            // throw new Error
+            console.log("Both regionA, " + regionA + ", and regionB, " + regionB + ", must be specified.");
+        }
         let queue = new Queue();
         queue.enqueue({region: regionA, distance: 0});
-        let visited = [regionA];  // Use set here instead of array
+        const visited = new Set();
+        visited.add(regionA);
         let answer = -1;
         let bound = 100;
 
@@ -61,17 +66,18 @@ class Region {
                 // look in all unvisited neighbors
                 region.neighbors.map(function(neighborIdx) {
                     let neighbor = regions[neighborIdx];
-                    if (!sequenceUtils.contains(visited, neighbor)) {
+                    if (!visited.has(neighbor)) {
                         queue.enqueue({ region: neighbor, distance: distanceFromA + 1 });
                     }
                 });
-                visited.push(region);
+                visited.add(region);
             }
         }
 
         // memoize result for later and return
         if (answer < 0) {
-           console.log("we could not find a path between " + regionA + " and " + regionB);
+            // throw new Error
+            console.log("we could not find a path between " + regionA + " and " + regionB);
         }
         regionA.distanceTo[regionB.index] = answer;
         regionB.distanceTo[regionA.index] = answer;

@@ -230,18 +230,38 @@ var erisk = (function(my) {
      *         based on players' initial temples.
      */
     my.findHomeRegions = function(players, regions, numSetupsToTry) {
-        let regionIndices = utils.range(0, regions.length)
-        let numSetups = numSetupsToTry ? numSetupsToTry : 100;
-        const possibleSetups = utils.range(0, numSetups).map(function() {
+        //checkForNullRegions(regions);
+        if (regions.length == 0) {
+            throw new Error("No regions!");
+        }
+        //console.log("orig regions = " + regions.map(r => r ? r.toString() : 'null').join("\n"));
+        let regionIndices = utils.range(0, regions.length);
+        let numSetups = numSetupsToTry ? numSetupsToTry : 10;
+
+        const possibleSetups = utils.range(0, numSetups).map(() => {
             regionIndices = sequenceUtils.shuffle(regionIndices);
-            return players.map((player, i) => regions[regionIndices[i]]);
+            regionSetup =  players.map((player, i) => regions[regionIndices[i]]);
+            return regionSetup
         });
         return sequenceUtils.max(possibleSetups, regionSetup => my.distanceScore(regionSetup, regions));
     }
 
     my.distanceScore = function(regions, allRegions) {
+        //checkForNullRegions(regions);
         const allPairs = sequenceUtils.pairwise(regions, Region.distance, allRegions);
+        console.log("allPairs = " + JSON.stringify(allPairs));
         return sequenceUtils.min(allPairs);
+    }
+
+    function checkForNullRegions(regions) {
+        let regionNull = false;
+        regions.forEach(region => {
+            if (!region) {
+                regionNull = true;
+            }
+        });
+        if (regionNull)
+            throw new Error("Some regions were null:\n" + regions.map(r => r ? r.toString() : 'null').join("\n"));
     }
 
     return my;

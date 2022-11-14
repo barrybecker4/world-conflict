@@ -98,12 +98,11 @@ var makeGameDataTests = (function (my) {
                 new Region({index: 29, neighbors: [11,14], distanceTo: []}),
             ];
 
-            assert.equal(erisk.findHomeRegions != null, true);
             const startTime = Date.now();
             const homes = erisk.findHomeRegions(players, regions, 50);
             const elapsed = Date.now() - startTime;
             console.log("Time to find home regions = " + elapsed);
-            assert.equal(homes.length, 3);
+            assert.equal(homes.length, 3, "Unexpected number of homes: " + homes.length);
             assert.equal(JSON.stringify(homes),
               '[{"index":18,"distanceTo":[7,7,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,6,5,4,6,null,3,null,null,null,7,3],"neighbors":[26,12]},{"index":19,"distanceTo":[null,null,null,3,null,null,null,null,null,6,null,null,5,null,null,null,null,1,6,null,null,null,null,null,7,7,null,null,6],"neighbors":[17,20]},{"index":28,"distanceTo":[2,1,null,3,2,null,null,null,null,null,2,null,null,2,null,null,null,null,7,6,null,5,4,7,null,null,null,8,null,5],"neighbors":[2,1]}]'
             );
