@@ -14,78 +14,24 @@ class MapGenerator {
     }
 
     /**
-     * Generates a new procedural map for a given number of players. Its currently fairly slow.
+     * Generates a new procedural map for a given number of players.
      * @return an array of Regions that will define the map.
      */
-    generateMap(playerCount, mapWidth, mapHeight, mapSize) {
-        const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
-        const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
-        const minRegionArea = Math.pow(MIN_REGION_SIZE_MAP[mapSize], 2);
-        let regionCount;
-        let numIterations = 0;
-        let regions = [];
-        let regionMap = [];
-        let bestRegions = [];
-        let bestRegionMap = [];
-
-        // Repeat until we get a workable map
-        do {
-            regionMap = utils.range(0, mapWidth).map(() => []);
-            regions = [];
-            regionCount = 0;
-            let retries = 1000;
-
-            // The main loop is repeated only a limited number of times to
-            // handle cases where the map generator runs into a dead end.
-            while (regionCount < neededRegions && --retries > 0) {
-                const bounds = MapGenerator.createBounds(maxRegionSize, mapWidth, mapHeight, mapSize);
-
-                // It has to overlap one of the existing ones
-                if (regionCount && !bounds.overlaps(regionMap)) continue;
-
-                // We shrink it until it no longer overlaps - this guarantees
-                // that it will border at least one other region, making the map contiguous
-                while (!bounds.shrink(minRegionArea)) {
-                    //console.log("Shrank bounds to " + bounds);
-                    if (!bounds.overlaps(regionMap)) {
-                        const region = bounds.makeRegion(regionCount);
-                        regions.push(region);
-                        //console.log("added region: " + region.toString());
-                        regionCount++;
-                        //console.log("Created region = " + region);
-                        bounds.markInMap(region, regionMap);
-                        break;
-                    }
-                }
-            }
-            if (regionCount > bestRegions.length) {
-                bestRegions = regions;
-                bestRegionMap = regionMap;
-            }
-
-        } while (bestRegions.length < neededRegions && numIterations++ < 100);
-
-        //console.log("regionCount = " + bestRegions.length + " neededRegions = " + neededRegions + " iter = " + numIterations);
-        //console.log("regionMap: " + this.regionMap.map(a => a.map(r => r.toString())));
-        if (!bestRegions.length) {
-             throw new Error("no regions generated!");
-        }
-
-        MapGenerator.fillNeighborLists(mapWidth, mapHeight, bestRegionMap);
-        return bestRegions;
+    generateMap(playerCount, mapSize) {
+      console.log("not implemented");
     }
 
-    static createBounds(maxRegionSize, mapWidth, mapHeight, mapSize) {
-        const left = utils.rint(1, mapWidth - maxRegionSize);
-        const top = utils.rint(1, mapHeight - maxRegionSize);
-        const width = maxRegionSize; // - 1; // utils.rint(minRegionSize, maxRegionSize);
-        const height = maxRegionSize; // - 1; //utils.rint(minRegionSize, maxRegionSize);
-        return new Bounds(left, top, width, height);
-    }
+    static createBounds(maxRegionSize, mapSize) {
+          const left = utils.rint(1, CONSTS.GRID_WIDTH - maxRegionSize);
+          const top = utils.rint(1, CONSTS.GRID_HEIGHT - maxRegionSize);
+          const width = maxRegionSize;
+          const height = maxRegionSize;
+          return new Bounds(left, top, width, height);
+      }
 
     // Figures out who borders with who, using the 2d grid in 'regionMap'.
-    static fillNeighborLists(mapWidth, mapHeight, regionMap) {
-        utils.for2d(1, mapWidth - 1, 1, mapHeight - 1, (x, y) => {
+    static fillNeighborLists(regionMap) {
+        utils.for2d(1, CONSTS.GRID_WIDTH - 1, 1, CONSTS.GRID_HEIGHT - 1, (x, y) => {
             const region = regionMap[x][y];
             if (region) {
                 [[-1, 0], [1, 0], [0, -1], [0, 1]].map((d) => {
@@ -99,3 +45,137 @@ class MapGenerator {
         });
     }
 }
+
+
+class OrigMapGenerator extends MapGenerator {
+
+    constructor() {
+        super();
+    }
+
+    /**
+     * Generates a new procedural map for a given number of players. Its currently fairly slow.
+     * @return an array of Regions that will define the map.
+     */
+    generateMap(playerCount, mapSize) {
+        const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
+        const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
+        const minRegionArea = Math.pow(MIN_REGION_SIZE_MAP[mapSize], 2);
+        let regionCount;
+        let numIterations = 0;
+        let regions = [];
+        let regionMap = [];
+        let bestRegions = [];
+        let bestRegionMap = [];
+
+        // Repeat until we get a workable map
+        do {
+            regionMap = utils.range(0, CONSTS.GRID_WIDTH).map(() => []);
+            regions = [];
+            regionCount = 0;
+            let retries = 1000;
+
+            // The main loop is repeated only a limited number of times to
+            // handle cases where the map generator runs into a dead end.
+            while (regionCount < neededRegions && --retries > 0) {
+                const bounds = OrigMapGenerator.createBounds(maxRegionSize, mapSize);
+
+                // It has to overlap one of the existing ones
+                if (regionCount && !bounds.overlaps(regionMap)) continue;
+
+                // Shrink it until it no longer overlaps - this guarantees
+                // that it will border at least one other region, making the map contiguous
+                while (!bounds.shrink(minRegionArea)) {
+                    if (!bounds.overlaps(regionMap)) {
+                        const region = bounds.makeRegion(regionCount);
+                        if (!region) throw new Error("Failed to create region");
+                        regions.push(region);
+                        regionCount++;
+                        bounds.markInMap(region, regionMap);
+                        break;
+                    }
+                }
+            }
+            if (regionCount > bestRegions.length) {
+                bestRegions = regions;
+                bestRegionMap = regionMap;
+            }
+
+        } while (bestRegions.length < neededRegions && numIterations++ < 100);
+
+        if (!bestRegions.length) {
+            throw new Error("no regions generated!");
+        }
+
+        MapGenerator.fillNeighborLists(bestRegionMap);
+        return bestRegions;
+    }
+}
+
+
+class FastMapGenerator extends MapGenerator {
+
+    constructor() {
+        super();
+    }
+
+    /**
+     * Generates a new procedural map for a given number of players.
+     * @return an array of Regions that will define the map.
+     */
+    generateMap(playerCount, mapSize) {
+        const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
+        const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
+        const minRegionArea = Math.pow(MIN_REGION_SIZE_MAP[mapSize], 2);
+        console.log("MAP dims = " + CONSTS.GRID_WIDTH + " " + CONSTS.GRID_HEIGHT);
+        let regionCount;
+        let numIterations = 0;
+        let regions = [];
+        let regionMap = [];
+        let bestRegions = [];
+        let bestRegionMap = [];
+
+        // Repeat until we get a workable map
+        do {
+            regionMap = utils.range(0, CONSTS.GRID_WIDTH).map(() => []);
+            regions = [];
+            regionCount = 0;
+            let retries = 1000;
+
+            // The main loop is repeated only a limited number of times to
+            // handle cases where the map generator runs into a dead end.
+            while (regionCount < neededRegions && --retries > 0) {
+                const bounds = FastMapGenerator.createBounds(maxRegionSize, mapSize);
+
+                // It has to overlap one of the existing ones
+                if (regionCount && !bounds.overlaps(regionMap)) continue;
+
+                // Shrink it until it no longer overlaps - this guarantees
+                // that it will border at least one other region, making the map contiguous
+                while (!bounds.shrink(minRegionArea)) {
+                    if (!bounds.overlaps(regionMap)) {
+                        const region = bounds.makeRegion(regionCount);
+                        regions.push(region);
+                        regionCount++;
+                        bounds.markInMap(region, regionMap);
+                        break;
+                    }
+                }
+            }
+            if (regionCount > bestRegions.length) {
+                bestRegions = regions;
+                bestRegionMap = regionMap;
+            }
+
+        } while (bestRegions.length < neededRegions && numIterations++ < 100);
+
+        if (!bestRegions.length) {
+            throw new Error("no regions generated!");
+        }
+
+        MapGenerator.fillNeighborLists(bestRegionMap);
+        return bestRegions;
+    }
+}
+
+

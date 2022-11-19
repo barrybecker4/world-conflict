@@ -26,9 +26,9 @@ erisk.mapRenderer = (function() {
         const ocean = makePolygon(
             [
                 { x: 0, y: 0 },
-                { x: geomUtils.MAP_WIDTH, y: 0 },
-                { x: geomUtils.MAP_WIDTH, y: geomUtils.MAP_HEIGHT },
-                { x: 0, y: geomUtils.MAP_HEIGHT }
+                { x: CONSTS.GRID_WIDTH, y: 0 },
+                { x: CONSTS.GRID_WIDTH, y: CONSTS.GRID_HEIGHT },
+                { x: 0, y: CONSTS.GRID_HEIGHT }
             ],
             'ocean', 'ocean'
         );

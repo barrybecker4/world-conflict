@@ -1,7 +1,5 @@
 <script>
 var geomUtils = (function(my) {
-    my.MAP_WIDTH = 60;
-    my.MAP_HEIGHT = 40;
 
     /**
      * Optional 3d projection for the map.
@@ -9,12 +7,8 @@ var geomUtils = (function(my) {
      * The transformation leaves space on the left for the side-panel.
      */
     my.projectPoint = function(pt) {
-        const xWidth = pt.x / my.MAP_WIDTH;
-        const yHeight = pt.y / my.MAP_HEIGHT;
-        // const alpha = xWidth * .2 + .6;
-        // yHeight = yHeight * alpha + 0.5 * (1 - alpha);
-        const x = my.MAP_WIDTH * xWidth * 97.0/30.0 + 3;
-        const y = my.MAP_HEIGHT * yHeight * 5;
+        const x = pt.x * 93.0 / CONSTS.GRID_WIDTH + 3;
+        const y = pt.y * 99.0 / CONSTS.GRID_HEIGHT;
         return { x, y };
     }
 

@@ -48,7 +48,7 @@ var storage = (function(my) {
     }
 
     /**
-     *The default game setup screen configuration.
+     * The default game setup screen configuration.
      * firstTimeInstructions are shown only the first time player plays on a given computer (or until cache cleared).
      */
     function getDefaultSetup() {
@@ -58,8 +58,6 @@ var storage = (function(my) {
             sound: true,
             turnCount: CONSTS.STANDARD_TURN_COUNT,
             firstTimeInstructions: {},
-            mapWidth: geomUtils.MAP_WIDTH,
-            mapHeight: geomUtils.MAP_HEIGHT,
             humanTimeLimit: CONSTS.STANDARD_HUMAN_TIME_LIMIT,
             mapSize: CONSTS.STANDARD_MAP_SIZE,
         };

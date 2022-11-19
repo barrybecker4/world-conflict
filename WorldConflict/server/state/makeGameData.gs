@@ -107,7 +107,7 @@ var erisk = (function(my) {
 
         gameData.players = players;
         if (!keepCurrentMap) {
-            const regions = new MapGenerator().generateMap(players.length, setup.mapWidth, setup.mapHeight, setup.mapSize);
+            const regions = new FastMapGenerator().generateMap(players.length, setup.mapSize);
             setupTemples(3, regions);
             gameData.regions = regions;
             gameData.initialGameState = gameState;
@@ -249,7 +249,6 @@ var erisk = (function(my) {
     my.distanceScore = function(regions, allRegions) {
         //checkForNullRegions(regions);
         const allPairs = sequenceUtils.pairwise(regions, Region.distance, allRegions);
-        console.log("allPairs = " + JSON.stringify(allPairs));
         return sequenceUtils.min(allPairs);
     }
 

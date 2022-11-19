@@ -36,7 +36,7 @@ class Region {
      */
     static distance(regionA, regionB, regions) {
         if (!regionA || !regionB) {
-            // throw new Error
+            //throw new Error
             console.log("Both regionA, " + regionA + ", and regionB, " + regionB + ", must be specified.");
         }
         let queue = new Queue();

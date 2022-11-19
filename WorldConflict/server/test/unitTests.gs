@@ -38,8 +38,8 @@ var unitTests = (function (my) {
                 sound: true,
                 turnCount: CONSTS.STANDARD_TURN_COUNT,
                 firstTimeInstructions: {},
-                mapWidth: 400, //geomUtils.MAP_WIDTH,
-                mapHeight: 300, //geomUtils.MAP_HEIGHT,
+                mapWidth: 30,
+                mapHeight: 20,
                 humanTimeLimit: CONSTS.STANDARD_HUMAN_TIME_LIMIT,
             };
             assert.equal(setup != null, true, "Have setup data.");
@@ -58,7 +58,8 @@ var unitTests = (function (my) {
         utilsTests.runTests(QUnit);
         sequenceUtilsTests.runTests(QUnit);
         RegionTests.runTests(QUnit);
-        MapGeneratorTests.runTests(QUnit);
+        OrigMapGeneratorTests.runTests(QUnit);
+        FastMapGeneratorTests.runTests(QUnit);
 
         QUnit.start();
         return QUnitGS2.getHtml();

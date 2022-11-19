@@ -1,4 +1,5 @@
 let perturbConst = null;
+const PERTURB_SCALE = 0.4;
 
 class Bounds {
 
@@ -39,7 +40,7 @@ class Bounds {
         return rv;
     }
 
-    // Puts a new rectangular region at the position given in bounds {Left, Top, Width, Height}.
+    // Puts a new rectangular region with perturbed borders at the position given in bounds {Left, Top, Width, Height}.
     makeRegion(index) {
         const left = this.left;
         const top = this.top;
@@ -67,9 +68,10 @@ class Bounds {
 
     // Perturbs a point to give the region borders a natural feel.
     static perturbPoint(x, y) {
+        //return { x, y };
         const pc = Bounds.getPerturbConst();
         const angle = (Math.sin(x * x * y * y * 600 + pc * 357)) * 2 * Math.PI;
-        const dist = (Math.sin(x * y * 600 + pc * 211)) / 2;
+        const dist = PERTURB_SCALE * (Math.sin(x * y * 600 + pc * 211));
         const xPos = x + Math.sin(angle) * dist;
         const yPos = y + Math.cos(angle) * dist;
         return { x: xPos, y: yPos };
