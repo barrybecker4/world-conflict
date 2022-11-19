@@ -20,6 +20,7 @@ class Bounds {
     }
 
     // Shrink the region given by 'bounds' in a random direction
+    // Return true if the shrunk region became smaller than the minRegionArea specified.
     shrink(minRegionArea) {
         var r = utils.rint(0, 4);
         if (r % 2) this.width--;

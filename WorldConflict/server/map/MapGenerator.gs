@@ -3,20 +3,24 @@ const MAX_REGION_SIZE_MAP = {Small: 14, Medium: 11, Large: 8};
 const BASE_NUM_REGIONS_MAP = {Small: 4, Medium: 13, Large: 25};
 const REGIONS_PER_PLAYER_ALLOCATION_MAP = {Small: 2, Medium: 3, Large: 3};
 
+/**
+ * Procedural map generation.
+ * Some interesting ideas here http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/
+ * Perhaps consider https://www.jasondavies.com/poisson-disc/
+ */
 class MapGenerator {
 
     constructor() {
     }
 
     /**
-     * Generates a new procedural map for a given number of players.
+     * Generates a new procedural map for a given number of players. Its currently fairly slow.
      * @return an array of Regions that will define the map.
      */
     generateMap(playerCount, mapWidth, mapHeight, mapSize) {
         const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
         const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
         const minRegionArea = Math.pow(MIN_REGION_SIZE_MAP[mapSize], 2);
-        //console.log(`in generateMap neededRegions = ${neededRegions} minRegionArea = ${minRegionArea} mapSize=${mapSize} playerCount: ${playerCount} maxRegionSize: ${maxRegionSize}`);
         let regionCount;
         let numIterations = 0;
         let regions = [];
@@ -35,7 +39,6 @@ class MapGenerator {
             // handle cases where the map generator runs into a dead end.
             while (regionCount < neededRegions && --retries > 0) {
                 const bounds = MapGenerator.createBounds(maxRegionSize, mapWidth, mapHeight, mapSize);
-                //console.log("bounds = " + JSON.stringify(bounds) + " retries: " + retries);
 
                 // It has to overlap one of the existing ones
                 if (regionCount && !bounds.overlaps(regionMap)) continue;
@@ -75,7 +78,6 @@ class MapGenerator {
     static createBounds(maxRegionSize, mapWidth, mapHeight, mapSize) {
         const left = utils.rint(1, mapWidth - maxRegionSize);
         const top = utils.rint(1, mapHeight - maxRegionSize);
-        //const minRegionSize = MIN_REGION_SIZE_MAP[mapSize];
         const width = maxRegionSize; // - 1; // utils.rint(minRegionSize, maxRegionSize);
         const height = maxRegionSize; // - 1; //utils.rint(minRegionSize, maxRegionSize);
         return new Bounds(left, top, width, height);
