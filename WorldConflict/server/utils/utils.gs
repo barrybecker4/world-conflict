@@ -4,8 +4,9 @@ var utils = (function (my) {
     my.random = () => Math.random();
 
     // Returns a random number between low (inclusive) and high (exclusive).
+    // If low > high then, return low
     my.rint = function(low, high) {
-        return Math.floor(low + my.random() * (high - low));
+        return (low > high) ? low : Math.floor(low + my.random() * (highValue - low));
     }
 
     // Returns an array of integers from low (inclusive) to high (exclusive).

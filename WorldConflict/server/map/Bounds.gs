@@ -10,6 +10,10 @@ class Bounds {
         this.height = height;
     }
 
+    copy() {
+        return new Bounds(this.left, this.top, this.width, this.height);
+    }
+
     toString() {
         return `{ left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height} }`;
     }
@@ -20,7 +24,7 @@ class Bounds {
         });
     }
 
-    // Shrink the region given by 'bounds' in a random direction
+    // Shrink the region given by 'bounds' in a random direction.
     // Return true if the shrunk region became smaller than the minRegionArea specified.
     shrink(minRegionArea) {
         var r = utils.rint(0, 4);
@@ -29,6 +33,17 @@ class Bounds {
         if (r === 2) this.top++;
         if (r === 3) this.left++;
         return (this.width * this.height < minRegionArea);
+    }
+
+    // Grow the region given by 'bounds' in a random direction.
+    // Return true if the grown region became larger than the maxRegionArea specified.
+    grow(maxRegionArea) {
+        var r = utils.rint(0, 4);
+        if (r % 2) this.width++;
+        else this.height++;
+        if (r === 2) this.top--;
+        if (r === 3) this.left--;
+        return (this.width * this.height > maxRegionArea);
     }
 
     // Checks if the region given by 'bounds' overlaps any existing region.

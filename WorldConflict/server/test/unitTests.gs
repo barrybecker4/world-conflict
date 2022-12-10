@@ -4,12 +4,12 @@ function getResultsFromServer() {
 
 /**
  * Add all Unit tests here.
- * - Separate out into separate files
+ * See https://github.com/artofthesmart/QUnitGS2
  */
 var unitTests = (function (my) {
 
     my.getUnitTestHtml = function() {
-    QUnitGS2.init();
+        QUnitGS2.init();
         const QUnit = QUnitGS2.QUnit;
 
         QUnit.test("Verify valid user email", function( assert ) {
@@ -29,7 +29,7 @@ var unitTests = (function (my) {
             assert.equal(CONSTS.AI_PERSONALITIES.length > 0, true, "There should be ai personalities.");
         });
 
-        /* storage and db actions are not accessible on the server */
+        // storage and db actions are not accessible on the server
         QUnit.test("Verify makeNewGameData when no clientGameData specified", function( assert ) {
             CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
             const setup = {
@@ -57,9 +57,9 @@ var unitTests = (function (my) {
         makeGameDataTests.runTests(QUnit);
         utilsTests.runTests(QUnit);
         sequenceUtilsTests.runTests(QUnit);
-        RegionTests.runTests(QUnit);
         OrigMapGeneratorTests.runTests(QUnit);
         FastMapGeneratorTests.runTests(QUnit);
+        RegionTests.runTests(QUnit);
 
         QUnit.start();
         return QUnitGS2.getHtml();

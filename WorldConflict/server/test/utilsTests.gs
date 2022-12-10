@@ -22,6 +22,11 @@ var utilsTests = (function (my) {
             }
         });
 
+        QUnit.test("Verify rint if low > high", function( assert ) {
+            const randomInt = utils.rint(20, 10);
+            assert.equal(randomInt, 20);
+        });
+
         QUnit.test("Verify range", function( assert ) {
             const aRange = utils.range(10, 22);
             assert.equal(aRange[0], 10, "low must be 10");
