@@ -6,10 +6,10 @@ var utils = (function (my) {
     // Returns a random number between low (inclusive) and high (exclusive).
     // If low > high then, return low
     my.rint = function(low, high) {
-        return (low > high) ? low : Math.floor(low + my.random() * (highValue - low));
+        return (low > high) ? low : Math.floor(low + my.random() * (high - low));
     }
 
-    // Returns an array of integers from low (inclusive) to high (exclusive).
+    // Returns an array of integers [low, high).
     my.range = function(low, high) {
         const r = [];
         for (var i = low; i < high; i++)

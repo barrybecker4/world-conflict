@@ -1,6 +1,13 @@
 let perturbConst = null;
 const PERTURB_SCALE = 0.4;
 
+// bitmap for overlapping part
+const TOP_OVERLAP = 1;
+const BOTTOM_OVERLAP = 2;
+const LEFT_OVERLAP = 4;
+const RIGHT_OVERLAP = 8;
+const CENTER_OVERLAP = 16;
+
 class Bounds {
 
     constructor(left, top, width, height) {
@@ -47,12 +54,43 @@ class Bounds {
     }
 
     // Checks if the region given by 'bounds' overlaps any existing region.
+    // Returns a bitmap of which edges (or center) overlap
     overlaps(regionMap) {
-        var rv = false;
-        utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, (x, y) => {
-            rv = rv || regionMap[x][y];
-        });
-        return rv;
+        let topOverlap = false;
+        let bottomOverlap = false;
+        let leftOverlap = false;
+        let rightOverlap = false;
+        let overlapBitmap = 0;
+        const right = this.left + this.width - 1;
+        const bottom = this.top + this.height - 1;
+        for (let i = this.left; i <= right; i++) {
+            topOverlap = topOverlap || !!regionMap[i][this.top];
+            bottomOverlap = bottomOverlap || !!regionMap[i][bottom];
+        }
+        if (topOverlap) {
+            overlapBitmap += TOP_OVERLAP;
+        }
+        if (bottomOverlap) {
+            overlapBitmap += BOTTOM_OVERLAP;
+        }
+
+        for (let j = this.top; j <= bottom; j++) {
+            leftOverlap = leftOverlap || !!regionMap[this.left][j];
+            rightOverlap = rightOverlap || !!regionMap[right][j];
+        }
+        if (leftOverlap) {
+            overlapBitmap += LEFT_OVERLAP;
+        }
+        if (rightOverlap) {
+            overlapBitmap += RIGHT_OVERLAP;
+        }
+
+        const centerOverlap = !!regionMap[Math.floor((this.left + right) / 2)][Math.floor((this.top + bottom) / 2)];
+        if (centerOverlap) {
+            overlapBitmap += CENTER_OVERLAP;
+        }
+        //console.log("returning " + overlapBitmap + " topOver=" + topOverlap + " bottomOver=" + bottomOverlap + " leftOver=" + leftOverlap + " rightOver=" + rightOverlap + " center=" + centerOverlap);
+        return overlapBitmap;
     }
 
     // Puts a new rectangular region with perturbed borders at the position given in bounds {Left, Top, Width, Height}.
