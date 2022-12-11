@@ -247,7 +247,7 @@ var erisk = (function(my) {
     }
 
     my.distanceScore = function(regions, allRegions) {
-        //checkForNullRegions(regions);
+        checkForNullRegions(regions);
         const allPairs = sequenceUtils.pairwise(regions, Region.distance, allRegions);
         return sequenceUtils.min(allPairs);
     }

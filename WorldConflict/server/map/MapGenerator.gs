@@ -37,8 +37,13 @@ class MapGenerator {
     }
 
     static createBoundsAtPosition(left, top, minRegionSize, maxRegionSize) {
-        const width = utils.rint(minRegionSize + 1, maxRegionSize - 1);
-        const height = utils.rint(minRegionSize + 1, maxRegionSize - 1);
+        const maxWidth = Math.min(maxRegionSize - 1, CONSTS.GRID_WIDTH - left - 1);
+        const maxHeight = Math.min(maxRegionSize - 1, CONSTS.GRID_HEIGHT - top - 1);
+        const width = utils.rint(minRegionSize + 1, maxWidth);
+        const height = utils.rint(minRegionSize + 1, maxHeight);
+        if (left + width >= CONSTS.GRID_WIDTH || top + height >= CONSTS.GRID_HEIGHT) {
+            throw new Error(`region out of bounds = ${left} + ${width}, ${top} + ${height}`);
+        }
         return new Bounds(left, top, width, height);
     }
 
@@ -145,42 +150,29 @@ class FastMapGenerator extends MapGenerator {
         let regions = [];
         let regionMap = [];
 
-        regionMap = utils.range(0, CONSTS.GRID_WIDTH).map(() => []);
+        regionMap = utils.range(0, CONSTS.GRID_WIDTH + 1).map(() => []);
         regions = [];
         regionCount = 0;
+        const positionSet = new PositionSet();
 
-        const regionPositions = this.createCandidatePositions(maxRegionSize);
+        // start with a region in the middle, then add positions for the border of that region.
+        let bounds = this.createBoundsAtCenter(minRegionSize, maxRegionSize);
+        positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap);
+        console.log("Positions for center region (" + bounds + "): " + positionSet);
+        regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
 
-        // The main loop is repeated only a limited number of times to
-        // handle cases where the map generator runs into a dead end.
-        while (regionCount < neededRegions && regionPositions.length > 0) {
-            const nextPosition = regionPositions.pop();
-            const bounds = MapGenerator.createBoundsAtPosition(nextPosition[0], nextPosition[1], minRegionSize, maxRegionSize);
-
-            if (bounds.overlaps(regionMap) == 0) {
-                if (regionCount < neededRegions / 2) {
-                    // just add the region wherever it falls
-                    regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
-                } else {
-                   // try to grow it to see if it can touch another region
-                   let prevSmallerBounds = bounds.copy()
-                   while (!bounds.grow(maxRegionArea)) {
-                       if (bounds.overlaps(regionMap) > 0) {
-                           regionCount = MapGenerator.addRegion(prevSmallerBounds, regionCount, regions, regionMap);
-                           break;
-                       } else {
-                           prevSmallerBounds = bounds.copy();
-                       }
-                   }
+        while (regionCount < neededRegions && !positionSet.isEmpty()) {
+            const pos = positionSet.removeRandomPosition();
+            if (!regionMap[pos[0]][pos[1]]) {
+                bounds = MapGenerator.createBoundsAtPosition(pos[0], pos[1], minRegionSize, maxRegionSize);
+                let overlapBitmap = bounds.overlaps(regionMap);
+                while (overlapBitmap > 0 && !bounds.shrink(minRegionArea, overlapBitmap)) {
+                    overlapBitmap = bounds.overlaps(regionMap);
                 }
-            }
-            else {
-                // Shrink it until it no longer overlaps in an attempt to make regions contiguous
-                while (!bounds.shrink(minRegionArea)) {
-                    if (bounds.overlaps(regionMap) == 0) {
-                        regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
-                        break;
-                    }
+                if (overlapBitmap == 0) {
+                    console.log("finally adding region for " + bounds);
+                    regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
+                    positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap);
                 }
             }
         }
@@ -189,14 +181,12 @@ class FastMapGenerator extends MapGenerator {
         return regions;
     }
 
-    createCandidatePositions(regionSize) {
-        const positions = [];
-        utils.for2d(1, CONSTS.GRID_WIDTH - regionSize, 1, CONSTS.GRID_HEIGHT - regionSize, (x, y) => {
-            positions.push([x, y]);
-        });
-        sequenceUtils.shuffle(positions);
-        return positions;
+    createBoundsAtCenter(minRegionSize, maxRegionSize) {
+        const left = Math.floor((CONSTS.GRID_WIDTH - maxRegionSize + 1) / 2);
+        const top = Math.floor((CONSTS.GRID_HEIGHT - maxRegionSize + 1) / 2);
+        return MapGenerator.createBoundsAtPosition(left, top, minRegionSize, maxRegionSize);
     }
+
 }
 
 
