@@ -54,6 +54,7 @@ var unitTests = (function (my) {
 
         // Run all the other unit test files
         RandomNumberGeneratorTests.runTests(QUnit);
+        PositionSetTests.runTests(QUnit);
         BoundsTests.runTests(QUnit);
         makeGameDataTests.runTests(QUnit);
         utilsTests.runTests(QUnit);

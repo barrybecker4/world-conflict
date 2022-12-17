@@ -14,7 +14,7 @@ var OrigMapGeneratorTests = (function (my) {
             console.log("Time to generate small map = " + elapsed);
             //console.log("Small map: \n" + JSON.stringify(regions));
 
-            assert.equal(regions.length, 6);
+            assert.equal(regions.length, 8); // was 6
             assert.equal(elapsed < 800, true, "Too slow: " + elapsed);
         });
 
@@ -30,7 +30,7 @@ var OrigMapGeneratorTests = (function (my) {
             const elapsed = Date.now() - startTime;
             console.log("Time to generate medium map = " + elapsed);
 
-            assert.equal(regions.length, 19);
+            assert.equal(regions.length, 22); // was 19
             assert.equal(elapsed < 400, true, "Too slow: " + elapsed);
         });
 
@@ -46,7 +46,7 @@ var OrigMapGeneratorTests = (function (my) {
             const elapsed = Date.now() - startTime;
             console.log("Time to generate large map = " + elapsed);
 
-            assert.equal(regions.length, 29);
+            assert.equal(regions.length, 34); // was 29
             assert.equal(elapsed < 1000, true, "Too slow: " + elapsed);
         });
 

@@ -1,6 +1,6 @@
 let perturbConst = null;
 // This controls the amount of jaggedness of map region borders
-const PERTURB_SCALE = 0.4;
+const PERTURB_SCALE = 0.1;
 
 // bitmap for overlapping part
 const TOP_OVERLAP = 1;
@@ -43,19 +43,18 @@ class Bounds {
             this.height--;
         }
         else if ((overlapBitmap & LEFT_OVERLAP) > 0) { // shrink from left
-             console.log("shrink to right");
-             this.left++;
-             this.width--;
-         }
-         else if ((overlapBitmap & RIGHT_OVERLAP) > 0) { // shrink from right
-             console.log("shrink to left. overlap: " + overlapBitmap);
-             this.width--;
-         }
-         else {
-             console.log("shrink randomly");
-             this.shrinkRandomly(minRegionArea);
-         }
-         return (this.width * this.height < minRegionArea);
+            console.log("shrink to right");
+            this.left++;
+            this.width--;
+        }
+        else if ((overlapBitmap & RIGHT_OVERLAP) > 0) { // shrink from right
+            console.log("shrink to left. overlap: " + overlapBitmap);
+            this.width--;
+        }
+        else {
+            this.shrinkRandomly(minRegionArea);
+        }
+        return (this.width * this.height < minRegionArea);
     }
 
     // Shrink the region given by 'bounds' in a random direction.

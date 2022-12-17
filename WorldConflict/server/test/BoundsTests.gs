@@ -36,7 +36,7 @@ var BoundsTests = (function (my) {
         QUnit.test("Verify Bounds shrink up", function( assert ) {
             const bounds = new Bounds(11, 12, 13, 14);
             const minRegionArea = 16;
-            let overlapBitmap = 2; // bottom overlap
+            let overlapBitmap = 2; // BOTTOM_OVERLAP
             bounds.shrink(minRegionArea, overlapBitmap);
 
             assert.equal(bounds.left, 11);
@@ -48,7 +48,7 @@ var BoundsTests = (function (my) {
         QUnit.test("Verify Bounds shrink left", function( assert ) {
             const bounds = new Bounds(11, 12, 13, 14);
             const minRegionArea = 16;
-            let overlapBitmap = 8; //RIGHT_OVERLAP
+            let overlapBitmap = 8; // RIGHT_OVERLAP
             bounds.shrink(minRegionArea, overlapBitmap);
 
             assert.equal(bounds.left, 11);
