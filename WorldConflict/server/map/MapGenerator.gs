@@ -1,7 +1,7 @@
-const MIN_REGION_SIZE_MAP = {Small: 5, Medium: 3, Large: 3};
-const MAX_REGION_SIZE_MAP = {Small: 14, Medium: 11, Large: 8};
-const BASE_NUM_REGIONS_MAP = {Small: 4, Medium: 13, Large: 25};
-const REGIONS_PER_PLAYER_ALLOCATION_MAP = {Small: 2, Medium: 3, Large: 3};
+const MIN_REGION_SIZE_MAP = {Small: 7, Medium: 4, Large: 3};
+const MAX_REGION_SIZE_MAP = {Small: 16, Medium: 12, Large: 10};
+const BASE_NUM_REGIONS_MAP = {Small: 3, Medium: 14, Large: 36};
+const REGIONS_PER_PLAYER_ALLOCATION_MAP = {Small: 2, Medium: 3, Large: 4};
 
 /**
  * Procedural map generation.
@@ -49,69 +49,6 @@ class MapGenerator {
 }
 
 
-class OrigMapGenerator extends MapGenerator {
-
-    constructor() {
-        super();
-    }
-
-    /**
-     * Generates a new procedural map for a given number of players. Its currently fairly slow.
-     * @return an array of Regions that will define the map.
-     */
-    generateMap(playerCount, mapSize) {
-        const minRegionSize = MIN_REGION_SIZE_MAP[mapSize];
-        const maxRegionSize = MAX_REGION_SIZE_MAP[mapSize] - playerCount;
-        const neededRegions = BASE_NUM_REGIONS_MAP[mapSize] + playerCount * REGIONS_PER_PLAYER_ALLOCATION_MAP[mapSize];
-        const minRegionArea = Math.pow(minRegionSize, 2);
-        let regionCount;
-        let numIterations = 0;
-        let regions = [];
-        let regionMap;
-        let bestRegions = [];
-        let bestRegionMap;
-
-        // Repeat until we get a workable map
-        do {
-            regionMap = new RegionMap();
-            regions = [];
-            regionCount = 0;
-            let retries = 1000;
-
-            // The main loop is repeated only a limited number of times to
-            // handle cases where the map generator runs into a dead end.
-            while (regionCount < neededRegions && --retries > 0) {
-                const bounds = MapGenerator.createBounds(minRegionSize, maxRegionSize);
-
-                // It has to overlap one of the existing ones
-                if (regionCount && (bounds.overlaps(regionMap) == 0)) continue;
-
-                // Shrink it until it no longer overlaps - this guarantees
-                // that it will border at least one other region, making the map contiguous
-                while (!bounds.shrink(minRegionArea)) {
-                    if (bounds.overlaps(regionMap) == 0) {
-                        regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
-                        break;
-                    }
-                }
-            }
-            if (regionCount > bestRegions.length) {
-                bestRegions = regions;
-                bestRegionMap = regionMap;
-            }
-
-        } while (bestRegions.length < neededRegions && numIterations++ < 100);
-
-        if (!bestRegions.length) {
-            throw new Error("no regions generated!");
-        }
-
-        bestRegionMap.fillNeighborLists();
-        return bestRegions;
-    }
-}
-
-
 class FastMapGenerator extends MapGenerator {
 
     constructor() {
@@ -140,7 +77,6 @@ class FastMapGenerator extends MapGenerator {
         // start with a region in the middle, then add positions for the border of that region.
         let bounds = this.createBoundsAtCenter(minRegionSize, maxRegionSize);
         positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap);
-        //console.log("Positions for center region (" + bounds + "): " + positionSet);
         regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
 
         while (regionCount < neededRegions && !positionSet.isEmpty()) {

@@ -2,13 +2,14 @@
 var erisk = (function(my) {
 
     const $ = domUtils.$;
-    // When only this many seconds remainign start warning the user.
+    // When only this many seconds remaining, start warning the user.
     const WARNING_TIME = 10;
 
     let expirationTimer = null;
     let expirationTimeRemaining;
 
-    /* Starts the timer if there is not one running already,
+    /**
+     * Starts the timer if there is not one running already,
      * or restarts the timer so we have the correct context.
      */
     my.startExpirationTimer = function(expirationCallback) {

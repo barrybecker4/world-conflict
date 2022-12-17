@@ -170,8 +170,8 @@ var CONSTS = (function(my) {
             SOUNDS,
             AI_PERSONALITIES,
             DEBUG,
-            GRID_WIDTH: 30,
-            GRID_HEIGHT: 20,
+            GRID_WIDTH: 35,
+            GRID_HEIGHT: 25,
 
             BASE_MOVES_PER_TURN: 3,
             NUM_UPGRADES: UPGRADES.length - 1,

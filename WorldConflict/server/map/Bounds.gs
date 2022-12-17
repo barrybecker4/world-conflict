@@ -42,6 +42,21 @@ class Bounds {
         });
     }
 
+    shift(minRegionArea, overlapBitmap) {
+        if ((overlapBitmap & TOP_OVERLAP) > 0) {
+            this.top++;
+        }
+        else if ((overlapBitmap & BOTTOM_OVERLAP) > 0) {
+            this.top--;
+        }
+        else if ((overlapBitmap & LEFT_OVERLAP) > 0) {
+            this.left++;
+        }
+        else if ((overlapBitmap & RIGHT_OVERLAP) > 0) {
+            this.left--;
+        }
+    }
+
     shrink(minRegionArea, overlapBitmap) {
         if ((overlapBitmap & TOP_OVERLAP) > 0) { // shrink from top
             //console.log("shrink to down. overlap: " + overlapBitmap);
