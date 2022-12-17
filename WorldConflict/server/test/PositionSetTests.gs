@@ -15,23 +15,22 @@ var PositionSetTests = (function (my) {
         });
 
 
-        QUnit.test("Verify add and then remove single position", function( assert ) {
+        QUnit.test("Verify addPositionForBounds", function( assert ) {
 
             const positionSet = new PositionSet();
             const bounds = new Bounds(4, 5, 2, 2);
             const minRegionSize = 2;
-            const regionMap = utils.range(0, CONSTS.GRID_WIDTH).map(() => []); // TODO make class
+            const regionMap = new RegionMap();
             positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap)
 
-            // TODO: fix bug - this isn't right
-            // 1
-            // 2 ...XX..
-            // 3 ..X..X.
-            // 4 ..X..X
-            // 5 ..X..X
-            // 6 ..X..X
-            // 7 ...XX.
-            assert.equal(positionSet.toString(), "(4, 2), (4, 7), (5, 2), (5, 7), (3, 3), (6, 3), (3, 4), (6, 4), (3, 5), (6, 5), (3, 6), (6, 6)");
+            // 2
+            // 3 ..XXX..
+            // 4 .X...X
+            // 5 .X.OOX
+            // 6 .X.OOX
+            // 7 ..XXX.
+            // 8 .......
+            assert.equal(positionSet.toString(), "(3, 3), (3, 7), (4, 3), (4, 7), (5, 3), (5, 7), (2, 4), (6, 4), (2, 5), (6, 5), (2, 6), (6, 6)");
         });
 
         QUnit.test("Verify Bounds copy", function( assert ) {

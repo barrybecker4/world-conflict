@@ -36,8 +36,7 @@ class Region {
      */
     static distance(regionA, regionB, regions) {
         if (!regionA || !regionB) {
-            //throw new Error
-            console.log("Both regionA, " + regionA + ", and regionB, " + regionB + ", must be specified.");
+            throw new Error("Both regionA, " + regionA + ", and regionB, " + regionB + ", must be specified.");
         }
         let queue = new Queue();
         queue.enqueue({region: regionA, distance: 0});
@@ -76,8 +75,7 @@ class Region {
 
         // memoize result for later and return
         if (answer < 0) {
-            // throw new Error
-            console.log("we could not find a path between " + regionA + " and " + regionB);
+            throw new Error("we could not find a path between " + regionA + " and " + regionB);
         }
         regionA.distanceTo[regionB.index] = answer;
         regionB.distanceTo[regionA.index] = answer;

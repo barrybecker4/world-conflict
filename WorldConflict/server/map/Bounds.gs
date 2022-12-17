@@ -1,6 +1,6 @@
 let perturbConst = null;
 // This controls the amount of jaggedness of map region borders
-const PERTURB_SCALE = 0.1;
+const PERTURB_SCALE = 0.4;
 
 // bitmap for overlapping part
 const TOP_OVERLAP = 1;
@@ -11,6 +11,16 @@ const CENTER_OVERLAP = 16;
 
 class Bounds {
 
+    /**
+     * Create rectangular bounds starting in (left, top) and extending to cover (left + width - 1, top + height - 1)
+     * For example new Bounds(4, 5, 2, 2)  would cover
+     *
+     *  3 1234567
+     *  4 .......
+     *  5 ...XX..
+     *  6 ...XX..
+     *  7 .......
+     */
     constructor(left, top, width, height) {
         this.left = left;
         this.top = top;
@@ -28,27 +38,27 @@ class Bounds {
 
     markInMap(region, regionMap) {
         utils.for2d(this.left, this.left + this.width, this.top, this.top + this.height, function(x, y) {
-            regionMap[x][y] = region;
+            regionMap.set(x, y, region);
         });
     }
 
     shrink(minRegionArea, overlapBitmap) {
         if ((overlapBitmap & TOP_OVERLAP) > 0) { // shrink from top
-            console.log("shrink to down. overlap: " + overlapBitmap);
+            //console.log("shrink to down. overlap: " + overlapBitmap);
             this.top++;
             this.height--;
         }
         else if ((overlapBitmap & BOTTOM_OVERLAP) > 0) { // shrink from bottom
-            console.log("shrink to up. overlap: " + overlapBitmap);
+            //console.log("shrink to up. overlap: " + overlapBitmap);
             this.height--;
         }
         else if ((overlapBitmap & LEFT_OVERLAP) > 0) { // shrink from left
-            console.log("shrink to right");
+            //console.log("shrink to right");
             this.left++;
             this.width--;
         }
         else if ((overlapBitmap & RIGHT_OVERLAP) > 0) { // shrink from right
-            console.log("shrink to left. overlap: " + overlapBitmap);
+            //console.log("shrink to left. overlap: " + overlapBitmap);
             this.width--;
         }
         else {
@@ -90,8 +100,8 @@ class Bounds {
         const right = this.left + this.width - 1;
         const bottom = this.top + this.height - 1;
         for (let i = this.left; i <= right; i++) {
-            topOverlap = topOverlap || !!regionMap[i][this.top];
-            bottomOverlap = bottomOverlap || !!regionMap[i][bottom];
+            topOverlap = topOverlap || !!regionMap.get(i, this.top);
+            bottomOverlap = bottomOverlap || !!regionMap.get(i, bottom);
         }
         if (topOverlap) {
             overlapBitmap += TOP_OVERLAP;
@@ -101,8 +111,8 @@ class Bounds {
         }
 
         for (let j = this.top; j <= bottom; j++) {
-            leftOverlap = leftOverlap || !!regionMap[this.left][j];
-            rightOverlap = rightOverlap || !!regionMap[right][j];
+            leftOverlap = leftOverlap || !!regionMap.get(this.left, j);
+            rightOverlap = rightOverlap || !!regionMap.get(right, j);
         }
         if (leftOverlap) {
             overlapBitmap += LEFT_OVERLAP;
@@ -111,7 +121,7 @@ class Bounds {
             overlapBitmap += RIGHT_OVERLAP;
         }
 
-        const centerOverlap = !!regionMap[Math.floor((this.left + right) / 2)][Math.floor((this.top + bottom) / 2)];
+        const centerOverlap = !!regionMap.get(Math.floor((this.left + right) / 2), Math.floor((this.top + bottom) / 2));
         if (centerOverlap) {
             overlapBitmap += CENTER_OVERLAP;
         }

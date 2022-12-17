@@ -9,15 +9,15 @@ class PositionSet {
         this.positions.push(position);
     }
 
-    addPositionIfValid(position, minRegionSize, regionMap) {
+    addPositionIfValid(x, y, minRegionSize, regionMap) {
         const maxX = CONSTS.GRID_WIDTH - minRegionSize - 1;
         const maxY = CONSTS.GRID_HEIGHT - minRegionSize - 1;
-        const inbounds = position[0] > 0 && position[1] > 0 && position[0] < maxX && position[1] < maxY;
-        if (inbounds && !regionMap[position[0]]) {
-            throw new Error("invalid x pos: " + position[0] + " in regionMap " + regionMap);
+        const inbounds = x > 0 && y > 0 && x < maxX && y < maxY;
+        if (inbounds && !regionMap.hasColumn(x)) {
+            throw new Error("invalid x pos: " + x + " in regionMap " + regionMap);
         }
-        if (inbounds && regionMap[position[0]] && !regionMap[position[0]][position[1]]) {
-            this.addPosition(position);
+        if (inbounds && regionMap.hasColumn(x) && !regionMap.get(x, y)) {
+            this.addPosition([x, y]);
         }
     }
 
@@ -36,18 +36,18 @@ class PositionSet {
     }
 
     addPositionsForBounds(bounds, minRegionSize, regionMap) {
-        const left = bounds.top - minRegionSize + 1;
-        const top = bounds.left - minRegionSize + 1;
+        const left = bounds.left - minRegionSize + 1;
+        const top = bounds.top - minRegionSize + 1;
         const right = bounds.left + bounds.width - 1;
         const bottom = bounds.top + bounds.height - 1;
 
         for (let x = left; x <= right; x++) {
-            this.addPositionIfValid([x, top - 1], minRegionSize, regionMap);
-            this.addPositionIfValid([x, bottom + 1], minRegionSize, regionMap);
+            this.addPositionIfValid(x, top - 1, minRegionSize, regionMap);
+            this.addPositionIfValid(x, bottom + 1, minRegionSize, regionMap);
         }
         for (let y = top; y <= bottom; y++) {
-            this.addPositionIfValid([left - 1, y], minRegionSize, regionMap);
-            this.addPositionIfValid([right + 1, y], minRegionSize, regionMap);
+            this.addPositionIfValid(left - 1, y, minRegionSize, regionMap);
+            this.addPositionIfValid(right + 1, y, minRegionSize, regionMap);
         }
     }
 

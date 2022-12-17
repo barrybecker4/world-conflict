@@ -46,22 +46,6 @@ class MapGenerator {
         }
         return new Bounds(left, top, width, height);
     }
-
-    // Figures out who borders with who, using the 2d grid in 'regionMap'.
-    static fillNeighborLists(regionMap) {
-        utils.for2d(1, CONSTS.GRID_WIDTH - 1, 1, CONSTS.GRID_HEIGHT - 1, (x, y) => {
-            const region = regionMap[x][y];
-            if (region) {
-                [[-1, 0], [1, 0], [0, -1], [0, 1]].map((d) => {
-                    const potentialNeighbor = regionMap[x + d[0]][y + d[1]];
-                    if (potentialNeighbor && (potentialNeighbor !== region)
-                        && (region.neighbors.indexOf(potentialNeighbor.index) === -1)) {
-                        region.neighbors.push(potentialNeighbor.index);
-                    }
-                });
-            }
-        });
-    }
 }
 
 
@@ -83,13 +67,13 @@ class OrigMapGenerator extends MapGenerator {
         let regionCount;
         let numIterations = 0;
         let regions = [];
-        let regionMap = [];
+        let regionMap;
         let bestRegions = [];
-        let bestRegionMap = [];
+        let bestRegionMap;
 
         // Repeat until we get a workable map
         do {
-            regionMap = utils.range(0, CONSTS.GRID_WIDTH).map(() => []);
+            regionMap = new RegionMap();
             regions = [];
             regionCount = 0;
             let retries = 1000;
@@ -122,7 +106,7 @@ class OrigMapGenerator extends MapGenerator {
             throw new Error("no regions generated!");
         }
 
-        MapGenerator.fillNeighborLists(bestRegionMap);
+        bestRegionMap.fillNeighborLists();
         return bestRegions;
     }
 }
@@ -148,9 +132,7 @@ class FastMapGenerator extends MapGenerator {
         let regionCount;
         let numIterations = 0;
         let regions = [];
-        let regionMap = [];
-
-        regionMap = utils.range(0, CONSTS.GRID_WIDTH + 1).map(() => []);
+        let regionMap = new RegionMap();
         regions = [];
         regionCount = 0;
         const positionSet = new PositionSet();
@@ -158,26 +140,26 @@ class FastMapGenerator extends MapGenerator {
         // start with a region in the middle, then add positions for the border of that region.
         let bounds = this.createBoundsAtCenter(minRegionSize, maxRegionSize);
         positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap);
-        console.log("Positions for center region (" + bounds + "): " + positionSet);
+        //console.log("Positions for center region (" + bounds + "): " + positionSet);
         regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
 
         while (regionCount < neededRegions && !positionSet.isEmpty()) {
             const pos = positionSet.removeRandomPosition();
-            if (!regionMap[pos[0]][pos[1]]) {
+            if (!regionMap.get(pos[0], pos[1])) {
                 bounds = MapGenerator.createBoundsAtPosition(pos[0], pos[1], minRegionSize, maxRegionSize);
                 let overlapBitmap = bounds.overlaps(regionMap);
                 while (overlapBitmap > 0 && !bounds.shrink(minRegionArea, overlapBitmap)) {
                     overlapBitmap = bounds.overlaps(regionMap);
                 }
                 if (overlapBitmap == 0) {
-                    console.log("finally adding region for " + bounds);
+                    //console.log("finally adding region for " + bounds);
                     regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
                     positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap);
                 }
             }
         }
 
-        MapGenerator.fillNeighborLists(regionMap);
+        regionMap.fillNeighborLists();
         return regions;
     }
 
@@ -188,5 +170,3 @@ class FastMapGenerator extends MapGenerator {
     }
 
 }
-
-
