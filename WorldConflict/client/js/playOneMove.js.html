@@ -8,7 +8,10 @@ var erisk = (function(my) {
     let firstTime = true;
     let requestStartTime = null;
 
-    /** Deals with responding to user actions - whether human or AI. */
+    /**
+     * Deals with responding to user actions - whether human or AI.
+     * This is the core game play logic.
+     */
     my.playOneMove = function(state, afterUndo, configuringPlayer) {
         if (!appState.isInGameOrWaiting() )
             return; // game terminated
@@ -18,7 +21,7 @@ var erisk = (function(my) {
             const player = state.activePlayer();
 
             if (player.name === domUtils.userid()) {
-                getMoveForCurrentPlayer(player, state, afterUndo);
+                playMoveForCurrentPlayer(player, state, afterUndo);
             }
             else {
                 erisk.setPreviousState(null); // only humans can undo
@@ -31,10 +34,11 @@ var erisk = (function(my) {
         });
     }
 
-    /** This just stores the players move(s) in localHumanMoves since, because of undo,
+    /**
+     * This just stores the player's move(s) in localHumanMoves, since, because of undo,
      * it's not final until "end move" is clicked.
      */
-    function getMoveForCurrentPlayer(player, state, afterUndo) {
+    function playMoveForCurrentPlayer(player, state, afterUndo) {
         appState.setInGame();
 
         erisk.uiPickMove(player, state, function(move) {
@@ -55,7 +59,9 @@ var erisk = (function(my) {
         });
     }
 
-    // Add this player's moves (if any) then AIs, then poll for all other players until our turn again.
+    /**
+     * Add this player's moves (if any) then the AI's, then poll for all other players until our turn again.
+     */
     function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
         appState.setWaitingForPlayersToMove();
         google.script.run
@@ -116,7 +122,7 @@ var erisk = (function(my) {
                     audio.playSound(CONSTS.SOUNDS.CLICK);
                     erisk.gameRenderer.updateDisplay(nextState);
                 });
-                return await replayMove(i + 1, nextState);
+                return await replayMove(i + 1, nextState); // recurse
             }
 
             if (finalState.endResult) {
@@ -139,7 +145,7 @@ var erisk = (function(my) {
     }
 
     /**
-     * If a player has closed browser or browser tab, then they should be eliminated.
+     * If a player has closed the browser or browser tab, then they should be eliminated.
      */
     function continueIfNextPlayerLeftGame(startState, moves) {
         const nextPlayer = startState.activePlayer();

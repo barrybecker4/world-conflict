@@ -56,11 +56,17 @@ var erisk = (function(my) {
 
     /**
      * Given an existing open game with at least one open human player slot and the specified player seated there,
-     * remove that play so that their spot becomes open. Persist the new state.
+     * remove that player so that their spot becomes open. Persist the new state.
      */
     my.unseatPlayerFromOpenGameById = function(userId, openGameId) {
-        const openGame = gameConfigurationTable.getGameConfiguration(openGameId).obj;
-        unseatPlayerFromOpenGame(userId, openGame);
+        const openGameConfig = gameConfigurationTable.getGameConfiguration(openGameId);
+        if (openGameConfig) {
+            console.log("Unseating " + openGameId)
+            const openGame = openGameConfig.obj;
+            unseatPlayerFromOpenGame(userId, openGame);
+        } else {
+            console.log("Could not find game config for " + openGameId);
+        }
     }
 
     function unseatPlayerFromOpenGame(userId, openGame) {
@@ -75,7 +81,8 @@ var erisk = (function(my) {
             player.name = '';
             player.type = CONSTS.PLAYER_HUMAN_OPEN;
         } else {
-            throw new Error("Did not find player " + userId + " among " + JSON.stringify(players));
+            // This could happen if they click the "leave" button more than once before the page refreshes.
+            console.log("Warning: Did not find player " + userId + " among " + JSON.stringify(players));
         }
     }
 

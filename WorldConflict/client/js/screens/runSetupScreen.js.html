@@ -14,7 +14,7 @@ var erisk = (function(my) {
          * Called after a user enters (sits down at) an existing or new game.
          * Either the game will now start, or will will continue waiting for other players to join.
          */
-        const gameEnteredCallback = function(status) {
+        function gameEnteredCallback(status) {
             erisk.setOpenGamesScreenVisibility(false);
             console.log("game entered. status = " + status);
             switch (status) {
@@ -87,13 +87,15 @@ var erisk = (function(my) {
          *
          * Players may also leave and go back to the open games screen up until
          * the time when all players are seated and the game starts.
+         *
+         * If you are the only player present and you leave, then the game will get deleted after you leave.
          */
         function doneConfiguring() {
             appState.setWaitingForPlayersToJoin();
             erisk.updatePlayerConfigButtons();
             console.log("In doneConfiguring");
 
-            // only the configuring player (owner) can decide to start before all players have joined
+            // Only the configuring player (owner) can decide to start before all players have joined
             const userid = domUtils.userid();
             const isConfiguringPlayer = configuringPlayer === userid;
             updateStartAnywayButton(isConfiguringPlayer);
@@ -132,7 +134,7 @@ var erisk = (function(my) {
             ], "Waiting for players to join open slots...");
         }
 
-        // poll for updates to the configuration - which will happen if another player joins this game
+        // poll for updates to the configuration - which will happen if another player joins (or leaves) this game
         function pollForNewPlayers() {
             if (!appState.isWaitingForPlayersToJoin())
                 return;
@@ -145,7 +147,7 @@ var erisk = (function(my) {
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
-                        console.log("A new player joined this game. new status = " + newGameData.status);
+                        console.log("A player joined (or left) this game. new status = " + newGameData.status);
                         gameEnteredCallback(newGameData.status);
                     } else {
                         // keep calling recursively until all players have joined, or player gets tired of waiting
@@ -195,12 +197,14 @@ var erisk = (function(my) {
          * Get all open games from server. There are 2 cases:
          * - There are one or more open games. In this case, allow the user to select one or create a new one.
          * - No open games. Go straight to the game setup screen to create a new one.
+         *   However, if the only play that was set just unseated herself, then the current setup is not valid, so we restore the default.
          * The method recursively calls itself to update the list of open games.
          */
         function retrieveAndShowOpenGamesPolling() {
             console.log("appState = " + appState.getCurrentState());
-            if (!appState.isInOpenGamesDialog() || !storage.isSetupValid())
+            if (!appState.isInOpenGamesDialog() || !storage.isSetupValid()) {
                 return;
+            }
 
             google.script.run
                 .withSuccessHandler(function(openGames) {
@@ -209,6 +213,7 @@ var erisk = (function(my) {
                         // intentionally do nothing. Waiting for players to join.
                     }
                     else if (openGames.length === 0) {
+                        console.log("There are no currently open games, so navigating to the new game config screen.");
                         showNewGameSetup();
                     }
                     else {

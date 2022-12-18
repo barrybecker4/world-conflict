@@ -45,7 +45,7 @@ function getUserId() {
 
 /**
  * @return all games with open slots where this player is not already seated.
- *  If there are games where no human players are seated, then they will be deleted asynchronously.
+ *         If there are games where no human players are seated, then they will be deleted asynchronously.
  */
 function retrieveOpenGames() {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
@@ -84,7 +84,7 @@ function unseatPlayerFromOpenGame(userId, gameId) {
 
 /**
  * Retrieve the configuration for the specified gameId.
- * If the players are different (IOW new ones have joined the game),
+ * If the players are different (IOW new ones have joined or left the game),
  * then return that new configuration so that it can be shown on the client.
  */
 function getGameData(gameId, players) {
@@ -116,7 +116,7 @@ function persistGameData(unused, clientGameData) {
 
 /**
  * The players will be considered changed if either
- * - a human player joins an open slot (name change), or
+ * - a human player joins (or leaves) an open slot (name change), or
  * - an open slot becomes an AI (type change: open -> ai)
  */
 function playersDiffer(newPlayers, oldPlayers) {
@@ -124,7 +124,7 @@ function playersDiffer(newPlayers, oldPlayers) {
         throw new Error('The number of players were unexpectedly different\n.' +
             ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers));
     }
-    return oldPlayers.some((player, i) => player.name !== newPlayers[i].name || player.type !== newPlayers[i].type);
+    return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);
 }
 
 /**
@@ -139,7 +139,7 @@ function getGameMoves(gameId, lastGameStateId) {
 /**
  * First persist any humanMoves, then play all AI players until the next human player.
  * Can all the local human moves be persisted atomically?
- * This may be throwing 409 (conflict) error if we try to persist a move with same id as one already there.
+ * This may be throwing 409 (conflict) error if we try to persist a move with the same id as one already there.
  */
 async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData, suppressAi) {
     Logger.log("appending human moves: " + humanMoves.map(move => move.stateId));
@@ -152,8 +152,8 @@ async function persistLocalMovesIfAnyAndPlayAi(humanMoves, state, clientGameData
 }
 
 /**
- * Make AiMoves (if any) until it is no longer an Ai that is moving (or end of game reached).
- * Store the moves in firestore as they are determined.
+ * Make AiMoves (if any) until it is no longer an AI that is moving (or end of game reached).
+ * Store the moves in Firestore as they are determined.
  * At some point later, they will be requested by the client.
  * @param state - an array containing a single state. Not sure why GAS cannot pass the object directly
  * @param clientGameData current state of the game

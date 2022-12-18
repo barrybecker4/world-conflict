@@ -59,7 +59,6 @@ var unitTests = (function (my) {
         makeGameDataTests.runTests(QUnit);
         utilsTests.runTests(QUnit);
         sequenceUtilsTests.runTests(QUnit);
-        OrigMapGeneratorTests.runTests(QUnit);
         FastMapGeneratorTests.runTests(QUnit);
         RegionTests.runTests(QUnit);
 

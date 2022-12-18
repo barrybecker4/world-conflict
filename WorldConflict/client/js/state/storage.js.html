@@ -16,7 +16,7 @@ var storage = (function(my) {
                     if (typeof(stored[name]) === 'undefined')
                         stored[name] = value;
                 });
-                return stored;
+                return isSetupValid(stored) ? stored : getDefaultSetup();
             }
         }
 
@@ -25,8 +25,13 @@ var storage = (function(my) {
 
     setTimeout(() => {
         my.gameSetup = my.retrieveSetup();
-    }, 0)
+    }, 0);
 
+    my.setDefaultSetup = function() {
+        console.log("Reverting to default setup");
+        my.gameSetup = getDefaultSetup();
+        my.storeSetup();
+    }
 
     // Tries to store user preferences in local storage.
     my.storeSetup = function() {
@@ -35,15 +40,20 @@ var storage = (function(my) {
         }
     }
 
-    // There must be at least one set player, and there must be at least 2 enabled players.
     my.isSetupValid = function() {
+        return isSetupValid(my.gameSetup);
+    }
+
+    // There must be at least one set human player, and there must be at least 2 enabled players.
+    function isSetupValid(setup) {
         let numSetPlayers = 0;
-        const enabledPlayers = sequenceUtils.sum(my.gameSetup.playerTypes, function(playerType) {
+        const enabledPlayers = sequenceUtils.sum(setup.playerTypes, function(playerType) {
             if (playerType === CONSTS.PLAYER_HUMAN_SET) {
                 numSetPlayers++;
             }
             return (playerType !== CONSTS.PLAYER_OFF) ? 1 : 0;
         });
+        console.log("enabled players = " + enabledPlayers + " numSetPlayers = " + numSetPlayers);
         return enabledPlayers > 1 && numSetPlayers > 0;
     }
 
