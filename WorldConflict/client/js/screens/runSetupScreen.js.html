@@ -1,7 +1,7 @@
 <script>
 var erisk = (function(my) {
     const { $, div } = domUtils;
-    const POLL_DELAY = 1000;
+    const POLL_DELAY = 2000;
 
     my.runSetupScreen = function() {
         audio.setupAudio();
@@ -136,8 +136,10 @@ var erisk = (function(my) {
 
         // poll for updates to the configuration - which will happen if another player joins (or leaves) this game
         function pollForNewPlayers() {
+
             if (!appState.isWaitingForPlayersToJoin())
                 return;
+
             google.script.run
                 .withSuccessHandler(function(newGameData) {
                     if (newGameData) { // we only get newGameData if players are different

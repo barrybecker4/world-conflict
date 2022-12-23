@@ -45,12 +45,12 @@ var erisk = (function(my) {
         const openGames = gameConfigurationTable.availableOpenGamesWhereSeated(gameDataDocs, userId);
 
         openGames.forEach(game => {
-            const numHumanPlayers = gameConfigurationTable.getNumSeatedPlayers(game);
-
-            if (numHumanPlayers === 1) {
-                gameConfigurationTable.deleteGameConfiguration(game.gameId);
-            }
-            else unseatPlayerFromOpenGame(userId, game);
+              const numHumanPlayers = gameConfigurationTable.getNumSeatedPlayers(game);
+              // If there is only 1 player at the game, and its not the current game, then delete it.
+              if (numHumanPlayers === 1 && game.gameId !== gameData.gameId) {
+                  gameConfigurationTable.deleteGameConfiguration(game.gameId);
+              }
+              else unseatPlayerFromOpenGame(userId, game);
         });
     }
 

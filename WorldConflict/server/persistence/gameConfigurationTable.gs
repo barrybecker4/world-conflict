@@ -103,7 +103,7 @@ function getGameConfigurationTableAccessor() {
         if (gameData.gameId) {
             const doc = getGameConfiguration(gameData.gameId);
             if (!doc) {
-                throw new Error("Could not retrieve game with gameId = " + gameData.gameId)
+                throw new Error("Could not retrieve game with gameId = " + gameData.gameId);
             }
             addPlayerTypes(gameData);
             doc.fields = gameData;
@@ -181,12 +181,10 @@ function getGameConfigurationTableAccessor() {
 
     return {
         getGameConfiguration,
-        createGameConfiguration,
         updateGameConfiguration,
         deleteGameConfiguration,
         deleteGameConfigurations,
         getOpenGameConfigurations,
-        insert,
         upsert,
         availableOpenGame,
         availableOpenGames,
