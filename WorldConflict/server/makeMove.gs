@@ -256,7 +256,7 @@ var erisk = (function(my) {
     }
 
     function determineGameWinner(state) {
-        const pointsFn = player => state.regionCount(player);
+        const pointsFn = player => (1000 * state.regionCount(player) + state.totalSoldiers(player));
         const winner = sequenceUtils.max(gameData.players, pointsFn);
         const otherPlayers = gameData.players.filter(function(player) { return player !== winner; });
         const runnerUp = sequenceUtils.max(otherPlayers, pointsFn);
