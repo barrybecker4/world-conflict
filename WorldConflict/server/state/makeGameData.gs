@@ -10,7 +10,6 @@ var erisk = (function(my) {
      */
     my.makeNewGameData = function(setup, keepCurrentMap) {
         const userId = getUserId();
-        unseatFromOpenGames(userId);
         return createNewGameData(setup, keepCurrentMap, userId);
     }
 
@@ -44,14 +43,7 @@ var erisk = (function(my) {
         const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
         const openGames = gameConfigurationTable.availableOpenGamesWhereSeated(gameDataDocs, userId);
 
-        openGames.forEach(game => {
-              const numHumanPlayers = gameConfigurationTable.getNumSeatedPlayers(game);
-              // If there is only 1 player at the game, and its not the current game, then delete it.
-              if (numHumanPlayers === 1 && game.gameId !== gameData.gameId) {
-                  gameConfigurationTable.deleteGameConfiguration(game.gameId);
-              }
-              else unseatPlayerFromOpenGame(userId, game);
-        });
+        openGames.forEach(game => unseatPlayerFromOpenGame(userId, game));
     }
 
     /**
@@ -72,7 +64,12 @@ var erisk = (function(my) {
     function unseatPlayerFromOpenGame(userId, openGame) {
         Logger.log("Unseating player " + userId + " from open game " + openGame.gameId);
         unseatPlayer(openGame.players, userId);
-        gameData = gameConfigurationTable.upsert(openGame);
+        // Delete if this is not an active game, otherwise update it
+        if  (gameConfigurationTable.getNumSeatedPlayers(openGame) == 0) {
+            gameConfigurationTable.deleteGameConfiguration(openGame.gameId);
+        } else {
+            gameData = gameConfigurationTable.upsert(openGame);
+        }
     }
 
     function unseatPlayer(players, userId) {

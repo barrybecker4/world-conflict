@@ -54,7 +54,7 @@ function retrieveOpenGames() {
     const openGames = gameConfigurationTable.availableOpenGames(gameDataDocs, userId);
     console.log("Retrieved " + openGames.length + " open games for " + userId);
     const promise = new Promise(function(resolve, reject) {
-        removeGamesWithNoHumans(gameDataDocs)
+        removeGamesWithNoHumans(gameDataDocs);
     });
     return openGames;
 }
