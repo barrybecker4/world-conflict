@@ -7,6 +7,7 @@ var erisk = (function(my) {
         audio.setupAudio();
         appState.setInSetup();
         let configuringPlayer = null;
+        let startGameClicked = false;
 
         retrieveAndShowOpenGames();
 
@@ -102,7 +103,10 @@ var erisk = (function(my) {
             uiCallbacks.setBuildCB(function(whichButton) {
                 switch (whichButton) {
                     case 0: // start anyway (before all slots filled)
-                        startGameAfterConvertingOpenSlots();
+                        if (!startGameClicked) {
+                            startGameClicked = true;
+                            startGameAfterConvertingOpenSlots();
+                        }
                         break;
                     case 1: // leave this game table
                         console.log("Leaving!");
@@ -234,12 +238,14 @@ var erisk = (function(my) {
         }
 
         function startGame() {
+            startGameClicked = false;
             erisk.prepareInGameUI();
             erisk.gameRenderer.updateDisplay(gameData.initialGameState);
             appState.setInGame();
             const state = gameData.initialGameState;
             erisk.gameRenderer.showPlayerBanner(state.activePlayer());
             erisk.playOneMove(state, false, configuringPlayer);
+
         }
 
         // Convert any unassigned open human slots to AI players to allow the game to start.
