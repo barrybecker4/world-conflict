@@ -37,32 +37,35 @@ class GameState {
         return gameData.players[this.getNextPlayerIndex()];
     }
 
-    /** @return an object containing
-     *  {nextHumanPlayer: <player>, numSkippedAIs: <number of AIs> }
+    /**
+     * @return an object containing
+     *  {nextHumanPlayer: <player>, numSkippedAIs: <number of AIs> } or null if none.
      * Where nextHumanPlayer is the next non-eliminated human player after the specified player,
      * and numSkippedAIs is the number of AIs after the specified player, but before nextHumanPlayer (0, 1, or 2).
      * It's possible that there could be no next human player, if there is only one human playing.
+     * In that case, null is returned.
      */
     getHumanPlayerAfter(player) {
-        const result = { nextHumanPlayer: null, numSkippedAIs: 0 };
+        const next = { humanPlayer: null, numSkippedAIs: 0 };
         const playerCount = gameData.players.length;
         let idx = (player.index + 1) % playerCount;
-        result.nextPlayer = gameData.players[idx];
-        while (result.nextPlayer.personality || gameData.eliminatedPlayers[idx]) {
-            if (result.nextPlayer.personality) {
-                result.numSkippedAIs += 1;
+        next.player = gameData.players[idx];
+        while (next.player.personality || gameData.eliminatedPlayers[idx]) {
+            if (next.player.personality) {
+                next.numSkippedAIs += 1;
             }
             idx = (idx + 1) % playerCount;
-            result.nextPlayer = gameData.players[idx];
+            next.player = gameData.players[idx];
             if (idx === player.index) {
                 console.log("No other human player found after " + player.name);
                 return null;
             }
         }
-        if (result.nextPlayer.name === player.name) {
+        if (next.player.name === player.name) {
              throw new Error("Player and human player after that were unexpectedly both " + player.name);
         }
-        return result;
+        next.humanPlayer = next.player;
+        return next;
     }
 
     getNextPlayerIndex() {

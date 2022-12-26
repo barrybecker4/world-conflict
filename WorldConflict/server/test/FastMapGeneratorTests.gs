@@ -30,7 +30,7 @@ var FastMapGeneratorTests = (function (my) {
             const elapsed = Date.now() - startTime;
             console.log("Time to generate medium map (fast) = " + elapsed);
 
-            assert.equal(regions.length, 22);  // want >= 19
+            assert.equal(regions.length, 19);  // want >= 19
             assert.equal(elapsed < 60, true);
         });
 
@@ -46,7 +46,7 @@ var FastMapGeneratorTests = (function (my) {
             const elapsed = Date.now() - startTime;
             console.log("Time to generate large map (fast) = " + elapsed);
 
-            assert.equal(regions.length, 27);
+            assert.equal(regions.length, 35);
             assert.equal(elapsed < 60, true);
         });
 

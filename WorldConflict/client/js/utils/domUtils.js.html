@@ -76,7 +76,8 @@ var domUtils = (function(my) {
             const selector = element;
             element = my.$(selector);
             if (!element) {
-                throw new Error(`Could not find el for selector = ${selector}`);
+                console.log(`Could not find el for selector = ${selector}`);
+                return;
             }
         }
         element.classList[on ? 'add' : 'remove'](className);

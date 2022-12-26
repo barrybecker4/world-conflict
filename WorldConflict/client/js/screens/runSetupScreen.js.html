@@ -177,8 +177,12 @@ var erisk = (function(my) {
         }
 
         function generateGameData(callback, keepCurrentMap) {
-            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !storage.isSetupValid() )
+            const isValid = keepCurrentMap ? gameData.isValid() : storage.isSetupValid()
+            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !isValid ) {
+                console.log("Not generating game data because one of these was true: ");
+                console.log(`waiting:${appState.isWaitingForPlayersToJoin()} inGameOrWaiting:${appState.isInGameOrWaiting()} invalid:${!storage.isSetupValid()}`);
                 return;
+            }
 
             console.log(`Calling makeNewGameData - which will unseat ${domUtils.userid()}.`);
             google.script.run
@@ -244,8 +248,8 @@ var erisk = (function(my) {
             appState.setInGame();
             const state = gameData.initialGameState;
             erisk.gameRenderer.showPlayerBanner(state.activePlayer());
+            console.log("in startGame: " + typeof(erisk.playOneMove));
             erisk.playOneMove(state, false, configuringPlayer);
-
         }
 
         // Convert any unassigned open human slots to AI players to allow the game to start.
@@ -257,6 +261,9 @@ var erisk = (function(my) {
                     persistGameData(callback);
                 });
             }
+            if (gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN)) {
+                throw new Error("There were open player slots after converting them all to AIs: " + JSON.stringify(gameData.players));
+            }
             else callback();
         }
 
@@ -265,7 +272,7 @@ var erisk = (function(my) {
                 const player = gameData.players[i];
                 console.log("player.type = " + player.type + " player.name = " + player.name);
                 if (player.type === CONSTS.PLAYER_HUMAN_OPEN && !player.name) {
-                    storage.gameSetup.playerTypes[player.originalIndex] = CONSTS.PLAYER_AI;
+                    player.type = CONSTS.PLAYER_AI;
                 }
             }
             appState.setInSetup();

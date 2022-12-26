@@ -31,6 +31,7 @@ var erisk = (function(my) {
     function createRowHtmlForGame(openGame) {
         const turnCount = openGame.turnCount;
         const aiLevelLabel = CONSTS.AI_LEVEL_LABELS[openGame.aiLevel];
+        const mapSize = openGame.mapSize;
         const gid = "game-" + openGame.gameId;
 
         playerHtmls = openGame.players.map((p) => {
@@ -49,7 +50,7 @@ var erisk = (function(my) {
             }
         });
 
-        const gameMeta = 'turns: ' + turnCount + ', ' + aiLevelLabel + ' AI';
+        const gameMeta = `Turns: ${turnCount}, ${aiLevelLabel} AI, ${mapSize} Map`;
         playerHtmls.push(div({ c: 'player-slot info', style: 'background: ' + "0x000" }, gameMeta));
 
         return div({ id: gid, c: 'side-control player-box', style: 'background: ' + "0x000" }, playerHtmls.join(''));

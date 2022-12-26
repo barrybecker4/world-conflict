@@ -59,7 +59,10 @@ var erisk = (function(my) {
             });
 
             const player = editable ? CONSTS.PLAYERS[playerIndex] : getPlayer(playerIndex);
-            $('player-box' + playerIndex).querySelector('.player-name').innerHTML = player.getName();
+            const playerBox = $('player-box' + playerIndex);
+            if (playerBox && playerBox.querySelector('.player-name')) {
+                playerBox.querySelector('.player-name').innerHTML = player.getName();
+            }
         });
     }
 

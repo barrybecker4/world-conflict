@@ -99,7 +99,7 @@ var erisk = (function(my) {
         /* @param moves - the moves that have been played since we last checked */
         return async function(moves) {
 
-            continueIfNextPlayerLeftGame(startState, moves);
+            startState = continueIfNextPlayerLeftGame(startState, moves);
             const finalState = await replayMove(0, startState);
 
             async function replayMove(i, state) {
@@ -150,34 +150,40 @@ var erisk = (function(my) {
     function continueIfNextPlayerLeftGame(startState, moves) {
         const nextPlayer = startState.activePlayer();
         if (!nextPlayer) {
-            throw new Error("nextPlayer unexpectedly " + nextPlayer +".\n startState=\n" + JSON.stringify(startState));
+            throw new Error("nextPlayer unexpectedly " + nextPlayer + ".\n startState=\n" + JSON.stringify(startState));
         }
-        const result = startState.getHumanPlayerAfter(nextPlayer);
-        //const { nextNextHumanPlayer, numSkippedAIs } = startState.getHumanPlayerAfter(nextPlayer);
-        const nextNextHumanPlayer = result.nextNextHumanPlayer;
-        const numSkippedAIs = result.numSkippedAIs;
+        const next = startState.getHumanPlayerAfter(nextPlayer);
 
         // We don't want every player to submit to the server because that would result in race conditions.
         // Instead, only submit to server for AI players to play if this will be the next human player.
-        if (!moves.length && nextNextHumanPlayer && domUtils.userid() == nextNextHumanPlayer.name) {
-            const elapsedTimeSinceRequest = new Date() - requestStartTime;
-            console.log(`Waiting for ${nextPlayer.name} for ${elapsedTimeSinceRequest/1000}s. Next human player = ${nextNextHumanPlayer.name}`);
-            // If this is true, then we waited too long for some other human player
-            const timeout = gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY + numSkippedAIs * AI_TURN_DELAY;
-            if (elapsedTimeSinceRequest > timeout) {
-                requestStartTime = null;
-                console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
-                const resignationMove = new ResignationMove();
-                startState = erisk.makeMove(startState, resignationMove);
-                resignationMove.stateId = startState.id;
-                resignationMove.gameId = startState.gameId;
-                localHumanMoves = [resignationMove];
-                console.log(`Persisting move where ${nextPlayer.name} resigned. Current player is now ${startState.activePlayer().name}`);
-                persistLocalMovesIfAnyAndPlayAi(startState, false);
-            }
+        if (next && !moves.length && domUtils.userid() == next.humanPlayer.name) {
+            startState = eliminateNextPlayerIfTimeExpired(next, nextPlayer, startState);
         } else {
-            requestStartTime = null
+            requestStartTime = null;
         }
+        return startState;
+    }
+
+    function eliminateNextPlayerIfTimeExpired(next, nextPlayer, startState) {
+        const nextHumanPlayer = next.humanPlayer;
+        const numSkippedAIs = next.numSkippedAIs;
+        const elapsedTimeSinceRequest = new Date() - requestStartTime;
+        console.log(`Waiting for ${nextPlayer.name} for ${elapsedTimeSinceRequest/1000}s. Next human player = ${next.humanPlayer.name}`);
+
+        // If this is true, then we waited too long for some other human player
+        const timeout = gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY + numSkippedAIs * AI_TURN_DELAY;
+        if (elapsedTimeSinceRequest > timeout) {
+            requestStartTime = null;
+            console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
+            const resignationMove = new ResignationMove();
+            startState = erisk.makeMove(startState, resignationMove);
+            resignationMove.stateId = startState.id;
+            resignationMove.gameId = startState.gameId;
+            localHumanMoves = [resignationMove];
+            console.log(`Persisting move where ${nextPlayer.name} resigned. Current player is now ${startState.activePlayer().name}`);
+            persistLocalMovesIfAnyAndPlayAi(startState, false);
+        }
+        return startState;
     }
 
     function showEndGame(state) {
