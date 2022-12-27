@@ -177,10 +177,9 @@ var erisk = (function(my) {
         }
 
         function generateGameData(callback, keepCurrentMap) {
-            const isValid = keepCurrentMap ? gameData.isValid() : storage.isSetupValid()
-            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !isValid ) {
+            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !storage.isSetupValid()) {
                 console.log("Not generating game data because one of these was true: ");
-                console.log(`waiting:${appState.isWaitingForPlayersToJoin()} inGameOrWaiting:${appState.isInGameOrWaiting()} invalid:${!storage.isSetupValid()}`);
+                console.log(`waiting:${appState.isWaitingForPlayersToJoin()} inGameOrWaiting:${appState.isInGameOrWaiting()}  invalid:${!storage.isSetupValid()}`);
                 return;
             }
 
@@ -262,21 +261,23 @@ var erisk = (function(my) {
                 });
             }
             if (gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN)) {
-                throw new Error("There were open player slots after converting them all to AIs: " + JSON.stringify(gameData.players));
+                throw new Error("There were open player slots after converting gameData all to AIs: " + JSON.stringify(gameData.players));
             }
             else callback();
         }
 
         function convertOpenSlotsToAiPlayers(callback) {
+            // the gameData.players list may have fewer entries than storage.gameSetup.playerTypes
             for (let i = 0; i < gameData.players.length; i++) {
                 const player = gameData.players[i];
-                console.log("player.type = " + player.type + " player.name = " + player.name);
-                if (player.type === CONSTS.PLAYER_HUMAN_OPEN && !player.name) {
+                if (player.type === CONSTS.PLAYER_HUMAN_OPEN) {
                     player.type = CONSTS.PLAYER_AI;
+                    player.personality = utils.rint(1, CONSTS.AI_PERSONALITIES.length);
+                    player.name = '';
                 }
             }
             appState.setInSetup();
-            regenerateGameDataWithoutNewMap(callback);
+            callback();
         }
 
         // Callback for player setup buttons. Assigns one of the player types.

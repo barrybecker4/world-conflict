@@ -53,7 +53,6 @@ var storage = (function(my) {
             }
             return (playerType !== CONSTS.PLAYER_OFF) ? 1 : 0;
         });
-        console.log("enabled players = " + enabledPlayers + " numSetPlayers = " + numSetPlayers);
         return enabledPlayers > 1 && numSetPlayers > 0;
     }
 
