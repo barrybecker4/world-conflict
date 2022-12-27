@@ -282,12 +282,19 @@ var erisk = (function(my) {
 
         // Callback for player setup buttons. Assigns one of the player types.
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
-            // set the player type for the player
-            storage.gameSetup.playerTypes[event.playerIndex] = CONSTS.PLAYER_TYPES[event.playerTypeIndex];
+            // Don't allow setting this player again if already set.
+            const typeClicked = CONSTS.PLAYER_TYPES[event.playerTypeIndex];
+            if (typeClicked == CONSTS.PLAYER_HUMAN_SET && storage.gameSetup.playerTypes.some(ptype => ptype == CONSTS.PLAYER_HUMAN_SET)) {
+                alert("You can only set yourself at one seat. To move, first unseat yourself.");
+            }
+            else {
+                // set the player type for the player
+                storage.gameSetup.playerTypes[event.playerIndex] = typeClicked;
 
-            erisk.updatePlayerConfigButtons();
-            erisk.updateConfigBottomButtons();
-            regenerateGameDataWithoutNewMap();
+                erisk.updatePlayerConfigButtons();
+                erisk.updateConfigBottomButtons();
+                regenerateGameDataWithoutNewMap();
+            }
         });
 
         // callback for AI level buttons
