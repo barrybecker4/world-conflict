@@ -18,14 +18,8 @@ var erisk = (function(my) {
         onClickOrTap($('sound'), audio.toggleSound);
         onClickOrTap($('undo-button'), event => uiCallbacks.invokeCallback(0, 'undo', event));
         onClickOrTap($('resign'), () => {
-            if (!appState.isInGame()) { // the button should be disabled if not players turn
-                erisk.runSetupScreen();
-                uiCallbacks.clearAll();
-            } else {
-                erisk.stopExpirationTimer();
-                uiCallbacks.clearAll();
-                uiCallbacks.resign();
-            }
+            uiCallbacks.moveEndTasks();
+            uiCallbacks.resign();
         });
 
         switchTutorialCard(0);

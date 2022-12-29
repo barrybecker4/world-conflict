@@ -121,8 +121,7 @@ var erisk = (function(my) {
         }
 
         function endTurn() {
-            erisk.stopExpirationTimer();
-            uiCallbacks.clearAll();
+            uiCallbacks.moveEndTasks();
             reportMoveCallback(new EndMove());
         }
 
