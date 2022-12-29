@@ -108,6 +108,7 @@ var erisk = (function(my) {
         });
 
         uiCallbacks.setUndoCB(() => erisk.performUndo(state));
+        uiCallbacks.setResignCB(() => reportMoveCallback(new ResignationMove()));
         setCleanState();
 
         if (gameData.numHumanPlayers() > 1 && gameData.humanTimeLimit != CONSTS.UNLIMITED_TIME) {
@@ -121,8 +122,7 @@ var erisk = (function(my) {
 
         function endTurn() {
             erisk.stopExpirationTimer();
-
-            uiCallbacks.clearAll(); // end turn
+            uiCallbacks.clearAll();
             reportMoveCallback(new EndMove());
         }
 

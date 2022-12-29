@@ -29,8 +29,8 @@ var erisk = (function(my) {
         // set it all
         $('game-info').innerHTML = html;
 
-        // show stat box, undo button, and restart game buttons
-        ['move-info', 'undo-button', 'restart'].map(domUtils.show);
+        // show stat box, undo button, and resign game buttons
+        ['move-info', 'undo-button', 'resign'].map(domUtils.show);
     }
 
     my.updatePlayerConfigButtons = function() {
@@ -124,8 +124,8 @@ var erisk = (function(my) {
     function prepareSetupUI() {
         createPlayerBoxArea();
 
-        // hide stat box and undo button
-        ['move-info', 'move-expiration', 'undo-button', 'restart'].map(domUtils.hide);
+        // hide buttons not shown during setup
+        ['move-info', 'move-expiration', 'undo-button', 'resign'].map(domUtils.hide);
 
         setupButtonHandlersForPlayerSetupPanel();
     }

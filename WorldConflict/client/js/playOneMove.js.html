@@ -41,7 +41,7 @@ var erisk = (function(my) {
     function playMoveForCurrentPlayer(player, state, afterUndo) {
         appState.setInGame();
 
-        erisk.uiPickMove(player, state, function(move) {
+        function reportMoveCallback(move) {
             const newState = erisk.makeMove(state, move);
             move.stateId = newState.id;
             move.gameId = newState.gameId;
@@ -56,7 +56,9 @@ var erisk = (function(my) {
                 erisk.setPreviousState(new GameState(state)); // only humans can undo
                 setTimeout(() => my.playOneMove(newState), 0); // recursive call
             }
-        });
+        }
+
+        erisk.uiPickMove(player, state, reportMoveCallback);
     }
 
     /**
@@ -175,8 +177,7 @@ var erisk = (function(my) {
         if (elapsedTimeSinceRequest > timeout) {
             requestStartTime = null;
             console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
-            const resignationMove = new ResignationMove();
-            startState = erisk.makeMove(startState, resignationMove);
+            startState = erisk.makeMove(startState, new ResignationMove());
             resignationMove.stateId = startState.id;
             resignationMove.gameId = startState.gameId;
             localHumanMoves = [resignationMove];

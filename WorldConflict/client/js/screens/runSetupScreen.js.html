@@ -247,7 +247,6 @@ var erisk = (function(my) {
             appState.setInGame();
             const state = gameData.initialGameState;
             erisk.gameRenderer.showPlayerBanner(state.activePlayer());
-            console.log("in startGame: " + typeof(erisk.playOneMove));
             erisk.playOneMove(state, false, configuringPlayer);
         }
 
