@@ -178,7 +178,8 @@ var erisk = (function(my) {
         if (elapsedTimeSinceRequest > timeout) {
             requestStartTime = null;
             console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
-            startState = erisk.makeMove(startState, new ResignationMove());
+            const resignationMove = new ResignationMove();
+            startState = erisk.makeMove(startState, resignationMove);
             resignationMove.stateId = startState.id;
             resignationMove.gameId = startState.gameId;
             localHumanMoves = [resignationMove];

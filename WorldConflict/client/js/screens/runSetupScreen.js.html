@@ -13,7 +13,7 @@ var erisk = (function(my) {
 
         /**
          * Called after a user enters (sits down at) an existing or new game.
-         * Either the game will now start, or will will continue waiting for other players to join.
+         * Either the game will now start, or we will continue waiting for other players to join.
          */
         function gameEnteredCallback(status) {
             erisk.setOpenGamesScreenVisibility(false);
@@ -153,7 +153,7 @@ var erisk = (function(my) {
                         erisk.gameRenderer.showMap($('map'), gameData.initialGameState);
                         erisk.gameRenderer.updateMapDisplay(gameData.initialGameState);
 
-                        console.log("A player joined (or left) this game. new status = " + newGameData.status);
+                        console.log("A player joined (or left) this game. new status = " + newGameData.status + " appState=" + appState.getCurrentState());
                         gameEnteredCallback(newGameData.status);
                     } else {
                         // keep calling recursively until all players have joined, or player gets tired of waiting
@@ -259,9 +259,6 @@ var erisk = (function(my) {
                     persistGameData(callback);
                 });
             }
-            if (gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN)) {
-                throw new Error("There were open player slots after converting gameData all to AIs: " + JSON.stringify(gameData.players));
-            }
             else callback();
         }
 
@@ -274,6 +271,9 @@ var erisk = (function(my) {
                     player.personality = utils.rint(1, CONSTS.AI_PERSONALITIES.length);
                     player.name = '';
                 }
+            }
+            if (gameData.players.some(player => player.type === CONSTS.PLAYER_HUMAN_OPEN)) {
+                throw new Error("There were open player slots after converting gameData all to AIs: " + JSON.stringify(gameData.players));
             }
             appState.setInSetup();
             callback();
