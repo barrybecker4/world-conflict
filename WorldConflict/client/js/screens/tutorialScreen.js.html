@@ -18,8 +18,10 @@ var erisk = (function(my) {
         onClickOrTap($('sound'), audio.toggleSound);
         onClickOrTap($('undo-button'), event => uiCallbacks.invokeCallback(0, 'undo', event));
         onClickOrTap($('resign'), () => {
-            uiCallbacks.moveEndTasks();
-            uiCallbacks.resign();
+            if (uiCallbacks.resign) {
+                uiCallbacks.moveEndTasks();
+                uiCallbacks.resign();
+            }
         });
 
         switchTutorialCard(0);
