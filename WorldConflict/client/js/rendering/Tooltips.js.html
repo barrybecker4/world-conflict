@@ -1,0 +1,96 @@
+<script>
+const { elem, div, $,  append } = domUtils;
+
+class Tooltips {
+
+    constructor(gameState) {
+        this.gameState = gameState;
+    }
+
+    updateTooltips() {
+        const gs = this.gameState;
+        [].slice.call(document.querySelectorAll('.ttp')).map(el => $('map').removeChild(el));
+        if (gs.activePlayer().personality) return;
+
+        // "how to move" tooltips
+        const hasSource = gs.moveDecision && typeof gs.moveDecision.source == 'number';
+        if (hasSource)  {
+            this.showHowToMoveTips();
+        }
+        else {
+            this.showConqueringCannotMoveTip();
+        }
+        if (gs.turnIndex === 2 && gs.movesRemaining === 2) {
+            this.showTooltipOver({ center: { x: 90, y: 93 } },
+                "If you want to undo a move or check the rules, use the buttons here.", 15);
+        }
+    }
+
+    showHowToMoveTips() {
+        const source = gameData.regions[this.gameState.moveDecision.source];
+        this.showTooltipOver(source, "Click this region again to change the number of soldiers.");
+        // pick the furthest neighbor
+        const furthestIdx = sequenceUtils.max(source.neighbors, nbr => source.centerDistanceFrom(gameData.regions[nbr]));
+        this.showTooltipOver(gameData.regions[furthestIdx], "Click a bordering region to move.");
+    }
+
+    showConqueringCannotMoveTip() {
+        const inactiveArmies = this.gameState.conqueredRegions;
+        if (inactiveArmies) {
+            this.showTooltipOver(gameData.regions[inactiveArmies[inactiveArmies.length - 1]],
+                "Armies that conquer a new region cannot move again.");
+            this.showTooltipOver({ center: {x: -2, y: 80} }, "Once you're done, click 'End turn' here.");
+        }
+    }
+
+    showTooltipOver(region, text, width) {
+        if (storage.gameSetup.firstTimeInstructions[text]) return;
+        setTimeout(function() {
+            // don't display it again. Timeout used to handle multiple updateDisplays() in a row.
+            storage.gameSetup.firstTimeInstructions[text] = 1;
+            storage.storeSetup();
+        }, 500);
+
+        width = width || 7;
+        const left = region.center.x - (width + 1) * 0.5, bottom = 102 - region.center.y;
+        const styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
+
+        append('map', div({c: 'tt ttp', s: styles}, text));
+    }
+
+    updateSoldierTooltips() {
+        gameData.regions.map((region, regionIndex) => {
+            const tooltipId = 'side-control' + regionIndex;
+            // delete previous tooltip, if present
+            let tooltip = $(tooltipId);
+
+            // should we have a tooltip?
+            const gs = this.gameState;
+            let count = gs.soldierCount(region);
+            if (count > 8) {
+                const moveSourceIsRegion =
+                    (gs.moveDecision && (gs.moveDecision.source === region.index));
+                let selected = moveSourceIsRegion ? gs.moveDecision.count : 0;
+                selected += sequenceUtils.sum(gs.soldiersAtRegion(regionIndex), function(soldier) {
+                    return (typeof soldier.attackedRegion !== 'undefined') ? 1 : 0;
+                });
+                if (selected) {
+                    count = selected + "<hr>" + count;
+                }
+
+                if (!tooltip) {
+                    const tooltipHTML = div({
+                        i: tooltipId,
+                        c: 'tt soldier-tt',
+                        s: "left:" + (region.center.x - 1.5) + '%;top:' + (region.center.y + 1.2) + '%'
+                    }, '');
+                    tooltip = append('map', tooltipHTML);
+                }
+                tooltip.innerHTML = count;
+            } else if (tooltip) {
+                tooltip.parentNode.removeChild(tooltip);
+            }
+        });
+    }
+}
+</script>
