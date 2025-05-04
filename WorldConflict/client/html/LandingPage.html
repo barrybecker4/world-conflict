@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <?!= include('client/css/erisk.css'); ?>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World Conflict</title>
 </head>
 <body>
 <div id='container'>
-    <div id='overview-panel' style='display: none'>
-        <div id='game-info'></div>
-        <div id='move-info' class="side-control">
+    <aside id='overview-panel' style='display: none'>
+        <section id='game-info'></section>
+
+        <section id='move-info' class="side-control">
             <div class='block-left'>
                 <div id="move-count"></div>
                 <div>moves</div>
@@ -19,16 +21,20 @@
                 <div>faith</div>
             </div>
             <div style='clear:both;font-size:1px'></div>
-        </div>
-        <div id='move-expiration' class="side-control description">
+        </section>
+
+        <section id='move-expiration' class="side-control description">
             <span>Make your move in </span>
             <span id="remaining-time" class="timer"></span>
             <span> seconds</span>
-        </div>
-        <div id='footer-buttons'></div>
-    </div>
-    <div id='map'></div>
+        </section>
 
+        <nav id='footer-buttons'></nav>
+    </aside>
+
+    <main id='map' role="application" aria-label="Game map"></main>
+
+    <!-- Keep the original div structure for title screen as it has specific CSS dependencies -->
     <div id='title-screen' class='h title-screen'>
         <h1>World Conflict
             <br/>
@@ -115,13 +121,12 @@
                 </div>
             </div>
         </div>
-        <a href="#" class="round-button" id="prev">«</a>
-        <a href="#" class="round-button" id="next">»</a>
+        <a href="#" class="round-button" id="prev" aria-label="Previous tutorial card">«</a>
+        <a href="#" class="round-button" id="next" aria-label="Next tutorial card">»</a>
         <div class='bottom-box'>
             <a id='cancel-button' href='#'>Got it!</a>
         </div>
     </div>
-
 
     <div id='open-games-screen' class='h title-screen'>
         <h1>Select Game
@@ -138,10 +143,12 @@
         </div>
     </div>
 
-    <a id="resign" href="#" class="corner-button round-button" title="Resign">&#9762;</a>
-    <a id="tutorial-button" href="#" style="right: 5.7%" class="corner-button round-button" title="Instructions">?</a>
-    <a id="sound" href="#" style="right: 10.4%" class="corner-button round-button" title="Sound"></a>
-    <a id="undo-button" href="#" style="right: 15.1%" class="corner-button round-button" title="Undo">&#x21b6;</a>
+    <nav class="game-controls">
+        <a id="resign" href="#" class="corner-button round-button" title="Resign" aria-label="Resign game">&#9762;</a>
+        <a id="tutorial-button" href="#" style="right: 5.7%" class="corner-button round-button" title="Instructions" aria-label="View instructions">?</a>
+        <a id="sound" href="#" style="right: 10.4%" class="corner-button round-button" title="Sound" aria-label="Toggle sound"></a>
+        <a id="undo-button" href="#" style="right: 15.1%" class="corner-button round-button" title="Undo" aria-label="Undo last move">&#x21b6;</a>
+    </nav>
 </div>
 </body>
 </html>
