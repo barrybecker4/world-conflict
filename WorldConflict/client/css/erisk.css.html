@@ -1,54 +1,104 @@
 <link rel="stylesheet" type="text/css" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
 <style>
-body {
-    background: #000;
-    height: 100%;
+/* CSS Reset */
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS Variables */
+:root {
+    /* Colors */
+    --color-primary: #000;
+    --color-background: #111;
+    --color-text-primary: #fff;
+    --color-text-secondary: #aaa;
+    --color-border: #333;
+    --color-border-light: #666;
+    --color-highlight: #444;
+
+    /* Shadows */
+    --shadow-default: 2px 2px #000;
+    --shadow-inset: inset -3px -3px 0 0 rgba(0,0,0,0.2);
+    --shadow-deep: 0 10px 10px 5px rgba(0,0,0,0.7), inset 0 20px 2px rgba(255,255,255,0.05);
+    --shadow-box: inset 4px 4px 20px #344;
+
+    /* Transitions */
+    --transition-default: all 0.3s ease-in-out;
+    --transition-fast: all 0.2s ease-in-out;
+    --transition-transform: transform 1.5s linear;
+
+    /* Spacing */
+    --spacing-xs: 0.12em;
+    --spacing-sm: 0.33em;
+    --spacing-md: 0.5em;
+    --spacing-lg: 1em;
+    --spacing-xl: 1.5em;
+
+    /* Font sizes */
+    --font-xs: 65%;
+    --font-sm: 80%;
+    --font-md: 90%;
+    --font-lg: 110%;
+    --font-xl: 150%;
+}
+
+body {
+    background: var(--color-primary);
+    height: 100%;
     font-family: sans-serif;
     overflow: hidden;
     line-height: 1.14;
 }
+
 svg {
     width: 100%;
     height: 100%;
 }
+
 #container {
     position: relative;
     margin: auto;
-    -webkit-perspective: 50em;
     perspective: 50em;
 }
+
 #overview-panel, #map, #footer-buttons {
     position: absolute;
 }
+
 #overview-panel {
-    left: 0.5%; right: 75%;
-    top: 10%; bottom: 10%;
-    color: white;
+    left: 0.5%;
+    right: 75%;
+    top: 10%;
+    bottom: 10%;
+    color: var(--color-text-primary);
     transform: rotateY(0deg);
-    -webkit-transform: rotateY(0deg);
     transform-origin: left;
-    -webkit-transform-origin: left;
-    border: 1px solid #333;
-    background: #111;
-    font-size: 110%;
-}
-#map {
-    right: 0; left: 23%; top: 0; bottom: 0;
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    font-size: var(--font-lg);
 }
 
-/* Board elements */
+#map {
+    right: 0;
+    left: 23%;
+    top: 0;
+    bottom: 0;
+}
+
 .temple, .temple-level, .soldier {
     border: 1px solid black;
-    box-shadow: 2px 2px #000, inset -3px -3px 0 0 rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-default), var(--shadow-inset);
     position: absolute;
 }
+
 .temple {
     width: 3%;
     height: 4%;
     transform: rotate(9deg);
-    -webkit-transform: rotate(9deg);
 }
+
 .temple-level {
     width: 90%;
     height: 90%;
@@ -56,16 +106,18 @@ svg {
     top: -8%;
     border-radius: 45%;
     text-align: center;
-    box-shadow: 1px 1px #000, inset -3px -3px 0 0 rgba(0,0,0,0.2);
+    box-shadow: 1px 1px #000, var(--shadow-inset);
 }
+
 .soldier {
     width: 0.9%;
     height: 1.2%;
     border-radius: 50%;
     background: #777;
 }
+
 .selected {
-    border-color: #fff;
+    border-color: var(--color-text-primary);
 }
 
 .disabled {
@@ -73,20 +125,19 @@ svg {
     cursor: not-allowed;
 }
 
-/* Information display styles */
 .side-control {
-    margin: 0.12em 0.12em;
+    margin: var(--spacing-xs) var(--spacing-xs);
     padding: 0.6em 1em;
     background: #222;
-    box-shadow: inset 4px 4px 20px #344;
-    font-size: 90%;
+    box-shadow: var(--shadow-box);
+    font-size: var(--font-md);
     text-shadow: 0.09em 0.08em #000;
 }
 
 .timer {
-    color: #fff;
+    color: var(--color-text-primary);
     font-weight: bold;
-    transition: all 0.2s ease-in-out;
+    transition: var(--transition-fast);
 }
 
 .timer.glow {
@@ -94,21 +145,22 @@ svg {
 }
 
 .user-name {
-    padding: 0.5em 0;
+    padding: var(--spacing-md) 0;
 }
 
 .description {
-    font-size: 80%; color: #aaa;
+    font-size: var(--font-sm);
+    color: var(--color-text-secondary);
 }
+
 .info-text {
     padding: 20px;
 }
 
-/* Player configuration boxes */
 .player-box {
-    margin: 0 0.33em;
-    padding: 0.5em 0.25em 0.5em 0.5em;
-    font-size: 80%;
+    margin: 0 var(--spacing-sm);
+    padding: var(--spacing-md) 0.25em var(--spacing-md) var(--spacing-md);
+    font-size: var(--font-sm);
     white-space: nowrap;
 }
 
@@ -119,15 +171,15 @@ svg {
 .active {
     border: 4px solid rgba(255,255,255,0.2);
 }
+
 .inactive {
     border: 4px solid rgba(0,0,0,0.7);
 }
 
-/* additional information displayed inside the box */
 .additional-info {
     float: right;
     width: 25%;
-    text-align:  right;
+    text-align: right;
     margin: -0.2em 0.2em 0 0;
     font-size: 120%;
 }
@@ -137,22 +189,19 @@ svg {
     text-align: center;
 }
 
-.player-name.info {
-}
-
 .player-slot {
     justify-content: flex-start;
     display: inline-block;
-    width:17%;
+    width: 17%;
     text-align: center;
     padding: 0.1em;
-    margin:0.2em;
+    margin: 0.2em;
     border-radius: 4px;
-    border: 1px solid #666;
+    border: 1px solid var(--color-border-light);
 }
 
 .player-slot.open {
-    border: 1px solid #fff;
+    border: 1px solid var(--color-text-primary);
     text-shadow: none;
     min-width: 1.5em;
 }
@@ -161,17 +210,21 @@ svg {
     border: none;
 }
 
+/* Open Games Panel */
 #open-games-panel {
     height: 50%;
     overflow-y: auto;
 }
 
-
-/* Buttons */
+/* Footer Buttons */
 #footer-buttons {
-    bottom: 0.8em; left: 0.8em; right: 0.8em;
+    bottom: 0.8em;
+    left: 0.8em;
+    right: 0.8em;
     perspective: 15em;
 }
+
+/* Link Styles */
 a {
     display: block;
     position: relative;
@@ -179,40 +232,44 @@ a {
     text-decoration: none;
     margin-top: 0.15em;
     color: #dde;
-    border: 2px solid #333;
+    border: 2px solid var(--color-border);
     border-radius: 10px;
-    background: #000;
-    padding: 0.5em;
-    font-size: 80%;
+    background: var(--color-primary);
+    padding: var(--spacing-md);
+    font-size: var(--font-sm);
     transform: translate3d(0, 0, 0);
     z-index: 10;
 }
+
 h1 a {
     display: inline;
     color: #aaf;
     background: none;
     border: none;
 }
+
 a:hover {
-    background: #444;
-    color: #fff;
+    background: var(--color-highlight);
+    color: var(--color-text-primary);
     transform: translate3d(0, 0, 0.1em);
     z-index: 20;
 }
-a.off, a.off:hover {
+
+a.off,
+a.off:hover {
     opacity: 0.3;
-    background: #000;
-    transform: translate3d(0,0,0);
+    background: var(--color-primary);
+    transform: translate3d(0, 0, 0);
     cursor: default !important;
 }
 
-
+/* Right-aligned Buttons */
 a.right {
     display: block;
     float: right;
     padding: 0.2em;
     margin: -0.2em 0 0 0.1em;
-    border: 1px solid #000;
+    border: 1px solid var(--color-primary);
     border-radius: 2px;
     font-size: 100%;
     text-shadow: none;
@@ -221,8 +278,8 @@ a.right {
 }
 
 a.right.selected {
-    background: #fff;
-    color: #000;
+    background: var(--color-text-primary);
+    color: var(--color-primary);
 }
 
 .banner {
@@ -230,58 +287,61 @@ a.right.selected {
     top: 40%;
     height: 10.8%;
     width: 105%;
-
     text-align: center;
     padding-top: 1%;
     padding-right: 10%;
-
     border: 2px solid black;
-
-    color: #fff;
+    color: var(--color-text-primary);
     z-index: 100;
     font-size: 3.2em;
     font-family: "Constantia", "Athelas", serif;
-
-    box-shadow: 0 10px 10px 5px rgba(0,0,0,0.7), inset 0 20px 2px rgba(255,255,255,0.05);
-    text-shadow: 2px 2px #000;
-
-    transition: opacity 0.5s ease-in-out, transform 1.5s linear, -webkit-transform 1.5s linear;
+    box-shadow: var(--shadow-deep);
+    text-shadow: var(--shadow-default);
+    transition: opacity 0.5s ease-in-out, var(--transition-transform);
 }
 
+/* Transitions for Interactive Elements */
 a, .temple, .temple-level, .soldier, .player-box, #info, polygon {
-    transition: all 0.3s ease-in-out;
+    transition: var(--transition-default);
 }
+
 p {
-    margin: 0.4em 1em 0.4em 1em;
+    margin: 0.4em 1em;
 }
 
 #move-info {
     text-align: center;
-    padding: 0.5em 0 1em 0;
-    font-size: 80%;
+    padding: var(--spacing-md) 0 var(--spacing-lg) 0;
+    font-size: var(--font-sm);
     color: #777;
     font-weight: bold;
 }
-.block-left, .block-right {
+
+.block-left,
+.block-right {
     float: left;
     width: 40%;
     margin: 0 6.66%;
 }
+
 .block-left {
     margin-right: 0;
 }
-#move-count, #faith {
+
+#move-count,
+#faith {
     font-size: 170%;
     color: #eef;
-    text-shadow: 2px 2px #000;
+    text-shadow: var(--shadow-default);
 }
 
 #info {
     font-size: 70%;
     box-shadow: inset 4px 4px 20px rgba(0,0,0,0.5);
-    border: 1px solid #000;
-    color: #fff;
+    border: 1px solid var(--color-primary);
+    color: var(--color-text-primary);
 }
+
 .title-screen {
     position: absolute;
     z-index: 50;
@@ -290,7 +350,7 @@ p {
     right: 10%;
     bottom: 10%;
     background: rgba(0,0,0,0.9);
-    color: #aaa;
+    color: var(--color-text-secondary);
     line-height: 150%;
     text-align: center;
     border: 2px solid #999;
@@ -299,40 +359,42 @@ p {
     perspective-origin: 50% 0;
     padding: 20px;
     transform: translate3d(0,0,3em);
-    -webkit-perspective: 40em;
-    -webkit-perspective-origin: 50% 0;
-    -webkit-transform: translate3d(0.2em,0,4em);
     transition: all 0.4s;
     opacity: 0.95;
 }
+
 #title-screen.h {
     transform: translate3d(0.2em,0,4em) rotateX(90deg);
-    -webkit-transform: translate3d(0.2em,0,4em) rotateX(90deg);
     opacity: 0.0;
 }
+
 .title-subheader {
     font-size: 25%;
     margin-top: 1em;
     text-shadow: none;
 }
+
 .title-subheader .version {
-    color: #666;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+    color: var(--color-border-light);
+    margin-left: var(--spacing-md);
+    margin-right: var(--spacing-md);
 }
 
 .corner-button {
-    display: none; right: 1%; bottom: 1%; opacity: 0.4;
+    display: none;
+    right: 1%;
+    bottom: 1%;
+    opacity: 0.4;
 }
 
 /* Tooltips */
 .tt {
-    background: #000;
+    background: var(--color-primary);
     border-radius: 10%;
     position: absolute;
     z-index: 10000;
-    font-size: 65%;
-    color: #fff;
+    font-size: var(--font-xs);
+    color: var(--color-text-primary);
     width: 7%;
     text-align: center;
     padding: 0.4em;
@@ -348,18 +410,16 @@ p {
 .soldier-tt {
     width: 2%;
     font-weight: bold;
-    background: #333;
+    background: var(--color-border);
     padding: 0.12em;
-    border: 1px solid #000;
+    border: 1px solid var(--color-primary);
 }
 
-/* Particles! */
 .particle {
     position: absolute;
     width: 1px;
     height: 1px;
     transform: translate3d(0,0,0);
-    -webkit-transform: translate3d(0,0,0);
     transition: all 4s;
 }
 
@@ -368,31 +428,41 @@ p {
     text-align: left;
 }
 
-/* Tutorial slider styles */
+/* Tutorial Styles */
 #tutorial {
     position: absolute;
-    left: 20%; right: 20%;
-    top: 28%; bottom: 15%;
+    left: 20%;
+    right: 20%;
+    top: 28%;
+    bottom: 15%;
     overflow: hidden;
 }
+
 #tutorial-card {
-    width: 500%; height: 100%;
+    width: 500%;
+    height: 100%;
     transform: translate3d(0,0,0);
     transition: all 0.4s;
 }
+
 .card {
-    width: 20%; height: 100%;
+    width: 20%;
+    height: 100%;
     margin: 0;
     float: left;
     text-align: justify;
 }
+
 .pic {
     position: relative;
     width: 10%;
     height: 15%;
     margin: auto;
-    color:#fff; font-size:2em; text-align: center
+    color: var(--color-text-primary);
+    font-size: 2em;
+    text-align: center;
 }
+
 .round-button {
     border-radius: 50%;
     width: 1.5em;
@@ -402,18 +472,27 @@ p {
     box-sizing: border-box;
     position: absolute;
 }
-#prev { left: 10%; top: 50%; }
-#next { right: 10%; top: 50%; }
+
+#prev {
+    left: 10%;
+    top: 50%;
+}
+#next {
+    right: 10%;
+    top: 50%;
+}
 
 .bottom-box {
     position: absolute;
-    left: 30%; right: 30%;
+    left: 30%;
+    right: 30%;
     top: 85%;
 }
 
-#title-screen a:hover, a.round-button:hover {
+/* Interactive Element Hover Effects */
+#title-screen a:hover,
+a.round-button:hover {
     transform: translate3d(0,0,0.2em);
-    -webkit-transform: translate3d(0,0,0.2em);
     opacity: 1 !important;
 }
 
@@ -422,24 +501,28 @@ h1 {
     font-size: 3.5em;
     margin: 0.7em 0 1em;
     transform: scale3d(1.5,1.5,1) rotateX(20deg);
-    -webkit-transform: scale3d(1.5,1.5,1) rotateX(20deg);
     text-shadow: 0 0.04em #777;
 }
+
 h1, h2 {
     text-align: center;
-    color: #fff;
+    color: var(--color-text-primary);
 }
+
 h2 {
     font-size: 1.5em;
     margin-bottom: 0.3em;
 }
+
 ul {
-    padding-left: 1.5em;
+    padding-left: var(--spacing-xl);
     text-align: left;
 }
+
 li {
     margin-top: 0.15em;
 }
+
 b {
     color: #ffa;
 }
