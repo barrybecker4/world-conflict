@@ -162,6 +162,11 @@ var erisk = (function(my) {
         const temple = state.temples[regionIndex];
         const templeOwner = state.owner(regionIndex);
 
+        if (!templeOwner) {
+            console.log("Warning: Attempted to build upgrade at unowned region " + regionIndex);
+            return;
+        }
+
         if (upgrade.name === CONSTS.UPGRADES.SOLDIER.name) {
             buySoldier(state, templeOwner, upgrade, regionIndex);
         }
