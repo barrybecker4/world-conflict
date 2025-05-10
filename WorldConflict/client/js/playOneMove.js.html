@@ -39,7 +39,9 @@ var erisk = (function(my) {
      * it's not final until "end move" is clicked.
      */
     function playMoveForCurrentPlayer(player, state, afterUndo) {
-        appState.setInGame();
+        if (!appState.isInGame()) {
+            appState.setInGame();
+        }
         domUtils.show('resign'); // resigning is an option during the players turn
 
         function reportMoveCallback(move) {
@@ -63,10 +65,12 @@ var erisk = (function(my) {
     }
 
     /**
-     * Add this player's moves (if any) then the AI's, then poll for all other players until our turn again.
+     * Add this player's moves (if any), then the AI's, then poll for all other players until our turn again.
      */
     function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
-        appState.setWaitingForPlayersToMove();
+        if (!appState.isWaitingForPlayersToMove()) {
+            appState.setWaitingForPlayersToMove();
+        }
         google.script.run
             .withFailureHandler(showError)
             .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state], gameData.getSimpleObject(), suppressAi);
@@ -84,8 +88,9 @@ var erisk = (function(my) {
             if (requestStartTime == null) {
                 requestStartTime = new Date();
             }
-            appState.setWaitingForPlayersToMove(); // don't allow clicking when moves being replayed
-
+            if (!appState.isWaitingForPlayersToMove()) {
+                appState.setWaitingForPlayersToMove(); // don't allow clicking when moves being replayed
+            }
             if (CONSTS.DEBUG) {
                 console.log("Requesting replay moves from server starting at state.id = " + state.id);
             }

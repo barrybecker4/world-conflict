@@ -1,6 +1,7 @@
 <script>
 // keep the aspect ratio of the gameplay area correct
-(window.onresize = renderUtils.preserveAspect)();
+window.onresize = renderUtils.preserveAspect;
+renderUtils.preserveAspect();
 
 // start the game
 window.onload = function() {

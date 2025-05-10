@@ -1,73 +1,159 @@
 <script>
 var appState = (function(my) {
 
-    // before game configuration screen shown
-    const NOT_STARTED = 'NOT_STARTED';
-    // configuring game
-    const SETUP_SCREEN = 'SETUP_SCREEN';
-    // open games dialog
-    const OPEN_GAMES_DIALOG = 'OPEN_GAMES_DIALOG';
-    // done configuring, waiting for players to join so game can start
-    const WAITING_FOR_PLAYERS_TO_JOIN = 'WAITING_FOR_PLAYERS_TO_JOIN';
-    // in game, waiting for other player(s) to move
-    const WAITING_FOR_PLAYERS_TO_MOVE = 'WAITING_FOR_PLAYERS_TO_MOVE';
-    // game has started
-    const IN_GAME = 'IN_GAME';
+    const STATES = {
+        NOT_STARTED: 'NOT_STARTED', // before game configuration screen shown
+        SETUP_SCREEN: 'SETUP_SCREEN', // configuring game
+        OPEN_GAMES_DIALOG: 'OPEN_GAMES_DIALOG',
+        // done configuring, waiting for players to join so game can start
+        WAITING_FOR_PLAYERS_TO_JOIN: 'WAITING_FOR_PLAYERS_TO_JOIN',
+        // in game, waiting for other player(s) to move
+        WAITING_FOR_PLAYERS_TO_MOVE: 'WAITING_FOR_PLAYERS_TO_MOVE',
+        IN_GAME: 'IN_GAME' // game has started
+    };
 
-    let currentState = NOT_STARTED;
+    Object.entries(STATES).forEach(([key, value]) => {
+        my[key] = value;
+    });
+
+    let currentState = STATES.NOT_STARTED;
+    const stateHistory = [];
+    const MAX_HISTORY = 30;
 
     my.getCurrentState = function() {
         return currentState;
-    }
+    };
+    
+    my.getStateHistory = function() {
+        return [...stateHistory];
+    };
 
     my.isNotStarted = function() {
-        return currentState === NOT_STARTED;
-    }
+        return currentState === STATES.NOT_STARTED;
+    };
 
     my.setInSetup = function() {
-        currentState = SETUP_SCREEN;
-    }
+        return changeState(STATES.SETUP_SCREEN, 'setInSetup');
+    };
 
     my.isInSetup = function() {
-        return currentState === SETUP_SCREEN;
-    }
+        return currentState === STATES.SETUP_SCREEN;
+    };
 
     my.setInOpenGamesDialog = function() {
-        currentState = OPEN_GAMES_DIALOG;
-    }
+        return changeState(STATES.OPEN_GAMES_DIALOG, 'setInOpenGamesDialog');
+    };
 
     my.isInOpenGamesDialog = function() {
-        return currentState === OPEN_GAMES_DIALOG;
-    }
+        return currentState === STATES.OPEN_GAMES_DIALOG;
+    };
 
     my.setWaitingForPlayersToJoin = function() {
-        currentState = WAITING_FOR_PLAYERS_TO_JOIN;
-    }
+        return changeState(STATES.WAITING_FOR_PLAYERS_TO_JOIN, 'setWaitingForPlayersToJoin');
+    };
 
     my.isWaitingForPlayersToJoin = function() {
-        return currentState === WAITING_FOR_PLAYERS_TO_JOIN;
-    }
+        return currentState === STATES.WAITING_FOR_PLAYERS_TO_JOIN;
+    };
 
     my.setWaitingForPlayersToMove = function() {
-        currentState = WAITING_FOR_PLAYERS_TO_MOVE;
-    }
+        return changeState(STATES.WAITING_FOR_PLAYERS_TO_MOVE, 'setWaitingForPlayersToMove');
+    };
 
     my.isWaitingForPlayersToMove = function() {
-        return currentState === WAITING_FOR_PLAYERS_TO_MOVE;
-    }
+        return currentState === STATES.WAITING_FOR_PLAYERS_TO_MOVE;
+    };
 
     my.setInGame = function() {
-        currentState = IN_GAME;
-    }
+        return changeState(STATES.IN_GAME, 'setInGame');
+    };
 
     my.isInGame = function() {
-        return currentState === IN_GAME;
-    }
+        return currentState === STATES.IN_GAME;
+    };
 
     my.isInGameOrWaiting = function() {
-         return currentState === IN_GAME || currentState === WAITING_FOR_PLAYERS_TO_MOVE;
+        return currentState === STATES.IN_GAME || 
+               currentState === STATES.WAITING_FOR_PLAYERS_TO_MOVE;
+    };
+
+    /**
+     * @return true if the state was changed, false if it was not
+     */
+    function changeState(newState, funcName) {
+        if (!Object.values(STATES).includes(newState)) {
+            console.error(`Invalid state value: "${newState}" in ${funcName}`);
+            return false;
+        }
+
+        if (newState === currentState) {
+            console.warn(`Redundant state transition to ${newState} in ${funcName} - state already set`);
+            return false; // Return false to indicate no change was made
+        }
+
+        // Record the transition for debugging
+        const oldState = currentState;
+        stateHistory.push({
+            from: oldState,
+            to: newState,
+            timestamp: new Date().toISOString(),
+            caller: funcName
+        });
+
+        // Keep history from growing too large
+        if (stateHistory.length > MAX_HISTORY) {
+            stateHistory.shift();
+        }
+
+        console.log(`App state change: ${oldState} → ${newState}`);
+        currentState = newState;
+        return true;
     }
+    
+    // Debug function to track state transitions
+    my.debugState = function() {
+        console.table(stateHistory);
+        return {
+            current: currentState,
+            history: [...stateHistory]
+        };
+    };
+
+    document.addEventListener('appstate-debug-request', function() {
+          console.table(stateHistory);
+          console.log('Current state:', currentState);
+      });
 
     return my;
 }(appState || {}));
+
+// Add a button to the page that triggers debugging
+(function() {
+    const btn = document.createElement('button');
+    btn.id = 'debug-app-state-btn';
+    btn.textContent = 'Debug App State';
+    btn.style.position = 'fixed';
+    btn.style.bottom = '10px';
+    btn.style.right = '10px';
+    btn.style.zIndex = '9999';
+    btn.style.padding = '5px 10px';
+    btn.style.background = '#f1f1f1';
+    btn.style.border = '1px solid #ccc';
+    btn.style.cursor = 'pointer';
+    btn.style.display = 'none'; // Hidden by default
+
+    btn.onclick = function() {
+        document.dispatchEvent(new CustomEvent('appstate-debug-request'));
+    };
+
+    document.body.appendChild(btn);
+
+    // Press Ctrl+Shift+D to show/hide the debug button
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+            btn.style.display = btn.style.display === 'none' ? 'block' : 'none';
+            e.preventDefault();
+        }
+    });
+})();
 </script>

@@ -1,8 +1,8 @@
 
 /**
  * The world map (regions) and players get initialized during game setup.
- * Once the game starts, this global information does not change with the  exception
- * of the list of elimiatedPlayers.
+ * Once the game starts, this global information does not change with the exception
+ * of the list of eliminatedPlayers.
  */
 var gameData = (function (my) {
 
