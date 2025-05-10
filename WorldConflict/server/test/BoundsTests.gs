@@ -3,6 +3,8 @@ var BoundsTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.module("Bounds:");
+
         QUnit.test("Verify Bounds copy", function( assert ) {
             const bounds = new Bounds(1, 2, 3, 4);
             const boundsCopy = bounds.copy();

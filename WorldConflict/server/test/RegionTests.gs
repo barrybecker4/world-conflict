@@ -2,6 +2,8 @@ var RegionTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.module("Region:");
+
         QUnit.test("Verify Region constructor", function( assert ) {
             const region = new Region({index: 3, points: [{x:2, y:4}], center: {x:5, y:6}});
             assert.equal(region.index, 3);

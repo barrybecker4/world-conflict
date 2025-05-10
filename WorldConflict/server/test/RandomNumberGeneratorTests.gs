@@ -2,6 +2,8 @@ var RandomNumberGeneratorTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.module("RandomNumberGenerator:");
+
         QUnit.test("Verify RandomNumberGenerator", function( assert ) {
             const generator = new RandomNumberGenerator(2);
             assert.equal(generator.nextRandom(), 0.7342509443406016);

@@ -2,6 +2,8 @@ var utilsTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.module("utils:");
+
         QUnit.test("Verify Set", function( assert ) {
             const set = new Set();
             set.add(1);

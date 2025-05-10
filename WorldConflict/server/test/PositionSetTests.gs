@@ -3,6 +3,8 @@ var PositionSetTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.module("PositionSet:");
+
         QUnit.test("Verify add and then remove single position", function( assert ) {
 
             const positionSet = new PositionSet();
@@ -13,7 +15,6 @@ var PositionSetTests = (function (my) {
 
             assert.equal(pos, posAdded);
         });
-
 
         QUnit.test("Verify addPositionForBounds", function( assert ) {
 

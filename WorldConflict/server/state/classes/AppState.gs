@@ -1,0 +1,183 @@
+/**
+ * Manages application state transitions with validation
+ */
+class AppState {
+
+    constructor() {
+        this.STATES = {
+            NOT_STARTED: 'NOT_STARTED',               // Initial state before any game setup
+            SETUP_SCREEN: 'SETUP_SCREEN',             // Configuring game settings
+            OPEN_GAMES_DIALOG: 'OPEN_GAMES_DIALOG',   // Viewing/selecting available games
+            WAITING_FOR_PLAYERS_TO_JOIN: 'WAITING_FOR_PLAYERS_TO_JOIN', // Waiting for players to join
+            WAITING_FOR_PLAYERS_TO_MOVE: 'WAITING_FOR_PLAYERS_TO_MOVE', // Waiting for others to move
+            IN_GAME: 'IN_GAME'                        // Active gameplay - player can make moves
+        };
+
+        this.VALID_TRANSITIONS = {
+            [this.STATES.NOT_STARTED]: [
+                this.STATES.SETUP_SCREEN,
+                this.STATES.OPEN_GAMES_DIALOG
+            ],
+            [this.STATES.SETUP_SCREEN]: [
+                this.STATES.OPEN_GAMES_DIALOG,
+                this.STATES.WAITING_FOR_PLAYERS_TO_JOIN,
+                this.STATES.IN_GAME
+            ],
+            [this.STATES.OPEN_GAMES_DIALOG]: [
+                this.STATES.SETUP_SCREEN,
+                this.STATES.WAITING_FOR_PLAYERS_TO_JOIN
+            ],
+            [this.STATES.WAITING_FOR_PLAYERS_TO_JOIN]: [
+                this.STATES.SETUP_SCREEN,
+                this.STATES.IN_GAME,
+                this.STATES.OPEN_GAMES_DIALOG
+            ],
+            [this.STATES.IN_GAME]: [
+                this.STATES.WAITING_FOR_PLAYERS_TO_MOVE,
+                this.STATES.SETUP_SCREEN
+            ],
+            [this.STATES.WAITING_FOR_PLAYERS_TO_MOVE]: [
+                this.STATES.IN_GAME,
+                this.STATES.SETUP_SCREEN,
+                this.STATES.OPEN_GAMES_DIALOG
+            ]
+        };
+
+        this.currentState = this.STATES.NOT_STARTED;
+        this.stateHistory = [];
+        this.MAX_HISTORY = 30;
+    }
+
+    getCurrentState() {
+        return this.currentState;
+    }
+
+    getStateHistory() {
+        return [...this.stateHistory];
+    }
+
+    isNotStarted() {
+        return this.currentState === this.STATES.NOT_STARTED;
+    }
+
+    isInSetup() {
+        return this.currentState === this.STATES.SETUP_SCREEN;
+    }
+
+    isInOpenGamesDialog() {
+        return this.currentState === this.STATES.OPEN_GAMES_DIALOG;
+    }
+
+    isWaitingForPlayersToJoin() {
+        return this.currentState === this.STATES.WAITING_FOR_PLAYERS_TO_JOIN;
+    }
+
+    isWaitingForPlayersToMove() {
+        return this.currentState === this.STATES.WAITING_FOR_PLAYERS_TO_MOVE;
+    }
+
+    isInGame() {
+        return this.currentState === this.STATES.IN_GAME;
+    }
+
+    isInGameOrWaiting() {
+        return this.currentState === this.STATES.IN_GAME ||
+               this.currentState === this.STATES.WAITING_FOR_PLAYERS_TO_MOVE;
+    }
+
+    setInSetup() {
+        return this.changeState(this.STATES.SETUP_SCREEN);
+    }
+
+    setInOpenGamesDialog() {
+        return this.changeState(this.STATES.OPEN_GAMES_DIALOG);
+    }
+
+    setWaitingForPlayersToJoin() {
+        return this.changeState(this.STATES.WAITING_FOR_PLAYERS_TO_JOIN);
+    }
+
+    setWaitingForPlayersToMove() {
+        return this.changeState(this.STATES.WAITING_FOR_PLAYERS_TO_MOVE);
+    }
+
+    setInGame() {
+        return this.changeState(this.STATES.IN_GAME);
+    }
+
+    reset() {
+        this.currentState = this.STATES.NOT_STARTED;
+        this.stateHistory = [];
+        console.warn('State machine reset');
+    }
+
+    debugState() {
+        console.group('App State Machine Debug');
+        console.log('Current state:', this.currentState);
+        console.log('Valid transitions from current state:', this.VALID_TRANSITIONS[this.currentState]);
+        console.table(this.stateHistory);
+        console.groupEnd();
+
+        return {
+            current: this.currentState,
+            history: [...this.stateHistory],
+            validTransitions: this.VALID_TRANSITIONS[this.currentState]
+        };
+    }
+
+    /**
+     * @returns {boolean} True if transition succeeded
+     */
+    changeState(newState) {
+        if (newState === this.currentState) {
+            console.warn(`Redundant state transition to ${newState} - state already set`);
+            return false;
+        }
+
+        if (!this.validTransition(this.currentState, newState)) {
+            return false;
+        }
+
+        // Record the transition for debugging
+        const oldState = this.currentState;
+        const transition = {
+            from: oldState,
+            to: newState,
+            timestamp: new Date().toISOString()
+        };
+
+        this.stateHistory.push(transition);
+
+        // Keep history from growing too large
+        if (this.stateHistory.length > this.MAX_HISTORY) {
+            this.stateHistory.splice(0, this.stateHistory.length - this.MAX_HISTORY);
+        }
+
+        console.log(`App state change: ${oldState} → ${newState}`);
+        this.currentState = newState;
+
+        return true;
+    }
+
+    /**
+     * @returns {boolean} True if transition is valid
+     */
+    validTransition(fromState, toState) {
+        if (!Object.values(this.STATES).includes(toState)) {
+            console.error(`Invalid state value: "${toState}"`);
+            return false;
+        }
+
+        if (!this.VALID_TRANSITIONS[fromState]) {
+            console.error(`Invalid state: ${fromState}`);
+            return false;
+        }
+
+        if (!this.VALID_TRANSITIONS[fromState].includes(toState)) {
+            console.error(`Invalid transition: ${fromState} → ${toState}`);
+            return false;
+        }
+
+        return true;
+    }
+}

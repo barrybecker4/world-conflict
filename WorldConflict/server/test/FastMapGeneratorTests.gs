@@ -2,7 +2,9 @@ var FastMapGeneratorTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
-        QUnit.test("FastMapGenerator: Verify generating small map", function( assert ) {
+        QUnit.module("FastMapGenerator:");
+
+        QUnit.test("Verify generating small map", function( assert ) {
             const randomGen = new RandomNumberGenerator(2);
             utils.random = () => randomGen.nextRandom();
 
@@ -18,7 +20,7 @@ var FastMapGeneratorTests = (function (my) {
             assert.equal(elapsed < 100, true);
         });
 
-        QUnit.test("FastMapGenerator: Verify generating medium map", function( assert ) {
+        QUnit.test("Verify generating medium map", function( assert ) {
             const randomGen = new RandomNumberGenerator(2);
             utils.random = () => randomGen.nextRandom();
 
@@ -34,7 +36,7 @@ var FastMapGeneratorTests = (function (my) {
             assert.equal(elapsed < 60, true);
         });
 
-        QUnit.test("FastMapGenerator: Verify generating large map", function( assert ) {
+        QUnit.test("Verify generating large map", function( assert ) {
             const randomGen = new RandomNumberGenerator(2);
             utils.random = () => randomGen.nextRandom();
 

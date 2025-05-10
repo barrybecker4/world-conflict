@@ -2,8 +2,9 @@ var makeGameDataTests = (function (my) {
 
     my.runTests = function(QUnit) {
 
+        QUnit.module("makeGameData:");
 
-        QUnit.test("makeGameData: Verify distanceScore", function( assert ) {
+        QUnit.test("Verify distanceScore", function( assert ) {
             const generator = new RandomNumberGenerator(1);
             utils.random = () => generator.nextRandom();
 
@@ -26,7 +27,7 @@ var makeGameDataTests = (function (my) {
             assert.equal(score, 1);
         });
 
-        QUnit.test("makeGameData: Verify findHomeRegions for 2 players and few regions", function( assert ) {
+        QUnit.test("Verify findHomeRegions for 2 players and few regions", function( assert ) {
             const players = [
                 new Player({ index: 0, name: "Player1"}),
                 new Player({ index: 1, name: "Player2"}),
@@ -55,7 +56,7 @@ var makeGameDataTests = (function (my) {
             );
         });
 
-        QUnit.test("makeGameData: Verify findHomeRegions for 3 players and many regions", function( assert ) {
+        QUnit.test("Verify findHomeRegions for 3 players and many regions", function( assert ) {
 
             const players = [
                 new Player({ index: 0, name: "Player1"}),
