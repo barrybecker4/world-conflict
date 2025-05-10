@@ -35,7 +35,7 @@ var erisk = (function(my) {
 
     my.updatePlayerConfigButtons = function() {
         // somebody changed something, so store the new setup
-        storage.storeSetup();
+        gameStorage.storeSetup();
         const editable = !appState.isWaitingForPlayersToJoin();
 
         erisk.updatePlayerButtons(editable);
@@ -48,7 +48,7 @@ var erisk = (function(my) {
     my.updatePlayerButtons = function(editable) {
 
         const playerTypes = editable ?
-            storage.gameSetup.playerTypes :
+            gameStorage.gameSetup.playerTypes :
             utils.range(0, CONSTS.PLAYER_TYPES.length).map(i => getPlayer(i).type);
 
         playerTypes.map(function(playerType, playerIndex) {
@@ -72,7 +72,7 @@ var erisk = (function(my) {
 
     function updateAiButtons(editable) {
         utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
-            const aiLevel = editable ? storage.gameSetup.aiLevel : gameData.aiLevel;
+            const aiLevel = editable ? gameStorage.gameSetup.aiLevel : gameData.aiLevel;
             const isSelected = index === aiLevel;
             updateButton('ai' + index, isSelected, editable);
         });
@@ -80,7 +80,7 @@ var erisk = (function(my) {
 
     function updateTurnCountButtons(editable) {
         utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            const turnCount = editable ? storage.gameSetup.turnCount : gameData.turnCount;
+            const turnCount = editable ? gameStorage.gameSetup.turnCount : gameData.turnCount;
             const isSelected = CONSTS.TURN_COUNTS[index] === turnCount;
             updateButton('turn-count' + index, isSelected, editable);
         });
@@ -88,7 +88,7 @@ var erisk = (function(my) {
 
     function updateTimeLimitButtons(editable) {
         utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
-            const timeLimit = editable ? storage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
+            const timeLimit = editable ? gameStorage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
             const isSelected = CONSTS.TIME_LIMITS[index] === timeLimit;
             updateButton('time-limit' + index, isSelected, editable);
         });
@@ -96,7 +96,7 @@ var erisk = (function(my) {
 
     function updateMapSizeButtons(editable) {
         CONSTS.MAP_SIZE_LABELS.map(function(mapSize, index) {
-            const size = editable ? storage.gameSetup.mapSize : gameData.mapSize;
+            const size = editable ? gameStorage.gameSetup.mapSize : gameData.mapSize;
             const isSelected = size === mapSize;
             updateButton('map-size' + index, isSelected, editable);
         });
@@ -111,7 +111,7 @@ var erisk = (function(my) {
     }
 
     my.updateConfigBottomButtons = function() {
-        const buttonsDisabled = !storage.isSetupValid();
+        const buttonsDisabled = !gameStorage.isSetupValid();
         erisk.gameRenderer.updateButtons([
             { text: 'Change map', disabled: buttonsDisabled },
             { text: 'Done configuring', disabled: buttonsDisabled,

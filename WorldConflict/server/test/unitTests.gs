@@ -61,7 +61,6 @@ var unitTests = (function (my) {
         sequenceUtilsTests.runTests(QUnit);
         FastMapGeneratorTests.runTests(QUnit);
         RegionTests.runTests(QUnit);
-        AppStateTests.runTests(QUnit);
 
         QUnit.start();
         return QUnitGS2.getHtml();

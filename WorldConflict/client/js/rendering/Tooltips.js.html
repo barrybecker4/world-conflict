@@ -44,11 +44,11 @@ class Tooltips {
     }
 
     showTooltipOver(region, text, width) {
-        if (storage.gameSetup.firstTimeInstructions[text]) return;
+        if (gameStorage.gameSetup.firstTimeInstructions[text]) return;
         setTimeout(function() {
             // don't display it again. Timeout used to handle multiple updateDisplays() in a row.
-            storage.gameSetup.firstTimeInstructions[text] = 1;
-            storage.storeSetup();
+            gameStorage.gameSetup.firstTimeInstructions[text] = 1;
+            gameStorage.storeSetup();
         }, 500);
 
         width = width || 7;

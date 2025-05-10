@@ -21,7 +21,7 @@ class Player {
 
     getTextName() {
         // this is a hack. should find better way. Use type if it exists, else fall back to what is in storage
-        const pType = (typeof this.type === 'string') ? this.type : storage.gameSetup.playerTypes[this.originalIndex];
+        const pType = (typeof this.type === 'string') ? this.type : gameStorage.gameSetup.playerTypes[this.originalIndex];
         switch(pType) {
             case CONSTS.PLAYER_OFF:
                 return '&nbsp;';

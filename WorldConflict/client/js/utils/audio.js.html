@@ -40,7 +40,7 @@ var audio = (function(my) {
 
     my.playSound = function(soundKey) {
         const sound = soundMap[soundKey];
-        let soundEnabled = sound && storage.gameSetup.sound;
+        let soundEnabled = sound && gameStorage.gameSetup.sound;
         if (!soundEnabled)
             return;
 
@@ -51,13 +51,13 @@ var audio = (function(my) {
     }
 
     my.toggleSound = function() {
-        storage.gameSetup.sound = !storage.gameSetup.sound;
+        gameStorage.gameSetup.sound = !gameStorage.gameSetup.sound;
         updateSoundControls();
     }
 
     function updateSoundControls() {
-        domUtils.$('sound').innerHTML = storage.gameSetup.sound ? '♪' : ' ';
-        storage.storeSetup();
+        domUtils.$('sound').innerHTML = gameStorage.gameSetup.sound ? '♪' : ' ';
+        gameStorage.storeSetup();
     }
 
     function adsr(a, d, s, r, sl, fn) {

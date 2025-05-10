@@ -1,0 +1,151 @@
+<script>
+/**
+ * Handles persistence of game configuration data using localStorage
+ */
+class GameStorage {
+    constructor() {
+        this.STORAGE_KEY = 'world-conflict';
+        this.initialized = false;
+
+        // Initialize on next tick to ensure CONSTS is available
+        setTimeout(() => {
+            this.gameSetup = this.retrieveSetup();
+            this.initialized = true;
+            if (typeof this.onInitialized === 'function') {
+                this.onInitialized();
+            }
+        }, 0);
+    }
+
+    waitForInitialization() {
+        return new Promise((resolve) => {
+            if (this.initialized) {
+                resolve();
+            } else {
+                this.onInitialized = resolve;
+            }
+        });
+    }
+
+    retrieveSetup() {
+        if (localStorage) {
+            let stored = localStorage.getItem(this.STORAGE_KEY);
+            if (stored) {
+                try {
+                    stored = JSON.parse(stored);
+                    const defaultSetup = this.getDefaultSetup();
+                    Object.entries(defaultSetup).forEach(([key, value]) => {
+                        if (typeof stored[key] === 'undefined') {
+                            stored[key] = value;
+                        }
+                    });
+                    return this.isSetupValidObj(stored) ? stored : this.getDefaultSetup();
+                } catch (e) {
+                    console.error("Error parsing stored game setup:", e);
+                    return this.getDefaultSetup();
+                }
+            }
+        }
+        return this.getDefaultSetup();
+    }
+
+    setDefaultSetup() {
+        console.log("Reverting to default setup");
+        this.gameSetup = this.getDefaultSetup();
+        this.storeSetup();
+        return this.gameSetup;
+    }
+
+    storeSetup() {
+        if (localStorage) {
+            try {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.gameSetup));
+                return true;
+            } catch (e) {
+                console.error("Error storing game setup:", e);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    isSetupValid() {
+        return this.isSetupValidObj(this.gameSetup);
+    }
+
+    isSetupValidObj(setup) {
+        if (!setup || !setup.playerTypes) {
+            return false;
+        }
+
+        let numSetPlayers = 0;
+        const enabledPlayers = setup.playerTypes.reduce((count, playerType) => {
+            if (playerType === CONSTS.PLAYER_HUMAN_SET) {
+                numSetPlayers++;
+            }
+            return (playerType !== CONSTS.PLAYER_OFF) ? count + 1 : count;
+        }, 0);
+
+        return enabledPlayers > 1 && numSetPlayers > 0;
+    }
+
+    getDefaultSetup() {
+        return {
+            playerTypes: [CONSTS.PLAYER_HUMAN_SET, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_AI],
+            aiLevel: CONSTS.AI_NICE,
+            sound: true,
+            turnCount: CONSTS.STANDARD_TURN_COUNT,
+            firstTimeInstructions: {},
+            humanTimeLimit: CONSTS.STANDARD_HUMAN_TIME_LIMIT,
+            mapSize: CONSTS.STANDARD_MAP_SIZE,
+        };
+    }
+
+    getSetupProperty(key, defaultValue) {
+        return this.gameSetup[key] !== undefined ? this.gameSetup[key] : defaultValue;
+    }
+
+    setSetupProperty(key, value) {
+        this.gameSetup[key] = value;
+        return this.storeSetup();
+    }
+
+    clearAllSettings() {
+        if (localStorage) {
+            try {
+                localStorage.removeItem(this.STORAGE_KEY);
+                this.gameSetup = this.getDefaultSetup();
+                return true;
+            } catch (e) {
+                console.error("Error clearing game setup:", e);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    exportSettings() {
+        return JSON.stringify(this.gameSetup);
+    }
+
+    importSettings(jsonString) {
+        try {
+            const imported = JSON.parse(jsonString);
+            if (this.isSetupValidObj(imported)) {
+                this.gameSetup = imported;
+                this.storeSetup();
+                return true;
+            } else {
+                console.error("Imported settings are invalid");
+                return false;
+            }
+        } catch (e) {
+            console.error("Error importing settings:", e);
+            return false;
+        }
+    }
+}
+
+// Singleton instance
+var gameStorage = new GameStorage();
+</script>

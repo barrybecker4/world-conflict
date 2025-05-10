@@ -8,11 +8,13 @@
  * @returns {String/html} Html to be served
  */
 function doGet(e) {
-  if (e.parameter.test) {
-     return unitTests.getUnitTestHtml();
-  }
+  let pageName = e.parameter.page ? e.parameter['page'] : 'client/html/LandingPage';
 
-  const pageName = e.parameter.page ? e.parameter['page'] : 'client/html/LandingPage';
+  if (e.parameter.test) {
+    return unitTests.getUnitTestHtml();
+  } else if (e.parameter.clientTest) {
+    pageName = 'client/html/clientUnitTests';
+  }
 
   // Build and return HTML in IFRAME sandbox mode.
   return HtmlService.createTemplateFromFile(pageName).evaluate()

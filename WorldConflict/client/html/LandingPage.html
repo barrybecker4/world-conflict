@@ -161,9 +161,12 @@
 <?!= include('client/js/utils/utils.js'); ?>
 <?!= include('client/js/utils/sequenceUtils.js'); ?>
 
+<!-- singletons included before any code that uses them -->
+<?!= include('client/js/state/AppState.js'); ?>
+<?!= include('client/js/state/GameStorage.js'); ?>
+
 <?!= include('client/js/state/gameData.js'); ?>
 <?!= include('client/js/state/CONSTS.js'); ?>
-<?!= include('client/js/state/classes/AppState.js'); ?>
 <?!= include('client/js/state/classes/AiPersonality.js'); ?>
 <?!= include('client/js/state/classes/GameState.js'); ?>
 <?!= include('client/js/state/classes/Move.js'); ?>
@@ -180,8 +183,6 @@
 <?!= include('client/js/utils/oneAtaTime.js'); ?>
 <?!= include('client/js/utils/renderUtils.js'); ?>
 <?!= include('client/js/utils/expirationTimer.js'); ?>
-
-<?!= include('client/js/state/storage.js'); ?>
 <?!= include('client/js/uiCallbacks.js'); ?>
 
 <!-- these are all part of the erisk module -->

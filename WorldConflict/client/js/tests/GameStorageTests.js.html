@@ -1,0 +1,62 @@
+<script>
+QUnit.module("GameStorage Tests");
+
+QUnit.test("Access GameStorage class", function(assert) {
+    assert.ok(gameStorage, "storage module should exist");
+});
+
+QUnit.test("Create GameStorage instance", async function(assert) {
+    // Create a done callback to handle async test
+    const done = assert.async();
+    const gameStorage = new GameStorage();
+    assert.ok(gameStorage, "Should create GameStorage instance");
+    await gameStorage.waitForInitialization();
+
+    assert.ok(gameStorage.gameSetup, "gameSetup should be initialized");
+    assert.equal(typeof gameStorage.storeSetup, "function", "storeSetup method should exist");
+    done();
+});
+
+//QUnit.test("Default setup is valid", async function(assert) {
+//    const done = assert.async();
+//    const gameStorage = new GameStorage();
+//    await gameStorage.waitForInitialization();
+//
+//    assert.ok(gameStorage.gameSetup.sound, "Default sound setting should be true");
+//    assert.equal(gameStorage.gameSetup.aiLevel, CONSTS.AI_NICE, "Default AI level should be NICE");
+//    assert.equal(gameStorage.gameSetup.mapSize, CONSTS.STANDARD_MAP_SIZE, "Default map size should be standard");
+//
+//    assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
+//    done();
+//});
+
+QUnit.test("Can modify gameSetup", async function(assert) {
+    const done = assert.async();
+    const gameStorage = new GameStorage();
+    await gameStorage.waitForInitialization();
+
+    // Modify settings
+    gameStorage.gameSetup.sound = false;
+    gameStorage.gameSetup.aiLevel = CONSTS.AI_EVIL;
+
+    // Verify changes took effect
+    assert.equal(gameStorage.gameSetup.sound, false, "Should be able to modify sound setting");
+    assert.equal(gameStorage.gameSetup.aiLevel, CONSTS.AI_EVIL, "Should be able to modify AI level");
+    done();
+});
+
+//QUnit.test("Setup validation works", async function(assert) {
+//    const done = assert.async();
+//    const gameStorage = new GameStorage();
+//    await gameStorage.waitForInitialization();
+//
+//    assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
+//
+//    // Make setup invalid - no enabled players
+//    const invalidSetup = gameStorage.getDefaultSetup();
+//    invalidSetup.playerTypes = [CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF];
+//
+//    assert.notOk(gameStorage.isSetupValidObj(invalidSetup), "Setup with no enabled players should be invalid");
+//    done();
+//});
+</script>

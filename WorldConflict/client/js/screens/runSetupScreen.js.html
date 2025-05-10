@@ -37,7 +37,7 @@ var erisk = (function(my) {
 
             // callback for the buttons on the bottom
             uiCallbacks.setBuildCB(function(whichButton) {
-                if (!storage.isSetupValid()) return;
+                if (!gameStorage.isSetupValid()) return;
 
                 switch (whichButton) {
                     case 0: // change map
@@ -77,7 +77,7 @@ var erisk = (function(my) {
         function areOpenSlots() {
             const reducer = (accumulator, currentValue) =>
                 accumulator + (currentValue === CONSTS.PLAYER_HUMAN_OPEN ? 1 : 0);
-            const numOpen = storage.gameSetup.playerTypes.reduce(reducer, 0);
+            const numOpen = gameStorage.gameSetup.playerTypes.reduce(reducer, 0);
             return numOpen > 0;
         }
 
@@ -177,9 +177,9 @@ var erisk = (function(my) {
         }
 
         function generateGameData(callback, keepCurrentMap) {
-            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !storage.isSetupValid()) {
+            if (appState.isWaitingForPlayersToJoin() || appState.isInGameOrWaiting() || !gameStorage.isSetupValid()) {
                 console.log("Not generating game data because one of these was true: ");
-                console.log(`waiting:${appState.isWaitingForPlayersToJoin()} inGameOrWaiting:${appState.isInGameOrWaiting()}  invalid:${!storage.isSetupValid()}`);
+                console.log(`waiting:${appState.isWaitingForPlayersToJoin()} inGameOrWaiting:${appState.isInGameOrWaiting()}  invalid:${!gameStorage.isSetupValid()}`);
                 return;
             }
 
@@ -194,7 +194,7 @@ var erisk = (function(my) {
                     }
                  })
                 .withFailureHandler(showError)
-                .makeNewGameData(storage.gameSetup, keepCurrentMap ? gameData.getSimpleObject() : null);
+                .makeNewGameData(gameStorage.gameSetup, keepCurrentMap ? gameData.getSimpleObject() : null);
         }
 
         function retrieveAndShowOpenGames() {
@@ -211,7 +211,7 @@ var erisk = (function(my) {
          */
         function retrieveAndShowOpenGamesPolling() {
             console.log("appState = " + appState.getCurrentState());
-            if (!appState.isInOpenGamesDialog() || !storage.isSetupValid()) {
+            if (!appState.isInOpenGamesDialog() || !gameStorage.isSetupValid()) {
                 return;
             }
 
@@ -263,7 +263,7 @@ var erisk = (function(my) {
         }
 
         function convertOpenSlotsToAiPlayers(callback) {
-            // the gameData.players list may have fewer entries than storage.gameSetup.playerTypes
+            // the gameData.players list may have fewer entries than gameStorage.gameSetup.playerTypes
             for (let i = 0; i < gameData.players.length; i++) {
                 const player = gameData.players[i];
                 if (player.type === CONSTS.PLAYER_HUMAN_OPEN) {
@@ -283,12 +283,12 @@ var erisk = (function(my) {
         uiCallbacks.setSetupPlayerButtonsCB(function(event) {
             // Don't allow setting this player again if already set.
             const typeClicked = CONSTS.PLAYER_TYPES[event.playerTypeIndex];
-            if (typeClicked == CONSTS.PLAYER_HUMAN_SET && storage.gameSetup.playerTypes.some(ptype => ptype == CONSTS.PLAYER_HUMAN_SET)) {
+            if (typeClicked == CONSTS.PLAYER_HUMAN_SET && gameStorage.gameSetup.playerTypes.some(ptype => ptype == CONSTS.PLAYER_HUMAN_SET)) {
                 alert("You can only set yourself at one seat. To move, first unseat yourself.");
             }
             else {
                 // set the player type for the player
-                storage.gameSetup.playerTypes[event.playerIndex] = typeClicked;
+                gameStorage.gameSetup.playerTypes[event.playerIndex] = typeClicked;
 
                 erisk.updatePlayerConfigButtons();
                 erisk.updateConfigBottomButtons();
@@ -298,28 +298,28 @@ var erisk = (function(my) {
 
         // callback for AI level buttons
         uiCallbacks.setSetupAiLevelCB(function(aiLevel) {
-            storage.gameSetup.aiLevel = aiLevel;
+            gameStorage.gameSetup.aiLevel = aiLevel;
             erisk.updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
         });
 
         // callback for number of turns buttons
         uiCallbacks.setSetupTurnCountCB(function(turnCount) {
-            storage.gameSetup.turnCount = turnCount;
+            gameStorage.gameSetup.turnCount = turnCount;
             erisk.updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
         });
 
         // callback for time limit buttons
         uiCallbacks.setSetupTimeLimitCB(function(timeLimit) {
-            storage.gameSetup.humanTimeLimit = timeLimit;
+            gameStorage.gameSetup.humanTimeLimit = timeLimit;
             erisk.updatePlayerConfigButtons();
             regenerateGameDataWithoutNewMap();
         });
 
         // callback for map size buttons
         uiCallbacks.setSetupMapSizeCB(function(mapSize) {
-            storage.gameSetup.mapSize = mapSize;
+            gameStorage.gameSetup.mapSize = mapSize;
             erisk.updatePlayerConfigButtons();
             regenerateGameDataWithNewMap();
         });
