@@ -2,19 +2,48 @@
 var appState = (function(my) {
 
     const STATES = {
-        NOT_STARTED: 'NOT_STARTED', // before game configuration screen shown
-        SETUP_SCREEN: 'SETUP_SCREEN', // configuring game
-        OPEN_GAMES_DIALOG: 'OPEN_GAMES_DIALOG',
-        // done configuring, waiting for players to join so game can start
-        WAITING_FOR_PLAYERS_TO_JOIN: 'WAITING_FOR_PLAYERS_TO_JOIN',
-        // in game, waiting for other player(s) to move
-        WAITING_FOR_PLAYERS_TO_MOVE: 'WAITING_FOR_PLAYERS_TO_MOVE',
-        IN_GAME: 'IN_GAME' // game has started
+        NOT_STARTED: 'NOT_STARTED',               // Initial state before any game setup
+        SETUP_SCREEN: 'SETUP_SCREEN',             // Configuring game settings
+        OPEN_GAMES_DIALOG: 'OPEN_GAMES_DIALOG',   // Viewing/selecting available games
+        WAITING_FOR_PLAYERS_TO_JOIN: 'WAITING_FOR_PLAYERS_TO_JOIN', // Waiting for players to join the game
+        WAITING_FOR_PLAYERS_TO_MOVE: 'WAITING_FOR_PLAYERS_TO_MOVE', // Waiting for other players' moves
+        IN_GAME: 'IN_GAME'                        // Active gameplay - player can make moves
     };
 
     Object.entries(STATES).forEach(([key, value]) => {
         my[key] = value;
     });
+    
+    // Define valid state transitions based on observed patterns
+    const VALID_TRANSITIONS = {
+        [STATES.NOT_STARTED]: [
+            STATES.SETUP_SCREEN,
+            STATES.OPEN_GAMES_DIALOG
+        ],
+        [STATES.SETUP_SCREEN]: [
+            STATES.OPEN_GAMES_DIALOG,
+            STATES.WAITING_FOR_PLAYERS_TO_JOIN,
+            STATES.IN_GAME  // When going directly to game after setup
+        ],
+        [STATES.OPEN_GAMES_DIALOG]: [
+            STATES.SETUP_SCREEN,
+            STATES.WAITING_FOR_PLAYERS_TO_JOIN
+        ],
+        [STATES.WAITING_FOR_PLAYERS_TO_JOIN]: [
+            STATES.SETUP_SCREEN,     // If going back to setup
+            STATES.IN_GAME,          // When all players have joined
+            STATES.OPEN_GAMES_DIALOG // If leaving the game
+        ],
+        [STATES.IN_GAME]: [
+            STATES.WAITING_FOR_PLAYERS_TO_MOVE,
+            STATES.SETUP_SCREEN     // When game ends or is abandoned
+        ],
+        [STATES.WAITING_FOR_PLAYERS_TO_MOVE]: [
+            STATES.IN_GAME,
+            STATES.SETUP_SCREEN,     // When game ends
+            STATES.OPEN_GAMES_DIALOG // When game is abandoned
+        ]
+    };
 
     let currentState = STATES.NOT_STARTED;
     const stateHistory = [];
@@ -31,107 +60,133 @@ var appState = (function(my) {
     my.isNotStarted = function() {
         return currentState === STATES.NOT_STARTED;
     };
-
-    my.setInSetup = function() {
-        return changeState(STATES.SETUP_SCREEN, 'setInSetup');
-    };
-
+    
     my.isInSetup = function() {
         return currentState === STATES.SETUP_SCREEN;
     };
-
-    my.setInOpenGamesDialog = function() {
-        return changeState(STATES.OPEN_GAMES_DIALOG, 'setInOpenGamesDialog');
-    };
-
+    
     my.isInOpenGamesDialog = function() {
         return currentState === STATES.OPEN_GAMES_DIALOG;
     };
-
-    my.setWaitingForPlayersToJoin = function() {
-        return changeState(STATES.WAITING_FOR_PLAYERS_TO_JOIN, 'setWaitingForPlayersToJoin');
-    };
-
+    
     my.isWaitingForPlayersToJoin = function() {
         return currentState === STATES.WAITING_FOR_PLAYERS_TO_JOIN;
     };
-
-    my.setWaitingForPlayersToMove = function() {
-        return changeState(STATES.WAITING_FOR_PLAYERS_TO_MOVE, 'setWaitingForPlayersToMove');
-    };
-
+    
     my.isWaitingForPlayersToMove = function() {
         return currentState === STATES.WAITING_FOR_PLAYERS_TO_MOVE;
     };
-
-    my.setInGame = function() {
-        return changeState(STATES.IN_GAME, 'setInGame');
-    };
-
+    
     my.isInGame = function() {
         return currentState === STATES.IN_GAME;
     };
-
+    
     my.isInGameOrWaiting = function() {
         return currentState === STATES.IN_GAME || 
                currentState === STATES.WAITING_FOR_PLAYERS_TO_MOVE;
     };
+    
+    // State transition methods
+    my.setInSetup = function() {
+        return changeState(STATES.SETUP_SCREEN);
+    };
+    
+    my.setInOpenGamesDialog = function() {
+        return changeState(STATES.OPEN_GAMES_DIALOG);
+    };
+    
+    my.setWaitingForPlayersToJoin = function() {
+        return changeState(STATES.WAITING_FOR_PLAYERS_TO_JOIN);
+    };
+    
+    my.setWaitingForPlayersToMove = function() {
+        return changeState(STATES.WAITING_FOR_PLAYERS_TO_MOVE);
+    };
+    
+    my.setInGame = function() {
+        return changeState(STATES.IN_GAME);
+    };
 
     /**
-     * @return true if the state was changed, false if it was not
+     * Reset the state machine to its initial state
+     * Useful for testing or recovering from errors
      */
-    function changeState(newState, funcName) {
-        if (!Object.values(STATES).includes(newState)) {
-            console.error(`Invalid state value: "${newState}" in ${funcName}`);
+    my.reset = function() {
+        const oldState = currentState;
+        currentState = STATES.NOT_STARTED;
+        stateHistory.length = 0; // Clear history
+        console.warn('State machine reset');
+    };
+    
+    /**
+     * Detailed debug info about state machine
+     */
+    my.debugState = function() {
+        console.group('App State Machine Debug');
+        console.log('Current state:', currentState);
+        console.log('Valid transitions from current state:', VALID_TRANSITIONS[currentState]);
+        console.table(stateHistory);
+        console.groupEnd();
+        
+        return {
+            current: currentState, 
+            history: [...stateHistory],
+            validTransitions: VALID_TRANSITIONS[currentState]
+        };
+    };
+
+    /**
+     * @returns {boolean} True if state changed, false otherwise
+     */
+    function changeState(newState) {
+        if (newState === currentState) {
+            console.warn(`Redundant state transition to ${newState} - state already set`);
             return false;
         }
 
-        if (newState === currentState) {
-            console.warn(`Redundant state transition to ${newState} in ${funcName} - state already set`);
-            return false; // Return false to indicate no change was made
+        if (!validTransition(currentState, newState)) {
+            return false;
         }
 
         // Record the transition for debugging
         const oldState = currentState;
-        stateHistory.push({
+        const transition = {
             from: oldState,
             to: newState,
-            timestamp: new Date().toISOString(),
-            caller: funcName
-        });
+        };
+
+        stateHistory.push(transition);
 
         // Keep history from growing too large
         if (stateHistory.length > MAX_HISTORY) {
-            stateHistory.shift();
+            stateHistory.splice(0, stateHistory.length - MAX_HISTORY);
         }
 
         console.log(`App state change: ${oldState} → ${newState}`);
         currentState = newState;
+
         return true;
     }
-    
-    // Debug function to track state transitions
-    my.debugState = function() {
-        console.table(stateHistory);
-        return {
-            current: currentState,
-            history: [...stateHistory]
-        };
-    };
 
-    document.addEventListener('appstate-debug-request', function() {
-          console.table(stateHistory);
-          console.log('Current state:', currentState);
-      });
+    function validTransition(fromState, toState) {
+        if (!Object.values(STATES).includes(toState)) {
+            console.error(`Invalid state value: "${toState}" in ${funcName}`);
+            return false;
+        }
+        if (!VALID_TRANSITIONS[fromState]) {
+            console.error(`Invalid state: ${fromState}`);
+            return false;
+        }
+        if (!VALID_TRANSITIONS[fromState].includes(toState)) {
+            console.error(`Invalid transition: ${fromState} → ${toState}`);
+            return false;
+        }
+        return true;
+    }
 
-    return my;
-}(appState || {}));
-
-// Add a button to the page that triggers debugging
-(function() {
+    // Create debug button. Once verified working. We can likely remove this.
     const btn = document.createElement('button');
-    btn.id = 'debug-app-state-btn';
-    btn.textContent = 'Debug App State';
+    btn.textContent = 'Debug State';
     btn.style.position = 'fixed';
     btn.style.bottom = '10px';
     btn.style.right = '10px';
@@ -139,21 +194,20 @@ var appState = (function(my) {
     btn.style.padding = '5px 10px';
     btn.style.background = '#f1f1f1';
     btn.style.border = '1px solid #ccc';
-    btn.style.cursor = 'pointer';
-    btn.style.display = 'none'; // Hidden by default
-
+    btn.style.display = 'none';
     btn.onclick = function() {
-        document.dispatchEvent(new CustomEvent('appstate-debug-request'));
+        my.debugState();
     };
-
     document.body.appendChild(btn);
 
-    // Press Ctrl+Shift+D to show/hide the debug button
+    // Keyboard shortcut (Ctrl+Shift+D) to show/hide debug button
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.shiftKey && e.key === 'D') {
             btn.style.display = btn.style.display === 'none' ? 'block' : 'none';
             e.preventDefault();
         }
     });
-})();
+    
+    return my;
+}(appState || {}));
 </script>
