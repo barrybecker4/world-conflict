@@ -5,7 +5,6 @@ var AppStateTests = (function (my) {
         QUnit.module("AppState:");
 
         QUnit.test("Create AppState instance", function(assert) {
-            // Create a test instance
             const testState = new AppState();
             assert.ok(testState, "Should create AppState instance");
             assert.equal(testState.getCurrentState(), testState.STATES.NOT_STARTED,

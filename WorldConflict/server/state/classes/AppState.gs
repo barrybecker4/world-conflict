@@ -181,3 +181,6 @@ class AppState {
         return true;
     }
 }
+
+// Create and export the singleton instance
+var appState = new AppState();
