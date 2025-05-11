@@ -1,7 +1,6 @@
 <script>
 /**
- * Game Information Panel Component
- * Responsible for rendering the left-side information panel in the game UI
+ * Game Information Panel Component - appears on left-side
  */
 erisk.gameInfoPanel = (function() {
     const my = {};
@@ -83,7 +82,6 @@ erisk.gameInfoPanel = (function() {
         const infoEl = $('info');
         let moveInfo = '';
 
-        // Determine appropriate instructions based on game state
         if (activePlayer.personality) {
             moveInfo = elem('p', {}, `${activePlayer.getName()} is taking their turn.`);
         } else if (buildingMode) {

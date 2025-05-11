@@ -1,96 +1,157 @@
 <script>
-    renderUtils = (function() {
+/**
+ * Render Utilities - A collection of utility functions for rendering common visual elements
+ */
+renderUtils = (function() {
+    const my = {};
+    const { range, rint, lerp } = utils;
+    const { div, $, append, setTransform } = domUtils;
+    const { projectPoint } = geomUtils;
 
-        const my  = {};
-        const { range, rint, lerp } = utils;
-        const { div, $,  append, setTransform } = domUtils;
-        const { projectPoint } = geomUtils;
+    const ANIMATION = {
+        PARTICLE_DURATION: 3050,
+        TRANSITION_DELAY: 100
+    };
 
+    /** Generates smoke particle effects at a specified position */
+    my.spawnSmokeParticles = function(element) {
+        if (!element) return;
 
-        my.spawnSmokeParticles = function(div) {
-            const x = parseFloat(div.style.left);
-            const y = parseFloat(div.style.top);
-            const numParticles = 20;
-            range(0, numParticles).map(function() {
-                const angle = utils.random() * 6.28;
-                const dist = rint(0, 200) / 80;
-                spawnParticle(x + Math.sin(angle) * dist, y + Math.cos(angle) * dist, 0, -1, '#112');
-            });
-        }
+        const x = parseFloat(element.style.left);
+        const y = parseFloat(element.style.top);
+        const numParticles = 20;
 
-        my.spawnCelebratoryParticles = function(region) {
-            region.points.map(point => {
-                point = projectPoint(point);
-                const center = region.center;
-                const alpha = rint(30, 150) / 100;
-                const startPoint = { x: lerp(alpha, center.x, point.x), y: lerp(alpha, center.y, point.y) };
-                const vx = (startPoint.x - center.x) / 2;
-                const vy = (startPoint.y - center.y) / 2 - 0.15;
-                spawnParticle(startPoint.x, startPoint.y, vx, vy, '#fff');
-            });
-        }
+        // Create multiple particles in a cloud pattern
+        range(0, numParticles).forEach(() => {
+            const angle = utils.random() * 6.28; // Full circle in radians
+            const dist = rint(0, 200) / 80;
+            const particleX = x + Math.sin(angle) * dist;
+            const particleY = y + Math.cos(angle) * dist;
+            spawnParticle(particleX, particleY, 0, -1, '#112');
+        });
+    };
 
-        function spawnParticle(x, y, vx, vy, color) {
-            // box-shadow:  x-offset, y-offset, blur radius, spread radius, color
-            const styleString = "opacity:1; left: " + x + "%;top: " + y + "%; box-shadow: 0 0 4px 4px " + color;
-            const particle = append('map', div({c: 'particle', s: styleString}, ''));
-            my.floatAway(particle, vx, vy);
-        }
+    my.spawnCelebratoryParticles = function(region) {
+        if (!region || !region.points) return;
 
-        my.showFloatingText = function(floater) {
-            let x, y;
-            if (typeof floater.regionIdx === 'number') {
-                const region = gameData.regions[floater.regionIdx]
-                x = region.center.x;
-                y = region.center.y;
+        // Create particles along region boundary
+        region.points.forEach(point => {
+            // Project the point to screen coordinates
+            point = projectPoint(point);
+            const center = region.center;
+
+            // Adjust particle start position based on distance from center
+            const alpha = rint(30, 150) / 100;
+            const startPoint = {
+                x: lerp(alpha, center.x, point.x),
+                y: lerp(alpha, center.y, point.y)
+            };
+
+            // Calculate velocity vector pointing away from center with upward bias
+            const vx = (startPoint.x - center.x) / 2;
+            const vy = (startPoint.y - center.y) / 2 - 0.15;
+
+            spawnParticle(startPoint.x, startPoint.y, vx, vy, '#fff');
+        });
+    };
+
+    my.showFloatingText = function(floater) {
+        if (!floater) return;
+
+        const position = getFloaterPosition(floater);
+        if (!position) return;
+
+        const x = position.x - floater.width / 2 - 0.5;
+        const y = position.y - 4;
+        const styles = `left: ${x}%;top:${y}%;color:${floater.color};width:${floater.width}%`;
+
+        const floatingNode = append('map', div({ class: 'tt', style: styles }, floater.text));
+
+        setTransform(floatingNode, "translate3d(0,0,0)");
+        my.floatAway(floatingNode, 0, -3);
+    };
+
+    /** Animates an element floating away and fading out*/
+    my.floatAway = function(elem, vx, vy) {
+        if (!elem) return;
+
+        setTimeout(() => {
+            setTransform(elem, `translate3d(${vx}em,${vy}em,0)`);
+            elem.style.opacity = '0.0';
+        }, ANIMATION.TRANSITION_DELAY);
+
+        // Remove the element after animation completes
+        setTimeout(() => {
+            if ($('map') && $('map').contains(elem)) {
+                $('map').removeChild(elem);
             }
-            else if (floater.soldierDiv) {
-                const style = floater.soldierDiv.style;
-                x = parseFloat(style.left) + 0.2;
-                y = parseFloat(style.top) + 0.2;
+        }, ANIMATION.PARTICLE_DURATION);
+    };
+
+    /** Maintains the aspect ratio of the game container */
+    my.preserveAspect = function() {
+        setTimeout(() => {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const aspect = 1.65;
+
+            let newWidth, newHeight;
+            if (w / h > aspect) {
+                newWidth = h * aspect;
+                newHeight = h;
+            } else {
+                newWidth = w;
+                newHeight = w / aspect;
             }
-            else {
-                throw new Error("The floater had neither regionIdx, nor soldierDiv:\n" + JSON.stringify(floater));
+
+            const container = $('container');
+            if (container) {
+                const styles = container.style;
+                styles.width = `${newWidth}px`;
+                styles.height = `${newHeight}px`;
+
+                // Scale font size based on height for better responsiveness
+                styles.fontSize = `${0.0154 * Math.pow(newHeight, 1.07)}px`;
             }
+        }, 0);
+    };
 
-            x -= floater.width / 2 + 0.5; y -= 4;
+    /** Creates a particle element and adds it to the DOM */
+    function spawnParticle(x, y, vx, vy, color) {
+        // Create particle with initial position and color
+        const styleString = `opacity:1; left:${x}%;top:${y}%; box-shadow: 0 0 4px 4px ${color}`;
+        const particle = append('map', div({ class: 'particle', style: styleString }, ''));
 
-            const styles = "left: " + x + "%;top:" + y + "%;color:" + floater.center + ";width:" + floater.width + "%";
-            const floatingNode = append('map', div({ c: 'tt', s: styles }, floater.text));
-            setTransform(floatingNode, "translate3d(0,0,0)");
-            renderUtils.floatAway(floatingNode, 0, -3);
+        my.floatAway(particle, vx, vy);
+    }
+
+    /**
+     * Determines the position for a floating text element
+     * @returns {Object|null} Position {x, y} or null if invalid
+     */
+    function getFloaterPosition(floater) {
+        if (floater.regionIdx !== undefined) {
+            // Position based on region center
+            const region = gameData.regions[floater.regionIdx];
+            if (!region || !region.center) return null;
+
+            return {
+                x: region.center.x,
+                y: region.center.y
+            };
+        }
+        else if (floater.soldierDiv) {
+            // Position based on soldier element
+            const style = floater.soldierDiv.style;
+            return {
+                x: parseFloat(style.left) + 0.2,
+                y: parseFloat(style.top) + 0.2
+            };
         }
 
-        my.floatAway = function(elem, vx, vy) {
-            setTimeout(function() {
-                setTransform(elem, "translate3d(" + vx + "em," + vy + "em,0)");
-                elem.style.opacity = '0.0';
-            }, 100);
-            setTimeout(function() {
-                if ($('map').contains(elem))
-                    $('map').removeChild(elem);
-            }, 3050);
-        }
+        return null;
+    }
 
-        my.preserveAspect = function() {
-            setTimeout(function() {
-                let w = window.innerWidth;
-                let h = window.innerHeight;
-                let aspect = 1.65, px = 'px';
-
-                if (w / h > aspect) {
-                    w = h * aspect;
-                } else {
-                    h = w / aspect;
-                }
-
-                const styles = $('container').style;
-                styles.width = w + px;
-                styles.height = h + px;
-                styles.fontSize = 0.0154 * Math.pow(h, 1.07) + px;
-            }, 0);
-        }
-
-        return my;
-    }());
+    return my;
+}());
 </script>

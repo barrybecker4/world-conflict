@@ -1,112 +1,142 @@
 <script>
+/**
+ * Game Renderer Component -Responsible for orchestrating the overall game rendering,
+ * including the game map, UI elements, banners, and coordinating updates.
+ */
 erisk.gameRenderer = (function() {
+    const my = {};
+    const { elem, div, $, append, onClickOrTap, setTransform } = domUtils;
+    let displayedState = null;
 
-    const my  = {};
-    const { elem, div, $,  append, onClickOrTap, setTransform } = domUtils;
+    const DOM_IDS = {
+        FOOTER_BUTTONS: 'footer-buttons',
+        CONTAINER: 'container',
+        UNDO_BUTTON: 'undo-button'
+    };
 
-    const footerButtonsId = 'footer-buttons';
-
-
-    // Initial rendering of the game map (regions) as an SVG object.
+    /** Initializes the game map with SVG elements */
     my.showMap = function(container, gameState) {
         erisk.mapRenderer.showMap(container, gameState);
-    }
+    };
 
+    /** Updates the map display with the current game state */
     my.updateMapDisplay = function(gameState) {
         erisk.mapRenderer.updateMapDisplay(gameState);
-    }
+    };
 
-    let displayedState;
+    /** Updates the entire game display */
     my.updateDisplay = function(gameState) {
-        // just for debugging
+        // Store the state for potential debugging reference
         if (gameState) {
             displayedState = gameState;
         }
 
         my.updateMapDisplay(displayedState);
         if (appState.isInGameOrWaiting()) {
-            updateInGameUI(displayedState)
+            updateInGameUI(displayedState);
         }
 
-        if (displayedState.soundCue) {
-            audio.playSound(displayedState.soundCue);
-            displayedState.soundCue = null; // probably not needed
-        }
-    }
+        playSoundFromState(displayedState);
+    };
 
-    function updateInGameUI(gameState) {
-        erisk.gameInfoPanel.render(gameState);
-        const decisionState = gameState.moveDecision;
-        my.updateButtons(decisionState && decisionState.buttons);
-        domUtils.showOrHide('undo-button', erisk.undoEnabled(gameState));
-    }
-
-    my.updateButtons = function(buttons, infoText) {
-        $(footerButtonsId).innerHTML = '';
-
-        if (infoText) {
-            const textBox = div({c: 'description info-text'}, infoText);
-            const buttonNode = append(footerButtonsId, textBox);
-        }
-
-        (buttons || []).map(createButton);
-    }
-
-    function createButton(button, index) {
-        if (button.hidden) return;
-
-        let buttonContents = div({}, button.text);
-        if (button.description) {
-            buttonContents += div({c: 'description'}, button.description);
-        }
-
-        const tip = button.tip ? button.tip : '';
-        const buttonHTML = elem('a', {href: '#', c: button.disabled ? 'off' : '', tt: tip}, buttonContents);
-        const buttonNode = append(footerButtonsId, buttonHTML);
-        if (!button.disabled) {
-            onClickOrTap(buttonNode, (event) => {
-                uiCallbacks.invokeCallback(index, 'build', event);
-            });
-        }
-    }
-
+    /** Shows a banner for a player's turn */
     my.showPlayerBanner = function(player) {
-        my.showBanner(player.colorEnd, player.getName() + "'s turn");
-    }
+        my.showBanner(player.colorEnd, `${player.getName()}'s turn`);
+    };
 
-    my.showBanner = function(background, text, delay, duration) {
-        delay = delay || 1;
-        duration = duration || 1600;
+    /** Shows a game banner with custom text */
+    my.showBanner = function(background, text, delay = 1, duration = 1600) {
         erisk.oneAtaTime(delay, function() {
-            // create a new banner div
-            let banner = append('container', div({c: 'banner'}, text));
-            let styles = banner.style;
+            // Create banner element
+            const banner = append(DOM_IDS.CONTAINER, div({ c: 'banner' }, text));
+            const styles = banner.style;
 
             styles.background = background;
             styles.opacity = 0.0;
-            setTransform(banner, transform(-1));
+            setTransform(banner, createTransform(-1));
 
-            setTimeout(function() {
+            // Animation sequence using timeouts
+            setTimeout(() => {
                 styles.opacity = 1.0;
-                setTransform(banner, transform(1));
+                setTransform(banner, createTransform(1));
             }, 0.1 * duration);
 
-            setTimeout(function() {
+            setTimeout(() => {
                 styles.opacity = 1.0;
             }, 0.5 * duration);
 
-            setTimeout(function() {
+            setTimeout(() => {
                 styles.opacity = 0.0;
             }, 0.7 * duration);
 
-            setTimeout(function() {
+            setTimeout(() => {
                 banner.parentNode.removeChild(banner);
             }, duration);
         });
 
-        function transform(offset) {
-            return "translate3d(10px, " + 20 * offset + "px, 0)";
-             // rotateY(" + (8 + offset * 2) + "deg)"; // this doesn't work on Safari
+        function createTransform(offset) {
+            return `translate3d(10px, ${20 * offset}px, 0)`;
+        }
+    };
+
+    /** Updates the game action buttons */
+    my.updateButtons = function(buttons, infoText) {
+        const footerEl = $(DOM_IDS.FOOTER_BUTTONS);
+        footerEl.innerHTML = '';
+
+        if (infoText) {
+            const textBox = div({ c: 'description info-text' }, infoText);
+            append(DOM_IDS.FOOTER_BUTTONS, textBox);
+        }
+
+        (buttons || []).forEach(createButton);
+    };
+
+    /** Updates the in-game UI elements */
+    function updateInGameUI(gameState) {
+        erisk.gameInfoPanel.render(gameState);
+
+        // Update decision-related UI elements
+        const decisionState = gameState.moveDecision;
+        my.updateButtons(decisionState && decisionState.buttons);
+
+        domUtils.showOrHide(DOM_IDS.UNDO_BUTTON, erisk.undoEnabled(gameState));
+    }
+
+    /** Plays any sound cued in the game state  */
+    function playSoundFromState(gameState) {
+        if (gameState.soundCue) {
+            audio.playSound(gameState.soundCue);
+            gameState.soundCue = null;
+        }
+    }
+
+    /** Creates a button element and adds it to the footer */
+    function createButton(button, index) {
+        if (button.hidden) return;
+
+        // Create button content with optional description
+        let buttonContents = div({}, button.text);
+        if (button.description) {
+            buttonContents += div({ c: 'description' }, button.description);
+        }
+
+        // Create button element with appropriate styling
+        const buttonClasses = button.disabled ? 'off' : '';
+        const buttonHTML = elem('a', {
+            href: '#',
+            c: buttonClasses,
+            tt: button.tip || ''
+        }, buttonContents);
+
+        // Add button to DOM
+        const buttonNode = append(DOM_IDS.FOOTER_BUTTONS, buttonHTML);
+
+        // Add click handler if button is enabled
+        if (!button.disabled) {
+            onClickOrTap(buttonNode, (event) => {
+                uiCallbacks.invokeCallback(index, 'build', event);
+            });
         }
     }
 
