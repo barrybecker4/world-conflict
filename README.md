@@ -34,7 +34,8 @@ Do git commit, push, and create pull requests through Github when you have a fea
  F
 #### Test
 
-In order to run the unit tests, append `?test=true` to the URL.
+To run the server unit tests, append `?test=true` to the URL.
+To run the server unit tests, append `?clientTest=true` to the URL.
 
 #### Thanks
 

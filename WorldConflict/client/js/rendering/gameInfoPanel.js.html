@@ -1,98 +1,120 @@
 <script>
+/**
+ * Game Information Panel Component
+ * Responsible for rendering the left-side information panel in the game UI
+ */
 erisk.gameInfoPanel = (function() {
+    const my = {};
+    const { elem, div, $, append } = domUtils;
 
-    const my  = {};
-    const { elem, div, $,  append } = domUtils;
+    // Symbolic constants with descriptive names
+    const SYMBOLS = {
+        FAITH: '&#9775;',   // Faith/currency symbol
+        DEAD: '&#9760;',    // Skull and crossbones for eliminated players
+        VICTORY: '&#9819;', // Crown for winner
+        REGION: '&#9733;',  // Star for regions
+        MOVES: '&#10138;'   // Arrow for moves
+    };
 
-    const DEAD_SYMBOL = '&#9760;'; // skull and crossbones - shows when you're dead
-    const FAITH_SYMBOL = '&#9775;'; // faith is like money
-    const VICTORY_SYMBOL = '&#9819;'; // a crown
-    const REGION_SYMBOL = '&#9733;'; // a star represents a region
-
-
-    // Update the information on the left for the current active player
+    /**
+     * Renders the entire game info panel based on the current game state
+     * @param {GameState} gameState - Current game state
+     */
     my.render = function(gameState) {
         const decisionState = gameState.moveDecision;
         const buildingMode = decisionState && decisionState.isBuildMove();
         const movingArmy = decisionState && decisionState.isArmyMove();
         const regionIndex = decisionState && decisionState.regionIndex;
 
-        showTurnCountOrBuilding(gameState, buildingMode, regionIndex);
-        showPlayerInfo(gameState);
-        showMoveInfo(gameState, buildingMode, movingArmy, regionIndex)
-        showActivePlayerStats(gameState, buildingMode);
-    }
+        renderTurnInfoSection(gameState, buildingMode, regionIndex);
+        renderPlayersInfo(gameState);
+        renderMoveInstructions(gameState, buildingMode, movingArmy, regionIndex);
+        renderActivePlayerStats(gameState, buildingMode);
+    };
 
-    function showTurnCountOrBuilding(gameState, buildingMode, regionIndex) {
+    function renderTurnInfoSection(gameState, buildingMode, regionIndex) {
         const turnCountEl = $('turn-count');
 
         if (buildingMode) {
-            const info = gameState.templeInfo(gameState.templeForRegion(regionIndex));
-            turnCountEl.innerHTML = div({}, info.name) + div({c: 'description'}, info.description);
+            const temple = gameState.templeForRegion(regionIndex);
+            const info = gameState.templeInfo(temple);
+            
+            turnCountEl.innerHTML = div({}, info.name) + 
+                div({ c: 'description' }, info.description);
         } else {
-            turnCountEl.innerHTML =
-                'Turn <b>' + gameState.turnIndex + '</b>' +
-                ((gameData.turnCount !== CONSTS.UNLIMITED_TURNS) ? ' / ' + gameData.turnCount : '');
+            const isLimitedTurns = gameData.turnCount !== CONSTS.UNLIMITED_TURNS;
+            const turnCount = gameState.turnIndex;
+            const maxTurns = isLimitedTurns ? ` / ${gameData.turnCount}` : '';
+            turnCountEl.innerHTML = `Turn <b>${turnCount}</b>${maxTurns}`;
         }
     }
 
-    function showPlayerInfo(gameState)  {
-        gameData.players.map(function(player, index) {
-            $('player-box' + index).className =
-                (index === gameState.playerIndex) ? 'player-box active' : 'player-box inactive';
+    function renderPlayersInfo(gameState) {
+        gameData.players.forEach((player, index) => {
+            const isActive = index === gameState.playerIndex;
             const hasRegions = gameState.regionCount(player);
-            const gameWinner = gameState.endResult;
-            const regionCountEl = $('region-count' + index);
-            const playerCashEl = $('player-cash' + index);
-
+            const isWinner = gameState.endResult === player;
+            
+            const playerBoxEl = $(`player-box${index}`);
+            playerBoxEl.className = isActive ? 'player-box active' : 'player-box inactive';
+            
+            const regionCountEl = $(`region-count${index}`);
+            const playerCashEl = $(`player-cash${index}`);
+            
             if (!regionCountEl) return;
 
             if (hasRegions) {
-                regionCountEl.innerHTML = gameState.regionCount(player) + REGION_SYMBOL;
-                if (gameWinner) {
-                    playerCashEl.innerHTML = (gameWinner === player) ? VICTORY_SYMBOL : '';
+                regionCountEl.innerHTML = `${gameState.regionCount(player)}${SYMBOLS.REGION}`;
+                
+                if (gameState.endResult) {
+                    playerCashEl.innerHTML = isWinner ? SYMBOLS.VICTORY : '';
                 } else {
-                    playerCashEl.innerHTML = gameState.cash[player.index] + FAITH_SYMBOL;
+                    playerCashEl.innerHTML = `${gameState.cash[player.index]}${SYMBOLS.FAITH}`;
                 }
-            }
-            else {
-                regionCountEl.innerHTML = DEAD_SYMBOL;
+            } else {
+                regionCountEl.innerHTML = SYMBOLS.DEAD;
                 playerCashEl.innerHTML = '';
             }
         });
     }
 
-    function showMoveInfo(gameState, buildingMode, movingArmy, regionIndex) {
-        let moveInfo;
+    function renderMoveInstructions(gameState, buildingMode, movingArmy, regionIndex) {
         const activePlayer = gameState.activePlayer();
-        if (activePlayer.personality) {
-            moveInfo = elem('p', {}, activePlayer.getName() + ' is taking her turn.');
-        }
-        else {
-            if (buildingMode) {
-                if (gameState.owner(regionIndex).index === activePlayer.index)
-                    moveInfo = elem('p', {}, 'Choose an upgrade to build.');
-                else
-                    moveInfo = '';
-            } else if (movingArmy) {
-                moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +
-                    elem('p', {}, 'Click on a target region to move the army.');
-
-            } else {
-                moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
-                    elem('p', {}, 'Click on a temple to buy soldiers or upgrades with &#9775;.');
-            }
-        }
         const infoEl = $('info');
+        let moveInfo = '';
+
+        // Determine appropriate instructions based on game state
+        if (activePlayer.personality) {
+            moveInfo = elem('p', {}, `${activePlayer.getName()} is taking their turn.`);
+        } else if (buildingMode) {
+            const isOwnTemple = gameState.owner(regionIndex).index === activePlayer.index;
+            moveInfo = isOwnTemple ? 
+                elem('p', {}, 'Choose an upgrade to build.') : '';
+        } else if (movingArmy) {
+            moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +
+                elem('p', {}, 'Click on a target region to move the army.');
+        } else {
+            moveInfo = elem('p', {}, 'Click on a region to move or attack with its army.') +
+                elem('p', {}, `Click on a temple to buy soldiers or upgrades with ${SYMBOLS.FAITH}.`);
+        }
+
         infoEl.innerHTML = moveInfo;
         infoEl.style.background = activePlayer.colorEnd;
     }
 
-    function showActivePlayerStats(gameState, buildingMode) {
+    function renderActivePlayerStats(gameState, buildingMode) {
         const activePlayer = gameState.activePlayer();
+        
+        // Only show player stats when not in building mode
         domUtils.showOrHide('pd', !buildingMode);
-        $('move-count').innerHTML = gameState.movesRemaining + elem('span', {s: 'font-size: 80%'}, '&#10138;');
-        $('faith').innerHTML = gameState.cash[activePlayer.index] +  elem('span', {s: 'font-size: 80%'}, '&#9775;');
+        
+        // Update moves display
+        $('move-count').innerHTML = `${gameState.movesRemaining}` + 
+            elem('span', { s: 'font-size: 80%' }, SYMBOLS.MOVES);
+        
+        // Update faith/currency display
+        $('faith').innerHTML = `${gameState.cash[activePlayer.index]}` + 
+            elem('span', { s: 'font-size: 80%' }, SYMBOLS.FAITH);
     }
 
     return my;
