@@ -1,95 +1,175 @@
 <script>
-const { elem, div, $,  append } = domUtils;
-
+const { elem, div, $, append } = domUtils;
+/**
+ * Manages the display of tooltips and informational overlays in the game UI.
+ */
 class Tooltips {
 
     constructor(gameState) {
         this.gameState = gameState;
+
+        this.DOM = {
+            MAP_CONTAINER: 'map',
+            TOOLTIP_CLASS: 'tt',
+            TEMPORARY_CLASS: 'ttp',
+            SOLDIER_TOOLTIP_CLASS: 'tt soldier-tt'
+        };
+
+        // First-time instruction keys
+        this.INSTRUCTIONS = {
+            MOVE_REGION: "Click this region again to change the number of soldiers.",
+            MOVE_TO_NEIGHBOR: "Click a bordering region to move.",
+            CONQUEST_NO_MOVE: "Armies that conquer a new region cannot move again.",
+            END_TURN: "Once you're done, click 'End turn' here.",
+            UI_BUTTONS: "If you want to undo a move or check the rules, use the buttons here."
+        };
     }
 
     updateTooltips() {
         const gs = this.gameState;
-        [].slice.call(document.querySelectorAll('.ttp')).map(el => $('map').removeChild(el));
+        this.clearTemporaryTooltips();
+
         if (gs.activePlayer().personality) return;
 
-        // "how to move" tooltips
-        const hasSource = gs.moveDecision && typeof gs.moveDecision.source == 'number';
-        if (hasSource)  {
+        if (this.isMovingArmySelected()) {
             this.showHowToMoveTips();
-        }
-        else {
+        } else {
             this.showConqueringCannotMoveTip();
         }
+
+        // Show UI button tooltips in early game
         if (gs.turnIndex === 2 && gs.movesRemaining === 2) {
-            this.showTooltipOver({ center: { x: 90, y: 93 } },
-                "If you want to undo a move or check the rules, use the buttons here.", 15);
+            this.showTooltipOver(
+                { center: { x: 90, y: 93 } },
+                this.INSTRUCTIONS.UI_BUTTONS,
+                15
+            );
         }
-    }
-
-    showHowToMoveTips() {
-        const source = gameData.regions[this.gameState.moveDecision.source];
-        this.showTooltipOver(source, "Click this region again to change the number of soldiers.");
-        // pick the furthest neighbor
-        const furthestIdx = sequenceUtils.max(source.neighbors, nbr => source.centerDistanceFrom(gameData.regions[nbr]));
-        this.showTooltipOver(gameData.regions[furthestIdx], "Click a bordering region to move.");
-    }
-
-    showConqueringCannotMoveTip() {
-        const inactiveArmies = this.gameState.conqueredRegions;
-        if (inactiveArmies) {
-            this.showTooltipOver(gameData.regions[inactiveArmies[inactiveArmies.length - 1]],
-                "Armies that conquer a new region cannot move again.");
-            this.showTooltipOver({ center: {x: -2, y: 80} }, "Once you're done, click 'End turn' here.");
-        }
-    }
-
-    showTooltipOver(region, text, width) {
-        if (gameStorage.gameSetup.firstTimeInstructions[text]) return;
-        setTimeout(function() {
-            // don't display it again. Timeout used to handle multiple updateDisplays() in a row.
-            gameStorage.gameSetup.firstTimeInstructions[text] = 1;
-            gameStorage.storeSetup();
-        }, 500);
-
-        width = width || 7;
-        const left = region.center.x - (width + 1) * 0.5, bottom = 102 - region.center.y;
-        const styles = 'bottom: ' + bottom + '%; left: ' + left + '%; width: ' + width + '%';
-
-        append('map', div({c: 'tt ttp', s: styles}, text));
     }
 
     updateSoldierTooltips() {
-        gameData.regions.map((region, regionIndex) => {
+        gameData.regions.forEach((region, regionIndex) => {
             const tooltipId = 'side-control' + regionIndex;
-            // delete previous tooltip, if present
-            let tooltip = $(tooltipId);
 
-            // should we have a tooltip?
+            // Delete previous tooltip if present
+            let tooltip = $(tooltipId);
+            if (tooltip && tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+                tooltip = null;
+            }
+
+            // Check if we need a tooltip for this region
             const gs = this.gameState;
             let count = gs.soldierCount(region);
+
+            // Only show tooltip for regions with many soldiers
             if (count > 8) {
                 const moveSourceIsRegion =
                     (gs.moveDecision && (gs.moveDecision.source === region.index));
+
                 let selected = moveSourceIsRegion ? gs.moveDecision.count : 0;
-                selected += sequenceUtils.sum(gs.soldiersAtRegion(regionIndex), function(soldier) {
-                    return (typeof soldier.attackedRegion !== 'undefined') ? 1 : 0;
-                });
+
+                // Add soldiers that are attacking
+                selected += gs.soldiersAtRegion(regionIndex).reduce((sum, soldier) => {
+                    return sum + (soldier.attackedRegion !== undefined ? 1 : 0);
+                }, 0);
+
+                let content = count.toString();
                 if (selected) {
-                    count = selected + "<hr>" + count;
+                    content = selected + "<hr>" + count;
                 }
 
+                // Create tooltip if it doesn't exist
                 if (!tooltip) {
                     const tooltipHTML = div({
-                        i: tooltipId,
-                        c: 'tt soldier-tt',
-                        s: "left:" + (region.center.x - 1.5) + '%;top:' + (region.center.y + 1.2) + '%'
+                        id: tooltipId,
+                        class: this.DOM.SOLDIER_TOOLTIP_CLASS,
+                        style: `left:${region.center.x - 1.5}%;top:${region.center.y + 1.2}%`
                     }, '');
-                    tooltip = append('map', tooltipHTML);
+
+                    tooltip = append(this.DOM.MAP_CONTAINER, tooltipHTML);
                 }
-                tooltip.innerHTML = count;
-            } else if (tooltip) {
-                tooltip.parentNode.removeChild(tooltip);
+
+                tooltip.innerHTML = content;
             }
+        });
+    }
+
+    isMovingArmySelected() {
+        return this.gameState.moveDecision &&
+               typeof this.gameState.moveDecision.source === 'number';
+    }
+
+    /** Shows tooltips explaining how to move armies */
+    showHowToMoveTips() {
+        const source = gameData.regions[this.gameState.moveDecision.source];
+        this.showTooltipOver(source, this.INSTRUCTIONS.MOVE_REGION);
+
+        // Find the furthest neighbor region for the second tooltip
+        const furthestIdx = sequenceUtils.max(
+            source.neighbors,
+            nbr => source.centerDistanceFrom(gameData.regions[nbr])
+        );
+
+        this.showTooltipOver(
+            gameData.regions[furthestIdx],
+            this.INSTRUCTIONS.MOVE_TO_NEIGHBOR
+        );
+    }
+
+    /** Shows a tooltip explaining that conquered regions cannot move again */
+    showConqueringCannotMoveTip() {
+        const inactiveArmies = this.gameState.conqueredRegions;
+
+        if (inactiveArmies && inactiveArmies.length) {
+            const mostRecentRegionIdx = inactiveArmies[inactiveArmies.length - 1];
+            this.showTooltipOver(
+                gameData.regions[mostRecentRegionIdx],
+                this.INSTRUCTIONS.CONQUEST_NO_MOVE
+            );
+
+            this.showTooltipOver(
+                { center: {x: -2, y: 80} },
+                this.INSTRUCTIONS.END_TURN
+            );
+        }
+    }
+
+    /** Shows a tooltip over a specific region or position */
+    showTooltipOver(region, text, width = 7) {
+        // Skip if this tip has been shown already
+        if (this.hasInstructionBeenShown(text)) return;
+
+        // Mark as shown (with delay to handle multiple updateDisplays in row)
+        setTimeout(() => {
+            this.markInstructionAsShown(text);
+        }, 500);
+
+        // Calculate position
+        const left = region.center.x - (width + 1) * 0.5;
+        const bottom = 102 - region.center.y;
+        const styles = `bottom: ${bottom}%; left: ${left}%; width: ${width}%`;
+
+        // Create and add tooltip
+        append(
+            this.DOM.MAP_CONTAINER,
+            div({class: `${this.DOM.TOOLTIP_CLASS} ${this.DOM.TEMPORARY_CLASS}`, style: styles}, text)
+        );
+    }
+
+    hasInstructionBeenShown(instructionText) {
+        return gameStorage.gameSetup.firstTimeInstructions[instructionText];
+    }
+
+    markInstructionAsShown(instructionText) {
+        gameStorage.gameSetup.firstTimeInstructions[instructionText] = 1;
+        gameStorage.storeSetup();
+    }
+
+    clearTemporaryTooltips() {
+        const temporaryTooltips = document.querySelectorAll(`.${this.DOM.TEMPORARY_CLASS}`);
+        temporaryTooltips.forEach(el => {
+            $(this.DOM.MAP_CONTAINER).removeChild(el);
         });
     }
 }
