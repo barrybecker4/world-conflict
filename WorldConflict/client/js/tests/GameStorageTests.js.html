@@ -17,18 +17,22 @@ QUnit.test("Create GameStorage instance", async function(assert) {
     done();
 });
 
-//QUnit.test("Default setup is valid", async function(assert) {
-//    const done = assert.async();
-//    const gameStorage = new GameStorage();
-//    await gameStorage.waitForInitialization();
-//
-//    assert.ok(gameStorage.gameSetup.sound, "Default sound setting should be true");
-//    assert.equal(gameStorage.gameSetup.aiLevel, CONSTS.AI_NICE, "Default AI level should be NICE");
-//    assert.equal(gameStorage.gameSetup.mapSize, CONSTS.STANDARD_MAP_SIZE, "Default map size should be standard");
-//
-//    assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
-//    done();
-//});
+QUnit.test("Default setup is valid", async function(assert) {
+    const done = assert.async();
+    const gameStorage = new GameStorage();
+    await gameStorage.waitForInitialization();
+    gameStorage.gameSetup = gameStorage.getDefaultSetup();
+
+    assert.ok(gameStorage.gameSetup.sound, "Default sound setting should be true");
+    assert.equal(gameStorage.gameSetup.aiLevel, CONSTS.AI_NICE, "Default AI level should be NICE");
+    assert.equal(gameStorage.gameSetup.mapSize, CONSTS.STANDARD_MAP_SIZE, "Default map size should be standard");
+    assert.equal(gameStorage.gameSetup.turnCount, CONSTS.STANDARD_TURN_COUNT, "Default turn count should be standard");
+    assert.equal(CONSTS.PLAYER_HUMAN_SET, "Set", "Correct PLAYER_HUMAN_SET value");
+    assert.equal(gameStorage.gameSetup.playerTypes[0], "Set", "First player is human and Set");
+
+    assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
+    done();
+});
 
 QUnit.test("Can modify gameSetup", async function(assert) {
     const done = assert.async();
@@ -45,18 +49,18 @@ QUnit.test("Can modify gameSetup", async function(assert) {
     done();
 });
 
-//QUnit.test("Setup validation works", async function(assert) {
-//    const done = assert.async();
-//    const gameStorage = new GameStorage();
-//    await gameStorage.waitForInitialization();
-//
-//    assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
-//
-//    // Make setup invalid - no enabled players
-//    const invalidSetup = gameStorage.getDefaultSetup();
-//    invalidSetup.playerTypes = [CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF];
-//
-//    assert.notOk(gameStorage.isSetupValidObj(invalidSetup), "Setup with no enabled players should be invalid");
-//    done();
-//});
+QUnit.test("Setup validation works", async function(assert) {
+    const done = assert.async();
+    const gameStorage = new GameStorage();
+    await gameStorage.waitForInitialization();
+
+    assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
+
+    // Make setup invalid - no enabled players
+    const invalidSetup = gameStorage.getDefaultSetup();
+    invalidSetup.playerTypes = [CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF];
+
+    assert.notOk(gameStorage.isSetupValidObj(invalidSetup), "Setup with no enabled players should be invalid");
+    done();
+});
 </script>

@@ -1,4 +1,3 @@
-
 var CONSTS = (function(my) {
 
     const DEBUG = false;

@@ -14,6 +14,10 @@
 <?!= include('client/js/state/AppState.js'); ?>
 <?!= include('client/js/state/GameStorage.js'); ?>
 
+<?!= include('client/js/state/classes/AiPersonality.js'); ?>
+<?!= include('client/js/state/classes/Upgrade.js'); ?>
+<?!= include('client/js/state/classes/Player.js'); ?>
+
 <?!= include('client/js/tests/AppStateTests.js'); ?>
 <?!= include('client/js/tests/GameStorageTests.js'); ?>
 
@@ -21,7 +25,8 @@
     QUnit.config.autostart = false;
 
     window.addEventListener('load', function() {
-        console.log("Running client-side tests...");
+        console.log("Page loaded, initializing CONSTS...");
+        CONSTS = CONSTS.initialize();
         QUnit.start();
     });
 </script>
