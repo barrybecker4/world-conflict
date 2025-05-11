@@ -1,4 +1,8 @@
 <script>
+/**
+ * Creates and manages the setup user interface for configuring a new game,
+ * including player settings, game options, and the button panel.
+ */
 var erisk = (function(my) {
     const { $, div } = domUtils;
 
@@ -6,36 +10,20 @@ var erisk = (function(my) {
         prepareSetupUI();
         erisk.updatePlayerConfigButtons();
         erisk.updateConfigBottomButtons();
-    }
+    };
 
-    // Prepares the whole sidebar on the left for gameplay use.
     my.prepareInGameUI = function() {
-        // turn counter
-        let html = div({i: 'turn-count', c: 'side-control'});
+        let html = div({id: 'turn-count', class: 'side-control'});
+        html += createPlayerBoxes();
 
-        // player box area
-        html += div({i: 'pd', c: 'side-control user-name'}, gameData.players.map(player => {
-            const pid = player.index;
-            return div({ i: 'player-box' + pid, c: 'player-box inactive', style: 'background: ' + player.colorEnd },
-                player.getName() +
-                div({ c: 'additional-info', i: 'region-count' + pid, tt: 'number of countries owned' }) +
-                div({ c: 'additional-info', i: 'player-cash' + pid, tt: 'amount of faith' })
-            );
-        }).join(''));
-
-        // info box
-        html += div({c: 'side-control user-name description', i: 'info'});
-
-        // set it all
+        html += div({class: 'side-control user-name description', id: 'info'});
         $('game-info').innerHTML = html;
-
-        // show stat box, undo button, and resign game buttons
-        ['move-info', 'undo-button', 'resign'].map(domUtils.show);
-    }
+        ['move-info', 'undo-button', 'resign'].forEach(domUtils.show);
+    };
 
     my.updatePlayerConfigButtons = function() {
-        // somebody changed something, so store the new setup
         gameStorage.storeSetup();
+
         const editable = !appState.isWaitingForPlayersToJoin();
 
         erisk.updatePlayerButtons(editable);
@@ -43,128 +31,198 @@ var erisk = (function(my) {
         updateTurnCountButtons(editable);
         updateTimeLimitButtons(editable);
         updateMapSizeButtons(editable);
-    }
+    };
 
+    /**
+     * Updates the player type selection buttons
+     * @param {boolean} editable - Whether the buttons should be interactive
+     */
     my.updatePlayerButtons = function(editable) {
-
+        // Get player types from appropriate source
         const playerTypes = editable ?
             gameStorage.gameSetup.playerTypes :
-            utils.range(0, CONSTS.PLAYER_TYPES.length).map(i => getPlayer(i).type);
+            Array.from({length: CONSTS.PLAYER_TYPES.length}, (_, i) => getPlayer(i).type);
 
-        playerTypes.map(function(playerType, playerIndex) {
-
-            utils.range(0, CONSTS.PLAYER_TYPES.length).map(buttonIndex => {
-               const isSelected = playerType === CONSTS.PLAYER_TYPES[buttonIndex];
-               updateButton('sb' + playerIndex + buttonIndex, isSelected, editable);
+        playerTypes.forEach((playerType, playerIndex) => {
+            CONSTS.PLAYER_TYPES.forEach((type, buttonIndex) => {
+                const isSelected = playerType === type;
+                updateButton(`sb${playerIndex}${buttonIndex}`, isSelected, editable);
             });
 
             const player = editable ? CONSTS.PLAYERS[playerIndex] : getPlayer(playerIndex);
-            const playerBox = $('player-box' + playerIndex);
+            const playerBox = $(`player-box${playerIndex}`);
             if (playerBox && playerBox.querySelector('.player-name')) {
                 playerBox.querySelector('.player-name').innerHTML = player.getName();
             }
         });
-    }
+    };
+
+    my.updateConfigBottomButtons = function() {
+        const buttonsDisabled = !gameStorage.isSetupValid();
+
+        erisk.gameRenderer.updateButtons([
+            {
+                text: 'Change map',
+                disabled: buttonsDisabled
+            },
+            {
+                text: 'Done configuring',
+                disabled: buttonsDisabled,
+                tip: 'Click this when done configuring the game at the top'
+            },
+        ]);
+    };
 
     function getPlayer(playerIndex) {
-        return gameData.players.find(p => p.originalIndex === playerIndex) || new Player({ type: CONSTS.PLAYER_OFF });
+        return gameData.players.find(p => p.originalIndex === playerIndex) ||
+               new Player({ type: CONSTS.PLAYER_OFF });
     }
 
-    function updateAiButtons(editable) {
-        utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
-            const aiLevel = editable ? gameStorage.gameSetup.aiLevel : gameData.aiLevel;
-            const isSelected = index === aiLevel;
-            updateButton('ai' + index, isSelected, editable);
-        });
-    }
-
-    function updateTurnCountButtons(editable) {
-        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
-            const turnCount = editable ? gameStorage.gameSetup.turnCount : gameData.turnCount;
-            const isSelected = CONSTS.TURN_COUNTS[index] === turnCount;
-            updateButton('turn-count' + index, isSelected, editable);
-        });
-    }
-
-    function updateTimeLimitButtons(editable) {
-        utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
-            const timeLimit = editable ? gameStorage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
-            const isSelected = CONSTS.TIME_LIMITS[index] === timeLimit;
-            updateButton('time-limit' + index, isSelected, editable);
-        });
-    }
-
-    function updateMapSizeButtons(editable) {
-        CONSTS.MAP_SIZE_LABELS.map(function(mapSize, index) {
-            const size = editable ? gameStorage.gameSetup.mapSize : gameData.mapSize;
-            const isSelected = size === mapSize;
-            updateButton('map-size' + index, isSelected, editable);
-        });
+    /** @returns {string} HTML for player boxes */
+    function createPlayerBoxes() {
+        return div({id: 'pd', class: 'side-control user-name'},
+            gameData.players.map(player => {
+                const pid = player.index;
+                return div({
+                    id: `player-box${pid}`,
+                    class: 'player-box inactive',
+                    style: `background: ${player.colorEnd}`
+                },
+                    player.getName() +
+                    div({
+                        class: 'additional-info',
+                        id: `region-count${pid}`,
+                        title: 'number of countries owned'
+                    }) +
+                    div({
+                        class: 'additional-info',
+                        id: `player-cash${pid}`,
+                        title: 'amount of faith'
+                    })
+                );
+            }).join('')
+        );
     }
 
     function updateButton(id, isSelected, editable) {
         domUtils.toggleClass(id, 'selected', isSelected);
         domUtils.toggleClass(id, 'disabled', !editable);
+
         if (!editable) {
             domUtils.removeClickOrTap($(id));
         }
     }
 
-    my.updateConfigBottomButtons = function() {
-        const buttonsDisabled = !gameStorage.isSetupValid();
-        erisk.gameRenderer.updateButtons([
-            { text: 'Change map', disabled: buttonsDisabled },
-            { text: 'Done configuring', disabled: buttonsDisabled,
-              tip: 'Click this when done configuring the game at the top'
-            },
-        ]);
+    function updateAiButtons(editable) {
+        CONSTS.AI_LEVELS.forEach((_, index) => {
+            const aiLevel = editable ? gameStorage.gameSetup.aiLevel : gameData.aiLevel;
+            const isSelected = index === aiLevel;
+            updateButton(`ai${index}`, isSelected, editable);
+        });
     }
 
-    // UI to configure the game to be played before it is played
+    function updateTurnCountButtons(editable) {
+        CONSTS.TURN_COUNTS.forEach((turnCount, index) => {
+            const currentTurnCount = editable ? gameStorage.gameSetup.turnCount : gameData.turnCount;
+            const isSelected = turnCount === currentTurnCount;
+            updateButton(`turn-count${index}`, isSelected, editable);
+        });
+    }
+
+    function updateTimeLimitButtons(editable) {
+        CONSTS.TIME_LIMITS.forEach((timeLimit, index) => {
+            const currentTimeLimit = editable ? gameStorage.gameSetup.humanTimeLimit : gameData.humanTimeLimit;
+            const isSelected = timeLimit === currentTimeLimit;
+            updateButton(`time-limit${index}`, isSelected, editable);
+        });
+    }
+
+    function updateMapSizeButtons(editable) {
+        CONSTS.MAP_SIZE_LABELS.forEach((mapSize, index) => {
+            const currentSize = editable ? gameStorage.gameSetup.mapSize : gameData.mapSize;
+            const isSelected = mapSize === currentSize;
+            updateButton(`map-size${index}`, isSelected, editable);
+        });
+    }
+
     function prepareSetupUI() {
         createPlayerBoxArea();
-
-        // hide buttons not shown during setup
-        ['move-info', 'move-expiration', 'undo-button', 'resign'].map(domUtils.hide);
-
+        ['move-info', 'move-expiration', 'undo-button', 'resign'].forEach(domUtils.hide);
         setupButtonHandlersForPlayerSetupPanel();
     }
 
     function createPlayerBoxArea() {
-        let html = div({c: 'side-control description'}, `Player ${domUtils.userid()} Setup`);
-        const playerBoxes = CONSTS.PLAYERS.map(function(player) {
+        let html = div({class: 'side-control description'}, `Player ${domUtils.userid()} Setup`);
+
+        const playerBoxes = CONSTS.PLAYERS.map(player => {
             const pid = player.index;
-            return buttonPanel(player.getName(), 'sb' + player.index, CONSTS.PLAYER_TYPES, {
-                i: 'player-box' + pid,
-                c: 'player-box inactive',
-                s: 'background: ' + player.colorEnd
-            });
+            return buttonPanel(
+                player.getName(),
+                `sb${player.index}`,
+                CONSTS.PLAYER_TYPES,
+                {
+                    id: `player-box${pid}`,
+                    class: 'player-box inactive',
+                    style: `background: ${player.colorEnd}`
+                }
+            );
         }).join('');
-        html += div({i: 'pd', c: 'side-control user-name'}, playerBoxes);
+
+        // Add player section
+        html += div({id: 'pd', class: 'side-control user-name'}, playerBoxes);
+
+        // Add other configuration sections
         html += buttonPanel('AI', 'ai', CONSTS.AI_LEVEL_LABELS);
 
-        const turnCountLabels = CONSTS.TURN_COUNTS.map(ct => (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : '' + ct);
+        // Turn count panel
+        const turnCountLabels = CONSTS.TURN_COUNTS.map(ct =>
+            (ct === CONSTS.UNLIMITED_TURNS) ? 'Endless' : `${ct}`
+        );
         html += buttonPanel('Turns', 'turn-count', turnCountLabels);
 
-        const timeLimitLabels = CONSTS.TIME_LIMITS.map(time => (time === CONSTS.UNLIMITED_TIME) ? 'Unlimited' : '' + time);
+        // Time limit panel
+        const timeLimitLabels = CONSTS.TIME_LIMITS.map(time =>
+            (time === CONSTS.UNLIMITED_TIME) ? 'Unlimited' : `${time}`
+        );
         html += buttonPanel('Time (sec)', 'time-limit', timeLimitLabels);
-
         html += buttonPanel('Map size', 'map-size', CONSTS.MAP_SIZE_LABELS);
-
         $('game-info').innerHTML = html;
     }
 
-    function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties) {
+    /**
+     * Creates a button panel with title and buttons
+     * @param {string} title - Panel title
+     * @param {string} buttonIdPrefix - Prefix for button IDs
+     * @param {Array} buttonLabels - Labels for the buttons
+     * @param {Object} additionalProperties - Additional properties for the panel
+     * @returns {string} HTML for the button panel
+     */
+    function buttonPanel(title, buttonIdPrefix, buttonLabels, additionalProperties = {}) {
         const len = buttonLabels.length - 1;
-        const buttons = buttonLabels.concat().reverse().map(function(label, index) {
+
+        // Create buttons in reverse order
+        const buttons = buttonLabels.concat().reverse().map((label, index) => {
             const id = buttonIdPrefix + (len - index);
-            return domUtils.elem('a', {i: id, c: 'right', href: '#', s: 'font-size: 90%'}, label);
+            return domUtils.elem('a', {
+                id: id,
+                class: 'right',
+                href: '#',
+                style: 'font-size: 90%'
+            }, label);
         }).join('');
-        const properties = {i: buttonIdPrefix, c: 'side-control description', s: 'padding-right: 0.5em'};
-        utils.forEachProperty(additionalProperties, function(value, name) {
-            properties[name] = value;
-        });
-        const titleSpan = domUtils.elem('span', {c: 'player-name'}, title);
+
+        // Set panel properties
+        const properties = {
+            id: buttonIdPrefix,
+            class: 'side-control description',
+            style: 'padding-right: 0.5em'
+        };
+
+        // Add any additional properties
+        Object.assign(properties, additionalProperties);
+
+        // Create panel with title and buttons
+        const titleSpan = domUtils.elem('span', {class: 'player-name'}, title);
         return div(properties, titleSpan + buttons);
     }
 
@@ -177,46 +235,46 @@ var erisk = (function(my) {
     }
 
     function setupButtonHandlersForPlayers() {
-        utils.for2d(0, CONSTS.PLAYERS.length, 0, CONSTS.PLAYER_TYPES.length, function(playerIndex, playerTypeIndex) {
+        utils.for2d(0, CONSTS.PLAYERS.length, 0, CONSTS.PLAYER_TYPES.length, (playerIndex, playerTypeIndex) => {
             domUtils.onClickOrTap(
-                $('sb' + playerIndex + playerTypeIndex),
+                $(`sb${playerIndex}${playerTypeIndex}`),
                 event => uiCallbacks.invokeCallback({ playerIndex, playerTypeIndex }, 'setupPlayerButtons', event)
             );
         });
     }
 
     function setupButtonHandlersForAiType() {
-        utils.range(0, CONSTS.AI_LEVELS.length).map(function(index) {
+        CONSTS.AI_LEVELS.forEach((_, index) => {
             domUtils.onClickOrTap(
-                $('ai' + index),
+                $(`ai${index}`),
                 event => uiCallbacks.invokeCallback(index, 'setupAiLevel', event)
             );
         });
     }
 
     function setupButtonHandlersForTurnCount() {
-        utils.range(0, CONSTS.TURN_COUNTS.length).map(function(index) {
+        CONSTS.TURN_COUNTS.forEach((turnCount, index) => {
             domUtils.onClickOrTap(
-                $('turn-count' + index),
-                event => uiCallbacks.invokeCallback(CONSTS.TURN_COUNTS[index], 'setupTurnCount', event)
+                $(`turn-count${index}`),
+                event => uiCallbacks.invokeCallback(turnCount, 'setupTurnCount', event)
             );
         });
     }
 
     function setupButtonHandlersForTimeLimits() {
-        utils.range(0, CONSTS.TIME_LIMITS.length).map(function(index) {
+        CONSTS.TIME_LIMITS.forEach((timeLimit, index) => {
             domUtils.onClickOrTap(
-                $('time-limit' + index),
-                event => uiCallbacks.invokeCallback(CONSTS.TIME_LIMITS[index], 'setupTimeLimit', event)
+                $(`time-limit${index}`),
+                event => uiCallbacks.invokeCallback(timeLimit, 'setupTimeLimit', event)
             );
         });
     }
 
     function setupButtonHandlersForMapSizes() {
-        utils.range(0, CONSTS.MAP_SIZE_LABELS.length).map(function(index) {
+        CONSTS.MAP_SIZE_LABELS.forEach((mapSize, index) => {
             domUtils.onClickOrTap(
-                $('map-size' + index),
-                event => uiCallbacks.invokeCallback(CONSTS.MAP_SIZE_LABELS[index], 'setupMapSize', event)
+                $(`map-size${index}`),
+                event => uiCallbacks.invokeCallback(mapSize, 'setupMapSize', event)
             );
         });
     }
