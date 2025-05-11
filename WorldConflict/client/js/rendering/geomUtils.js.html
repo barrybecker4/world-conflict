@@ -1,62 +1,135 @@
 <script>
+/**
+ * Geometry Utilities - Provides essential geometric operations for game rendering, including
+ * point projection, polygon creation, and transformations.
+ */
 var geomUtils = (function(my) {
+    const SVG = {
+        DEFAULT_STROKE: "stroke:#000;stroke-width:0.25;",
+        TRANSPARENT: 'transparent'
+    };
+
+    const PROJECTION = {
+        X_OFFSET: 3,
+        Y_OFFSET: 0
+    };
 
     /**
-     * Optional 3d projection for the map.
-     * The alpha value can be used to pseudo rotate the map.
-     * The transformation leaves space on the left for the side-panel.
+     * Projects a game grid point from the game's logical grid system to the
+     * display coordinates used in the SVG viewport (0-100).
+     * @returns {Object} Projected point with x,y coordinates (0-100 range)
      */
     my.projectPoint = function(pt) {
-        const x = pt.x * 93.0 / CONSTS.GRID_WIDTH + 3;
-        const y = pt.y * 99.0 / CONSTS.GRID_HEIGHT;
-        return { x, y };
-    }
+        if (!pt || typeof pt.x !== 'number' || typeof pt.y !== 'number') {
+            console.warn('Invalid point passed to projectPoint:', pt);
+            return { x: 0, y: 0 };
+        }
 
-    // Creates a new polygon with the given fill, stroke, and clipping path.
+        return {
+            x: pt.x * 93.0 / CONSTS.GRID_WIDTH + PROJECTION.X_OFFSET,
+            y: pt.y * 99.0 / CONSTS.GRID_HEIGHT + PROJECTION.Y_OFFSET
+        };
+    };
+
+    /**
+     * Creates an SVG polygon element with the specified properties
+     * @returns {string} SVG polygon element as HTML string
+     */
     my.makePolygon = function(points, id, fill, stroke, clip) {
-        stroke = stroke || "stroke:#000;stroke-width:0.25;";
-        fill = fill ? "url(#" + fill + ")" : 'transparent';
+        if (!points || !points.length) {
+            console.warn('Invalid points array passed to makePolygon');
+            return '';
+        }
+
+        stroke = stroke || SVG.DEFAULT_STROKE;
+        fill = fill ? `url(#${fill})` : SVG.TRANSPARENT;
+        const pointsString = points.map(p => {
+            const pt = my.projectPoint(p);
+            return `${pt.x},${pt.y}`;
+        }).join(' ');
 
         const properties = {
-            i: id,
-            points: points.map(p => {
-                const pt = my.projectPoint(p);
-                return `${pt.x},${pt.y}`;
-            }).join(' '),
-            s: 'fill:' + fill + ";" + stroke + ';'
+            id: id,
+            points: pointsString,
+            style: `fill:${fill};${stroke};`
         };
 
         if (clip) {
-           properties['clip-path'] = clip;
+            properties['clip-path'] = clip;
         }
 
         return domUtils.elem('polygon', properties);
-    }
+    };
 
-    // Returns the center of weight of a given set of [x, y] points.
+    /**
+     * Calculates the center of weight (centroid) of a set of points
+     * @returns {Object} Center point with x,y coordinates
+     */
     my.centerOfWeight = function(points) {
-        let xc = 0.0;
-        let yc = 0.0;
-        const len = points.length;
-        points.map(p => {
-            xc += p.x;
-            yc += p.y;
-        });
-        const x = xc / len;
-        const y = yc / len;
-        return { x, y };
-    }
+        if (!points || !points.length) {
+            console.warn('Invalid points array passed to centerOfWeight');
+            return { x: 0, y: 0 };
+        }
 
-    // Affine transform of a sequence of points: { x: x * xm + xd, y: y * ym + yd }
-    my.transformPoints = function(points, xm, ym, xd, yd) {
-        const c = my.centerOfWeight(points);
-        return points.map(p => {
-            const x = c.x + (p.x - c.x) * xm + xd;
-            const y = c.y + (p.y - c.y) * ym + yd;
-            return { x, y };
+        let xSum = 0;
+        let ySum = 0;
+        const pointCount = points.length;
+
+        points.forEach(p => {
+            xSum += p.x;
+            ySum += p.y;
         });
-    }
+
+        return {
+            x: xSum / pointCount,
+            y: ySum / pointCount
+        };
+    };
+
+    /**
+     * Applies an affine transformation to a set of points.
+     * The transformation includes scaling (xm, ym) and displacement (xd, yd)
+     * relative to the center of weight of the points.
+     * @returns {Array} Transformed points
+     */
+    my.transformPoints = function(points, xm, ym, xd, yd) {
+        if (!points || !points.length) {
+            console.warn('Invalid points array passed to transformPoints');
+            return [];
+        }
+
+        const center = my.centerOfWeight(points);
+        return points.map(p => {
+            return {
+                x: center.x + (p.x - center.x) * xm + xd,
+                y: center.y + (p.y - center.y) * ym + yd
+            };
+        });
+    };
+
+    /**
+     * Calculates the area of a polygon defined by points.
+     * Useful for determining region size and importance
+     * @returns {number} Area of the polygon
+     */
+    my.calculatePolygonArea = function(points) {
+        if (!points || points.length < 3) {
+            return 0; // Not a polygon
+        }
+
+        let area = 0;
+        const n = points.length;
+
+        // Use the Shoelace formula (Gauss's area formula)
+        for (let i = 0; i < n; i++) {
+            const j = (i + 1) % n;
+            area += points[i].x * points[j].y;
+            area -= points[j].x * points[i].y;
+        }
+
+        return Math.abs(area) / 2;
+    };
 
     return my;
-} (geomUtils || {}))
+}(geomUtils || {}));
 </script>

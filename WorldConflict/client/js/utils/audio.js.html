@@ -1,136 +1,245 @@
 <script>
+/**
+ * Audio Utilities - sound generation and playback capabilities for the game
+ * using the Web Audio API for dynamic sound synthesis.
+ */
 var audio = (function(my) {
-    // WebAudio is support in all browsers except IE11 and earlier
+    // Audio context for sound generation
     const audioCtx = window.AudioContext && new AudioContext();
+    // Map of sound buffers by name
     const soundMap = {};
 
+    const AUDIO = {
+        SAMPLE_RATE: audioCtx ? audioCtx.sampleRate : 44100,
+        DEFAULT_VOLUME: 0.5,
+        CLICK_VOLUME: 0.1,
+        EFFECT_VOLUME: 0.2,
+        VICTORY_VOLUME: 0.6,
+        ENVELOPE: {
+            ATTACK: 0.01,
+            DECAY: 0.03,
+            SUSTAIN: 0.01,
+            RELEASE: 0.01,
+            LEVEL: 0.2
+        }
+    };
+
     my.setupAudio = function() {
-        if (!audioCtx)
+        if (!audioCtx) {
+            console.warn('Web Audio API not supported in this browser');
             return;
+        }
 
-        soundMap['CLICK'] = makeBuffer(adsr(0.01, 0.03, 0.01, 0.01, 0.2,
-            wSin(110)
-        ), 0.1);
-        soundMap['ENEMY_DEAD'] = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
-            wSlide(1.0, 0.3, 0.1, wSin(300))
-        ), 0.2, 0.6);
-        soundMap['OURS_DEAD'] = makeBuffer(adsr(0.01, 0.05, 0.05, 0.05, 0.5,
-            wSlide(1.0, 0.3, 0.1, wSin(200))
-        ), 0.2, 0.6);
-        soundMap['TAKE_OVER'] = makeBuffer(wNotes([
-            {t: 0, p: 261, d: 1}, {t: 0.1, p: 329, d: 2}     // C-E
-        ]), 0.6, 0.2);
-        soundMap['VICTORY'] = makeBuffer(wNotes([
-            {t:0, p:261,d:1}, {t:0.0, p:329, d:2}, {t:0.0, p:392, d:3},     // C-E-G
-            {t:0.2, p:261,d:1}, {t:0.2, p:349, d:2}, {t:0.2, p:440, d:3}    // C-F-A
-        ]), 0.6, 0.2);
-        soundMap['DEFEAT'] = makeBuffer(wNotes([
-            {t: 0, p: 392, d: 3},{t: 0.15, p: 329, d: 2}, {t: 0.3, p: 261, d: 1}
-        ]), 0.6, 0.2);
-        soundMap['ALMOST_OUT_OF_TIME'] = makeBuffer(wNotes([
-            {t: 0, p: 492, d: 1},{t: 0.1, p: 349, d: 1},
-        ]), 0.3, 0.1);
-        soundMap['OUT_OF_TIME'] = makeBuffer(wNotes([
-            {t: 0, p: 452, d: 2},{t: 0.1, p: 339, d: 2}, {t: 0.2, p: 452, d: 2},{t: 0.3, p: 309, d: 2}
-        ]), 0.6, 0.2);
+        // Basic UI click sound
+        soundMap[CONSTS.SOUNDS.CLICK] = makeBuffer(
+            adsr(AUDIO.ENVELOPE.ATTACK, AUDIO.ENVELOPE.DECAY,
+                 AUDIO.ENVELOPE.SUSTAIN, AUDIO.ENVELOPE.RELEASE,
+                 AUDIO.ENVELOPE.LEVEL, wSin(110)),
+            AUDIO.CLICK_VOLUME
+        );
 
-        // update the mute button
+        // Combat sounds
+        soundMap[CONSTS.SOUNDS.ENEMY_DEAD] = makeBuffer(
+            adsr(0.01, 0.05, 0.05, 0.05, 0.5, wSlide(1.0, 0.3, 0.1, wSin(300))),
+            AUDIO.EFFECT_VOLUME, 0.6
+        );
+
+        soundMap[CONSTS.SOUNDS.OURS_DEAD] = makeBuffer(
+            adsr(0.01, 0.05, 0.05, 0.05, 0.5, wSlide(1.0, 0.3, 0.1, wSin(200))),
+            AUDIO.EFFECT_VOLUME, 0.6
+        );
+
+        // Region capture sound
+        soundMap[CONSTS.SOUNDS.TAKE_OVER] = makeBuffer(
+            wNotes([
+                {t: 0, p: 261, d: 1}, {t: 0.1, p: 329, d: 2}  // C-E
+            ]),
+            AUDIO.EFFECT_VOLUME, 0.2
+        );
+
+        // Game outcome sounds
+        soundMap[CONSTS.SOUNDS.VICTORY] = makeBuffer(
+            wNotes([
+                {t:0, p:261, d:1}, {t:0.0, p:329, d:2}, {t:0.0, p:392, d:3},     // C-E-G (C major chord)
+                {t:0.2, p:261, d:1}, {t:0.2, p:349, d:2}, {t:0.2, p:440, d:3}    // C-F-A (F major chord)
+            ]),
+            AUDIO.VICTORY_VOLUME, 0.2
+        );
+
+        soundMap[CONSTS.SOUNDS.DEFEAT] = makeBuffer(
+            wNotes([
+                {t: 0, p: 392, d: 3}, {t: 0.15, p: 329, d: 2}, {t: 0.3, p: 261, d: 1}  // Descending melody
+            ]),
+            AUDIO.VICTORY_VOLUME, 0.2
+        );
+
+        // Timer sounds
+        soundMap[CONSTS.SOUNDS.ALMOST_OUT_OF_TIME] = makeBuffer(
+            wNotes([
+                {t: 0, p: 492, d: 1}, {t: 0.1, p: 349, d: 1}
+            ]),
+            AUDIO.EFFECT_VOLUME, 0.1
+        );
+
+        soundMap[CONSTS.SOUNDS.OUT_OF_TIME] = makeBuffer(
+            wNotes([
+                {t: 0, p: 452, d: 2}, {t: 0.1, p: 339, d: 2},
+                {t: 0.2, p: 452, d: 2}, {t: 0.3, p: 309, d: 2}
+            ]),
+            AUDIO.EFFECT_VOLUME, 0.2
+        );
+
+        // Update the mute button display
         updateSoundControls();
-    }
+    };
 
+    /**
+     * Plays a sound by key
+     * @param {string} soundKey - The key of the sound to play from CONSTS.SOUNDS
+     */
     my.playSound = function(soundKey) {
         const sound = soundMap[soundKey];
-        let soundEnabled = sound && gameStorage.gameSetup.sound;
-        if (!soundEnabled)
-            return;
+        const soundEnabled = sound && gameStorage.gameSetup.sound;
 
-        const source = audioCtx.createBufferSource();
-        source.buffer = sound;
-        source.connect(audioCtx.destination);
-        source.start();
-    }
+        if (!soundEnabled) {
+            return;
+        }
+
+        try {
+            const source = audioCtx.createBufferSource();
+            source.buffer = sound;
+            source.connect(audioCtx.destination);
+            source.start();
+        } catch (e) {
+            console.warn('Error playing sound:', e);
+        }
+    };
 
     my.toggleSound = function() {
         gameStorage.gameSetup.sound = !gameStorage.gameSetup.sound;
         updateSoundControls();
-    }
+    };
 
+    /** Updates sound control display based on current settings */
     function updateSoundControls() {
-        domUtils.$('sound').innerHTML = gameStorage.gameSetup.sound ? '♪' : ' ';
-        gameStorage.storeSetup();
-    }
-
-    function adsr(a, d, s, r, sl, fn) {
-        let time = 0.0;
-        return function(dt) {
-            let f = fn(dt);
-            time += dt;
-
-            if (time < a)
-                return utils.lerp(time / a, 0, 1) * f;
-            if (time < a + d)
-                return utils.lerp((time - a) / d, 1, sl) * f;
-            if (time < a + d + s)
-                return sl * f;
-            return utils.lerp((time - a - s - d) / r, sl, 0) * f;
-        }
-    }
-
-    function wSin(pitch) {
-        let time = 0.0;
-        return function(dt) {
-            time += dt;
-            return Math.sin(time * pitch * 6.283);
-        }
-    }
-
-    function wSlide(from, to, time, fn) {
-        let t = 0.0;
-        return function(dt) {
-            t += dt;
-            const passedDT = dt * utils.lerp(t / time, from, to);
-            return fn(passedDT);
-        }
-    }
-
-    function wRamp(from, to, after, fn) {
-        let time = 0.0;
-        return function(dt) {
-            time += dt;
-            return fn(time > after ? dt * to : dt * from);
+        const soundButton = domUtils.$('sound');
+        if (soundButton) {
+            soundButton.innerHTML = gameStorage.gameSetup.sound ? '♪' : ' ';
+            gameStorage.storeSetup();
         }
     }
 
     /**
-     * Params are
-     * t - time offset from 0
-     * p - pitch
-     * d - duration
+     * Creates an ADSR envelope (Attack, Decay, Sustain, Release)
+     * @param {number} a - Attack time
+     * @param {number} d - Decay time
+     * @param {number} s - Sustain time
+     * @param {number} r - Release time
+     * @param {number} sl - Sustain level
+     * @param {Function} fn - Wave generator function
+     * @returns {Function} Envelope function
+     * @private
      */
-    function wNotes(notes) {
-        notes.map(function(note) {
-            note.f = adsr(0.01, 0.03, 0.03 * note.d, 0.03 * note.d, 0.7, wSin(note.p));
-        });
+    function adsr(attackTime, decayTime, sustainTime, releaseTime, sustainLevel, envelopeFunc) {
         let time = 0.0;
+
         return function(dt) {
+            let f = envelopeFunc(dt);
             time += dt;
-            let v = 0.0;
-            notes.map(function(note) {
-                if (time >= note.t)
-                    v += note.f(dt);
-            });
-            return v;
-        }
+
+            // Apply envelope stages
+            if (time < attackTime) {
+                return utils.lerp(time / attackTime, 0, 1) * f; // Attack
+            }
+            if (time < attackTime + decayTime) {
+                return utils.lerp((time - attackTime) / decayTime, 1, sustainLevel) * f; // Decay
+            }
+            if (time < attackTime + decayTime + sustainTime) {
+                return sustainLevel * f; // Sustain
+            }
+
+            // Release
+            return utils.lerp((time - attackTime - sustainTime - decayTime) / releaseTime, sustainLevel, 0) * f;
+        };
     }
 
+    /**
+     * Creates a sine wave generator at specified pitch
+     * @param {number} pitch - Base frequency
+     * @returns {Function} Wave generator function
+     */
+    function wSin(pitch) {
+        let time = 0.0;
+
+        return function(dt) {
+            time += dt;
+            return Math.sin(time * pitch * 6.283); // 2π
+        };
+    }
+
+    /**
+     * Creates a sliding pitch wave generator
+     * @param {number} from - Starting pitch multiplier
+     * @param {number} to - Ending pitch multiplier
+     * @param {number} time - Duration of slide
+     * @param {Function} fn - Base wave generator
+     * @returns {Function} Wave generator function
+     */
+    function wSlide(from, to, time, fn) {
+        let t = 0.0;
+
+        return function(dt) {
+            t += dt;
+            const pitchMultiplier = utils.lerp(t / time, from, to);
+            const passedDT = dt * pitchMultiplier;
+            return fn(passedDT);
+        };
+    }
+
+    /**
+     * Creates a sequential note generator (melody)
+     * @param {Array} notes - Array of note objects {t: timeOffset, p: pitch, d: duration}
+     * @returns {Function} Wave generator function
+     */
+    function wNotes(notes) {
+        // Prepare note envelopes
+        notes.forEach(function(note) {
+            note.f = adsr(0.01, 0.03, 0.03 * note.d, 0.03 * note.d, 0.7, wSin(note.p));
+        });
+
+        let time = 0.0;
+
+        return function(dt) {
+            time += dt;
+            let output = 0.0;
+
+            // Sum all active notes at current time
+            notes.forEach(function(note) {
+                if (time >= note.t) {
+                    output += note.f(dt);
+                }
+            });
+
+            return output;
+        };
+    }
+
+    /**
+     * Creates an audio buffer from a wave generator function
+     * @param {Function} fn - Wave generator function
+     * @param {number} len - Duration in seconds
+     * @param {number} vol - Volume (0.0-1.0)
+     * @returns {AudioBuffer} Audio buffer
+     */
     function makeBuffer(fn, len, vol) {
-        const volume = vol || 1;
+        if (!audioCtx) return null;
 
-        const sampleRate = audioCtx.sampleRate;
-        const samples = sampleRate * len;
-        const buffer = audioCtx.createBuffer(1, samples, sampleRate);
+        const volume = vol || AUDIO.DEFAULT_VOLUME;
+        const samples = AUDIO.SAMPLE_RATE * len;
+        const buffer = audioCtx.createBuffer(1, samples, AUDIO.SAMPLE_RATE);
+        const dt = 1 / AUDIO.SAMPLE_RATE;
 
-        let dt = 1 / sampleRate;
+        // Fill buffer with generated waveform
         const bufferData = buffer.getChannelData(0);
         for (let i = 0; i < samples; i++) {
             bufferData[i] = fn(dt) * volume;
