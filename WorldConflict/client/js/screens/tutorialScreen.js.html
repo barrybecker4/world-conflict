@@ -1,47 +1,85 @@
 <script>
+/**
+ * Manages the display and interaction of the game tutorial screens
+ * that introduce players to the game mechanics.
+ */
 var erisk = (function(my) {
     const { $, onClickOrTap } = domUtils;
 
-    my.tutorialScreen = function(callback) {
-        ['overview-panel', 'tutorial-button', 'sound'].map(id => domUtils.showOrHide(id, true));
+    const DOM = {
+        OVERVIEW_PANEL: 'overview-panel',
+        TUTORIAL_BUTTON: 'tutorial-button',
+        SOUND_BUTTON: 'sound',
+        CANCEL_BUTTON: 'cancel-button',
+        NEXT_BUTTON: 'next',
+        PREV_BUTTON: 'prev',
+        TITLE_SCREEN: 'title-screen',
+        TUTORIAL_CARD: 'tutorial-card',
+        UNDO_BUTTON: 'undo-button',
+        RESIGN_BUTTON: 'resign',
+        CONTAINER: 'container'
+    };
 
-        onClickOrTap($('cancel-button'), () => {
-            erisk.setTutorialScreenVisibility(false);
+    let currentCard = 0;
+    const totalCards = 5;
+
+    /** Displays the tutorial screen with all cards and navigation */
+    my.tutorialScreen = function(callback) {
+        [DOM.OVERVIEW_PANEL, DOM.TUTORIAL_BUTTON, DOM.SOUND_BUTTON]
+            .forEach(id => domUtils.showOrHide(id, true));
+
+        setupTutorialButtons(callback);
+
+        // Show first card and make tutorial visible
+        switchTutorialCard(0);
+        setTimeout(() => my.setTutorialScreenVisibility(true), 10);
+    };
+
+    function setupTutorialButtons(callback) {
+        // Cancel (close tutorial) button
+        onClickOrTap($(DOM.CANCEL_BUTTON), () => {
+            my.setTutorialScreenVisibility(false);
             if (callback) {
                 callback();
             }
         });
-        onClickOrTap($('next'), () => switchTutorialCard(1));
-        onClickOrTap($('prev'), () => switchTutorialCard(-1));
 
-        onClickOrTap($('tutorial-button'), () => erisk.setTutorialScreenVisibility(true));
-        onClickOrTap($('sound'), audio.toggleSound);
-        onClickOrTap($('undo-button'), event => uiCallbacks.invokeCallback(0, 'undo', event));
-        onClickOrTap($('resign'), () => {
+        // Navigation buttons
+        onClickOrTap($(DOM.NEXT_BUTTON), () => switchTutorialCard(1));
+        onClickOrTap($(DOM.PREV_BUTTON), () => switchTutorialCard(-1));
+
+        // Tutorial and sound toggle buttons
+        onClickOrTap($(DOM.TUTORIAL_BUTTON), () => my.setTutorialScreenVisibility(true));
+        onClickOrTap($(DOM.SOUND_BUTTON), audio.toggleSound);
+
+        // Game action buttons
+        onClickOrTap($(DOM.UNDO_BUTTON), event => uiCallbacks.invokeCallback(0, 'undo', event));
+        onClickOrTap($(DOM.RESIGN_BUTTON), () => {
             if (uiCallbacks.resign) {
                 uiCallbacks.moveEndTasks();
                 uiCallbacks.resign();
             }
         });
-
-        switchTutorialCard(0);
-        setTimeout(() => erisk.setTutorialScreenVisibility(true), 10);
     }
 
-    let currentCard = 0;
-    let totalCards = 5;
-
     function switchTutorialCard(direction) {
-        currentCard = utils.clamp(currentCard + direction, 0, totalCards-1);
+        currentCard = utils.clamp(currentCard + direction, 0, totalCards - 1);
+        updateCardVisibility();
+    }
 
-        domUtils.setTransform($('tutorial-card'), "translate3d(" + (-currentCard * 100 / totalCards) + "%, 0, 0)");
-        domUtils.showOrHide('prev', currentCard > 0);
-        domUtils.showOrHide('next', currentCard < totalCards - 1);
+    function updateCardVisibility() {
+        // Slide to the current card
+        const offset = -currentCard * 100 / totalCards;
+        domUtils.setTransform($(DOM.TUTORIAL_CARD), `translate3d(${offset}%, 0, 0)`);
+
+        // Show/hide navigation buttons based on position
+        domUtils.showOrHide(DOM.PREV_BUTTON, currentCard > 0);
+        domUtils.showOrHide(DOM.NEXT_BUTTON, currentCard < totalCards - 1);
     }
 
     my.setTutorialScreenVisibility = function(visible) {
-        domUtils.setOverlayVisibility(visible, 'title-screen');
-    }
+        domUtils.setOverlayVisibility(visible, DOM.TITLE_SCREEN);
+    };
 
     return my;
 }(erisk || {}));
