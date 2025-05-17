@@ -209,6 +209,7 @@ var CONSTS = (function(my) {
             // Status (from server when making game data)
             WAITING_FOR_PLAYERS: 'waitingForPlayers',
             READY_TO_START: 'readyToStart',
+            WAITING: 'waiting',
         };
         return my;
     }

@@ -120,6 +120,7 @@ var erisk = (function(my) {
         gameData.turnCount = setup.turnCount;
         gameData.humanTimeLimit = setup.humanTimeLimit;
         gameData.mapSize = setup.mapSize;
+        gameData.status = CONSTS.WAITING;
 
         return gameData;
 

@@ -17,7 +17,7 @@ class MapGenerator {
      * @return an array of Regions that will define the map.
      */
     generateMap(playerCount, mapSize) {
-      console.log("not implemented");
+        console.log("not implemented");
     }
 
     static addRegion(bounds, regionCount, regions, regionMap) {

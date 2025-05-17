@@ -1,4 +1,4 @@
-// Encapsulate access to the persistent "game state" table that contains
+// Encapsulate access to the persistent "gameConfigurations" table that contains
 // all the states of all games - whether played or in progress.
 // See gameConfigurations in firestore database.
 var gameConfigurationTable = getGameConfigurationTableAccessor();
@@ -37,9 +37,7 @@ function getGameConfigurationTableAccessor() {
             Logger.log("err: " + err);
         }
 
-        // firestore does not include the gameId as a prop, so we need to add it
         gameConfigs = gameConfigs.map(gameConfig => gameConfig.obj);
-
         return gameConfigs;
     }
 
@@ -115,6 +113,7 @@ function getGameConfigurationTableAccessor() {
     }
 
     function insert(gameData) {
+        gameData.createdAt = new Date().toISOString();
         const doc = createGameConfiguration(gameData);
         gameData.gameId = getGameIdFromDoc(doc);
         gameData.initialGameState.gameId = gameData.gameId;
@@ -171,11 +170,39 @@ function getGameConfigurationTableAccessor() {
     function removeGamesWithNoHumans(games) {
         const gamesToDelete = games.filter(game => getNumSeatedPlayers(game) === 0);
         const gameIdsToDelete = gamesToDelete.map(g => g.gameId);
-        console.log("Deleting " + gameIdsToDelete.length + " games where there are no human players.");
+        Logger.log("Deleting " + gameIdsToDelete.length + " games where there are no human players.");
         const startTime = new Date();
         deleteGameConfigurations(gameIdsToDelete);
         const elapsed = new Date() - startTime;
-        console.log("Deleted in "+ elapsed + " milliseconds.");
+        Logger.log("Deleted in "+ elapsed + " milliseconds.");
+    }
+
+
+    /**
+     * Removes old game configurations and their associated moves
+     */
+    function cleanupOldGames() {
+        const MAX_HOURS_OLD = 12;
+        try {
+            const thresholdAgo = new Date();
+            thresholdAgo.setHours(thresholdAgo.getHours() - MAX_HOURS_OLD);
+            const thresholdAgoIso = thresholdAgo.toISOString();
+
+            const completedGames = firestore.query(GAME_CONFIGURATION_TABLE)
+                .Where('createdAt', '<', thresholdAgoIso)
+                .Limit(100)
+                .Execute();
+
+            if (completedGames.length > 0) {
+                Logger.log(`Found ${completedGames.length} completed games older than ${MAX_HOURS_OLD} hours to clean up`);
+
+                const completedIdsToDelete = completedGames.map(game => game.obj.gameId);
+                deleteGameConfigurations(completedIdsToDelete);
+                gameMoveTable.deleteGameMovesByGameIds(completedIdsToDelete);
+            }
+        } catch (err) {
+            console.error("Error cleaning up old games: " + err);
+        }
     }
 
 
@@ -190,5 +217,7 @@ function getGameConfigurationTableAccessor() {
         availableOpenGames,
         availableOpenGamesWhereSeated,
         getNumSeatedPlayers,
+        removeGamesWithNoHumans,
+        cleanupOldGames,
     };
 }

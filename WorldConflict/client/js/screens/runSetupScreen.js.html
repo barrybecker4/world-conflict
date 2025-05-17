@@ -30,12 +30,14 @@ var erisk = (function(my) {
                     erisk.createSetupUI();
                     doneConfiguring();
                     break;
-
                 case CONSTS.READY_TO_START:
-                    // All players are seated, start the game
+                    // All players are seated, start the game immediately
+                    console.log("All players seated, starting game immediately");
                     startGame();
                     break;
-
+                case CONSTS.WAITING:
+                    console.warn("Waiting...");
+                    break;
                 default:
                     console.warn("Unexpected game status:", status);
             }
@@ -82,6 +84,7 @@ var erisk = (function(my) {
                 .withSuccessHandler(gameId => {
                     gameData.gameId = gameId;
                     gameData.initialGameState.gameId = gameId;
+                    console.log("Game data persisted with gameId: " + gameId);
                     if (callback) {
                         callback();
                     }

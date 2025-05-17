@@ -1,25 +1,31 @@
 <script>
+/**
+ * Provides sequential execution of animations and tasks to ensure
+ * that they run one after another rather than overlapping.
+ *
+ * This is particularly important for maintaining visual clarity
+ * during game animations and state transitions.
+ */
 var erisk = (function(my) {
-
     // Helps organize game flow so asynchronous events are displayed in order, taking animation into account.
-    const oaatQueue = [];
+    const taskQueue = [];
 
     // Used to ensure that all animations from previous moves complete before a new one is played
     my.oneAtaTime = function(duration, fn) {
-        oaatQueue.push({ duration, fn });
-        if (oaatQueue.length === 1)
+        taskQueue.push({ duration, fn });
+        if (taskQueue.length === 1)
             runOneTask();
 
         function runOneTask() {
             // start the first scheduled task
-            const task = oaatQueue[0];
+            const task = taskQueue[0];
             task.fn();
             // and wait for it to expire
             setTimeout(function() {
                 // task done, remove from queue
-                oaatQueue.shift();
-                // is there something more to do?
-                if (oaatQueue.length)
+                taskQueue.shift();
+                // is there something more to do? If so run the next one
+                if (taskQueue.length)
                     runOneTask();
             }, task.duration);
         }
