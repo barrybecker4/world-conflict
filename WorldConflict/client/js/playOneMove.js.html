@@ -114,23 +114,38 @@ var erisk = (function(my) {
                 if (i >= moves.length) {
                     return state;
                 }
-                const theMove = moves[i];
-                const move = Move.reconstitute(theMove);
-                let nextState = erisk.makeMove(state, move);
-                if (CONSTS.DEBUG) {
-                    console.log("   applying move with stateId: " + theMove.stateId + " to " +
-                        state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
-                }
 
-                erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
-                    if (CONSTS.DEBUG) {
-                        const name = state.activePlayer().getName();
-                        console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
+                const theMove = moves[i];
+
+                if (validMove(theMove, state)) {
+                    try {
+                        const move = Move.reconstitute(theMove);
+                        let nextState = erisk.makeMove(state, move);
+
+                        if (CONSTS.DEBUG) {
+                            console.log("   applying move with stateId: " + theMove.stateId + " to " +
+                                state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
+                        }
+
+                        erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
+                            if (CONSTS.DEBUG) {
+                                const name = state.activePlayer().getName();
+                                console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
+                            }
+                            audio.playSound(CONSTS.SOUNDS.CLICK);
+                            erisk.gameRenderer.updateDisplay(nextState);
+                        });
+
+                        return await replayMove(i + 1, nextState);  // recurse
+                    } catch (err) {
+                        console.error(`Error applying move ${i} (stateId: ${theMove.stateId}): ${err}`);
+                        Logger.log(`Skipping problematic move ${i} and continuing with next move`);
+                        return await replayMove(i + 1, state);
                     }
-                    audio.playSound(CONSTS.SOUNDS.CLICK);
-                    erisk.gameRenderer.updateDisplay(nextState);
-                });
-                return await replayMove(i + 1, nextState); // recurse
+                } else {
+                    console.error(`Invalid move detected at position ${i}, skipping`);
+                    return await replayMove(i + 1, state);
+                }
             }
 
             if (finalState.endResult) {
@@ -151,6 +166,51 @@ var erisk = (function(my) {
             }
         }
     }
+
+    /**
+     * Validate a move before applying it.
+     * This helps prevent errors during replay.
+     */
+    function validMove(moveData, state) {
+        try {
+            if (!moveData || !moveData.type) {
+                return false;
+            }
+
+            if (moveData.type === 'army-move') { // check if we have enough soldiers
+                const source = moveData.source;
+                const destination = moveData.destination;
+                const count = moveData.count;
+
+                if (source === undefined || destination === undefined || !count) {
+                    console.error(`Invalid army move: source=${source}, destination=${destination}, count=${count}`);
+                    return false;
+                }
+
+                // Check if the source region exists and has enough soldiers
+                const soldiersAtSource = state.soldiersAtRegion(source);
+                if (!soldiersAtSource || soldiersAtSource.length < count) {
+                    console.error(`Move validation failed: Not enough soldiers at source.
+                        Need ${count} but have ${soldiersAtSource ? soldiersAtSource.length : 0}`);
+                    return false;
+                }
+
+                // Check if the destination is a valid neighbor of the source
+                const sourceRegion = gameData.regions[source];
+                if (!sourceRegion || !sourceRegion.neighbors.includes(destination)) {
+                    console.error(`Move validation failed: Destination ${destination} is not a neighbor of source ${source}`);
+                    return false;
+                }
+            }
+
+            return true;
+
+        } catch (err) {
+            console.error(`Error validating move: ${err}`);
+            return false;
+        }
+    }
+
 
     /**
      * If a player has closed the browser or browser tab, then they should be eliminated.

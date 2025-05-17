@@ -88,7 +88,7 @@ function unseatPlayerFromOpenGame(userId, gameId) {
 
 /**
  * Retrieve the configuration for the specified gameId.
- * If the players are different (IOW new ones have joined or left the game),
+ * If the players are different (IOW, new ones have joined or left the game),
  * then return that new configuration so that it can be shown on the client.
  */
 function getGameData(gameId, players) {
@@ -125,8 +125,10 @@ function persistGameData(unused, clientGameData) {
  */
 function playersDiffer(newPlayers, oldPlayers) {
     if (newPlayers.length !== oldPlayers.length) {
-        throw new Error('The number of players were unexpectedly different\n.' +
-            ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers));
+        const msg = 'The number of players were unexpectedly different\n.' +
+                    ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers)
+        console.log(msg);
+        throw new Error(msg);
     }
     return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);
 }

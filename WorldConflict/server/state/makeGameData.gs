@@ -84,7 +84,7 @@ var erisk = (function(my) {
     }
 
     /**
-     * Add a status enum to the pass gameData.
+     * Add a status enum to the passed gameData.
      * @returns updated gameData
      */
     my.addStatus = function(gameData) {
