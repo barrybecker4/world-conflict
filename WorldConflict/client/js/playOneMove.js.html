@@ -26,7 +26,8 @@ var erisk = (function(my) {
             else {
                 erisk.setPreviousState(null); // only humans can undo
                 // Don't run the AI if AI is first and this is not the configuring player
-                const suppressAi = firstTime && player.personality && configuringPlayer != domUtils.userid();
+                const suppressAi = firstTime && player.personality &&
+                                   (player.index === 0) && (configuringPlayer !== domUtils.userid());
                 persistLocalMovesIfAnyAndPlayAi(state, suppressAi);
             }
             firstTime = false;
@@ -211,9 +212,8 @@ var erisk = (function(my) {
         }
     }
 
-
     /**
-     * If a player has closed the browser or browser tab, then they should be eliminated.
+     * If a player has closed the browser or browser tab, then they should be eliminated. Something odd here.
      */
     function continueIfNextPlayerLeftGame(startState, moves) {
         const nextPlayer = startState.activePlayer();
