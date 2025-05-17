@@ -2,7 +2,6 @@
 // all the states of all games - whether played or in progress.
 // See gameMoves in firestore database
 var gameMoveTable = getGameMoveTableAccessor();
-
 function getGameMoveTableAccessor() {
     const firestore = getFirestore().getInstance();
     const GAME_MOVE_TABLE = 'gameMoves';
@@ -74,7 +73,7 @@ function getGameMoveTableAccessor() {
     }
 
     /**
-     * This is more efficient when you know there are many orphaned moves to delete
+     * Cleanup any moves that are not associated with a game configuration.
      */
     function cleanupOrphanedMoves() {
         const GAME_CONFIGURATION_TABLE = "gameConfigurations";
@@ -84,7 +83,7 @@ function getGameMoveTableAccessor() {
                 .Limit(10)
                 .Execute();
 
-            Logger.log(`Retrieved ${moves.length} moves`);
+            Logger.log(`Retrieved ${moves.length} moves.`);
 
             const gameIds = new Set();
             moves.forEach(move => {
@@ -122,7 +121,7 @@ function getGameMoveTableAccessor() {
                 }
             }
 
-            Logger.log(`GameMove cleanup complete. Found ${existingGames} existing games and deleted ${orphanedMoveCount} orphaned moves`);
+            Logger.log(`Orphaned Move cleanup complete. Found ${existingGames} existing games and deleted ${orphanedMoveCount} orphaned moves`);
             return orphanedMoveCount;
 
         } catch (err) {

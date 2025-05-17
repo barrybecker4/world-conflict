@@ -51,52 +51,17 @@ function getUserId() {
  */
 function retrieveOpenGames() {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
-    cleanupGamesAsync();
+    tableMaintenance.cleanupGamesAsync();
 
     const gameDataDocs = gameConfigurationTable.getOpenGameConfigurations();
     const userId = getUserId();
     const openGames = gameConfigurationTable.availableOpenGames(gameDataDocs, userId);
     Logger.log("Retrieved " + openGames.length + " open games for " + userId);
 
-    removeGamesWithNoHumansAsync(gameDataDocs);
+    tableMaintenance.removeGamesWithNoHumansAsync(gameDataDocs);
 
     return openGames;
 }
-
-/**
- * Performs asynchronous cleanup of games
- * This runs in the background after retrieving open games
- */
-function cleanupGamesAsync() {
-    const promise = new Promise(function(resolve, reject) {
-        try {
-            gameConfigurationTable.cleanupOldGames();
-            gameMoveTable.cleanupOrphanedMoves();
-            resolve("Cleanup completed successfully");
-        } catch (err) {
-            Logger.error("Error during cleanup: " + err);
-            reject(err);
-        }
-    });
-
-    return;
-}
-
-function removeGamesWithNoHumansAsync(gameDataDocs) {
-    const promise = new Promise(function(resolve, reject) {
-        try {
-            gameConfigurationTable.removeGamesWithNoHumans(gameDataDocs);
-            resolve("Successfully removed games with no human players");
-        } catch (err) {
-            Logger.error("Error during cleanup of games with no humans: " + err);
-            reject(err);
-        }
-    });
-
-    return;
-}
-
-
 
 /**
  * Creates the game configuration data that will remain fixed for the duration of the game, once started.
@@ -221,7 +186,6 @@ async function makeAndSaveMove(player, state) {
     });
 
     const move = await promise;
-
     const newState = erisk.makeMove(state, move);
 
     move.gameId = newState.gameId;
