@@ -10,7 +10,7 @@ var erisk = (function(my) {
 
     /**
      * Deals with responding to user actions - whether human or AI.
-     * This is the core game play logic.
+     * This is the core game play logic. Runs on the client.
      */
     my.playOneMove = function(state, afterUndo, configuringPlayer) {
         if (!appState.isInGameOrWaiting() )
@@ -23,11 +23,12 @@ var erisk = (function(my) {
             if (player.name === domUtils.userid()) {
                 playMoveForCurrentPlayer(player, state, afterUndo);
             }
-            else {
+            else { // AI or other human players
                 erisk.setPreviousState(null); // only humans can undo
-                // Don't run the AI if AI is first and this is not the configuring player
+                // Don't run the AI if AI is first and this is not the configuring player.
+                // That way, only the configuring player will ask the server to play the AIs.
                 const suppressAi = firstTime && player.personality &&
-                                   (player.index === 0) && (configuringPlayer !== domUtils.userid());
+                     (player.index === 0) && (configuringPlayer !== domUtils.userid());
                 persistLocalMovesIfAnyAndPlayAi(state, suppressAi);
             }
             firstTime = false;
@@ -45,7 +46,7 @@ var erisk = (function(my) {
         }
         domUtils.show('resign'); // resigning is an option during the players turn
 
-        function reportMoveCallback(move) {
+        function moveCompletedCallback(move) {
             const newState = erisk.makeMove(state, move);
             move.stateId = newState.id;
             move.gameId = newState.gameId;
@@ -58,15 +59,17 @@ var erisk = (function(my) {
                 showEndGame(newState);
             } else {
                 erisk.setPreviousState(new GameState(state)); // only humans can undo
+                // Using setTimeout here avoids stack overflow, and also allows UI to render
                 setTimeout(() => my.playOneMove(newState), 0); // recursive call
             }
         }
 
-        erisk.uiPickMove(player, state, reportMoveCallback);
+        erisk.uiPickMove(player, state, moveCompletedCallback);
     }
 
     /**
-     * Add this player's moves (if any), then the AI's, then poll for all other players until our turn again.
+     * Add this player's moves (if any), then the AI's,
+     * then poll for all other players until our turn again.
      */
     function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
         if (!appState.isWaitingForPlayersToMove()) {
@@ -74,33 +77,37 @@ var erisk = (function(my) {
         }
         google.script.run
             .withFailureHandler(showError)
-            .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state], gameData.getSimpleObject(), suppressAi);
+            .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state],
+                                             gameData.getSimpleObject(), suppressAi);
         localHumanMoves = [];
         setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
     }
 
     /**
-     * Get all the moves since the specified state and replay them on this client until it is our move again.
-     * If a player has left the game (say by closing the browser, not by time expiry) then they should be eliminated.
+     * Get all the moves since the specified state and replay them on
+     * this client until it is our move again. If a player has left the game,
+     * say by closing the browser, not by time expiry, then they should be eliminated.
      * This is preferable to waiting forever for them to move.
      */
     function replayMovesFromServer(state) {
-        if (!state.endResult) {
-            if (requestStartTime == null) {
-                requestStartTime = new Date();
-            }
-            if (!appState.isWaitingForPlayersToMove()) {
-                appState.setWaitingForPlayersToMove(); // don't allow clicking when moves being replayed
-            }
-            if (CONSTS.DEBUG) {
-                console.log("Requesting replay moves from server starting at state.id = " + state.id);
-            }
+        if (state.endResult) return;
 
-            google.script.run
-                .withSuccessHandler(getPlaybackHandler(state))
-                .withFailureHandler(showError)
-                .getGameMoves(state.gameId, state.id);
+        if (requestStartTime == null) {
+            requestStartTime = new Date();
         }
+        if (!appState.isWaitingForPlayersToMove()) {
+            // don't allow clicking when moves being replayed
+            appState.setWaitingForPlayersToMove();
+        }
+        if (CONSTS.DEBUG) {
+            console.log("Requesting replay moves from server starting at state.id = " +
+                        state.id);
+        }
+
+        google.script.run
+            .withSuccessHandler(getPlaybackHandler(state))
+            .withFailureHandler(showError)
+            .getGameMoves(state.gameId, state.id);
     }
 
     function getPlaybackHandler(startState) {
@@ -117,48 +124,36 @@ var erisk = (function(my) {
                 }
 
                 const theMove = moves[i];
+                const move = Move.reconstitute(theMove);
+                let nextState = erisk.makeMove(state, move);
 
-                if (validMove(theMove, state)) {
-                    try {
-                        const move = Move.reconstitute(theMove);
-                        let nextState = erisk.makeMove(state, move);
-
-                        if (CONSTS.DEBUG) {
-                            console.log("   applying move with stateId: " + theMove.stateId + " to " +
-                                state.id + " to give " + nextState.id + "(for " + state.activePlayer().getName() + ")");
-                        }
-
-                        erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
-                            if (CONSTS.DEBUG) {
-                                const name = state.activePlayer().getName();
-                                console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
-                            }
-                            audio.playSound(CONSTS.SOUNDS.CLICK);
-                            erisk.gameRenderer.updateDisplay(nextState);
-                        });
-
-                        return await replayMove(i + 1, nextState);  // recurse
-                    } catch (err) {
-                        console.error(`Error applying move ${i} (stateId: ${theMove.stateId}): ${err}`);
-                        Logger.log(`Skipping problematic move ${i} and continuing with next move`);
-                        return await replayMove(i + 1, state);
-                    }
-                } else {
-                    console.error(`Invalid move detected at position ${i}, skipping`);
-                    return await replayMove(i + 1, state);
+                if (CONSTS.DEBUG) {
+                    console.log(`applying move with stateId: ${theMove.stateId} to ` +
+                        `${state.id} to give ${nextState.id} (for ${state.activePlayer().getName()} )`);
                 }
+
+                erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
+                    if (CONSTS.DEBUG) {
+                        const name = state.activePlayer().getName();
+                        console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
+                    }
+                    audio.playSound(CONSTS.SOUNDS.CLICK);
+                    erisk.gameRenderer.updateDisplay(nextState);
+                });
+
+                return await replayMove(i + 1, nextState);  // recurse
             }
 
             if (finalState.endResult) {
                 showEndGame(finalState);
             }
             else {
-                if (finalState.activePlayer().name !== domUtils.userid()) {
+                if (finalState.activePlayer().getName() !== domUtils.userid()) {
                     if (CONSTS.DEBUG) {
-                        console.log("activePlayer " + finalState.activePlayer().name +
-                            " is not " + domUtils.userid() + " so requesting more moves from sever");
+                        console.log(`activePlayer ${finalState.activePlayer().getName()} ` +
+                            ` is not ${domUtils.userid()} so requesting more moves from sever`);
                     }
-                    // If we have not yet advanced to the player on this client, request more moves until we do
+                    // If not yet advanced to the player on this client, request more moves until we do
                     setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
                 }
                 else {
@@ -169,60 +164,21 @@ var erisk = (function(my) {
     }
 
     /**
-     * Validate a move before applying it.
-     * This helps prevent errors during replay.
-     */
-    function validMove(moveData, state) {
-        try {
-            if (!moveData || !moveData.type) {
-                return false;
-            }
-
-            if (moveData.type === 'army-move') { // check if we have enough soldiers
-                const source = moveData.source;
-                const destination = moveData.destination;
-                const count = moveData.count;
-
-                if (source === undefined || destination === undefined || !count) {
-                    console.error(`Invalid army move: source=${source}, destination=${destination}, count=${count}`);
-                    return false;
-                }
-
-                // Check if the source region exists and has enough soldiers
-                const soldiersAtSource = state.soldiersAtRegion(source);
-                if (!soldiersAtSource || soldiersAtSource.length < count) {
-                    console.error(`Move validation failed: Not enough soldiers at source.
-                        Need ${count} but have ${soldiersAtSource ? soldiersAtSource.length : 0}`);
-                    return false;
-                }
-
-                // Check if the destination is a valid neighbor of the source
-                const sourceRegion = gameData.regions[source];
-                if (!sourceRegion || !sourceRegion.neighbors.includes(destination)) {
-                    console.error(`Move validation failed: Destination ${destination} is not a neighbor of source ${source}`);
-                    return false;
-                }
-            }
-
-            return true;
-
-        } catch (err) {
-            console.error(`Error validating move: ${err}`);
-            return false;
-        }
-    }
-
-    /**
-     * If a player has closed the browser or browser tab, then they should be eliminated. Something odd here.
+     * If a player has closed the browser or browser tab,
+     * then they should be eliminated. Something odd here.
      */
     function continueIfNextPlayerLeftGame(startState, moves) {
         const nextPlayer = startState.activePlayer();
         if (!nextPlayer) {
-            throw new Error("nextPlayer unexpectedly " + nextPlayer + ".\n startState=\n" + JSON.stringify(startState));
+            throw new Error("nextPlayer unexpectedly " + nextPlayer +
+                            ".\n startState=\n" + JSON.stringify(startState));
+        }
+        if (!nextPlayer.getName()) {
+            console.log("The nextPlayer's name was unexpected undefined: " + JSON.stringify(nextPlayer));
         }
         const next = startState.getHumanPlayerAfter(nextPlayer);
 
-        // We don't want every player to submit to the server because that would result in race conditions.
+        // We don't want every player to submit to server because that would result in race conditions.
         // Instead, only submit to server for AI players to play if this will be the next human player.
         if (next && !moves.length && domUtils.userid() == next.humanPlayer.name) {
             startState = eliminateNextPlayerIfTimeExpired(next, nextPlayer, startState);
@@ -236,49 +192,64 @@ var erisk = (function(my) {
         const nextHumanPlayer = next.humanPlayer;
         const numSkippedAIs = next.numSkippedAIs;
         const elapsedTimeSinceRequest = new Date() - requestStartTime;
-        console.log(`Waiting for ${nextPlayer.name} for ${elapsedTimeSinceRequest/1000}s. Next human player = ${next.humanPlayer.name}`);
+        if (!nextPlayer || !nextPlayer.getName()) {
+            console.error("Invalid player reference in elimination logic: " + JSON.stringify(nextPlayer));
+            requestStartTime = null;
+            return startState;
+        }
+        console.log(`Waiting for ${nextPlayer.getName()} for ${elapsedTimeSinceRequest/1000}s. ` +
+                    `Next human player = ${next.humanPlayer.name} after ${numSkippedAIs} AIs.`);
 
         // If this is true, then we waited too long for some other human player
-        const timeout = gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY + numSkippedAIs * AI_TURN_DELAY;
+        const timeout = gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY +
+                        numSkippedAIs * AI_TURN_DELAY;
+        console.log(`Timeout = ${timeout/1000}s. ` +
+                    `Elapsed time since request = ${elapsedTimeSinceRequest/1000}s. humanTimeLimit = ${gameData.humanTimeLimit}s`);
         if (elapsedTimeSinceRequest > timeout) {
             requestStartTime = null;
-            console.log("Time limit expired for " + nextPlayer.name + ". They will now be eliminated.");
+            console.log("Time limit expired for " + nextPlayer.getName() + ". They will now be eliminated.");
             const resignationMove = new ResignationMove();
-            startState = erisk.makeMove(startState, resignationMove);
-            resignationMove.stateId = startState.id;
-            resignationMove.gameId = startState.gameId;
+            const newState = erisk.makeMove(startState, resignationMove);
+            resignationMove.stateId = newState.id;
+            resignationMove.gameId = newState.gameId;
             localHumanMoves = [resignationMove];
-            console.log(`Persisting move where ${nextPlayer.name} resigned. Current player is now ${startState.activePlayer().name}`);
-            persistLocalMovesIfAnyAndPlayAi(startState, false);
+            console.log(`Persisting move where ${nextPlayer.getName()} resigned. ` +
+                        `Current player is now ${newState.activePlayer()}`);
+            persistLocalMovesIfAnyAndPlayAi(newState, false);
+            return newState;
         }
         return startState;
     }
 
     function showEndGame(state) {
         erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
-        erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
-            const winner = state.endResult;
-            const delay = 200;
-            const duration = 4000;
-            if (winner !== CONSTS.DRAWN_GAME) {
-                erisk.gameRenderer.showBanner(winner.colorEnd, `${winner.getName()} wins the game!`, delay, duration);
-            } else {
-                erisk.gameRenderer.showBanner('#333', "The game ends in a draw!", delay, duration);
-            }
+        erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => showFinishedGame(state));
+    }
 
-            erisk.gameRenderer.updateDisplay(state);
+    function showFinishedGame(state) {
+        const winner = state.endResult;
+        const delay = 200;
+        const duration = 4000;
+        if (winner !== CONSTS.DRAWN_GAME) {
+            erisk.gameRenderer.showBanner(winner.colorEnd,
+                   `${winner.getName()} wins the game!`, delay, duration);
+        } else {
+            erisk.gameRenderer.showBanner('#333', "The game ends in a draw!",
+                                          delay, duration);
+        }
 
-            $('turn-count').innerHTML = "Game complete";
-            const infoEl = $('info');
-            infoEl.innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
-            infoEl.style.background = '#555';
-            domUtils.hide('move-info');
-            erisk.gameRenderer.updateButtons([ {text: "New game"} ]);
+        erisk.gameRenderer.updateDisplay(state);
 
-            persistLocalMovesIfAnyAndPlayAi(state, true);
+        $('turn-count').innerHTML = "Game over";
+        const infoEl = $('info');
+        infoEl.innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
+        infoEl.style.background = '#555';
+        domUtils.hide('move-info');
+        erisk.gameRenderer.updateButtons([ {text: "New game"} ]);
 
-            uiCallbacks.setBuildCB(erisk.runSetupScreen);
-        });
+        persistLocalMovesIfAnyAndPlayAi(state, true);
+
+        uiCallbacks.setBuildCB(erisk.runSetupScreen);
     }
 
     return my;

@@ -3,8 +3,9 @@ var erisk = (function(my) {
 
     /**
      * This is the human "player controller".
-     * It picks moves using a human and some UI, and calls reportMoveCallback with an object describing the move once
-     * it is decided,
+     * It allows a human to picks moves using the UI, and calls reportMoveCallback
+     * with an object describing the move once it is decided.
+     * If the user takes too long, then "End turn" is called automatically.
      */
     const uiState = {};
 

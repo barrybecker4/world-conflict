@@ -23,7 +23,7 @@ var erisk = (function(my) {
         Logger.log(`About to seat player ${userId} at pos=${playerPosition} for game id ${game.gameId}`);
         Logger.log("existing game players = " + JSON.stringify(game.players));
         const player = game.players[playerPosition];
-        if (player.type !== CONSTS.PLAYER_HUMAN_OPEN) {
+        if (player.type == CONSTS.PLAYER_HUMAN_OPEN) {
             throw new Error(`Sorry - another player (${player.name}) sat there first! seat status = ${player.type}`);
         }
         player.name = userId;
