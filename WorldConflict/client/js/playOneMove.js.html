@@ -1,12 +1,12 @@
 <script>
 var erisk = (function(my) {
-    const $ = domUtils.$;
     const SERVER_REQUEST_DELAY = 2000;
-    const HUMAN_EXPIRATION_DELAY = 3 * SERVER_REQUEST_DELAY;
-    const AI_TURN_DELAY = 6000;
-    let localHumanMoves = [];
-    let firstTime = true;
-    let requestStartTime = null;
+    const synchronizationState = {
+        localHumanMoves: [],
+        firstTime: true,
+        requestStartTime: null,
+        syncInProgress: false
+    };
 
     /**
      * Deals with responding to user actions - whether human or AI.
@@ -17,241 +17,277 @@ var erisk = (function(my) {
             return; // game terminated
 
         erisk.oneAtaTime(CONSTS.MOVE_DELAY, function() {
-
             const player = state.activePlayer();
 
             if (player.name === domUtils.userid()) {
-                playMoveForCurrentPlayer(player, state, afterUndo);
+                handleHumanPlayerTurn(player, state, afterUndo);
             }
             else { // AI or other human players
                 erisk.setPreviousState(null); // only humans can undo
-                // Don't run the AI if AI is first and this is not the configuring player.
-                // That way, only the configuring player will ask the server to play the AIs.
-                const suppressAi = firstTime && player.personality &&
+
+                // Only the configuring player should initiate AI moves on first turn
+                const suppressAi = synchronizationState.firstTime && player.personality &&
                      (player.index === 0) && (configuringPlayer !== domUtils.userid());
-                persistLocalMovesIfAnyAndPlayAi(state, suppressAi);
+                persistMovesAndPoll(state, suppressAi);
             }
-            firstTime = false;
+            synchronizationState.firstTime = false;
             erisk.gameRenderer.updateDisplay(state);
         });
-    }
+    };
 
     /**
-     * This just stores the player's move(s) in localHumanMoves, since, because of undo,
+     * This stores the player's move(s) in localHumanMoves, since, because of undo,
      * it's not final until "end move" is clicked.
      */
-    function playMoveForCurrentPlayer(player, state, afterUndo) {
+    function handleHumanPlayerTurn(player, state, afterUndo) {
         if (!appState.isInGame()) {
             appState.setInGame();
         }
-        domUtils.show('resign'); // resigning is an option during the players turn
+        domUtils.show('resign');
 
         function moveCompletedCallback(move) {
             const newState = erisk.makeMove(state, move);
             move.stateId = newState.id;
             move.gameId = newState.gameId;
             if (afterUndo) {
-                localHumanMoves.pop();
+                synchronizationState.localHumanMoves.pop();
             }
-            localHumanMoves.push(move);
+            synchronizationState.localHumanMoves.push(move);
 
             if (newState.endResult) { // did the game end?
                 showEndGame(newState);
             } else {
-                erisk.setPreviousState(new GameState(state)); // only humans can undo
-                // Using setTimeout here avoids stack overflow, and also allows UI to render
-                setTimeout(() => my.playOneMove(newState), 0); // recursive call
+                // Save state for potential undo
+                erisk.setPreviousState(new GameState(state));
+                // Using setTimeout to avoid stack overflow with recursive calls
+                setTimeout(() => my.playOneMove(newState), 0);
             }
         }
-
         erisk.uiPickMove(player, state, moveCompletedCallback);
     }
 
     /**
-     * Add this player's moves (if any), then the AI's,
-     * then poll for all other players until our turn again.
+     * Sends pending moves to server and starts polling for other player moves
      */
-    function persistLocalMovesIfAnyAndPlayAi(state, suppressAi) {
-        if (!appState.isWaitingForPlayersToMove()) {
+    function persistMovesAndPoll(state, suppressAi) {
+        if (!appState.isWaitingForPlayersToMove())
             appState.setWaitingForPlayersToMove();
-        }
+
+        if (synchronizationState.syncInProgress)
+            return; // Don't allow multiple simultaneous server requests
+
+        synchronizationState.syncInProgress = true;
+
         google.script.run
-            .withFailureHandler(showError)
-            .persistLocalMovesIfAnyAndPlayAi(localHumanMoves, [state],
-                                             gameData.getSimpleObject(), suppressAi);
-        localHumanMoves = [];
-        setTimeout(() => replayMovesFromServer(state), SERVER_REQUEST_DELAY);
+            .withSuccessHandler(() => {
+                synchronizationState.localHumanMoves = []; // Reset local moves since they've been sent
+                synchronizationState.syncInProgress = false;
+                setTimeout(() => pollForMoves(state), CONSTS.MOVE_DELAY);
+            })
+            .withFailureHandler(error => {
+                showError(error);
+                synchronizationState.syncInProgress = false;
+                setTimeout(() => persistMovesAndPoll(state, suppressAi), SERVER_REQUEST_DELAY);
+            })
+            .persistLocalMovesIfAnyAndPlayAi(
+                synchronizationState.localHumanMoves,
+                [state],
+                gameData.getSimpleObject(),
+                suppressAi
+            );
     }
 
     /**
-     * Get all the moves since the specified state and replay them on
-     * this client until it is our move again. If a player has left the game,
-     * say by closing the browser, not by time expiry, then they should be eliminated.
-     * This is preferable to waiting forever for them to move.
+     * Poll server for moves by other players
      */
-    function replayMovesFromServer(state) {
-        if (state.endResult) return;
+    function pollForMoves(state) {
+        if (state.endResult)
+            return;  // Stop polling if game is over
 
-        if (requestStartTime == null) {
-            requestStartTime = new Date();
+        // Start tracking time for timeout detection
+        if (synchronizationState.requestStartTime == null) {
+            synchronizationState.requestStartTime = new Date();
         }
         if (!appState.isWaitingForPlayersToMove()) {
-            // don't allow clicking when moves being replayed
             appState.setWaitingForPlayersToMove();
-        }
-        if (CONSTS.DEBUG) {
-            console.log("Requesting replay moves from server starting at state.id = " +
-                        state.id);
         }
 
         google.script.run
-            .withSuccessHandler(getPlaybackHandler(state))
-            .withFailureHandler(showError)
+            .withSuccessHandler(handleServerResponse(state))
+            .withFailureHandler(error => {
+                showError(error);
+                setTimeout(() => pollForMoves(state), SERVER_REQUEST_DELAY); // try to recover
+            })
             .getGameMoves(state.gameId, state.id);
     }
 
-    function getPlaybackHandler(startState) {
-
-        /* @param moves - the moves that have been played since we last checked */
+    /**
+     * Handle server response with moves from other players
+     */
+    function handleServerResponse(startState) {
         return async function(moves) {
+            // First check if we need to handle a player timeout
+            let currentState = checkForPlayerTimeout(startState, moves);
 
-            startState = continueIfNextPlayerLeftGame(startState, moves);
-            const finalState = await replayMove(0, startState);
-
-            async function replayMove(i, state) {
-                if (i >= moves.length) {
-                    return state;
-                }
-
-                const theMove = moves[i];
-                const move = Move.reconstitute(theMove);
-                let nextState = erisk.makeMove(state, move);
-
-                if (CONSTS.DEBUG) {
-                    console.log(`applying move with stateId: ${theMove.stateId} to ` +
-                        `${state.id} to give ${nextState.id} (for ${state.activePlayer().getName()} )`);
-                }
-
-                erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
-                    if (CONSTS.DEBUG) {
-                        const name = state.activePlayer().getName();
-                        console.log(`${i}) Move found on server for ${name}: ${JSON.stringify(move)}`);
-                    }
-                    audio.playSound(CONSTS.SOUNDS.CLICK);
-                    erisk.gameRenderer.updateDisplay(nextState);
-                });
-
-                return await replayMove(i + 1, nextState);  // recurse
+            // If we detected a timeout, the state will be different
+            if (currentState !== startState) {
+                // Start a new polling cycle with the updated state
+                setTimeout(() => pollForMoves(currentState), 0);
+                return;
             }
 
-            if (finalState.endResult) {
-                showEndGame(finalState);
+            if (moves.length > 0) { // Apply all moves received from server
+                currentState = await replayServerMoves(currentState, moves);
             }
-            else {
-                if (finalState.activePlayer().getName() !== domUtils.userid()) {
-                    if (CONSTS.DEBUG) {
-                        console.log(`activePlayer ${finalState.activePlayer().getName()} ` +
-                            ` is not ${domUtils.userid()} so requesting more moves from sever`);
-                    }
-                    // If not yet advanced to the player on this client, request more moves until we do
-                    setTimeout(() => replayMovesFromServer(finalState), SERVER_REQUEST_DELAY);
-                }
-                else {
-                    setTimeout(() => my.playOneMove(finalState), 0);
-                }
+
+            if (currentState.endResult) { // game over
+                showEndGame(currentState);
             }
-        }
+            else if (currentState.activePlayer().getName() !== domUtils.userid()) {
+                // Still not our turn, continue polling for other moves
+                setTimeout(() => pollForMoves(currentState), SERVER_REQUEST_DELAY);
+            }
+            else { // It's our turn now!
+                setTimeout(() => my.playOneMove(currentState), 0);
+            }
+        };
     }
 
     /**
-     * If a player has closed the browser or browser tab,
-     * then they should be eliminated. Something odd here.
+     * Checks if a player has timed out and handles ot appropriately.
+     * @return {GameState} Either original state or new state after timeout
      */
-    function continueIfNextPlayerLeftGame(startState, moves) {
-        const nextPlayer = startState.activePlayer();
+    function checkForPlayerTimeout(state, moves) {
+        // If we received moves, reset timeout tracking
+        if (moves.length > 0) {
+            synchronizationState.requestStartTime = null;
+            return state;
+        }
+
+        // Get information about the current player
+        const nextPlayer = state.activePlayer();
         if (!nextPlayer) {
             throw new Error("nextPlayer unexpectedly " + nextPlayer +
                             ".\n startState=\n" + JSON.stringify(startState));
         }
-        if (!nextPlayer.getName()) {
-            console.log("The nextPlayer's name was unexpected undefined: " + JSON.stringify(nextPlayer));
-        }
-        const next = startState.getHumanPlayerAfter(nextPlayer);
 
-        // We don't want every player to submit to server because that would result in race conditions.
-        // Instead, only submit to server for AI players to play if this will be the next human player.
-        if (next && !moves.length && domUtils.userid() == next.humanPlayer.name) {
-            startState = eliminateNextPlayerIfTimeExpired(next, nextPlayer, startState);
-        } else {
-            requestStartTime = null;
-        }
-        return startState;
-    }
+        // Get information about the next human player (if any)
+        const next = state.getHumanPlayerAfter(nextPlayer);
 
-    function eliminateNextPlayerIfTimeExpired(next, nextPlayer, startState) {
-        const nextHumanPlayer = next.humanPlayer;
-        const numSkippedAIs = next.numSkippedAIs;
-        const elapsedTimeSinceRequest = new Date() - requestStartTime;
-        if (!nextPlayer || !nextPlayer.getName()) {
-            console.error("Invalid player reference in elimination logic: " + JSON.stringify(nextPlayer));
-            requestStartTime = null;
-            return startState;
+        // Only the next human player should handle timeouts
+        if (!next || domUtils.userid() != next.humanPlayer.name) {
+            return state;
         }
+
+        // Calculate how long we've been waiting
+        const elapsedTimeSinceRequest = new Date() - synchronizationState.requestStartTime;
+        const timeoutThreshold = calculateTimeoutThreshold(next.numSkippedAIs);
+
         console.log(`Waiting for ${nextPlayer.getName()} for ${elapsedTimeSinceRequest/1000}s. ` +
-                    `Next human player = ${next.humanPlayer.name} after ${numSkippedAIs} AIs.`);
+                    `Timeout threshold: ${timeoutThreshold/1000}s`);
 
-        // If this is true, then we waited too long for some other human player
-        const timeout = gameData.humanTimeLimit * 1000 + HUMAN_EXPIRATION_DELAY +
-                        numSkippedAIs * AI_TURN_DELAY;
-        console.log(`Timeout = ${timeout/1000}s. ` +
-                    `Elapsed time since request = ${elapsedTimeSinceRequest/1000}s. humanTimeLimit = ${gameData.humanTimeLimit}s`);
-        if (elapsedTimeSinceRequest > timeout) {
-            requestStartTime = null;
-            console.log("Time limit expired for " + nextPlayer.getName() + ". They will now be eliminated.");
+        // Check if player has exceeded time limit
+        if (elapsedTimeSinceRequest > timeoutThreshold) {
+            console.log(`Player ${nextPlayer.getName()} has timed out and will be eliminated`);
+            synchronizationState.requestStartTime = null;
+
+            // Create resignation move for timed-out player
             const resignationMove = new ResignationMove();
-            const newState = erisk.makeMove(startState, resignationMove);
+            const newState = erisk.makeMove(state, resignationMove);
             resignationMove.stateId = newState.id;
             resignationMove.gameId = newState.gameId;
-            localHumanMoves = [resignationMove];
-            console.log(`Persisting move where ${nextPlayer.getName()} resigned. ` +
-                        `Current player is now ${newState.activePlayer()}`);
-            persistLocalMovesIfAnyAndPlayAi(newState, false);
+
+            // Send resignation to server
+            synchronizationState.localHumanMoves = [resignationMove];
+            persistMovesAndPoll(newState, false);
             return newState;
         }
-        return startState;
+
+        return state;
     }
 
-    function showEndGame(state) {
-        erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
-        erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => showFinishedGame(state));
+    function calculateTimeoutThreshold(numSkippedAIs) {
+        const humanTimeLimit = gameData.humanTimeLimit * 1000 + 3000; // Add buffer
+        const aiTurnDelay = (numSkippedAIs || 0) * 6000; // 6 seconds per AI
+        return humanTimeLimit + aiTurnDelay;
     }
 
-    function showFinishedGame(state) {
-        const winner = state.endResult;
-        const delay = 200;
-        const duration = 4000;
-        if (winner !== CONSTS.DRAWN_GAME) {
-            erisk.gameRenderer.showBanner(winner.colorEnd,
-                   `${winner.getName()} wins the game!`, delay, duration);
-        } else {
-            erisk.gameRenderer.showBanner('#333', "The game ends in a draw!",
-                                          delay, duration);
+    /**
+     * Replay moves received from server with animations
+     * @return {Promise<GameState>} Final state after applying all moves
+     */
+    async function replayServerMoves(state, moves) {
+        let currentState = state;
+
+        for (let i = 0; i < moves.length; i++) {
+            const moveData = moves[i];
+            const move = Move.reconstitute(moveData);
+
+            if (CONSTS.DEBUG) {
+                console.log(`${i+1}/${moves.length}) Applying move from server: ${JSON.stringify(move)}`);
+            }
+
+            const nextState = erisk.makeMove(currentState, move);
+
+
+            await new Promise(resolve => {
+                erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
+                    audio.playSound(CONSTS.SOUNDS.CLICK);
+                    erisk.gameRenderer.updateDisplay(nextState);
+                    resolve();
+                });
+            });
+
+            currentState = nextState;
         }
 
-        erisk.gameRenderer.updateDisplay(state);
-
-        $('turn-count').innerHTML = "Game over";
-        const infoEl = $('info');
-        infoEl.innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
-        infoEl.style.background = '#555';
-        domUtils.hide('move-info');
-        erisk.gameRenderer.updateButtons([ {text: "New game"} ]);
-
-        persistLocalMovesIfAnyAndPlayAi(state, true);
-
-        uiCallbacks.setBuildCB(erisk.runSetupScreen);
+        return currentState;
     }
 
+    /**
+     * Shows end game UI and handles game completion
+     */
+    function showEndGame(state) {
+        erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => erisk.gameRenderer.updateDisplay(state));
+        erisk.oneAtaTime(CONSTS.MOVE_DELAY, () => {
+            const winner = state.endResult;
+            const delay = 200;
+            const duration = 4000;
+
+            // Show appropriate victory banner
+            if (winner !== CONSTS.DRAWN_GAME) {
+                erisk.gameRenderer.showBanner(
+                    winner.colorEnd,
+                    `${winner.getName()} wins the game!`,
+                    delay, duration
+                );
+            } else {
+                erisk.gameRenderer.showBanner(
+                    '#333',
+                    "The game ends in a draw!",
+                    delay, duration
+                );
+            }
+
+            // Update UI for game over state
+            erisk.gameRenderer.updateDisplay(state);
+            $('turn-count').innerHTML = "Game over";
+
+            const infoEl = $('info');
+            infoEl.innerHTML = domUtils.elem('p', {}, "Click the button below to start a new game.");
+            infoEl.style.background = '#555';
+
+            domUtils.hide('move-info');
+            erisk.gameRenderer.updateButtons([{text: "New game"}]);
+
+            // Send final state to server
+            persistMovesAndPoll(state, true);
+
+            // Set up callback for new game button
+            uiCallbacks.setBuildCB(erisk.runSetupScreen);
+        });
+    }
+    
     return my;
 }(erisk || {}));
 </script>
