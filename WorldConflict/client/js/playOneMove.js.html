@@ -78,6 +78,7 @@ var erisk = (function(my) {
 
         synchronizationState.syncInProgress = true;
 
+        console.log(`[SYNC] persistMovesAndPoll: Sending ${synchronizationState.localHumanMoves.length} local moves. stateId: ${state.id}, activePlayerIndex: ${state.playerIndex}, localMoves: ${JSON.stringify(synchronizationState.localHumanMoves)}`);
         google.script.run
             .withSuccessHandler(() => {
                 synchronizationState.localHumanMoves = []; // Reset local moves since they've been sent
@@ -126,12 +127,14 @@ var erisk = (function(my) {
      */
     function handleServerResponse(startState) {
         return async function(moves) {
+            console.log(`[SYNC] handleServerResponse: Received ${moves.length} moves from server. startStateId: ${startState.id}, startStatePlayerIndex: ${startState.playerIndex}, moves: ${JSON.stringify(moves)}`);
             // First check if we need to handle a player timeout
             let currentState = checkForPlayerTimeout(startState, moves);
 
             // If we detected a timeout, the state will be different
             if (currentState !== startState) {
                 // Start a new polling cycle with the updated state
+                console.log(`[SYNC] handleServerResponse: Player timeout processed locally, re-polling. currentStateId: ${currentState.id}, activePlayerIndex: ${currentState.playerIndex}`);
                 setTimeout(() => pollForMoves(currentState), 0);
                 return;
             }
@@ -145,9 +148,11 @@ var erisk = (function(my) {
             }
             else if (currentState.activePlayer().getName() !== domUtils.userid()) {
                 // Still not our turn, continue polling for other moves
+                console.log(`[SYNC] handleServerResponse: Not our turn. Polling again. currentStateId: ${currentState.id}, newActivePlayerIndex: ${currentState.playerIndex}`);
                 setTimeout(() => pollForMoves(currentState), SERVER_REQUEST_DELAY);
             }
             else { // It's our turn now!
+                console.log(`[SYNC] handleServerResponse: Now our turn. Calling playOneMove. currentStateId: ${currentState.id}, activePlayerIndex: ${currentState.playerIndex}`);
                 setTimeout(() => my.playOneMove(currentState), 0);
             }
         };
@@ -158,6 +163,8 @@ var erisk = (function(my) {
      * @return {GameState} Either original state or new state after timeout
      */
     function checkForPlayerTimeout(state, moves) {
+        // Consider adding this only if verbose logging is desired, as it can be frequent.
+        // console.log(`[SYNC] checkForPlayerTimeout: Checking for timeout. Current activePlayer: ${state.activePlayer().getName()} (index ${state.playerIndex}). Client: ${domUtils.userid()}. StateId: ${state.id}`);
         // If we received moves, reset timeout tracking
         if (moves.length > 0) {
             synchronizationState.requestStartTime = null;
@@ -188,19 +195,22 @@ var erisk = (function(my) {
 
         // Check if player has exceeded time limit
         if (elapsedTimeSinceRequest > timeoutThreshold) {
-            console.log(`Player ${nextPlayer.getName()} has timed out and will be eliminated`);
-            synchronizationState.requestStartTime = null;
+            console.log(`[SYNC] checkForPlayerTimeout: Player ${nextPlayer.getName()} (index ${nextPlayer.index}) TIMED OUT. Initiator: ${domUtils.userid()}. stateId: ${state.id}, activePlayerIndex: ${state.playerIndex}. Sending ResignationMove.`);
+            console.log(`Player ${nextPlayer.getName()} has timed out and will be eliminated. Sending resignation to server.`);
+            synchronizationState.requestStartTime = null; // Reset to prevent re-timeout
 
-            // Create resignation move for timed-out player
             const resignationMove = new ResignationMove();
-            const newState = erisk.makeMove(state, resignationMove);
-            resignationMove.stateId = newState.id;
-            resignationMove.gameId = newState.gameId;
+            // Properties like stateId and gameId for the move object itself are not standard
+            // and should be handled when erisk.makeMove is called upon receiving from server.
 
-            // Send resignation to server
             synchronizationState.localHumanMoves = [resignationMove];
-            persistMovesAndPoll(newState, false);
-            return newState;
+            // Send the resignation using the current state; the server will process it,
+            // and all clients (including this one) will update their state when they receive the processed move.
+            persistMovesAndPoll(state, false); 
+
+            // Return the original state. The game state will be updated when this client
+            // receives the resignation move back from the server via the polling mechanism.
+            return state; 
         }
 
         return state;
@@ -227,7 +237,9 @@ var erisk = (function(my) {
                 console.log(`${i+1}/${moves.length}) Applying move from server: ${JSON.stringify(move)}`);
             }
 
+            console.log(`[SYNC] replayServerMoves: Processing move ${i+1}/${moves.length}. moveData: ${JSON.stringify(moveData)}. Pre-makeMove stateId: ${currentState.id}, activePlayerIndex: ${currentState.playerIndex}`);
             const nextState = erisk.makeMove(currentState, move);
+            console.log(`[SYNC] replayServerMoves: Post-makeMove. nextStateId: ${nextState.id}, newActivePlayerIndex: ${nextState.playerIndex}`);
 
 
             await new Promise(resolve => {
