@@ -22,7 +22,6 @@ function getGameMoveTableAccessor() {
             Logger.log("err: " + err);
             Logger.log('No moves found for gameId ' + gameId);
         }
-        // Logger.log("retrieved " + moves.length + " moves");
         moves = moves.map(move => move.obj);
         return moves;
     }

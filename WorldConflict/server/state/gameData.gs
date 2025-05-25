@@ -24,6 +24,10 @@ var gameData = (function (my) {
         return my.players.filter(p => !p.personality).length;
     }
 
+    my.remainingHumanPlayers = function() {
+       return my.players.filter(p => !p.personality && !my.eliminatedPlayers[p.index]).length;
+    }
+
     // GAS does not allow transferring properties that have function type
     my.getSimpleObject = function() {
         return {

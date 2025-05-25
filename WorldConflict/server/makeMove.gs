@@ -14,6 +14,9 @@ var erisk = (function(my) {
     my.makeMove = function(state, move) {
         const newState = state.copy();
 
+        if (CONSTS.DEBUG) {
+            console.log("Making move: " + move.type + " for player " + newState.activePlayer().getName());
+        }
         if (move.isArmyMove()) {
             moveSoldiers(newState, move);
         } else if (move.isBuildMove()) {
@@ -75,10 +78,11 @@ var erisk = (function(my) {
 
     function showStepInAttackSequence(frame, state, incomingSoldiers, fromList, toList, toRegion) {
         if (frame.attackerCasualties) {
-            utils.range(0, frame.attackerCasualties).map(() => {
-                fromList.shift();
-                incomingSoldiers--;
-            });
+            const casualtiesToProcess = Math.min(frame.attackerCasualties, fromList.length);
+            if (casualtiesToProcess > 0) {
+                fromList.splice(0, casualtiesToProcess);  // Remove from start
+                incomingSoldiers -= casualtiesToProcess;
+            }
         }
         else if (frame.defenderCasualties) {
             const toOwner = state.owner(toRegion);

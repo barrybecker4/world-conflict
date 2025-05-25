@@ -43,13 +43,18 @@ class GameState {
      * Where nextHumanPlayer is the next non-eliminated human player after the specified player,
      * and numSkippedAIs is the number of AIs after the specified player, but before nextHumanPlayer (0, 1, or 2).
      * It's possible that there could be no next human player, if there is only one human playing.
-     * In that case, null is returned.
+     * In that case, that player is returned is returned.
      */
     getHumanPlayerAfter(player) {
         const next = { humanPlayer: null, numSkippedAIs: 0 };
         const playerCount = gameData.players.length;
         let idx = (player.index + 1) % playerCount;
         next.player = gameData.players[idx];
+        if (!player.personality && gameData.remainingHumanPlayers() === 1) {
+            console.log("No other human players other than the current player: " + player)
+            next.humanPlayer = player;
+            return next;
+        }
         while (next.player.personality || gameData.eliminatedPlayers[idx]) {
             if (next.player.personality) {
                 next.numSkippedAIs += 1;
