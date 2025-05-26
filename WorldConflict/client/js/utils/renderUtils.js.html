@@ -90,7 +90,7 @@ renderUtils = (function() {
 
     /** Maintains the aspect ratio of the game container */
     my.preserveAspect = function() {
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             const w = window.innerWidth;
             const h = window.innerHeight;
             const aspect = 1.65;
@@ -113,7 +113,7 @@ renderUtils = (function() {
                 // Scale font size based on height for better responsiveness
                 styles.fontSize = `${0.0154 * Math.pow(newHeight, 1.07)}px`;
             }
-        }, 0);
+        });
     };
 
     /** Creates a particle element and adds it to the DOM */
