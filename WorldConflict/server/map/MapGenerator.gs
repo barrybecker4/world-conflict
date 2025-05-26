@@ -88,7 +88,6 @@ class FastMapGenerator extends MapGenerator {
                     overlapBitmap = bounds.overlaps(regionMap);
                 }
                 if (overlapBitmap == 0) {
-                    //console.log("finally adding region for " + bounds);
                     regionCount = MapGenerator.addRegion(bounds, regionCount, regions, regionMap);
                     positionSet.addPositionsForBounds(bounds, minRegionSize, regionMap);
                 }

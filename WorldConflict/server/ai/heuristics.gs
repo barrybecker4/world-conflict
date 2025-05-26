@@ -61,7 +61,7 @@ var heuristics = (function(my) {
             var total = 0;
             while (queue.length) {
                 var entry = queue.shift();
-                // soldiers further away count for less (at least if your AI_MEAN)
+                // soldiers further away count for less (at least if you are AI_MEAN)
                 total += state.soldierCount(entry.region) * ((aiLevel > CONSTS.AI_RUDE) ? (2 + entry.depth) / 4 : 1);
                 visited.push(entry.region);
 

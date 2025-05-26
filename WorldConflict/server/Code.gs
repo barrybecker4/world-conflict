@@ -107,7 +107,7 @@ function getGameData(gameId, players) {
 
 /**
  * Persist the specified gameData into Firestore.
- * There seems to be some limit on the size of the first argument, so I made the payload the second arg.
+ * There is a limit on the size of the first argument, so I made the payload the second arg.
  */
 function persistGameData(unused, clientGameData) {
       CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
@@ -127,7 +127,6 @@ function playersDiffer(newPlayers, oldPlayers) {
     if (newPlayers.length !== oldPlayers.length) {
         const msg = 'The number of players were unexpectedly different\n.' +
                     ' newPlayers:\n' + JSON.stringify(newPlayers) + '\n oldPlayers:\n' + JSON.stringify(oldPlayers)
-        console.log(msg);
         throw new Error(msg);
     }
     return oldPlayers.some((player, i) => player.name != newPlayers[i].name || player.type != newPlayers[i].type);

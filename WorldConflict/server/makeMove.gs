@@ -137,20 +137,24 @@ var erisk = (function(my) {
 
         // if this didn't belong to us, it now does
         if (fromOwner !== toOwner) {
-            state.owners[toRegion] = fromOwner.index;
-            // mark as conquered to prevent moves from this region in the same turn
-            state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
-            // if there was a temple, reset its upgrades
-            const temple = state.temples[toRegion];
-            if (temple) {
-                delete temple.upgradeIndex;
-            }
-            // play sound, launch particles!
-            state.particleTempleRegion = gameData.regions[toRegion].index;
-            const color = fromOwner.highlightStart;
-            state.floatingText = [{regionIdx: toRegion, color, text: "Conquered!", width: 7}];
-            state.soundCue = numDefenders ? CONSTS.SOUNDS.VICTORY : CONSTS.SOUNDS.TAKE_OVER;
+            conquerRegion(fromOwner, toOwner, toRegion, state);
         }
+    }
+
+    function conquerRegion(fromOwner, toOwner, toRegion, state) {
+        state.owners[toRegion] = fromOwner.index;
+        // mark as conquered to prevent moves from this region in the same turn
+        state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);
+        // if there was a temple, reset its upgrades
+        const temple = state.temples[toRegion];
+        if (temple) {
+            delete temple.upgradeIndex;
+        }
+        // play sound, launch particles!
+        state.particleTempleRegion = gameData.regions[toRegion].index;
+        const color = fromOwner.highlightStart;
+        state.floatingText = [{regionIdx: toRegion, color, text: "Conquered!", width: 7}];
+        state.soundCue = numDefenders ? CONSTS.SOUNDS.VICTORY : CONSTS.SOUNDS.TAKE_OVER;
     }
 
     function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {

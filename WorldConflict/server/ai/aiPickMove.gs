@@ -1,5 +1,5 @@
 var erisk = (function(my) {
-    const MAX_THINK_TIME = 5000;
+    const MAX_THINK_TIME = 4000;
 
     my.aiPickMove = function(player, state, reportMoveCallback) {
 
@@ -45,7 +45,6 @@ var erisk = (function(my) {
         // This calculates whether we should build now - the further we are behind other players,
         // the more likely we are to spend a big chunk of our cash on it
         const decisionFactor = forceDisparity * soldierEagerness - relativeCost;
-
         return decisionFactor >= 0;
     }
 
