@@ -154,7 +154,7 @@ var erisk = (function(my) {
     }
 
     function battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
-        if (state.simulatingPlayer || !erisk.gameRenderer) return;
+        if (isOnServer(state)) return;
 
         const keyframe = state.copy();
         keyframe.soundCue = soundCue;
@@ -229,7 +229,7 @@ var erisk = (function(my) {
         if (state.turnIndex > gameData.turnCount) {
             endTheGame(state);
         }
-        else if (!state.simulatingPlayer && erisk.gameRenderer) {
+        else if (!isOnServer(state)) {
             // if this is not simulated (as during search), we'd like a "next turn" banner
             erisk.gameRenderer.showPlayerBanner(state.activePlayer());
         }
