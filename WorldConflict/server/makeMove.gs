@@ -137,11 +137,11 @@ var erisk = (function(my) {
 
         // if this didn't belong to us, it now does
         if (fromOwner !== toOwner) {
-            conquerRegion(fromOwner, toOwner, toRegion, state);
+            conquerRegion(fromOwner, toOwner, toRegion, numDefenders, state);
         }
     }
 
-    function conquerRegion(fromOwner, toOwner, toRegion, state) {
+    function conquerRegion(fromOwner, toOwner, toRegion, numDefenders, state) {
         state.owners[toRegion] = fromOwner.index;
         // mark as conquered to prevent moves from this region in the same turn
         state.conqueredRegions = (state.conqueredRegions || []).concat(toRegion);

@@ -47,14 +47,38 @@ var domUtils = (function(my) {
 
     // Adds a handler that will be called when a DOM element is clicked or tapped (touch events).
     my.onClickOrTap = function(elem, fn) {
-        elem.onclick = fn;
+        if (!elem) return;
+
+        let touchStarted = false;
+
+        // Handle mouse clicks for desktop
+        elem.onclick = function(event) {
+            if (!touchStarted) {
+                return fn(event);
+            }
+            touchStarted = false;
+            return false;
+        };
+
+        // Handle touch events for mobile
         elem.addEventListener('touchstart', function(event) {
-            event.preventDefault();
-            return fn(event);
-        }, {
-           passive: true
-         });
-    }
+            touchStarted = true;
+            // Don't prevent default here - it can interfere with scrolling
+        }, { passive: true });
+
+        elem.addEventListener('touchend', function(event) {
+            if (touchStarted) {
+                event.preventDefault();
+                touchStarted = false;
+                return fn(event);
+            }
+        }, { passive: false });
+
+        // Reset flag if touch is cancelled
+        elem.addEventListener('touchcancel', function(event) {
+            touchStarted = false;
+        }, { passive: true });
+    };
 
     // this will remove all event listeners on the specified element
     my.removeClickOrTap = function(elem) {
