@@ -68,9 +68,16 @@ var erisk = (function(my) {
     }
 
     function updateCardVisibility() {
-        // Slide to the current card
+        // reliable transform approach for mobile
         const offset = -currentCard * 100 / totalCards;
-        domUtils.setTransform($(DOM.TUTORIAL_CARD), `translate3d(${offset}%, 0, 0)`);
+        const tutorialCard = $(DOM.TUTORIAL_CARD);
+
+        // Force hardware acceleration and use more compatible transform
+        tutorialCard.style.webkitTransform = `translate3d(${offset}%, 0, 0)`;
+        tutorialCard.style.transform = `translate3d(${offset}%, 0, 0)`;
+
+        // Force repaint on mobile
+        tutorialCard.style.willChange = 'transform';
 
         // Show/hide navigation buttons based on position
         domUtils.showOrHide(DOM.PREV_BUTTON, currentCard > 0);

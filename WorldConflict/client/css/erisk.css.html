@@ -55,6 +55,9 @@ body {
 svg {
     width: 100%;
     height: 100%;
+    /* Fix for iOS Safari SVG rendering issues */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 #container {
@@ -442,7 +445,16 @@ p {
     width: 500%;
     height: 100%;
     transform: translate3d(0,0,0);
-    transition: all 0.4s;
+    transition: transform 0.4s ease-in-out;
+    /* Mobile fixes */
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-transition: -webkit-transform 0.4s ease-in-out;
+    will-change: transform;
+    /* Prevent text selection on mobile */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .card {
@@ -525,5 +537,86 @@ li {
 
 b {
     color: #ffa;
+}
+
+/* Mobile-specific fixes */
+@media screen and (max-width: 768px) {
+    body {
+        /* Prevent zoom on input focus */
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Fix for mobile scrolling issues */
+    #container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    /* Ensure map is visible on mobile */
+    #map {
+        position: absolute;
+        right: 0;
+        left: 20%;
+        top: 0;
+        bottom: 0;
+        /* Ensure hardware acceleration */
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    /* Make overview panel smaller on mobile */
+    #overview-panel {
+        left: 0.5%;
+        right: 78%;
+        font-size: 14px;
+    }
+
+    /* Fix button sizes for touch */
+    a {
+        min-height: 44px; /* Apple's recommended touch target size */
+        padding: 0.8em 1em;
+    }
+
+    .round-button {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2em;
+    }
+
+    /* Fix tutorial card text size */
+    .card {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .card h2 {
+        font-size: 1.2em;
+    }
+
+    /* Prevent zoom on double tap */
+    * {
+        touch-action: manipulation;
+    }
+}
+
+/* iPad specific fixes */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    /* Ensure proper scaling on iPad */
+    #container {
+        transform-origin: top left;
+        -webkit-transform-origin: top left;
+    }
+
+    /* Fix SVG rendering on iPad */
+    svg {
+        shape-rendering: optimizeSpeed;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
 }
 </style>
