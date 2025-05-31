@@ -184,6 +184,8 @@ var erisk = (function(my) {
 
     /**
      * Checks if a player has timed out and handles it appropriately.
+     * Players can timeout when they quit or close the browser tab,
+     * not when they simply have their move ended because their clock ran out.
      * @return {GameState} Either original state or new state after timeout
      */
     function checkForPlayerTimeout(state, moves) {
@@ -205,6 +207,7 @@ var erisk = (function(my) {
 
         // Only the next human player should handle timeouts
         if (!next || domUtils.userid() != next.humanPlayer.name) {
+            synchronizationState.requestStartTime = null;
             return state;
         }
 
@@ -236,8 +239,8 @@ var erisk = (function(my) {
     }
 
     function calculateTimeoutThreshold(numSkippedAIs) {
-        const humanTimeLimit = gameData.humanTimeLimit * 1000 + 3000; // Add buffer
-        const aiTurnDelay = (numSkippedAIs || 0) * 6000; // 6 seconds per AI
+        const humanTimeLimit = gameData.humanTimeLimit * 1000 + 4000; // Add buffer
+        const aiTurnDelay = (numSkippedAIs || 0) * 8000; // 8 seconds per AI
         return humanTimeLimit + aiTurnDelay;
     }
 
