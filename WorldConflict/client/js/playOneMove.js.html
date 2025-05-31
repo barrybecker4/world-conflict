@@ -1,6 +1,7 @@
 <script>
 var erisk = (function(my) {
     const SERVER_REQUEST_DELAY = 2000;
+
     const synchronizationState = {
         localHumanMoves: [],
         firstTime: true,
@@ -132,20 +133,16 @@ var erisk = (function(my) {
      * Handle server response with moves from other players
      */
     function handleServerResponse(startState) {
-
         return async function(moves) {
-            // First check if we need to handle a player timeout
             let currentState = checkForPlayerTimeout(startState, moves);
 
-            // If we detected a timeout, the state will be different
             if (currentState !== startState) {
                 console.log("Polling for moves after player timeout");
-                // Start a new polling cycle with the updated state
                 setTimeout(() => pollForMoves(currentState), 0);
                 return;
             }
 
-            if (moves.length > 0) { // Apply all moves received from server
+            if (moves.length > 0) {
                 if (CONSTS.DEBUG) {
                     console.log(`Retrieved ${moves.length} moves for ${currentState.activePlayer().getName()}. userid=${domUtils.userid()}`);
                     console.log("Moves: ", JSON.stringify(moves));
@@ -157,12 +154,24 @@ var erisk = (function(my) {
             if (currentState.endResult) { // game over
                 showEndGame(currentState);
             }
-            else if (currentState.activePlayer().getName() !== domUtils.userid()) {
-                // Still not our turn, continue polling for other moves
-                setTimeout(() => pollForMoves(currentState), SERVER_REQUEST_DELAY);
-            }
-            else { // It's our turn now!
-                setTimeout(() => my.playOneMove(currentState), 0);
+            else {
+                const activePlayer = currentState.activePlayer();
+                const isMyTurn = activePlayer.getName() === domUtils.userid();
+                const isAiPlayer = !!activePlayer.personality;
+
+                if (isMyTurn && !isAiPlayer) {
+                    // It's our turn now!
+                    setTimeout(() => my.playOneMove(currentState), 0);
+                }
+                else if (isAiPlayer) {
+                    // It's an AI player's turn - trigger more AI processing on server
+                    console.log(`AI player ${activePlayer.getName()} is active, triggering more AI moves`);
+                    persistMovesAndPoll(currentState, false); // This will trigger more AI processing
+                }
+                else {
+                    // It's another human player's turn, continue polling
+                    setTimeout(() => pollForMoves(currentState), SERVER_REQUEST_DELAY);
+                }
             }
         };
     }

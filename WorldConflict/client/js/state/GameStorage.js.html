@@ -73,20 +73,17 @@ class GameStorage {
         return this.isSetupValidObj(this.gameSetup);
     }
 
+    // A game is valid if there are at least 2 players
     isSetupValidObj(setup) {
         if (!setup || !setup.playerTypes) {
             return false;
         }
 
-        let numSetPlayers = 0;
         const enabledPlayers = setup.playerTypes.reduce((count, playerType) => {
-            if (playerType === CONSTS.PLAYER_HUMAN_SET) {
-                numSetPlayers++;
-            }
             return (playerType !== CONSTS.PLAYER_OFF) ? count + 1 : count;
         }, 0);
 
-        return enabledPlayers > 1 && numSetPlayers > 0;
+        return enabledPlayers >= 2;
     }
 
     getDefaultSetup() {

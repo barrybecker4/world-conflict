@@ -41,22 +41,31 @@ var GameStorageTests = (function (my) {
             assert.equal(newStorage.gameSetup.sound, false, "Should retrieve stored sound setting");
         });
 
-        QUnit.test("Setup validation", function(assert) {
-            // Valid setup (from default)
-            const validSetup = this.storage.getDefaultSetup();
-            assert.ok(this.storage.isSetupValidObj(validSetup), "Default setup should be valid");
+        QUnit.test("Setup validation works", async function(assert) {
+            const done = assert.async();
+            const gameStorage = new GameStorage();
+            await gameStorage.waitForInitialization();
 
-            // Invalid setup - no enabled players
-            const invalidSetup1 = { ...validSetup, playerTypes: [CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF] };
-            assert.notOk(this.storage.isSetupValidObj(invalidSetup1), "Setup with no enabled players should be invalid");
+            assert.ok(gameStorage.isSetupValid(), "Default setup should be valid");
 
-            // Invalid setup - no human players
-            const invalidSetup2 = { ...validSetup, playerTypes: [CONSTS.PLAYER_AI, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF] };
-            assert.notOk(this.storage.isSetupValidObj(invalidSetup2), "Setup with no human players should be invalid");
+            // Make setup invalid - no enabled players
+            const invalidSetup = gameStorage.getDefaultSetup();
+            invalidSetup.playerTypes = [CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF];
+            assert.notOk(gameStorage.isSetupValidObj(invalidSetup), "Setup with no enabled players should be invalid");
 
-            // Invalid setup - only one player
-            const invalidSetup3 = { ...validSetup, playerTypes: [CONSTS.PLAYER_HUMAN_SET, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF] };
-            assert.notOk(this.storage.isSetupValidObj(invalidSetup3), "Setup with only one player should be invalid");
+            const aiOnlySetup = gameStorage.getDefaultSetup();
+            aiOnlySetup.playerTypes = [CONSTS.PLAYER_AI, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF];
+            assert.ok(gameStorage.isSetupValidObj(aiOnlySetup), "Setup with only AI players should be valid");
+
+            const onePlayerSetup = gameStorage.getDefaultSetup();
+            onePlayerSetup.playerTypes = [CONSTS.PLAYER_OFF, CONSTS.PLAYER_AI, CONSTS.PLAYER_OFF, CONSTS.PLAYER_OFF];
+            assert.notOk(gameStorage.isSetupValidObj(onePlayerSetup), "Setup with only one player is not valid");
+
+            const mixedPlayerSetup = gameStorage.getDefaultSetup();
+            mixedPlayerSetup.playerTypes = [CONSTS.PLAYER_OFF, CONSTS.PLAYER_AI, CONSTS.PLAYER_SET, CONSTS.PLAYER_SET];
+            assert.ok(gameStorage.isSetupValidObj(mixedPlayerSetup), "Setup with mix of players should be valid");
+
+            done();
         });
 
         QUnit.test("Reset to default setup", function(assert) {

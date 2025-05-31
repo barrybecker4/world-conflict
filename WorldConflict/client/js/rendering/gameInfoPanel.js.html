@@ -83,10 +83,18 @@ erisk.gameInfoPanel = (function() {
         let moveInfo = '';
 
         if (activePlayer.personality) {
-            moveInfo = elem('p', {}, `${activePlayer.getName()} is taking their turn.`);
+            // Show engaging message for AI players
+            const aiPlayerCount = gameData.players.filter(p => p.personality).length;
+            const totalPlayers = gameData.players.filter(p => p.type !== CONSTS.PLAYER_OFF).length;
+
+            if (aiPlayerCount === totalPlayers) {
+                moveInfo = elem('p', {}, `${activePlayer.getName()} is thinking... (AI only game)`);
+            } else {
+                moveInfo = elem('p', {}, `${activePlayer.getName()} is taking their turn...`);
+            }
         } else if (buildingMode) {
             const isOwnTemple = gameState.owner(regionIndex).index === activePlayer.index;
-            moveInfo = isOwnTemple ? 
+            moveInfo = isOwnTemple ?
                 elem('p', {}, 'Choose an upgrade to build.') : '';
         } else if (movingArmy) {
             moveInfo = elem('p', {}, 'Click on this region again to choose how many to move.') +

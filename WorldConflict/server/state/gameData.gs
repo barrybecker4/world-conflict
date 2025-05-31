@@ -44,15 +44,11 @@ var gameData = (function (my) {
     }
 
     my.isValid = function() {
-        let numSetPlayers = 0;
         const enabledPlayers = sequenceUtils.sum(my.players, function(player) {
-            if (player.type === CONSTS.PLAYER_HUMAN_SET) {
-                numSetPlayers++;
-            }
             return (player.type !== CONSTS.PLAYER_OFF) ? 1 : 0;
         });
-        console.log("gameData enabled players = " + enabledPlayers + " numSetPlayers = " + numSetPlayers);
-        return enabledPlayers > 1 && numSetPlayers > 0;
+        console.log("gameData enabled players = " + enabledPlayers);
+        return enabledPlayers >= 2;
     }
 
     return my;

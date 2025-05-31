@@ -173,13 +173,23 @@ async function makeAiMovesOnServer(state, clientGameData) {
     let player = gameData.players[newState.playerIndex];
     Logger.log("Making AI moves for " + JSON.stringify(player));
 
-    while (player.personality && !newState.endResult) {
+    // Process AI moves in batches, but keep processing until we hit a human or game ends
+    const MAX_AI_MOVES_PER_BATCH = 7;
+    let aiMovesProcessed = 0;
+
+    while (player.personality && !newState.endResult && aiMovesProcessed < MAX_AI_MOVES_PER_BATCH) {
         newState = await makeAndSaveMove(player, newState);
+        aiMovesProcessed++;
+
         if (CONSTS.DEBUG)
-            Logger.log(`new newState playerIndex=${newState.playerIndex} = ${newState.id}`);
+            Logger.log(`AI move ${aiMovesProcessed}: newState playerIndex=${newState.playerIndex} = ${newState.id}`);
+
         player = gameData.players[newState.playerIndex];
     }
+
+    Logger.log(`Processed ${aiMovesProcessed} AI moves in this batch. Next player: ${player.getName()}, is AI: ${!!player.personality}`);
 }
+
 
 async function makeAndSaveMove(player, state) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
