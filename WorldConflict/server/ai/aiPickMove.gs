@@ -1,5 +1,4 @@
 var erisk = (function(my) {
-    const MAX_THINK_TIME = 4000;
 
     my.aiPickMove = function(player, state, reportMoveCallback) {
 
@@ -22,7 +21,7 @@ var erisk = (function(my) {
         const depth = state.movesRemaining || 1;
 
         // use a min-max search to find the best move looking a few steps forward
-        erisk.miniMaxSearch(player, state, depth, reportMoveCallback, MAX_THINK_TIME);
+        erisk.miniMaxSearch(player, state, depth, reportMoveCallback, CONSTS.MAX_THINK_TIME);
     }
 
     function shouldBuildSoldier(player, state) {

@@ -182,6 +182,7 @@ async function makeAiMovesOnServer(state, clientGameData) {
 }
 
 async function makeAndSaveMove(player, state) {
+    CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     let promise = new Promise(function(resolve, reject) {
         erisk.aiPickMove(player, state, resolve);
     });

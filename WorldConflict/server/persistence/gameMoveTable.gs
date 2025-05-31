@@ -73,13 +73,14 @@ function getGameMoveTableAccessor() {
 
     /**
      * Cleanup any moves that are not associated with a game configuration.
+     * This could be made more efficient if only Firestore were to support batch deletes.
      */
     function cleanupOrphanedMoves() {
         const GAME_CONFIGURATION_TABLE = "gameConfigurations";
 
         try {
             const moves = firestore.query(GAME_MOVE_TABLE)
-                .Limit(10)
+                .Limit(100)
                 .Execute();
 
             Logger.log(`Retrieved ${moves.length} moves.`);

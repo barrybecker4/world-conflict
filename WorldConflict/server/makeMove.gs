@@ -293,7 +293,6 @@ var erisk = (function(my) {
 
     // update region ownership and notify if any players are eliminated
     function updatePlayerRegions(state) {
-        console.log("update regions after move by " + state.activePlayer().getName());
         gameData.players.map((player) => {
             const totalSoldiers = sequenceUtils.sum(gameData.regions, function(region) {
                 return state.isOwnedBy(region, player) ? state.soldierCount(region) : 0;
