@@ -38,12 +38,6 @@ class UiCallbacks {
         this.setupMapSize = setupMapSize;
     }
 
-    moveEndTasks() {
-        domUtils.hide('resign');
-        erisk.stopExpirationTimer();
-        this.clearAll();
-    }
-
     /**
      * This is the handler that gets attached to most DOM elements.
      * Delegation through UI callbacks allows us to react differently depending on game-state.

@@ -20,34 +20,37 @@ var erisk = (function(my) {
             }
 
             if (typeof state.moveDecision.source == 'undefined' && region) {
-                // no move in progress - start a new move if this is legal
-                if (state.regionHasActiveArmy(player, region)) {
-                    setCleanState();
-                    state.moveDecision =
-                        new ArmyMove({ state, source: region.index, count: state.soldierCount(region) });
-                    state.moveDecision.buttons[0].hidden = false;
-                    state.moveDecision.highlitRegions = region.neighbors.concat(region.index);
+                // Create a potential army move command
+                const potentialCommand = new ArmyMoveCommand(
+                    state,
+                    player,
+                    region.index,
+                    null, // destination not yet selected
+                    state.soldierCount(region)
+                );
+
+                // Pre-validate source selection
+                const validation = potentialCommand.validateSource();
+                if (validation.valid) {
+                    state.moveDecision = {
+                        source: region.index,
+                        count: state.soldierCount(region),
+                        highlitRegions: region.neighbors.concat(region.index)
+                    };
                 }
             } else if (region) {
-                // we already have a move in progress
-                let moveDecision = state.moveDecision;
-                // what region did we click?
-                if (region.index === moveDecision.source) {
-                    // If move in progress - don't do this - it will mess things up.
-                    // Tweak number of selected soldiers in the region we are moving from.
-                    moveDecision.count = moveDecision.count % state.soldierCount(region) + 1;
-                }
-                else if (gameData.regions[moveDecision.source].neighbors.indexOf(region.index) > -1) {
-                    // one of the neighbors - let's finalize the move
-                    uiCallbacks.clearAll();
-                    moveDecision.setDestination(region.index, state);
-                    return reportMoveCallback(moveDecision);
-                }
-                else {
-                    // some random region - cancel move
-                    setCleanState();
-                }
+                const command = new ArmyMoveCommand(
+                    state, player, state.moveDecision.source,
+                    region.index, state.moveDecision.count
+                );
+
+                reportMoveCallback(command);
             }
+            else {
+                // some random region - cancel move
+                setCleanState();
+            }
+
             erisk.gameRenderer.updateDisplay(state);
         });
 
@@ -58,13 +61,17 @@ var erisk = (function(my) {
             const temple = state.temples[region.index];
             const templeOwner = state.owner(temple.regionIndex);
             if (templeOwner) {
-                state.moveDecision = new BuildMove({
+                // Instead of creating a BuildMove, we prepare for BuildUpgradeCommand
+                // But we don't create the command yet - we need to know which upgrade first
+                state.moveDecision = {
+                    type: 'build',
+                    regionIndex: temple.regionIndex,
                     buttons: makeUpgradeButtons(temple),
-                    regionIndex: temple.regionIndex
-                });
+                    // Store reference to player for command creation later
+                    player: player
+                };
                 erisk.gameRenderer.updateDisplay(state);
-            }
-            else {
+            } else {
                 renderUtils.showFloatingText({
                     regionIdx: temple.regionIndex,
                     text: "You do not own this temple",
@@ -86,30 +93,70 @@ var erisk = (function(my) {
         });
 
         uiCallbacks.setBuildCB(function(which) {
-            if (state.moveDecision && state.moveDecision.isBuildMove()) {
-                // build buttons handled here
+            if (state.moveDecision && state.moveDecision.type === 'build') {
+                // Build buttons (upgrades) handled here
                 if (which >= CONSTS.NUM_UPGRADES) {
+                    // "Done" button clicked - just clear state
                     setCleanState();
                 } else {
-                    // build an upgrade!
-                    state.moveDecision.upgradeIndex = which + 1;
-                    // if its a soldier, store UI state so it can be kept after the move is made
-                    if (state.moveDecision.upgradeIndex === CONSTS.UPGRADES.SOLDIER.index)
+                    // Create the BuildUpgradeCommand now that we know which upgrade
+                    const upgradeIndex = which + 1; // +1 because upgrades start at index 1
+                    const command = new BuildUpgradeCommand(
+                        state,
+                        player,
+                        state.moveDecision.regionIndex,
+                        upgradeIndex
+                    );
+
+                    // Validate before executing
+                    const validation = command.validate();
+                    if (!validation.valid) {
+                        // Show validation errors
+                        renderUtils.showFloatingText({
+                            regionIdx: state.moveDecision.regionIndex,
+                            text: validation.errors[0], // Show first error
+                            color: '#f88',
+                            width: 10,
+                        });
+                        return;
+                    }
+
+                    // Store UI state if it's a soldier purchase (for convenience)
+                    if (upgradeIndex === CONSTS.UPGRADES.SOLDIER.index) {
                         uiState[player.index] = gameData.regions[state.moveDecision.regionIndex];
-                    reportMoveCallback(state.moveDecision);
+                    }
+
+                    reportMoveCallback(command);
                 }
             } else {
-                // move action buttons handled here
+                // Move action buttons (Cancel/End turn) handled here
                 if (which === 1) {
-                    endTurn();
+                    // End turn - create EndMoveCommand
+                    const command = new EndMoveCommand(state, player);
+                    endTurn(command);
                 } else {
-                    setCleanState(); // cancel move
+                    // Cancel move
+                    setCleanState();
                 }
             }
         });
 
-        uiCallbacks.setUndoCB(() => erisk.performUndo(state));
-        uiCallbacks.setResignCB(() => reportMoveCallback(new ResignationMove()));
+        uiCallbacks.setUndoCB(() => {
+            const result = erisk.getCommandProcessor().undo();
+            if (result.success) {
+                erisk.performUndo(result.newState);
+            } else {
+                renderUtils.showFloatingText({
+                    regionIdx: state.activePlayer().homeRegion,
+                    text: result.error,
+                    color: '#f88',
+                    width: 10,
+                });
+            }
+        });
+
+        uiCallbacks.setResignCB(() => reportMoveCallback(new ResignationCommand(state, player)));
+
         setCleanState();
 
         if (gameData.numHumanPlayers() > 1 && gameData.humanTimeLimit != CONSTS.UNLIMITED_TIME) {
@@ -121,9 +168,9 @@ var erisk = (function(my) {
             delete uiState[player.index];
         }
 
-        function endTurn() {
+        function endTurn(command) {
             uiCallbacks.moveEndTasks();
-            reportMoveCallback(new EndMove());
+            reportMoveCallback(command);
         }
 
         function setCleanState() {

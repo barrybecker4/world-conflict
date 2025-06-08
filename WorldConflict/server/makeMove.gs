@@ -1,38 +1,5 @@
 var erisk = (function(my) {
 
-    /**
-     * Takes an existing state and a move, and returns a new game state with the move applied.
-     * The object returned is a copy, and the original is left untouched.
-     *
-     * Furthermore, this will show the move being applied visually. That means
-     * that the move must deterministically define the transition.
-     *
-     * @param state an existing game state
-     * @param move the move to be applied by the active players
-     * @returns {GameState} the game state after this move
-     */
-    my.makeMove = function(state, move) {
-        const newState = state.copy();
-
-        if (CONSTS.DEBUG) {
-            console.log("Making move: " + move.type + " for player " + newState.activePlayer().getName());
-        }
-        if (move.isArmyMove()) {
-            moveSoldiers(newState, move);
-        } else if (move.isBuildMove()) {
-            buildUpgrade(newState, move.regionIndex, move.upgradeIndex);
-        } else if (move.isEndMove()) {
-            nextTurn(newState);
-        } else if (move.isResignationMove()) {
-            eliminatePlayer(newState);
-            nextTurn(newState);
-        } else {
-            throw new Error("Unexpected move: " + move);
-        }
-
-        return afterMoveChecks(newState);
-    }
-
     // If there is a fight while moving, then add the fight sequence to the move.
     function moveSoldiers(state, move) {
         // avoid input while playing movement/fight (if on client)
@@ -279,17 +246,17 @@ var erisk = (function(my) {
     }
 
     // Updates that happen after each move (checking for players losing, etc.)
-    function afterMoveChecks(state) {
-        updatePlayerRegions(state);
-
-        // do we still have more than one player?
-        const gameStillOn = gameData.players.filter(player => state.regionCount(player)).length > 1;
-        if (!gameStillOn) {
-            // oh gosh, it's done - by elimination!
-            state.endResult = determineGameWinner(state);
-        }
-        return state;
-    }
+//    function afterMoveChecks(state) {
+//        updatePlayerRegions(state);
+//
+//        // do we still have more than one player?
+//        const gameStillOn = gameData.players.filter(player => state.regionCount(player)).length > 1;
+//        if (!gameStillOn) {
+//            // oh gosh, it's done - by elimination!
+//            state.endResult = determineGameWinner(state);
+//        }
+//        return state;
+//    }
 
     // update region ownership and notify if any players are eliminated
     function updatePlayerRegions(state) {

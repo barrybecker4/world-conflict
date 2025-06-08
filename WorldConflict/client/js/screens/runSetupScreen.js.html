@@ -275,6 +275,7 @@ var erisk = (function(my) {
         /** Starts the game with current configuration */
         function startGame() {
             startGameClicked = false;
+            erisk.resetCommandProcessor();
             erisk.prepareInGameUI();
             erisk.gameRenderer.updateDisplay(gameData.initialGameState);
             appState.setInGame();

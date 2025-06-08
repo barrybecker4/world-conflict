@@ -51,20 +51,37 @@ var erisk = (function(my) {
         }
         domUtils.show('resign');
 
-        function moveCompletedCallback(move) {
-            const newState = erisk.makeMove(state, move);
-            move.stateId = newState.id;
-            move.gameId = newState.gameId;
+        function moveCompletedCallback(command) {
+            const result = erisk.getCommandProcessor().process(command);
+
+            if (!result.success) {
+                const errorMessage = result.error || result.errors?.join(', ');
+                renderUtils.showFloatingText({
+                    regionIdx: state.activePlayer().homeRegion || 0,
+                    text: errorMessage,
+                    color: '#f88',
+                    width: 10,
+                });
+                return; // Don't proceed if command failed
+            }
+
+            const newState = result.newState;
+
+            const serializedCommand = command.serialize();
+            serializedCommand.stateId = newState.id;
+            serializedCommand.gameId = newState.gameId;
+
             if (afterUndo) {
                 synchronizationState.localHumanMoves.pop();
             }
-            synchronizationState.localHumanMoves.push(move);
+            synchronizationState.localHumanMoves.push(serializedCommand);
 
             if (newState.endResult) { // did the game end?
                 showEndGame(newState);
             } else {
                 // Save state for potential undo
                 erisk.setPreviousState(new GameState(state));
+
                 // Using setTimeout to avoid stack overflow with recursive calls
                 setTimeout(() => my.playOneMove(newState), 0);
             }
@@ -199,7 +216,7 @@ var erisk = (function(my) {
         const activePlayer = state.activePlayer();
         if (!activePlayer) {
             throw new Error("activePlayer unexpectedly " + activePlayer +
-                            ".\n startState=\n" + JSON.stringify(startState));
+                            ".\n startState=\n" + JSON.stringify(state));
         }
 
         // Get information about the next human player (if any)
@@ -223,14 +240,25 @@ var erisk = (function(my) {
             console.log(`Player ${activePlayer.getName()} has timed out and will be eliminated`);
             synchronizationState.requestStartTime = null;
 
-            // Create resignation move for timed-out player
-            const resignationMove = new ResignationMove();
-            const newState = erisk.makeMove(state, resignationMove);
-            resignationMove.stateId = newState.id;
-            resignationMove.gameId = newState.gameId;
+            // Create resignation command for timed-out player
+            const resignationCommand = new ResignationCommand(state, activePlayer);
+
+            // Process the resignation command
+            const result = erisk.getCommandProcessor().process(resignationCommand);
+
+            if (!result.success) {
+                console.error(`Failed to process timeout resignation: ${result.error || result.errors?.join(', ')}`);
+                // Return original state if we can't process the resignation
+                return state;
+            }
+
+            const newState = result.newState;
+            const serializedCommand = resignationCommand.serialize();
+            serializedCommand.stateId = newState.id;
+            serializedCommand.gameId = newState.gameId;
 
             // Send resignation to server
-            synchronizationState.localHumanMoves = [resignationMove];
+            synchronizationState.localHumanMoves = [serializedCommand];
             persistMovesAndPoll(newState, false);
             return newState;
         }
@@ -250,27 +278,32 @@ var erisk = (function(my) {
      */
     async function replayServerMoves(state, moves) {
         let currentState = state;
+        const commandProcessor = erisk.getCommandProcessor();
 
         for (let i = 0; i < moves.length; i++) {
             const moveData = moves[i];
-            const move = Move.reconstitute(moveData);
+            const command = deserializeMoveToCommand(moveData, currentState);
 
             if (CONSTS.DEBUG) {
-                console.log(`${i+1}/${moves.length}) Applying move from server: ${JSON.stringify(move)}`);
+                console.log(`${i+1}/${moves.length}) Applying move from server: ${JSON.stringify(moveData)}`);
             }
 
-            const nextState = erisk.makeMove(currentState, move);
+            const result = commandProcessor.process(command);
 
+            if (!result.success) {
+                console.error(`Failed to replay command: ${result.error || result.errors?.join(', ')}`);
+                throw new Error(`Failed to replay command at index ${i}: ${result.error}`);
+            }
 
             await new Promise(resolve => {
                 erisk.oneAtaTime(CONSTS.PLAYBACK_DELAY, () => {
                     audio.playSound(CONSTS.SOUNDS.CLICK);
-                    erisk.gameRenderer.updateDisplay(nextState);
+                    erisk.gameRenderer.updateDisplay(result.newState);
                     resolve();
                 });
             });
 
-            currentState = nextState;
+            currentState = result.newState;
         }
 
         return currentState;

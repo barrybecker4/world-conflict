@@ -183,17 +183,26 @@ async function makeAiMovesOnServer(state, clientGameData) {
 
 async function makeAndSaveMove(player, state) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
+    const commandProcessor = new CommandProcessor();
+
     let promise = new Promise(function(resolve, reject) {
         erisk.aiPickMove(player, state, resolve);
     });
 
-    const move = await promise;
-    const newState = erisk.makeMove(state, move);
+    const command = await promise;
+    const result = commandProcessor.process(command);
 
-    move.gameId = newState.gameId;
-    move.stateId = newState.id;
-    if (CONSTS.DEBUG)
-        Logger.log("picked AI move = \n" + JSON.stringify(move));
-    gameMoveTable.appendGameMove(move);
-    return newState;
+    if (!result.success)
+        throw new Error(`Move failed: ${result.error}`);
+
+    saveGameMove(command);
+    return result.newState;
+}
+
+function saveGameMove(command) {
+    const serializedCommand = command.serialize();
+    serializedCommand.gameId = result.newState.gameId;
+    serializedCommand.stateId = result.newState.id;
+
+    gameMoveTable.appendGameMove(serializedCommand);
 }

@@ -1,0 +1,21 @@
+<script>
+var erisk = (function(my) {
+    // Single global command processor instance
+    let globalCommandProcessor = null;
+
+    my.getCommandProcessor = function() {
+        if (!globalCommandProcessor) {
+            globalCommandProcessor = new CommandProcessor();
+        }
+        return globalCommandProcessor;
+    };
+
+    // Reset the command processor (useful when starting a new game)
+    my.resetCommandProcessor = function() {
+        globalCommandProcessor = new CommandProcessor();
+        return globalCommandProcessor;
+    };
+
+    return my;
+}(erisk || {}));
+</script>

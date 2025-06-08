@@ -8,23 +8,27 @@ var erisk = (function(my) {
     }
 
     my.undoEnabled = function(gameState) {
-        return previousState && // there is a state to return to
+        const commandProcessor = erisk.getCommandProcessor();
+        const hasUndoableCommands = commandProcessor &&
+                                    commandProcessor.executedCommands.length > 0;
+
+        return previousState && hasUndoableCommands &&  // there is a state to return to
             previousState.activePlayer() === gameState.activePlayer() &&  // it was actually our move
             !gameState.undoDisabled && // undo wasn't expressly disabled after a battle
             !gameState.activePlayer().personality; // no using Undo on behalf of the AI!
     }
 
     my.performUndo = function(currentState) {
-        if (!my.undoEnabled(currentState))
-            return;
+        if (!my.undoEnabled(currentState)) return;
+        const commandProcessor = erisk.getCommandProcessor();
+        const result = commandProcessor.undo();
 
-        // clear the callbacks from previous UI interaction
-        uiCallbacks.clearAll();
-
-        // roll-back the state to "previous"
-        let restoredState = previousState;
-        previousState = null;
-        erisk.playOneMove(restoredState, true);
+        if (result.success) {
+            uiCallbacks.clearAll();
+            erisk.playOneMove(result.newState, true);
+        } else {
+            console.error("Undo failed:", result.error);
+        }
     }
 
     return my;
