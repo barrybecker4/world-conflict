@@ -4,8 +4,7 @@ var erisk = (function(my) {
     /**
      * This is the human "player controller".
      * It allows a human to picks moves using the UI, and calls reportMoveCallback
-     * with an object describing the move once it is decided.
-     * If the user takes too long, then "End turn" is called automatically.
+     * with a Command object describing the move once it is decided.
      */
     const uiState = {};
 
@@ -15,39 +14,36 @@ var erisk = (function(my) {
             if (!appState.isInGame()) {
                 return;
             }
-            if (!region || state.moveDecision.isBuildMove()) {
+
+            // Clear state if no region or we're in build mode
+            if (!region || (state.moveDecision && state.moveDecision.type === 'build')) {
                 setCleanState();
+                return;
             }
 
-            if (typeof state.moveDecision.source == 'undefined' && region) {
-                // Create a potential army move command
-                const potentialCommand = new ArmyMoveCommand(
-                    state,
-                    player,
-                    region.index,
-                    null, // destination not yet selected
-                    state.soldierCount(region)
-                );
-
-                // Pre-validate source selection
-                const validation = potentialCommand.validateSource();
-                if (validation.valid) {
+            if (!state.moveDecision || typeof state.moveDecision.source === 'undefined') {
+                // First region selection - check if valid source
+                if (state.regionHasActiveArmy(player, region)) {
                     state.moveDecision = {
+                        type: 'army-move',
                         source: region.index,
                         count: state.soldierCount(region),
                         highlitRegions: region.neighbors.concat(region.index)
                     };
                 }
-            } else if (region) {
+            } else if (state.moveDecision.type === 'army-move') {
+                // Second region selection - create and execute command
                 const command = new ArmyMoveCommand(
-                    state, player, state.moveDecision.source,
-                    region.index, state.moveDecision.count
+                    state,
+                    player,
+                    state.moveDecision.source,
+                    region.index,
+                    state.moveDecision.count
                 );
 
                 reportMoveCallback(command);
-            }
-            else {
-                // some random region - cancel move
+            } else {
+                // Cancel move
                 setCleanState();
             }
 
@@ -58,17 +54,15 @@ var erisk = (function(my) {
             if (!appState.isInGame()) {
                 return;
             }
+
             const temple = state.temples[region.index];
             const templeOwner = state.owner(temple.regionIndex);
-            if (templeOwner) {
-                // Instead of creating a BuildMove, we prepare for BuildUpgradeCommand
-                // But we don't create the command yet - we need to know which upgrade first
+
+            if (templeOwner && templeOwner.index === player.index) {
                 state.moveDecision = {
                     type: 'build',
                     regionIndex: temple.regionIndex,
-                    buttons: makeUpgradeButtons(temple),
-                    // Store reference to player for command creation later
-                    player: player
+                    buttons: makeUpgradeButtons(temple)
                 };
                 erisk.gameRenderer.updateDisplay(state);
             } else {
@@ -82,24 +76,26 @@ var erisk = (function(my) {
         });
 
         uiCallbacks.setSoldierSelectedCB(function(soldier) {
-            // delegate to the region click handler, after finding out which region it is
+            // Find which region this soldier belongs to
             let soldierRegion = null;
-            gameData.regions.map(function(region) {
-                if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier))
+            gameData.regions.forEach(function(region) {
+                if (sequenceUtils.contains(state.soldiersAtRegion(region.index), soldier)) {
                     soldierRegion = region;
+                }
             });
-            if (soldierRegion)
+            if (soldierRegion) {
                 uiCallbacks.regionSelected(soldierRegion);
+            }
         });
 
         uiCallbacks.setBuildCB(function(which) {
             if (state.moveDecision && state.moveDecision.type === 'build') {
                 // Build buttons (upgrades) handled here
                 if (which >= CONSTS.NUM_UPGRADES) {
-                    // "Done" button clicked - just clear state
+                    // "Done" button clicked
                     setCleanState();
                 } else {
-                    // Create the BuildUpgradeCommand now that we know which upgrade
+                    // Create BuildUpgradeCommand
                     const upgradeIndex = which + 1; // +1 because upgrades start at index 1
                     const command = new BuildUpgradeCommand(
                         state,
@@ -108,20 +104,7 @@ var erisk = (function(my) {
                         upgradeIndex
                     );
 
-                    // Validate before executing
-                    const validation = command.validate();
-                    if (!validation.valid) {
-                        // Show validation errors
-                        renderUtils.showFloatingText({
-                            regionIdx: state.moveDecision.regionIndex,
-                            text: validation.errors[0], // Show first error
-                            color: '#f88',
-                            width: 10,
-                        });
-                        return;
-                    }
-
-                    // Store UI state if it's a soldier purchase (for convenience)
+                    // Store UI state for soldier purchases
                     if (upgradeIndex === CONSTS.UPGRADES.SOLDIER.index) {
                         uiState[player.index] = gameData.regions[state.moveDecision.regionIndex];
                     }
@@ -129,9 +112,9 @@ var erisk = (function(my) {
                     reportMoveCallback(command);
                 }
             } else {
-                // Move action buttons (Cancel/End turn) handled here
+                // Move action buttons (Cancel/End turn)
                 if (which === 1) {
-                    // End turn - create EndMoveCommand
+                    // End turn
                     const command = new EndMoveCommand(state, player);
                     endTurn(command);
                 } else {
@@ -146,21 +129,22 @@ var erisk = (function(my) {
             if (result.success) {
                 erisk.performUndo(result.newState);
             } else {
-                renderUtils.showFloatingText({
-                    regionIdx: state.activePlayer().homeRegion,
-                    text: result.error,
-                    color: '#f88',
-                    width: 10,
-                });
+                console.error("Undo failed:", result.error);
             }
         });
 
-        uiCallbacks.setResignCB(() => reportMoveCallback(new ResignationCommand(state, player)));
+        uiCallbacks.setResignCB(() => {
+            const command = new ResignationCommand(state, player);
+            reportMoveCallback(command);
+        });
 
         setCleanState();
 
         if (gameData.numHumanPlayers() > 1 && gameData.humanTimeLimit != CONSTS.UNLIMITED_TIME) {
-            erisk.startExpirationTimer(endTurn);
+            erisk.startExpirationTimer(() => {
+                const command = new EndMoveCommand(state, player);
+                endTurn(command);
+            });
         }
 
         if (uiState[player.index]) {
@@ -169,14 +153,20 @@ var erisk = (function(my) {
         }
 
         function endTurn(command) {
-            uiCallbacks.moveEndTasks();
+            if (erisk.stopExpirationTimer) {
+                erisk.stopExpirationTimer();
+            }
             reportMoveCallback(command);
         }
 
         function setCleanState() {
-            state.moveDecision = new Move();
-            state.moveDecision.highlitRegions =
-                gameData.regions.filter(region => state.regionHasActiveArmy(player, region)).map((r) => r.index);
+            // Instead of creating Move object, use plain object
+            state.moveDecision = {
+                type: 'none',
+                highlitRegions: gameData.regions
+                    .filter(region => state.regionHasActiveArmy(player, region))
+                    .map(r => r.index)
+            };
             erisk.gameRenderer.updateDisplay(state);
         }
 
@@ -184,47 +174,54 @@ var erisk = (function(my) {
             const templeOwner = state.owner(temple.regionIndex);
             if (!templeOwner) {
                 console.log("Could not find owner for temple with regionIndex = " + temple.regionIndex);
-                return;
+                return [];
             }
 
             const upgradeButtons = CONSTS.UPGRADES.slice(1).map(makeUpgradeButton);
 
             function makeUpgradeButton(upgrade) {
-                // current upgrade level (either the level of the temple or number of soldiers bought already)
-                const level = getCurrentUpgradeLevel(temple);
-
+                const level = getCurrentUpgradeLevel(upgrade);
                 const cost = upgrade.cost[level];
                 const text = utils.template(upgrade.name, CONSTS.TEMPLE_LEVELS[level]) +
                     domUtils.elem('b', {}, " (" + cost + "&#9775;)");
                 const description = utils.template(upgrade.desc, upgrade.level[level]);
-                let curUpgrade = CONSTS.UPGRADES[temple.upgradeIndex];
+                const curUpgrade = CONSTS.UPGRADES[temple.upgradeIndex];
 
                 const hidden =
-                    (upgrade === CONSTS.UPGRADES.REBUILD && !curUpgrade) // rebuild only available if temple is upgraded
-                    || isInconsistentUpgrade()
-                    || level >= upgrade.cost.length // highest level reached
-                    || level < state.rawUpgradeLevel(templeOwner, upgrade) // another temple has this upgrade already
-                    || templeOwner.index != player.index; // we're looking at an opponent's temple
+                    (upgrade === CONSTS.UPGRADES.REBUILD && !curUpgrade) ||
+                    isInconsistentUpgrade(upgrade, curUpgrade) ||
+                    level >= upgrade.cost.length ||
+                    level < state.rawUpgradeLevel(templeOwner, upgrade) ||
+                    templeOwner.index !== player.index;
 
-                return { text, description, disabled: cost > state.cashForPlayer(player), hidden };
+                return {
+                    text,
+                    description,
+                    disabled: cost > state.cashForPlayer(player),
+                    hidden
+                };
 
-                function getCurrentUpgradeLevel(temple) {
-                    return (temple.upgradeIndex === upgrade.index) ?
-                        temple.level + 1 : ((upgrade === CONSTS.UPGRADES.SOLDIER) ? (state.numBoughtSoldiers || 0) : 0);
+                function getCurrentUpgradeLevel(upgrade) {
+                    if (temple.upgradeIndex === upgrade.index) {
+                        return temple.level + 1;
+                    } else if (upgrade === CONSTS.UPGRADES.SOLDIER) {
+                        return state.numBoughtSoldiers || 0;
+                    }
+                    return 0;
                 }
 
-                // Check if the temple is already upgraded with a different upgrade
-                function isInconsistentUpgrade() {
-                    return curUpgrade && curUpgrade !== upgrade &&
-                        upgrade !== CONSTS.UPGRADES.SOLDIER &&
-                        upgrade !== CONSTS.UPGRADES.REBUILD;
+                function isInconsistentUpgrade(upgrade, currentUpgrade) {
+                    return currentUpgrade &&
+                           currentUpgrade !== upgrade &&
+                           upgrade !== CONSTS.UPGRADES.SOLDIER &&
+                           upgrade !== CONSTS.UPGRADES.REBUILD;
                 }
             }
 
             upgradeButtons.push({text: "Done"});
             return upgradeButtons;
         }
-    }
+    };
 
     return my;
 }(erisk || {}));

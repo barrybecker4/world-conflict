@@ -38,6 +38,12 @@ class UiCallbacks {
         this.setupMapSize = setupMapSize;
     }
 
+    moveEndTasks() {
+        if (erisk.stopExpirationTimer) {
+            erisk.stopExpirationTimer();
+        }
+    }
+
     /**
      * This is the handler that gets attached to most DOM elements.
      * Delegation through UI callbacks allows us to react differently depending on game-state.
@@ -48,18 +54,23 @@ class UiCallbacks {
             audio.playSound(CONSTS.SOUNDS.CLICK);
             callback(object);
         }
-        if (event.target.href && event.target.href !== "#") {
+        if (event && event.target && event.target.href && event.target.href !== "#") {
             return 1;
         }
 
-        event.stopPropagation();
+        if (event) {
+            event.stopPropagation();
+        }
         return 0;
     }
 
     clearAll() {
-         for (const prop in Object.keys(this)) {
-             delete this[prop];
-         }
+         const keysToDelete = Object.keys(this);
+         keysToDelete.forEach(prop => {
+             if (typeof this[prop] === 'function' && prop.endsWith('CB')) {
+                 delete this[prop];
+             }
+         });
     }
 }
 

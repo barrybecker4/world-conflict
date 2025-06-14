@@ -98,7 +98,8 @@ erisk.gameRenderer = (function() {
 
         // Update decision-related UI elements
         const decisionState = gameState.moveDecision;
-        my.updateButtons(decisionState && decisionState.buttons);
+        const buttons = decisionState && decisionState.buttons ? decisionState.buttons : null;
+        my.updateButtons(buttons);
 
         domUtils.showOrHide(DOM_IDS.UNDO_BUTTON, erisk.undoEnabled(gameState));
     }

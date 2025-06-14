@@ -195,11 +195,11 @@ async function makeAndSaveMove(player, state) {
     if (!result.success)
         throw new Error(`Move failed: ${result.error}`);
 
-    saveGameMove(command);
+    saveGameMove(command, result);
     return result.newState;
 }
 
-function saveGameMove(command) {
+function saveGameMove(command, result) {
     const serializedCommand = command.serialize();
     serializedCommand.gameId = result.newState.gameId;
     serializedCommand.stateId = result.newState.id;

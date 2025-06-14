@@ -1,21 +1,21 @@
 var erisk = (function(my) {
 
     class Node {
-        constructor(parent, activePlayer, depth, move, state, possibleMoves) {
+        constructor(parent, activePlayer, depth, command, state, possibleCommands) {
             this.parent = parent;
             this.activePlayer = activePlayer;
             this.depth = depth;
-            this.move = move;
+            this.command = command;
             this.state = state;
-            this.possibleMoves = possibleMoves;
-            this.bestMove = null;
+            this.possibleCommands = possibleCommands;
+            this.bestCommand = null;
             this.value = null;
         }
     }
 
-    my.miniMaxSearch = function(forPlayer, fromState, depth, moveCallback, maxTime) {
+    my.miniMaxSearch = function(forPlayer, fromState, depth, commandCallback, maxTime) {
         let simulation = fromState.copy(forPlayer);
-        let initialNode = new Node(null, forPlayer, depth, null, simulation, possibleMoves(fromState));
+        let initialNode = new Node(null, forPlayer, depth, null, simulation, possibleCommands(fromState));
         let currentNode = initialNode;
         let unitOfWork = 100;
         let timeStart = Date.now();
@@ -32,14 +32,14 @@ var erisk = (function(my) {
                 let elapsedTime = Date.now() - timeStart;
 
                 if (!currentNode || elapsedTime > maxTime) {  // this can be simplified
-                    // we're done, let's see what's the best move we found!
-                    let bestMove = initialNode.bestMove;
-                    if (!bestMove) {
-                        bestMove = new EndMove();
+                    // we're done, let's see what's the best command we found!
+                    let bestCommand = initialNode.bestCommand;
+                    if (!bestCommand) {
+                        bestCommand = new EndMoveCommand(fromState, forPlayer);
                     }
 
-                    // perform the move
-                    moveCallback(bestMove);
+                    // perform the command
+                    commandCallback(bestCommand);
                     return;
                 }
             }
@@ -55,14 +55,14 @@ var erisk = (function(my) {
             return minMaxReturnFromChild(node.parent, node);
         }
 
-        let move = node.possibleMoves.shift();
-        if (!move) {
+        let command = node.possibleCommands.shift();
+        if (!command) {
             // we're done analyzing here, return value to parent
             return minMaxReturnFromChild(node.parent, node);
         } else {
             // spawn a child node
-            let childState = erisk.makeMove(node.state, move);
-            return new Node(node, node.activePlayer, node.depth - 1, move, childState, possibleMoves(childState));
+            let childState = executeCommand(node.state, command);
+            return new Node(node, node.activePlayer, node.depth - 1, command, childState, possibleCommands(childState));
         }
     }
 
@@ -73,11 +73,11 @@ var erisk = (function(my) {
             let maximizingNode = activePlayer.index === node.activePlayer.index;
             // is the value from child better than what we have?
             let better =
-                !node.bestMove ||
+                !node.bestCommand ||
                 (maximizingNode && child.value > node.value) ||
                 (!maximizingNode && child.value < node.value);
             if (better) {
-                node.bestMove = child.move;
+                node.bestCommand = child.command;
                 node.value = child.value;
             }
         }
@@ -86,27 +86,26 @@ var erisk = (function(my) {
         return node;
     }
 
-    function possibleMoves(state) {
+    function possibleCommands(state) {
         // ending your turn is always an option
-        let moves = [new EndMove()];
+        let commands = [new EndMoveCommand(state, state.activePlayer())];
         let player = state.activePlayer();
 
         // are we out of move points?
         if (!state.movesRemaining)
-            return moves;
+            return commands;
 
-        // add the move to the list, if it isn't dumb or illegal
-        function addArmyMove(source, dest, soldierCount) {
-
+        // add the command to the list, if it isn't dumb or illegal
+        function addArmyCommand(source, dest, soldierCount) {
             // suicide moves, for example, are dumb.
             if (!state.isOwnedBy(dest, player) && state.soldierCount(dest) > soldierCount)
                 return;
 
             // not *obviously* dumb, so add it to the list!
-            moves.push(new ArmyMove({ state, source: source.index, destination: dest.index, count: soldierCount }));
+            commands.push(new ArmyMoveCommand(state, player, source.index, dest.index, soldierCount));
         }
 
-        // let's see what moves we have available
+        // let's see what commands we have available
         gameData.regions.map(function(region) {
            if (state.regionHasActiveArmy(player, region)) {
                // There is a move from here!
@@ -115,16 +114,30 @@ var erisk = (function(my) {
                let soldiers = state.soldierCount(region);
                region.neighbors.map(function(neighborIdx) {
                    let neighbor = gameData.regions[neighborIdx];
-                   addArmyMove(region, neighbor, soldiers);
+                   addArmyCommand(region, neighbor, soldiers);
                    if (soldiers > 1)
-                       addArmyMove(region, neighbor, Math.floor(soldiers / 2));
+                       addArmyCommand(region, neighbor, Math.floor(soldiers / 2));
                });
            }
         });
 
-        // return the list, shuffled (so there is no bias due to move generation order)
-        sequenceUtils.shuffle(moves);
-        return moves;
+        // return the list, shuffled (so there is no bias due to command generation order)
+        sequenceUtils.shuffle(commands);
+        return commands;
+    }
+
+    // Execute a command for AI simulation (similar to erisk.makeMove but for simulation)
+    function executeCommand(state, command) {
+        const commandProcessor = new CommandProcessor();
+        const result = commandProcessor.process(command);
+
+        if (!result.success) {
+            console.error("AI simulation command failed:", result.error);
+            // Return the original state if command failed
+            return state;
+        }
+
+        return result.newState;
     }
 
     return my;

@@ -126,6 +126,151 @@ class ArmyMoveCommand extends Command {
         state.movesRemaining--;
     }
 
+    processCombat(state, fromList, toList) {
+        let incomingSoldiers = this.count;
+        const numDefenders = toList.length;
+        state.undoDisabled = true;
+
+        // Show soldiers moved halfway for animation (if not simulating)
+        if (!state.simulatingPlayer) {
+            this.showSoldiersMovedHalfway(state, incomingSoldiers, fromList);
+        }
+
+        // Process each frame of the attack sequence
+        this.attackSequence.forEach(frame => {
+            incomingSoldiers = this.showStepInAttackSequence(frame, state, incomingSoldiers, fromList, toList);
+        });
+
+        // Check if defenders survived
+        if (toList.length > 0) {
+            incomingSoldiers = 0; // prevent anybody from moving in
+            this.showDefended(state);
+        }
+
+        // Reset attack status on remaining soldiers
+        this.resetAttackStatus(fromList);
+
+        // Move remaining soldiers if any
+        if (incomingSoldiers > 0) {
+            this.moveRemainingSoldiers(state, fromList, toList, incomingSoldiers, numDefenders);
+        }
+    }
+
+    transferSoldiers(state, fromList, toList, soldierCount) {
+        // Simple transfer for friendly moves
+        if (fromList.length < soldierCount) {
+            throw new Error(`Trying to move ${soldierCount} soldiers but only ${fromList.length} available`);
+        }
+
+        // Move soldiers from source to destination
+        utils.range(0, soldierCount).forEach(() => {
+            toList.push(fromList.shift());
+        });
+    }
+
+    showStepInAttackSequence(frame, state, incomingSoldiers, fromList, toList) {
+        if (frame.attackerCasualties) {
+            const casualtiesToProcess = Math.min(frame.attackerCasualties, fromList.length);
+            if (casualtiesToProcess > 0) {
+                fromList.splice(0, casualtiesToProcess);
+                incomingSoldiers -= casualtiesToProcess;
+            }
+        } else if (frame.defenderCasualties) {
+            const toOwner = state.owner(this.destination);
+            utils.range(0, frame.defenderCasualties).forEach(() => toList.shift());
+            if (toOwner && frame.martyrBonus) {
+                state.cash[toOwner.index] += frame.martyrBonus;
+            }
+        }
+
+        this.battleAnimationKeyframe(state, frame.delay, frame.soundCue, frame.floatingText);
+        return incomingSoldiers;
+    }
+
+    showSoldiersMovedHalfway(state, incomingSoldiers, fromList) {
+        // Mark soldiers as attacking for animation
+        fromList.slice(0, incomingSoldiers).forEach(soldier => {
+            soldier.attackedRegion = this.destination;
+        });
+        this.battleAnimationKeyframe(state);
+    }
+
+    showDefended(state) {
+        const toOwner = state.owner(this.destination);
+        state.soundCue = CONSTS.SOUNDS.DEFEAT;
+        const color = toOwner ? toOwner.highlightStart : '#fff';
+        state.floatingText = [{
+            regionIdx: this.destination,
+            color: color,
+            text: "Defended!",
+            width: 7
+        }];
+    }
+
+    resetAttackStatus(fromList) {
+        // Reset "attacking status" on soldiers
+        fromList.forEach(soldier => {
+            delete soldier.attackedRegion;
+        });
+    }
+
+    moveRemainingSoldiers(state, fromList, toList, incomingSoldiers, numDefenders) {
+        const fromOwner = state.owner(this.source);
+        const toOwner = state.owner(this.destination);
+
+        if (fromList.length < incomingSoldiers) {
+            throw new Error(`Trying to move ${incomingSoldiers} from ${this.source} to ${this.destination} but only ${fromList.length} available`);
+        }
+
+        // Move the soldiers
+        utils.range(0, incomingSoldiers).forEach(() => {
+            toList.push(fromList.shift());
+        });
+
+        // If this didn't belong to us before, it does now
+        if (fromOwner !== toOwner) {
+            this.conquerRegion(fromOwner, toOwner, numDefenders, state);
+        }
+    }
+
+    conquerRegion(fromOwner, toOwner, numDefenders, state) {
+        state.owners[this.destination] = fromOwner.index;
+
+        // Mark as conquered to prevent moves from this region in the same turn
+        state.conqueredRegions = (state.conqueredRegions || []).concat(this.destination);
+
+        // If there was a temple, reset its upgrades
+        const temple = state.temples[this.destination];
+        if (temple) {
+            delete temple.upgradeIndex;
+        }
+
+        // Add visual and audio effects
+        state.particleTempleRegion = gameData.regions[this.destination];
+        const color = fromOwner.highlightStart;
+        state.floatingText = [{
+            regionIdx: this.destination,
+            color: color,
+            text: "Conquered!",
+            width: 7
+        }];
+        state.soundCue = numDefenders ? CONSTS.SOUNDS.VICTORY : CONSTS.SOUNDS.TAKE_OVER;
+    }
+
+    battleAnimationKeyframe(state, delay, soundCue, floatingTexts) {
+        // Only add animation keyframes if not on server
+        if (this.isOnServer(state)) return;
+
+        const keyframe = state.copy();
+        keyframe.soundCue = soundCue;
+        keyframe.floatingText = floatingTexts;
+        erisk.oneAtaTime(delay || 500, () => erisk.gameRenderer.updateDisplay(keyframe));
+    }
+
+    isOnServer(state) {
+        return state.simulatingPlayer || !erisk.gameRenderer;
+    }
+
     undo() {
         if (!this.previousState) {
             throw new Error("Cannot undo - no previous state stored");
@@ -143,7 +288,6 @@ class ArmyMoveCommand extends Command {
         };
     }
 }
-
 
 //------------------------------------------------------------------------------------------------------------------
 class BuildUpgradeCommand extends Command {

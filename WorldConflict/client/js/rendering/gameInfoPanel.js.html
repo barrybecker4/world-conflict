@@ -21,8 +21,8 @@ erisk.gameInfoPanel = (function() {
      */
     my.render = function(gameState) {
         const decisionState = gameState.moveDecision;
-        const buildingMode = decisionState && decisionState.isBuildMove();
-        const movingArmy = decisionState && decisionState.isArmyMove();
+        const buildingMode = decisionState && decisionState.type === 'build';
+        const movingArmy = decisionState && decisionState.type === 'army-move';
         const regionIndex = decisionState && decisionState.regionIndex;
 
         renderTurnInfoSection(gameState, buildingMode, regionIndex);
