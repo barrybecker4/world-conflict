@@ -185,18 +185,42 @@ async function makeAndSaveMove(player, state) {
     CONSTS = CONSTS.PLAYERS ? CONSTS : CONSTS.initialize();
     const commandProcessor = new CommandProcessor();
 
-    let promise = new Promise(function(resolve, reject) {
-        erisk.aiPickMove(player, state, resolve);
-    });
+    try {
+        Logger.log("About to call aiPickMove for player: " + player.getName());
 
-    const command = await promise;
-    const result = commandProcessor.process(command);
+        let promise = new Promise(function(resolve, reject) {
+            try {
+                erisk.aiPickMove(player, state, resolve);
+            } catch (error) {
+                Logger.log("Error in aiPickMove: " + error.toString());
+                reject(error);
+            }
+        });
 
-    if (!result.success)
-        throw new Error(`Move failed: ${result.error}`);
+        const command = await promise;
+        Logger.log("AI picked command: " + command.constructor.name);
 
-    saveGameMove(command, result);
-    return result.newState;
+        const result = commandProcessor.process(command);
+        Logger.log("Command processing result: " + JSON.stringify({
+            success: result.success,
+            error: result.error,
+            hasNewState: !!result.newState
+        }));
+
+        if (!result.success) {
+            Logger.log("Command failed with errors: " + JSON.stringify(result.errors));
+            throw new Error(`Move failed: ${result.error || result.errors?.join(', ')}`);
+        }
+
+        saveGameMove(command, result);
+        Logger.log("Successfully saved AI move with stateId: " + result.newState.id);
+        return result.newState;
+
+    } catch (error) {
+        Logger.log("Error in makeAndSaveMove: " + error.toString());
+        Logger.log("Error stack: " + error.stack);
+        throw error;
+    }
 }
 
 function saveGameMove(command, result) {

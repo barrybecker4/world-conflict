@@ -125,12 +125,7 @@ var erisk = (function(my) {
         });
 
         uiCallbacks.setUndoCB(() => {
-            const result = erisk.getCommandProcessor().undo();
-            if (result.success) {
-                erisk.performUndo(result.newState);
-            } else {
-                console.error("Undo failed:", result.error);
-            }
+            erisk.performUndo(state);
         });
 
         uiCallbacks.setResignCB(() => {
@@ -160,12 +155,16 @@ var erisk = (function(my) {
         }
 
         function setCleanState() {
-            // Instead of creating Move object, use plain object
+            // Create proper move decision with action buttons
             state.moveDecision = {
                 type: 'none',
                 highlitRegions: gameData.regions
                     .filter(region => state.regionHasActiveArmy(player, region))
-                    .map(r => r.index)
+                    .map(r => r.index),
+                buttons: [
+                    { text: "Cancel" },
+                    { text: "End turn" }
+                ]
             };
             erisk.gameRenderer.updateDisplay(state);
         }

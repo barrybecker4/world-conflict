@@ -139,6 +139,7 @@ var erisk = (function(my) {
         google.script.run
             .withSuccessHandler(handleServerResponse(state))
             .withFailureHandler(error => {
+                console.error("Error polling for moves:", error);
                 showError(error);
                 setTimeout(() => pollForMoves(state), SERVER_REQUEST_DELAY); // try to recover
             })
@@ -151,6 +152,12 @@ var erisk = (function(my) {
     function handleServerResponse(startState) {
 
         return async function(moves) {
+            console.log(`Received ${moves.length} moves from server for game ${startState.gameId} after state ${startState.id}`);
+
+            if (moves.length > 0) {
+                console.log("Moves received:", moves.map(m => `${m.type} (stateId: ${m.stateId})`).join(', '));
+            }
+
             // First check if we need to handle a player timeout
             let currentState = checkForPlayerTimeout(startState, moves);
 
@@ -168,17 +175,22 @@ var erisk = (function(my) {
                     console.log("Moves: ", JSON.stringify(moves));
                 }
                 const uniqueMoves = deduplicateMoves(moves);
+                console.log(`Processing ${uniqueMoves.length} unique moves`);
                 currentState = await replayServerMoves(currentState, uniqueMoves);
+                console.log(`After replaying moves, current player is: ${currentState.activePlayer().getName()}`);
             }
 
             if (currentState.endResult) { // game over
+                console.log("Game ended, showing end game");
                 showEndGame(currentState);
             }
             else if (currentState.activePlayer().getName() !== domUtils.userid()) {
                 // Still not our turn, continue polling for other moves
+                console.log(`Still waiting for ${currentState.activePlayer().getName()}, continuing to poll`);
                 setTimeout(() => pollForMoves(currentState), SERVER_REQUEST_DELAY);
             }
             else { // It's our turn now!
+                console.log("It's our turn now!");
                 setTimeout(() => my.playOneMove(currentState), 0);
             }
         };

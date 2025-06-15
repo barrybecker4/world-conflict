@@ -292,29 +292,33 @@ class ArmyMoveCommand extends Command {
 //------------------------------------------------------------------------------------------------------------------
 class BuildUpgradeCommand extends Command {
 
-    constructor(gameState, player, regionIndex, buttons) {
+    constructor(gameState, player, regionIndex, upgradeIndex) {
         super(gameState, player);
         this.regionIndex = regionIndex;
-        this.buttons = buttons;
-        //this.upgradeIndex = upgradeIndex;
+        this.upgradeIndex = upgradeIndex;
         this.previousState = null;
     }
 
     validate() {
         const errors = [];
         const temple = this.gameState.temples[this.regionIndex];
-        const upgradeIndex = temple.upgradeIndex || -1;
         const upgrade = CONSTS.UPGRADES[this.upgradeIndex];
 
         if (!temple) {
             errors.push("No temple at this region");
+            return { valid: false, errors: errors };
+        }
+
+        if (!upgrade) {
+            errors.push("Invalid upgrade index: " + this.upgradeIndex);
+            return { valid: false, errors: errors };
         }
 
         if (!this.gameState.isOwnedBy(this.regionIndex, this.player)) {
             errors.push("You don't own this temple");
         }
 
-        const cost = this.calculateCost(upgradeIndex);
+        const cost = this.calculateCost();
         if (this.gameState.cash[this.player.index] < cost) {
             errors.push(`Insufficient faith. Need ${cost}, have ${this.gameState.cash[this.player.index]}`);
         }
@@ -325,19 +329,20 @@ class BuildUpgradeCommand extends Command {
         };
     }
 
-    calculateCost(upgradeIndex) {
-        if (this.upgradeIndex === -1) {
+    calculateCost() {
+        const upgrade = CONSTS.UPGRADES[this.upgradeIndex];
+        const temple = this.gameState.temples[this.regionIndex];
+
+        if (!upgrade || !temple) {
             return 0;
         }
-        const upgrade = CONSTS.UPGRADES[upgradeIndex];
-        const temple = this.gameState.temples[this.regionIndex];
 
         if (upgrade.name === CONSTS.UPGRADES.SOLDIER.name) {
             const numBought = this.gameState.numBoughtSoldiers || 0;
-            return upgrade.cost[numBought];
+            return upgrade.cost[numBought] || 0;
         } else {
-            const level = temple.level || 0;
-            return upgrade.cost[level];
+            const level = (temple.upgradeIndex === this.upgradeIndex) ? (temple.level || 0) + 1 : 0;
+            return upgrade.cost[level] || 0;
         }
     }
 
@@ -347,8 +352,8 @@ class BuildUpgradeCommand extends Command {
 
         const upgrade = CONSTS.UPGRADES[this.upgradeIndex];
         const temple = newState.temples[this.regionIndex];
-        const upgradeIndex = temple.upgradeIndex || -1;
-        const cost = this.calculateCost(upgradeIndex);
+        const cost = this.calculateCost();
+
         newState.cash[this.player.index] -= cost;
 
         if (upgrade.name === CONSTS.UPGRADES.SOLDIER.name) {
@@ -361,10 +366,10 @@ class BuildUpgradeCommand extends Command {
             temple.level = 0;
         } else {
             // Upgrade temple
-            if (temple.upgradeIndex === upgradeIndex) {
+            if (temple.upgradeIndex === this.upgradeIndex) {
                 temple.level++;
             } else {
-                temple.upgradeIndex = upgradeIndex;
+                temple.upgradeIndex = this.upgradeIndex;
                 temple.level = 0;
             }
 
@@ -372,6 +377,9 @@ class BuildUpgradeCommand extends Command {
             if (upgrade.name === CONSTS.UPGRADES.AIR.name) {
                 newState.movesRemaining++;
             }
+
+            // Add particles for upgrade celebration
+            newState.particleTempleRegion = gameData.regions[this.regionIndex];
         }
 
         return newState;
@@ -379,6 +387,14 @@ class BuildUpgradeCommand extends Command {
 
     undo() {
         return this.previousState;
+    }
+
+    serialize() {
+        return {
+            ...super.serialize(),
+            regionIndex: this.regionIndex,
+            upgradeIndex: this.upgradeIndex
+        };
     }
 }
 

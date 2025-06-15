@@ -126,18 +126,23 @@ var erisk = (function(my) {
         return commands;
     }
 
-    // Execute a command for AI simulation (similar to erisk.makeMove but for simulation)
+    // Execute a command for AI simulation
     function executeCommand(state, command) {
-        const commandProcessor = new CommandProcessor();
-        const result = commandProcessor.process(command);
+        try {
+            const commandProcessor = new CommandProcessor();
+            const result = commandProcessor.process(command);
 
-        if (!result.success) {
-            console.error("AI simulation command failed:", result.error);
-            // Return the original state if command failed
+            if (!result.success) {
+                console.error("AI simulation command failed:", result.error);
+                // Return the original state if command failed
+                return state;
+            }
+
+            return result.newState;
+        } catch (error) {
+            console.error("Error executing AI command:", error);
             return state;
         }
-
-        return result.newState;
     }
 
     return my;

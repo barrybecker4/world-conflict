@@ -1,9 +1,11 @@
+// These fixes should be applied to the aiPickMove.gs file
+
 var erisk = (function(my) {
 
     my.aiPickMove = function(player, state, reportMoveCallback) {
 
         if (!state.regionCount(player)) // skip players that are no longer in the game
-            return reportMoveCallback(new EndMove());
+            return reportMoveCallback(new EndMoveCommand(state, player));
 
         // check for upgrade options. Start first with soldiers.
         if (shouldBuildSoldier(player, state)) {
@@ -57,31 +59,31 @@ var erisk = (function(my) {
         // Do we still want something?
         const desiredUpgrade = findDesiredUpgrade(personality.preferredUpgrades, player, state);
         if (!desiredUpgrade)
-            return;
+            return null;
 
         const desiredLevel = state.rawUpgradeLevel(player, desiredUpgrade);
 
         // Can we afford it?
         if (state.cash[player.index] < desiredUpgrade.cost[desiredLevel])
-            return;
+            return null;
 
         // Do we have a place to build it?
         const possibleTemplesToUpgrade = state.templesForPlayer(player).filter(function(temple) {
             return (!temple.upgradeIndex && !desiredLevel) || (CONSTS.UPGRADES[temple.upgradeIndex] === desiredUpgrade);
         });
         if (!possibleTemplesToUpgrade.length)
-            return;
+            return null;
 
         // Pick the safest temple
         const temple = sequenceUtils.min(possibleTemplesToUpgrade, t => heuristics.templeDangerousness(state, t));
 
         // Build the upgrade!
-        return new BuildMove({ upgradeIndex: desiredUpgrade.index, regionIndex: temple.regionIndex });
+        return new BuildUpgradeCommand(state, player, temple.regionIndex, desiredUpgrade.index);
     }
 
     function buildSoldierAtBestTemple(player, state) {
         const temple = sequenceUtils.max(state.templesForPlayer(player), t => heuristics.templeDangerousness(state, t));
-        return new BuildMove({ upgradeIndex: CONSTS.UPGRADES.SOLDIER.index, regionIndex: temple.regionIndex });
+        return new BuildUpgradeCommand(state, player, temple.regionIndex, CONSTS.UPGRADES.SOLDIER.index);
     }
 
     /** @return the upgrade that is desired by this AI based on the preferredUpgrades array */
